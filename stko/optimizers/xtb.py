@@ -425,11 +425,10 @@ class XTB(Optimizer):
             self._run_xtb(xyz=xyz, out_file=out_file)
             # Check if the optimization is complete.
             coord_file = 'xtbhess.coord'
-            coord_exists = os.path.exists(coord_file)
             output_xyz = 'xtbopt.xyz'
             opt_complete = self._is_complete(out_file)
             if not opt_complete:
-                if coord_exists:
+                if os.path.exists(coord_file):
                     # The calculation is incomplete.
                     # Update mol from xtbhess.coord and continue.
                     mol = mol.with_structure_from_file(coord_file)
@@ -443,7 +442,7 @@ class XTB(Optimizer):
                     logging.warning(
                         f'Small negative frequencies present in {mol}.'
                     )
-                    return False
+                    return mol, False
             else:
                 # Optimization is complete.
                 # Update mol from xtbopt.xyz.
