@@ -3,10 +3,107 @@ GULP Metal Optimizer
 ==============
 
 #. :class:`.GulpMetalOptimizer`
-#. :class:`.GulpCGMetalOptimizer`
 #. :class:`.GulpMDMetalOpimizer`
 
 Wrappers for calculators within the :mod:`gulp` code.
+
+Examples
+--------
+
+While metal atoms are not required, UFF4MOF is a useful because it
+encompasses almost all chemical environments commonly found in
+metal-organic structures. Better forcefields exist for purely
+organic molecules! An interface with GULP is provided, which takes
+the forcefield types assigned by RDKit for non-metal atoms and
+user defined forcefield types for metal atoms to perform geometry
+optimisations.
+
+.. code-block:: python
+
+    import stk
+    import stko
+    from rdkit.Chem import AllChem as rdkit
+
+    # Produce a Pd+2 atom with 4 functional groups.
+    atom = rdkit.MolFromSmiles('[Pd+2]')
+    atom.AddConformer(rdkit.Conformer(atom.GetNumAtoms()))
+    palladium_atom = stk.BuildingBlock.init_from_rdkit_mol(atom)
+    atom_0, = palladium_atom.get_atoms(0)
+    palladium_atom = palladium_atom.with_functional_groups(
+        (stk.SingleAtom(atom_0) for i in range(4))
+    )
+
+    # Build a building block with two functional groups using
+    # the SmartsFunctionalGroupFactory.
+    bb1 = stk.BuildingBlock(
+        smiles=(
+            '[H]C1=NC([H])=C([H])C(C2=C([H])C([H])=C([H])C(C3=C('
+            '[H])C([H])=NC([H])=C3[H])=C2[H])=C1[H]'
+        ),
+        functional_groups=[
+            stk.SmartsFunctionalGroupFactory(
+                smarts='[#6]~[#7X2]~[#6]',
+                bonders=(1, ),
+                deleters=(),
+            ),
+        ],
+    )
+
+    # Build a metal-organic cage with dative bonds between
+    # GenericFunctionalGroup and SingleAtom functional groups.
+    cage1 = stk.ConstructedMolecule(
+        stk.cage.M2L4Lantern(
+            building_blocks={
+                palladium_atom: (0, 1),
+                bb1: (2, 3, 4, 5)
+            },
+            reaction_factory=stk.DativeReactionFactory(
+                stk.GenericReactionFactory(
+                    bond_orders={
+                        frozenset({
+                            stk.GenericFunctionalGroup,
+                            stk.SingleAtom
+                        }): 9
+                    }
+                )
+            )
+        )
+    )
+
+    # Perform Gulp optimisation with UFF4MOF.
+    # Use conjugate gradient method for a slower, but more stable
+    # optimisation.
+
+    gulp_opt = stko.GulpMetalOptimizer(
+        gulp_path='path/to/gulp',
+        metal_FF={46: 'Pd4+2'},
+        conjugate_gradient=True
+    )
+
+    # Assign the force field.
+    gulp_opt.assign_FF(cage1)
+    # Run optimization.
+    cage1 = gulp_opt.optimize(mol=cage1)
+
+Conformer searching is often useful, so we have provided an interface
+to MD simulations using GULP and UFF4MOF. A conformer search can be
+run at high temperature, where N conformers are extracted at constant
+intervals throughtout the simulation and optimized using UFF4MOF. The
+lowest energy conformer is returned. After these MD steps, it is
+crucial to reoptimize the resultant structure using a better forcefield
+or a more robust method!
+
+.. code-block:: python
+
+    gulp_MD = stko.GulpMDMetalOptimizer(
+        gulp_path='/home/atarzia/software/gulp-5.1/Src/gulp/gulp',
+        metal_FF={46: 'Pd4+2'},
+        temperature=700,
+        N_conformers=10,
+        opt_conformers=True,
+    )
+    gulp_MD.assign_FF(cage1)
+    cage1 = gulp_MD.optimize(cage1)
 
 """
 
@@ -41,16 +138,9 @@ class GulpMetalOptimizer(Optimizer):
 
     Notes
     -----
-    By default, :meth:`optimize` will run a restricted optimization
-    using constraints and the UFF4MOF. This forcefield requires some
-    explicit metal atom definitions, which are determined by the user.
-
-    Attributes
-    ----------
-
-
-    Examples
-    --------
+    By default, :meth:`optimize` will run an optimisation using the
+    UFF4MOF. This forcefield requires some explicit metal atom
+    definitions, which are determined by the user.
 
     """
 
@@ -58,14 +148,30 @@ class GulpMetalOptimizer(Optimizer):
         self,
         gulp_path,
         metal_FF,
+        conjugate_gradient=False,
         output_dir=None,
-        use_cache=False
     ):
         """
         Initialize a :class:`GulpMetalOptimizer` instance.
 
         Parameters
         ----------
+        gulp_path : :class:`str`
+            Path to GULP executable.
+
+        metal_FF : :class:`dict`
+            Dictionary with metal atom forcefield assignments.
+            Key: :class:`int` : atomic number.
+            Value: :class:`str` : UFF4MOF forcefield type.
+
+        conjugate_gradient : :class:``, optional
+            ``True`` to use Conjugate Graditent method.
+            Defaults to ``False``
+
+        output_dir : :class:`str`, optional
+            The name of the directory into which files generated during
+            the calculation are written, if ``None`` then
+            :func:`uuid.uuid4` is used.
 
         """
         self._gulp_path = gulp_path
@@ -413,7 +519,12 @@ class GulpMetalOptimizer(Optimizer):
 
         type_translator = self._type_translator()
 
-        top_line = 'opti conv noautobond fix molmec cartesian\n'
+        if self._conjugate_gradient:
+            top_line = (
+                'opti conj unit conv noautobond fix molmec cartesian\n'
+            )
+        else:
+            top_line = 'opti conv noautobond fix molmec cartesian\n'
 
         position_section = self._position_section(mol, type_translator)
         bond_section = self._bond_section(mol, metal_atoms)
@@ -480,9 +591,6 @@ class GulpMetalOptimizer(Optimizer):
                 atom, = mol.get_atoms(atomid)
                 atom_no = atom.get_atomic_number()
                 self.atom_labels[atomid][0] = self._metal_FF[atom_no]
-
-        # Metal binder atoms of specific forcefields.
-        # Check functional groups.
 
     def _run_gulp(self, in_file, out_file):
         cmd = f'{self._gulp_path} < {in_file}'
@@ -568,85 +676,15 @@ class GulpMetalOptimizer(Optimizer):
         return mol
 
 
-class GulpCGMetalOptimizer(GulpMetalOptimizer):
-    """
-    Applies forcefield optimizers that can handle metal centres.
-
-    Uses Conjugate Graditent method.
-
-    Notes
-    -----
-    By default, :meth:`optimize` will run a restricted optimization
-    using constraints and the UFF4MOF. This forcefield requires some
-    explicit metal atom definitions, which are determined by the user.
-
-    Attributes
-    ----------
-
-
-    Examples
-    --------
-
-    """
-
-    def _write_gulp_file(self, mol, metal_atoms, in_file, output_xyz):
-
-        type_translator = self._type_translator()
-
-        top_line = (
-            'opti conj unit conv noautobond fix molmec cartesian\n'
-        )
-
-        position_section = self._position_section(mol, type_translator)
-        bond_section = self._bond_section(mol, metal_atoms)
-        species_section = self._species_section(type_translator)
-
-        library = '\nlibrary uff4mof.lib\n'
-
-        output_section = (
-            '\n'
-            'terse inout potentials\n'
-            'terse inout cell\n'
-            'terse in structure\n'
-            'terse inout derivatives\n'
-            f'output xyz {output_xyz}\n'
-            # 'output movie xyz steps_.xyz\n'
-        )
-
-        with open(in_file, 'w') as f:
-            f.write(top_line)
-            f.write(position_section)
-            f.write(bond_section)
-            f.write(species_section)
-            f.write(library)
-            f.write(output_section)
-
-
 class GulpMDMetalOptimizer(GulpMetalOptimizer):
     """
     Applies forcefield MD that can handle metal centres.
 
     Notes
     -----
-    By default, :meth:`optimize` will run a restricted optimization
-    using constraints and the UFF4MOF. This forcefield requires some
-    explicit metal atom definitions, which are determined by the user.
-
-    Attributes
-    ----------
-
-
-    Examples
-    --------
-
-     :meth:`optimize` will convert the input mol to the lowest energy
-     conformer during MD. The conformers can be optimised before hand.
-     In some cases, it may be preferred to save all conformers and
-     analyse them separately. `save_conformers` provides this option.
-
-     EXAMPLE
-
-
+    By default, :meth:`optimize` will run a MD run using the UFF4MOF.
+    This forcefield requires some explicit metal atom definitions,
+    which are determined by the user.
 
     """
 
@@ -670,6 +708,54 @@ class GulpMDMetalOptimizer(GulpMetalOptimizer):
 
         Parameters
         ----------
+        gulp_path : :class:`str`
+            Path to GULP executable.
+
+        metal_FF : :class:`dict`
+            Dictionary with metal atom forcefield assignments.
+            Key: :class:`int` : atomic number.
+            Value: :class:`str` : UFF4MOF forcefield type.
+
+        output_dir : :class:`str`, optional
+            The name of the directory into which files generated during
+            the calculation are written, if ``None`` then
+            :func:`uuid.uuid4` is used.
+
+        integrator : :class:`str`, optional
+            Integrator for GULP to use.
+            Defaults to 'stochastic'.
+
+        ensemble : :class:`str`, optional
+            Ensemble for GULP to use.
+            Defaults to 'nvt'.
+
+        temperature : :class:`float`, optional
+            Temperature to run simulation at in Kelvin.
+            Defaults to 300.
+
+        equilbration : :class:`float`, optional
+            Time spent equilibrating system in ps.
+            Defaults to 1.0.
+
+        production : :class:`float`, optional
+            Time spent running production simulation of system in ps.
+            Defaults to 10.0.
+
+        timestep : :class:`float`, optional
+            Timestep of simulation in fs.
+            Defaults to 1.0.
+
+        N_conformers : :class:`int`, optional
+            Number of conformers to sample.
+            Defaults to 10.
+
+        opt_conformers : :class:`bool`, optional
+            Whether or not to optimise each conformer using UFF4MOF.
+            Defaults to ``True``.
+
+        save_conformers : :class:`bool`, optional
+            Whether or not to save to file each conformer.
+            Defaults to ``False``.
 
         """
         self._gulp_path = gulp_path
@@ -678,8 +764,8 @@ class GulpMDMetalOptimizer(GulpMetalOptimizer):
         self._integrator = integrator
         self._ensemble = ensemble
         self._temperature = temperature
-        self._equilbration = equilbration
-        self._production = production
+        self._equilbration = float(equilbration)
+        self._production = float(production)
         self._timestep = timestep
         self._N_conformers = N_conformers
         samples = float(self._production) / float(self._N_conformers)
