@@ -6,19 +6,6 @@ XTB Optimizers
 
 Wrappers for optimizers within the :mod:`xtb` code.
 
-.. code-block:: python
-
-    import stk
-    import stko
-
-    # Optimizers work on stk.Molecule.
-    polymer = stk.ConstructedMolecule(
-        building_blocks=[mol],
-        topology_graph=stk.polymer.Linear('A', [0], n=3)
-    )
-    etkdg = stk.ETKDG()
-    mol = etkdg.optimize(polymer)
-
 """
 
 import logging
