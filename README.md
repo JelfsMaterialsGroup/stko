@@ -1,2 +1,2 @@
-# stk_optimizers
-A collection of molecular optimisers and property calculators for use within stk.
+# stko
+Contains molecular optimizers and property calculators for use with stk.

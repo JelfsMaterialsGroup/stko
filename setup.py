@@ -8,10 +8,10 @@ setuptools.setup(
     version="0.0.1",
     author="Steven Bennett, Andrew Tarzia",
     author_email="s.bennett18@imperial.ac.uk",
-    description="Contains optimizers for use with stk.",
+    description="Contains molecular optimizers and property calculators for use with stk.",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/stevenbennett96/stk_optimizers-1",
+    url="https://github.com/JelfsMaterialsGroup/stko",
     packages=setuptools.find_packages(),
     classifiers=[
         "Programming Language :: Python :: 3",
