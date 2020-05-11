@@ -88,7 +88,7 @@ class Optimizer(Calculator):
 
         """
 
-        raise NotImplementedError()
+        ...
 
 
 class OptimizerSequence(Optimizer):
@@ -199,7 +199,6 @@ class TryCatchOptimizer(Optimizer):
 
         self._try_optimizer = try_optimizer
         self._catch_optimizer = catch_optimizer
-        super().__init__()
 
     def optimize(self, mol):
         """
