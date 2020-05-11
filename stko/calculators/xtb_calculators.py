@@ -2,7 +2,7 @@
 XTB Calculators
 ===============
 
-#. :class:`.XTBCalculator`
+#. :class:`.XTBEnergy`
 
 Wrappers for calculators within the :mod:`xtb` code.
 
@@ -24,7 +24,7 @@ from ..utilities import (
 logger = logging.getLogger(__name__)
 
 
-class XTBCalculator(Calculator):
+class XTBEnergy(Calculator):
     """
     Uses GFN-xTB [1]_ to calculate energy and other properties.
 
@@ -100,21 +100,26 @@ class XTBCalculator(Calculator):
     .. code-block:: python
 
         import stk
+        import stko
 
-        bb1 = stk.BuildingBlock('NCCNCCN', ['amine'])
-        bb2 = stk.BuildingBlock('O=CCCC=O', ['aldehyde'])
+        bb1 = stk.BuildingBlock('NCCNCCN', [stk.PrimaryAminoFactory()])
+        bb2 = stk.BuildingBlock('O=CCCC=O', [stk.AldehydeFactory()])
         polymer = stk.ConstructedMolecule(
-            building_blocks=[bb1, bb2],
-            topology_graph=stk.polymer.Linear("AB", [0, 0], 3)
+            stk.polymer.Linear(
+                building_blocks=(bb1, bb2),
+                repeating_unit="AB",
+                orientations=[0, 0],
+                num_repeating_units=1
+            )
         )
 
         # Optimize the constructed molecule so that it has a
         # reasonable structure.
-        optimizer = stk.OptimizerSequence(
-            stk.ETKDG(),
-            stk.XTB(xtb_path='/opt/gfnxtb/xtb', unlimited_memory=True)
+        opt = stko.OptimizerSequence(
+            stko.UFF(),
+            stko.XTB(xtb_path='/opt/gfnxtb/xtb', unlimited_memory=True)
         )
-        optimizer.optimize(polymer)
+        polymer = opt.optimize(polymer)
 
         # Calculate energy using GFN-xTB.
         xtb = stk.XTBEnergy(
@@ -153,7 +158,7 @@ class XTBCalculator(Calculator):
                 opt_level='verytight'
             )
         )
-        optimizer.optimize(polymer)
+        polymer = optimizer.optimize(polymer)
 
         # Calculate energy using GFN-xTB.
         xtb = stk.XTBEnergy(
@@ -187,7 +192,6 @@ class XTBCalculator(Calculator):
         charge=0,
         num_unpaired_electrons=0,
         unlimited_memory=False,
-        use_cache=False
     ):
         """
         Initializes a :class:`XTBEnergy` instance.
@@ -243,10 +247,6 @@ class XTBCalculator(Calculator):
             should be ``True``, however this may raise issues on
             clusters.
 
-        use_cache : :class:`bool`, optional
-            If ``True`` :meth:`energy` will not run twice on the same
-            molecule.
-
         """
         if solvent is not None:
             solvent = solvent.lower()
@@ -284,7 +284,6 @@ class XTBCalculator(Calculator):
         self.full_quadrupole_moments = {}
         self.total_free_energies = {}
         self.frequencies = {}
-        super().__init__(use_cache=use_cache)
 
     def _get_properties(self, mol, output_file):
         """
@@ -404,8 +403,8 @@ class XTBCalculator(Calculator):
 
         os.mkdir(output_dir)
         init_dir = os.getcwd()
-        xyz = join(output_dir, 'input_structure.xyz')
-        out_file = join(output_dir, 'energy.output')
+        xyz = os.path.join(output_dir, 'input_structure.xyz')
+        out_file = os.path.join(output_dir, 'energy.output')
         mol.write(xyz)
 
         try:
