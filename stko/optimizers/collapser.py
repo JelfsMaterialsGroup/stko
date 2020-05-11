@@ -44,7 +44,13 @@ class Collapser(Optimizer):
         )
 
         # Perform collapser optimisation.
-
+        output_dir = f'cage_opt_{cage_name}_coll'
+        optimizer = stko.Collapser(
+            step_size=0.05,
+            distance_cut=2.0,
+            scale_steps=True,
+        )
+        cage1 = optimizer.optimize(mol=cage1)
 
     """
 
@@ -54,25 +60,28 @@ class Collapser(Optimizer):
         step_size,
         distance_cut,
         scale_steps=True,
-        use_cache=False
     ):
         """
         Initialize a :class:`MetalOptimizer` instance.
 
         Parameters
         ----------
+        output_dir : :class:`str`
+            The name of the directory into which files generated during
+            the calculation are written, if ``None`` then
+            :func:`uuid.uuid4` is used.
 
-        output_dir - str
+        step_size : :class:`float`
+            The relative size of the step to take during collapse.
 
-        step size - float
+        distance_cut : :class:`float`
+            Distance between distinct building blocks to use as
+            threshold for halting collapse in Angstrom.
 
-        distance_cut - float
-            Angstrom value stopping condition.
-
-        scale_steps - bool
-            Whether to scale the step of each BB by its relative
-            distance from COM.
-
+        scale_steps : :class:`bool`, optional
+            Whether to scale the step of each distict building block
+            by their relative distance from the molecules centroid.
+            Defaults to ``True``
 
         """
 
@@ -174,12 +183,19 @@ class Collapser(Optimizer):
         mol : :class:`.Molecule`
             The molecule to be optimized.
 
-        BB_atom_ids : dict
+        BB_atom_ids : :class:`dict`
+            Atom ids (values) in each distinct building block in the
+            molecule. Keys are building block ids.
 
         Returns
         -------
-        BB_cent_vectors and BB_cent_scales.
-            Dicts
+        BB_cent_vectors : :class:`dict`
+            Vector from building block (Key is building block id) to
+            molecules centroid.
+
+        BB_cent_scales : :class:`dict`
+            Relative size of vector between building blocks and
+            centroid.
 
         """
 
