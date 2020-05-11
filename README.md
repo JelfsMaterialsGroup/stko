@@ -1,2 +1,2 @@
 # stko
-Contains molecule optimizers and property calculators for use with stk.
+Contains molecular optimizers and property calculators for use with stk.
