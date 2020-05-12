@@ -25,10 +25,20 @@ Wrappers for optimizers within the :mod:`rdkit` code.
 """
 
 import logging
+import numpy as np
 import rdkit.Chem.AllChem as rdkit
+from itertools import combinations
 
 from .optimizers import Optimizer
-
+from ..utilities import (
+    has_h_atom,
+    has_metal_atom,
+    get_metal_atoms,
+    get_metal_bonds,
+    to_rdkit_mol_no_metals,
+    get_atom_distance,
+    vector_angle
+)
 
 logger = logging.getLogger(__name__)
 
@@ -279,10 +289,10 @@ class MetalOptimizer(Optimizer):
     def __init__(
         self,
         metal_binder_distance,
-        metal_binder_fc,
-        binder_ligand_fc,
+        metal_binder_forceconstant,
+        binder_ligand_forceconstant,
         ignore_vdw,
-        rel_distance,
+        relative_distance,
         res_steps,
         max_iterations,
         do_long_opt,
@@ -296,11 +306,21 @@ class MetalOptimizer(Optimizer):
         Parameters
         ----------
 
-        force_constant : :class:`float`
-            Force constant to use for restricted metal-ligand bonds.
-            All other force constants are hard-coded/standard values.
+        metal_binder_distance : :class:`float`
+            Distance in Angstrom [fillin]
 
-        rel_distance : :class:`float`
+        metal_binder_forceconstant : :class:`float`
+            Force constant to use for restricted metal-ligand bonds.
+            In XX.
+
+        binder_ligand_forceconstant : :class:`float`
+        Force constant to use for restricted metal-ligand bonds.
+            In XX. [Fill in]
+
+        ignore_vdw : :class:`bool`
+            ``True`` to ignore van der Waals interactions in molecule.
+
+        relative_distance : :class:``
             Set the relative distance to optimise the metal-ligand
             bonds to.
 
@@ -309,25 +329,37 @@ class MetalOptimizer(Optimizer):
             is very short to ensure the structure does not over-react
             to the extreme forces on it.
 
-        restrict_all_bonds : :class:`bool`, optional
-            `True` to restrict all bonds except for ligand-FG bonds.
+        max_iterations : :class:`int`
+            Number of iteractions to run.
+
+        do_long_opt : :class:`bool`
+            ``True`` to do a long optimsation of the structure after
+            :attr:`max_iterations` short optimisations.
+
+        restrict_bonds : :class:`bool`, optional
+            ``True`` to restrict all bonds except for ligand-FG bonds.
+            Defaults to ``False``.
+
+        restrict_angles : :class:`bool`, optional
+            ``True`` to restrict all angles except for ligand-FG bonds.
+            Defaults to ``False``.
 
         restrict_orientation : :class:`bool`, optional
-            `True` to restrict metal complex FG angles relative to
-            topology centre of mass.
+            `True`` to restrict metal complex FG angles relative to
+            topology centre of mass. Defaults to ``False``.
 
         """
         self._metal_binder_distance = metal_binder_distance
-        self._metal_binder_fc = metal_binder_fc
-        self._binder_ligand_fc = binder_ligand_fc
+        self._metal_binder_forceconstant = metal_binder_forceconstant
+        self._binder_ligand_forceconstant = binder_ligand_forceconstant
         self._ignore_vdw = ignore_vdw
-        self._rel_distance = rel_distance
-        self._restrict_bonds = restrict_bonds
-        self._restrict_angles = restrict_angles
-        self._restrict_orientation = restrict_orientation
+        self._relative_distance = relative_distance
         self._res_steps = res_steps
         self._max_iterations = max_iterations
         self._do_long_opt = do_long_opt
+        self._restrict_bonds = restrict_bonds
+        self._restrict_angles = restrict_angles
+        self._restrict_orientation = restrict_orientation
 
     def get_input_constraints(
         self,
@@ -384,18 +416,17 @@ class MetalOptimizer(Optimizer):
 
         """
         constraints = {}
+        position_matrix = mol.get_position_matrix()
         # Bond constraints. Set to have a force constant of 1E2.
-        for bond in mol.bonds:
-            idx1 = bond.atom1.id
-            idx2 = bond.atom2.id
+        for bond in mol.get_bonds():
+            idx1 = bond.get_atom1().get_id()
+            idx2 = bond.get_atom2().get_id()
             if idx1 in ids_to_metals or idx2 in ids_to_metals:
                 continue
             # Do not restrict H atom distances.
-            if self.has_h(bond):
+            if has_h_atom(bond) or has_metal_atom(bond, metal_atoms):
                 continue
-            if self.has_M(bond, metal_atoms):
-                continue
-            length = mol.get_atom_distance(idx1, idx2)
+            length = get_atom_distance(position_matrix, idx1, idx2)
             constraints[bond] = {
                 'idx1': idx1,
                 'idx2': idx2,
@@ -408,10 +439,10 @@ class MetalOptimizer(Optimizer):
         # Add angle constraints to angles containing H atoms.
         # Set to have a force constant of 1E1, unless the angle
         # includes H atoms, then it has a force constant of 1E2.
-        for bonds in combinations(mol.bonds, r=2):
+        for bonds in combinations(mol.get_bonds(), r=2):
             bond1, bond2 = bonds
-            bond1_atoms = [bond1.atom1, bond1.atom2]
-            bond2_atoms = [bond2.atom1, bond2.atom2]
+            bond1_atoms = [bond1.get_atom1(), bond1.get_atom2()]
+            bond2_atoms = [bond2.get_atom1(), bond2.get_atom2()]
             pres_atoms = list(set(bond1_atoms + bond2_atoms))
             # If there are more than 3 atoms, implies two
             # independant bonds.
@@ -421,15 +452,15 @@ class MetalOptimizer(Optimizer):
             # if not self.has_h(bond1) and not self.has_h(bond2):
             #     continue
             # Do not want any metal containing bonds.
-            if any([self.has_M(i, metal_atoms) for i in bonds]):
+            if any([has_metal_atom(i, metal_atoms) for i in bonds]):
                 continue
             for atom in pres_atoms:
                 if atom in bond1_atoms and atom in bond2_atoms:
-                    idx2 = atom.id
+                    idx2 = atom.get_id()
                 elif atom in bond1_atoms:
-                    idx1 = atom.id
+                    idx1 = atom.get_id()
                 elif atom in bond2_atoms:
-                    idx3 = atom.id
+                    idx3 = atom.get_id()
             if not include_bonders:
                 # Do not restrict angles of bonds to atoms bonded to
                 # metals.
@@ -510,21 +541,27 @@ class MetalOptimizer(Optimizer):
 
         """
 
+        position_matrix = mol.get_position_matrix()
+
         # For bonds between ligand bonders and the rest of the ligand,
         # a weak force constant is applied to minimize to rel_distance.
         # This is the slow relaxation of the high-force bonds.
         if self._rel_distance is not None:
-            for bond in mol.bonds:
-                idx1 = bond.atom1.id
-                idx2 = bond.atom2.id
+            for bond in mol.get_bonds():
+                idx1 = bond.get_atom1().get_id()
+                idx2 = bond.get_atom2().get_id()
                 if idx1 in ids_to_metals or idx2 in ids_to_metals:
                     # Do not restrict H atom distances.
-                    if self.has_h(bond):
+                    if has_h_atom(bond):
                         continue
-                    if self.has_M(bond, metal_atoms):
+                    if has_metal_atom(bond, metal_atoms):
                         continue
                     # Add distance constraints in place of metal bonds.
-                    distance = mol.get_atom_distance(idx1, idx2)
+                    distance = get_atom_distance(
+                        position_matrix=position_matrix,
+                        atom1_id=idx1,
+                        atom2_id=idx2
+                    )
                     ff.UFFAddDistanceConstraint(
                         idx1=idx1,
                         idx2=idx2,
@@ -542,6 +579,214 @@ class MetalOptimizer(Optimizer):
         # reinstated.
         mol.update_from_rdkit_mol(edit_mol)
 
+    def apply_metal_centre_constraints(
+        self,
+        mol,
+        ff,
+        metal_bonds,
+        metal_atoms
+    ):
+        """
+        Applies UFF metal centre constraints.
+
+        Parameters
+        ----------
+        ff : :class:`rdkit.ForceField`
+            Forcefield to apply constraints to. Generally use UFF.
+
+        mol : :class:`.Molecule`
+            The molecule to be optimized.
+
+        metal_bonds : :class:`.list` of :class:`stk.Bond`
+            List of bonds including metal atoms.
+
+        metal_atoms : :class:`.list` of :class:`stk.Atom`
+            List of metal atoms.
+
+        Returns
+        -------
+        None : :class:`NoneType`
+
+        """
+        # Add a very weak force constraint on all metal-metal
+        # distances.
+        #
+        # for atoms in combinations(metal_atoms, r=2):
+        #     ff.UFFAddDistanceConstraint(
+        #         idx1=atoms[0].id,
+        #         idx2=atoms[1].id,
+        #         relative=True,
+        #         minLen=0.8,
+        #         maxLen=0.8,
+        #         forceConstant=0.25e1
+        #     )
+
+        # Add constraints to UFF to hold metal geometry in place.
+        for bond in metal_bonds:
+            idx1 = bond.get_atom1().get_id()
+            idx2 = bond.get_atom2().get_id()
+            # Add distance constraints in place of metal bonds.
+            # Target distance set to a given metal_binder_distance.
+            ff.UFFAddDistanceConstraint(
+                idx1=idx1,
+                idx2=idx2,
+                relative=False,
+                minLen=self._metal_binder_distance,
+                maxLen=self._metal_binder_distance,
+                forceConstant=self._metal_binder_fc
+            )
+
+        # Also implement angular constraints to all atoms in the
+        # metal complex.
+        for bonds in combinations(metal_bonds, r=2):
+            bond1, bond2 = bonds
+            bond1_atoms = [bond1.get_atom1(), bond1.get_atom2()]
+            bond2_atoms = [bond2.get_atom1(), bond2.get_atom2()]
+            pres_atoms = list(set(bond1_atoms + bond2_atoms))
+            # If there are more than 3 atoms, implies two
+            # independant bonds.
+            if len(pres_atoms) > 3:
+                continue
+            for atom in pres_atoms:
+                if atom in bond1_atoms and atom in bond2_atoms:
+                    idx2 = atom.get_id()
+                elif atom in bond1_atoms:
+                    idx1 = atom.get_id()
+                elif atom in bond2_atoms:
+                    idx3 = atom.get_id()
+            pos1 = [
+                i for i in mol.get_atom_positions(atom_ids=[idx1])
+            ][0]
+            pos2 = [
+                i for i in mol.get_atom_positions(atom_ids=[idx2])
+            ][0]
+            pos3 = [
+                i for i in mol.get_atom_positions(atom_ids=[idx3])
+            ][0]
+            v1 = pos1 - pos2
+            v2 = pos3 - pos2
+            angle = vector_angle(v1, v2)
+            ff.UFFAddAngleConstraint(
+                idx1=idx1,
+                idx2=idx2,
+                idx3=idx3,
+                relative=False,
+                minAngleDeg=np.degrees(angle),
+                maxAngleDeg=np.degrees(angle),
+                forceConstant=1.0e5
+            )
+
+    def apply_orientation_restriction(
+        self,
+        ff,
+        mol,
+        metal_bonds,
+        metal_atoms
+    ):
+        """
+        Applies UFF relative orientation restrcitions.
+
+        Parameters
+        ----------
+        ff : :class:`rdkit.ForceField`
+            Forcefield to apply constraints to. Generally use UFF.
+
+        mol : :class:`.Molecule`
+            The molecule to be optimized.
+
+        metal_bonds : :class:`.list` of :class:`stk.Bond`
+            List of bonds including metal atoms.
+
+        metal_atoms : :class:`.list` of :class:`stk.Atom`
+            List of metal atoms.
+
+        Returns
+        -------
+        None : :class:`NoneType`
+
+        """
+        # Add a fixed point.
+        molecule_centroid = mol.get_centroid()
+        nidx = ff.AddExtraPoint(
+            x=molecule_centroid[0],
+            y=molecule_centroid[1],
+            z=molecule_centroid[2],
+            fixed=True
+        )
+        ff.Initialize()
+        for bond in metal_bonds:
+            if bond.get_atom1() in metal_atoms:
+                idx2 = bond.get_atom1().get_id()
+                idx1 = bond.get_atom2().get_id()
+            elif bond.get_atom2() in metal_atoms:
+                idx1 = bond.get_atom1().get_id()
+                idx2 = bond.get_atom2().get_id()
+            pos1 = [
+                i for i in mol.get_atom_positions(atom_ids=[idx1])
+            ][0]
+            pos2 = [
+                i for i in mol.get_atom_positions(atom_ids=[idx2])
+            ][0]
+            pos3 = molecule_centroid
+            v1 = pos1 - pos2
+            v2 = pos3 - pos2
+            angle = vector_angle(v1, v2)
+            ff.UFFAddAngleConstraint(
+                idx1=idx1,
+                idx2=idx2,
+                idx3=nidx-1,
+                relative=False,
+                minAngleDeg=np.degrees(angle)-2,
+                maxAngleDeg=np.degrees(angle)+2,
+                forceConstant=1.0e4
+            )
+
+        # Apply an angular constraint on the binder-metal-metal atoms
+        # to maintain the metal centres relative orientation.
+        for bonds in combinations(metal_bonds, r=2):
+            bond1, bond2 = bonds
+            bond1_atoms = [bond1.get_atom1(), bond1.get_atom2()]
+            bond2_atoms = [bond2.get_atom1(), bond2.get_atom2()]
+            pres_atoms = list(set(bond1_atoms + bond2_atoms))
+            # If there are more than 3 atoms, implies two
+            # independant bonds.
+            if len(pres_atoms) < 4:
+                continue
+
+            if bond1.get_atom1() in metal_atoms:
+                idx1 = bond1.get_atom1().get_id()
+                idx2 = bond1.get_atom2().get_id()
+            else:
+                idx1 = bond1.get_atom2().get_id()
+                idx2 = bond1.get_atom1().get_id()
+
+            if bond2.get_atom1() in metal_atoms:
+                idx3 = bond2.get_atom1().get_id()
+            else:
+                idx3 = bond2.get_atom2().get_id()
+
+            pos1 = [
+                i for i in mol.get_atom_positions(atom_ids=[idx1])
+            ][0]
+            pos2 = [
+                i for i in mol.get_atom_positions(atom_ids=[idx2])
+            ][0]
+            pos3 = [
+                i for i in mol.get_atom_positions(atom_ids=[idx3])
+            ][0]
+            v1 = pos1 - pos2
+            v2 = pos3 - pos2
+            angle = vector_angle(v1, v2)
+            ff.UFFAddAngleConstraint(
+                idx1=idx1,
+                idx2=idx2,
+                idx3=idx3,
+                relative=False,
+                minAngleDeg=np.degrees(angle),
+                maxAngleDeg=np.degrees(angle),
+                forceConstant=1.0e4
+            )
+
     def optimize(self, mol):
         """
         Optimize `mol`.
@@ -557,16 +802,16 @@ class MetalOptimizer(Optimizer):
 
         """
         # Find all metal atoms and atoms they are bonded to.
-        metal_atoms = self.get_metal_atoms(mol)
-        metal_bonds, ids_to_metals = self.get_metal_bonds(
-            mol,
-            metal_atoms
+        metal_atoms = get_metal_atoms(mol)
+        metal_bonds, ids_to_metals = get_metal_bonds(
+            mol=mol,
+            metal_atoms=metal_atoms
         )
 
         input_constraints = self.get_input_constraints(
-            mol,
-            ids_to_metals,
-            metal_atoms,
+            mol=mol,
+            ids_to_metals=ids_to_metals,
+            metal_atoms=metal_atoms,
             include_bonders=False
         )
 
@@ -575,35 +820,33 @@ class MetalOptimizer(Optimizer):
         # metal.
 
         # Write rdkit molecule with metal atoms and bonds deleted.
-        edit_mol = self.to_rdkit_mol_no_metals(
-            mol,
+        edit_mol = to_rdkit_mol_no_metals(
+            mol=mol,
             metal_atoms=metal_atoms,
             metal_bonds=metal_bonds
         )
 
-        # Non-bonded interaction interactions need to be turned on
-        # because at the point of intialisation, the molecule are
-        # technically separate (not bonded) and are treated as
-        # fragments.
+        # Non-bonded interactions need to be explicitly turned on (if
+        # desired) because at the point of initialisation, the
+        # molecules are technically separate (not bonded) and are
+        # treated as fragments.
         rdkit.SanitizeMol(edit_mol)
         ff = rdkit.UFFGetMoleculeForceField(
             edit_mol,
             ignoreInterfragInteractions=self._ignore_vdw
         )
 
-        # Constrain selected bonds, angles and dihedrals and metal
-        # atoms.
         # Constrain the metal centre.
         self.apply_metal_centre_constraints(
-            mol,
-            ff,
-            metal_bonds,
-            metal_atoms
+            mol=mol,
+            ff=ff,
+            metal_bonds=metal_bonds,
+            metal_atoms=metal_atoms
         )
 
-        # Add angular constraints that enforce relative orientation
-        # between metal complexes + the topology centre of mass.
         if self._restrict_orientation:
+            # Add angular constraints that enforce relative orientation
+            # between metal complexes + the topology centre of mass.
             self.apply_orientation_restriction(
                 ff,
                 mol,
@@ -667,212 +910,4 @@ class MetalOptimizer(Optimizer):
                 metal_bonds=metal_bonds,
                 ids_to_metals=ids_to_metals,
                 input_constraints=input_constraints
-            )
-
-    def apply_metal_centre_constraints(
-        self,
-        mol,
-        ff,
-        metal_bonds,
-        metal_atoms
-    ):
-        """
-        Applies UFF metal centre constraints.
-
-        Parameters
-        ----------
-        ff : :class:`rdkit.ForceField`
-            Forcefield to apply constraints to. Generally use UFF.
-
-        mol : :class:`.Molecule`
-            The molecule to be optimized.
-
-        metal_bonds : :class:`.list` of :class:`stk.Bond`
-            List of bonds including metal atoms.
-
-        metal_atoms : :class:`.list` of :class:`stk.Atom`
-            List of metal atoms.
-
-        Returns
-        -------
-        None : :class:`NoneType`
-
-        """
-        # Add a very weak force constraint on all metal-metal
-        # distances.
-        #
-        # for atoms in combinations(metal_atoms, r=2):
-        #     ff.UFFAddDistanceConstraint(
-        #         idx1=atoms[0].id,
-        #         idx2=atoms[1].id,
-        #         relative=True,
-        #         minLen=0.8,
-        #         maxLen=0.8,
-        #         forceConstant=0.25e1
-        #     )
-
-        # Add constraints to UFF to hold metal geometry in place.
-        for bond in metal_bonds:
-            idx1 = bond.atom1.id
-            idx2 = bond.atom2.id
-            # Add distance constraints in place of metal bonds.
-            # Target distance set to a given metal_binder_distance.
-            ff.UFFAddDistanceConstraint(
-                idx1=idx1,
-                idx2=idx2,
-                relative=False,
-                minLen=self._metal_binder_distance,
-                maxLen=self._metal_binder_distance,
-                forceConstant=self._metal_binder_fc
-            )
-
-        # Also implement angular constraints to all atoms in the
-        # metal complex.
-        for bonds in combinations(metal_bonds, r=2):
-            bond1, bond2 = bonds
-            bond1_atoms = [bond1.atom1, bond1.atom2]
-            bond2_atoms = [bond2.atom1, bond2.atom2]
-            pres_atoms = list(set(bond1_atoms + bond2_atoms))
-            # If there are more than 3 atoms, implies two
-            # independant bonds.
-            if len(pres_atoms) > 3:
-                continue
-            for atom in pres_atoms:
-                if atom in bond1_atoms and atom in bond2_atoms:
-                    idx2 = atom.id
-                elif atom in bond1_atoms:
-                    idx1 = atom.id
-                elif atom in bond2_atoms:
-                    idx3 = atom.id
-            pos1 = [
-                i for i in mol.get_atom_positions(atom_ids=[idx1])
-            ][0]
-            pos2 = [
-                i for i in mol.get_atom_positions(atom_ids=[idx2])
-            ][0]
-            pos3 = [
-                i for i in mol.get_atom_positions(atom_ids=[idx3])
-            ][0]
-            v1 = pos1 - pos2
-            v2 = pos3 - pos2
-            angle = vector_angle(v1, v2)
-            ff.UFFAddAngleConstraint(
-                idx1=idx1,
-                idx2=idx2,
-                idx3=idx3,
-                relative=False,
-                minAngleDeg=np.degrees(angle),
-                maxAngleDeg=np.degrees(angle),
-                forceConstant=1.0e5
-            )
-
-    def apply_orientation_restriction(
-        self,
-        ff,
-        mol,
-        metal_bonds,
-        metal_atoms
-    ):
-        """
-        Applies UFF relative orientation restrcitions.
-
-        Parameters
-        ----------
-        ff : :class:`rdkit.ForceField`
-            Forcefield to apply constraints to. Generally use UFF.
-
-        mol : :class:`.Molecule`
-            The molecule to be optimized.
-
-        metal_bonds : :class:`.list` of :class:`stk.Bond`
-            List of bonds including metal atoms.
-
-        metal_atoms : :class:`.list` of :class:`stk.Atom`
-            List of metal atoms.
-
-        Returns
-        -------
-        None : :class:`NoneType`
-
-        """
-        # Add a fixed point.
-        COM = mol.get_center_of_mass()
-        nidx = ff.AddExtraPoint(
-            x=COM[0],
-            y=COM[1],
-            z=COM[2],
-            fixed=True
-        )
-        ff.Initialize()
-        for bond in metal_bonds:
-            if bond.atom1 in metal_atoms:
-                idx2 = bond.atom1.id
-                idx1 = bond.atom2.id
-            elif bond.atom2 in metal_atoms:
-                idx1 = bond.atom1.id
-                idx2 = bond.atom2.id
-            pos1 = [
-                i for i in mol.get_atom_positions(atom_ids=[idx1])
-            ][0]
-            pos2 = [
-                i for i in mol.get_atom_positions(atom_ids=[idx2])
-            ][0]
-            pos3 = COM
-            v1 = pos1 - pos2
-            v2 = pos3 - pos2
-            angle = vector_angle(v1, v2)
-            ff.UFFAddAngleConstraint(
-                idx1=idx1,
-                idx2=idx2,
-                idx3=nidx-1,
-                relative=False,
-                minAngleDeg=np.degrees(angle)-2,
-                maxAngleDeg=np.degrees(angle)+2,
-                forceConstant=1.0e4
-            )
-
-        # Apply an angular constraint on the binder-metal-metal atoms
-        # to maintain the metal centres relative orientation.
-        for bonds in combinations(metal_bonds, r=2):
-            bond1, bond2 = bonds
-            bond1_atoms = [bond1.atom1, bond1.atom2]
-            bond2_atoms = [bond2.atom1, bond2.atom2]
-            pres_atoms = list(set(bond1_atoms + bond2_atoms))
-            # If there are more than 3 atoms, implies two
-            # independant bonds.
-            if len(pres_atoms) < 4:
-                continue
-
-            if bond1.atom1 in metal_atoms:
-                idx1 = bond1.atom1.id
-                idx2 = bond1.atom2.id
-            else:
-                idx1 = bond1.atom2.id
-                idx2 = bond1.atom1.id
-
-            if bond2.atom1 in metal_atoms:
-                idx3 = bond2.atom1.id
-            else:
-                idx3 = bond2.atom2.id
-
-            pos1 = [
-                i for i in mol.get_atom_positions(atom_ids=[idx1])
-            ][0]
-            pos2 = [
-                i for i in mol.get_atom_positions(atom_ids=[idx2])
-            ][0]
-            pos3 = [
-                i for i in mol.get_atom_positions(atom_ids=[idx3])
-            ][0]
-            v1 = pos1 - pos2
-            v2 = pos3 - pos2
-            angle = vector_angle(v1, v2)
-            ff.UFFAddAngleConstraint(
-                idx1=idx1,
-                idx2=idx2,
-                idx3=idx3,
-                relative=False,
-                minAngleDeg=np.degrees(angle),
-                maxAngleDeg=np.degrees(angle),
-                forceConstant=1.0e4
             )
