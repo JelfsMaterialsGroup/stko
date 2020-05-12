@@ -18,6 +18,7 @@ import re
 from collections import deque
 import tarfile
 from glob import iglob
+from scipy.spatial.distance import euclidean
 
 
 # Holds the elements Van der Waals radii in Angstroms.
@@ -1571,3 +1572,17 @@ def get_acute_vector(reference, vector):
 def get_plane_normal(points):
     centroid = points.sum(axis=0) / len(points)
     return np.linalg.svd(points - centroid)[-1][2, :]
+
+
+def get_atom_distance(position_matrix, atom1_id, atom2_id):
+    """
+    Return the distance between two atoms.
+
+    """
+
+    distance = euclidean(
+        u=position_matrix[atom1_id],
+        v=position_matrix[atom2_id]
+    )
+
+    return float(distance)

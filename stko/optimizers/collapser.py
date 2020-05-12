@@ -14,9 +14,9 @@ import numpy as np
 import uuid
 import os
 import shutil
-from scipy.spatial.distance import euclidean
 
 from .optimizers import Optimizer
+from ..utilities import get_atom_distance
 
 
 logger = logging.getLogger(__name__)
@@ -90,19 +90,6 @@ class Collapser(Optimizer):
         self._distance_cut = distance_cut
         self._scale_steps = scale_steps
 
-    def _get_atom_distance(self, position_matrix, atom1_id, atom2_id):
-        """
-        Return the distance between two atoms.
-
-        """
-
-        distance = euclidean(
-            u=position_matrix[atom1_id],
-            v=position_matrix[atom2_id]
-        )
-
-        return float(distance)
-
     def _get_inter_BB_distance(self, mol):
         """
         Yield inter building block distances.
@@ -126,7 +113,7 @@ class Collapser(Optimizer):
                 atom2.get_building_block_id()
             )
             if chk1 and chk2 and chk3:
-                dist = self._get_atom_distance(
+                dist = get_atom_distance(
                     position_matrix=position_matrix,
                     atom1_id=atom1.get_atom().get_id(),
                     atom2_id=atom2.get_atom().get_id()
