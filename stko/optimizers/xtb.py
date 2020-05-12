@@ -442,7 +442,7 @@ class XTB(Optimizer):
                     logging.warning(
                         f'Small negative frequencies present in {mol}.'
                     )
-                    return mol, False
+                    return mol, opt_complete
             else:
                 # Optimization is complete.
                 # Update mol from xtbopt.xyz.
@@ -462,7 +462,8 @@ class XTB(Optimizer):
 
         Returns
         -------
-        None : :class:`NoneType`
+        mol : :class:`.Molecule`
+            The optimized molecule.
 
         """
 
