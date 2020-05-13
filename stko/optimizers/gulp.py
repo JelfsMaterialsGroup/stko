@@ -51,7 +51,7 @@ optimisations.
 
     # Build a metal-organic cage with dative bonds between
     # GenericFunctionalGroup and SingleAtom functional groups.
-    cage1 = stk.ConstructedMolecule(
+    cage = stk.ConstructedMolecule(
         stk.cage.M2L4Lantern(
             building_blocks={
                 palladium_atom: (0, 1),
@@ -81,9 +81,9 @@ optimisations.
     )
 
     # Assign the force field.
-    gulp_opt.assign_FF(cage1)
+    gulp_opt.assign_FF(cage)
     # Run optimization.
-    cage1 = gulp_opt.optimize(mol=cage1)
+    cage = gulp_opt.optimize(mol=cage)
 
 Conformer searching is often useful, so we have provided an interface
 to MD simulations using GULP and UFF4MOF. A conformer search can be
@@ -96,14 +96,14 @@ or a more robust method!
 .. code-block:: python
 
     gulp_MD = stko.GulpMDMetalOptimizer(
-        gulp_path='/home/atarzia/software/gulp-5.1/Src/gulp/gulp',
+        gulp_path='path/to/gulp',
         metal_FF={46: 'Pd4+2'},
         temperature=700,
         N_conformers=10,
         opt_conformers=True,
     )
-    gulp_MD.assign_FF(cage1)
-    cage1 = gulp_MD.optimize(cage1)
+    gulp_MD.assign_FF(cage)
+    cage = gulp_MD.optimize(cage)
 
 """
 
