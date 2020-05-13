@@ -121,7 +121,7 @@ from ..utilities import (
     has_metal_atom,
     get_metal_atoms,
     get_metal_bonds,
-    to_rdkit_mol_no_metals
+    to_rdkit_mol_without_metals
 )
 
 
@@ -566,7 +566,7 @@ class GulpMetalOptimizer(Optimizer):
         metal_atoms = get_metal_atoms(mol)
         metal_ids = [i.get_id() for i in metal_atoms]
         metal_bonds, _ = get_metal_bonds(mol, metal_atoms)
-        edit_mol = to_rdkit_mol_no_metals(
+        edit_mol = to_rdkit_mol_without_metals(
             mol=mol,
             metal_atoms=metal_atoms,
             metal_bonds=metal_bonds

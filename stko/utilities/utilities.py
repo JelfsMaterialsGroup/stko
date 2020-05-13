@@ -1589,9 +1589,10 @@ def has_h_atom(bond):
         Returns `True` if bond has H atom.
 
     """
+
     if bond.get_atom1().get_atomic_number() == 1:
         return True
-    if bond.get_atom1().get_atomic_number() == 1:
+    if bond.get_atom2().get_atomic_number() == 1:
         return True
 
     return False
@@ -1615,6 +1616,7 @@ def has_metal_atom(bond, metal_atoms):
         Returns `True` if bond has metal atom.
 
     """
+
     if bond.get_atom1() in metal_atoms:
         return True
     if bond.get_atom2() in metal_atoms:
@@ -1623,21 +1625,31 @@ def has_metal_atom(bond, metal_atoms):
     return False
 
 
-def metal_a_no():
+def metal_atomic_numbers():
 
     return chain(range(21, 31), range(39, 49), range(72, 81))
 
 
 def get_metal_atoms(mol):
+    """
+    Return a list of metal atoms in molecule.
+
+    """
+
     metal_atoms = []
     for atom in mol.get_atoms():
-        if atom.get_atomic_number() in metal_a_no():
+        if atom.get_atomic_number() in metal_atomic_numbers():
             metal_atoms.append(atom)
 
     return metal_atoms
 
 
 def get_metal_bonds(mol, metal_atoms):
+    """
+    Return a list of bonds in molecule that contain metal atoms.
+
+    """
+
     metal_bonds = []
     ids_to_metals = []
     for bond in mol.get_bonds():
@@ -1651,9 +1663,9 @@ def get_metal_bonds(mol, metal_atoms):
     return metal_bonds, ids_to_metals
 
 
-def to_rdkit_mol_no_metals(mol, metal_atoms, metal_bonds):
+def to_rdkit_mol_without_metals(mol, metal_atoms, metal_bonds):
     """
-    Write :class:`rdkit.Mol` with metals replaced by H atoms.
+    Create :class:`rdkit.Mol` with metals replaced by H atoms.
 
     Parameters
     ----------
