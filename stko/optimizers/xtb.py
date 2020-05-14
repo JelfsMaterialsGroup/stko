@@ -323,9 +323,10 @@ class XTB(Optimizer):
             If the optimization did not converge.
 
         """
-        if output_file is None:
+        if os.path.exists(output_file):
             # No simulation has been run.
             return False
+
         # If convergence is achieved, then .xtboptok should exist.
         if os.path.exists('.xtboptok'):
             # Check for negative frequencies in output file if the
@@ -335,6 +336,7 @@ class XTB(Optimizer):
                 return not self._has_neg_frequencies(output_file)
             else:
                 return True
+
         elif os.path.exists('NOT_CONVERGED'):
             raise XTBConvergenceError('Optimization not converged.')
         else:
