@@ -323,7 +323,7 @@ class XTB(Optimizer):
             If the optimization did not converge.
 
         """
-        if os.path.exists(output_file):
+        if not os.path.exists(output_file):
             # No simulation has been run.
             return False
 
