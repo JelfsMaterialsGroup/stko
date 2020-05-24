@@ -46,6 +46,7 @@ class Collapser(Optimizer):
         # Perform collapser optimisation.
         output_dir = f'cage_opt_{cage_name}_coll'
         optimizer = stko.Collapser(
+            output_dir=output_dir,
             step_size=0.05,
             distance_cut=2.0,
             scale_steps=True,
