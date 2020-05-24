@@ -24,7 +24,7 @@ logger = logging.getLogger(__name__)
 
 class Collapser(Optimizer):
     """
-    Collapse constructed molecules to decrease enlarged bonds.
+    Collapse stk.ConstructedMolecule to decrease enlarged bonds.
 
     This optimizer aims to bring extended bonds closer together for
     further optimisation.
@@ -93,7 +93,7 @@ class Collapser(Optimizer):
 
     def _get_inter_BB_distance(self, mol):
         """
-        Yield inter building block distances.
+        Yield The distances between building blocks in mol.
 
         Ignores H atoms.
 
@@ -123,7 +123,7 @@ class Collapser(Optimizer):
 
     def _get_min_inter_BB_distance(self, mol):
         """
-        Calculate the minimum inter building block distance.
+        Calculate the minimum distance between building blocks.
 
         """
 
@@ -133,17 +133,16 @@ class Collapser(Optimizer):
 
         return min_dist
 
-    def _no_short_contacts(self, mol):
+    def _has_short_contacts(self, mol):
         """
-        Define a function that determines when collapsing should stop.
+        Calculate if there are short contants in mol.
 
         """
 
-        for dist in self._get_inter_BB_distance(mol):
-            if dist < self._distance_cut:
-                return False
-
-        return True
+        return any(
+            dist < self._distance_cut
+            for dist in self._get_inter_BB_distance(mol)
+        )
 
     def _get_new_position_matrix(self, mol, step, vectors, scales):
         """
@@ -198,10 +197,10 @@ class Collapser(Optimizer):
         # Scale the step size based on the different distances of
         # BBs from the COM. Impacts anisotropic topologies.
         if self._scale_steps:
-            max_distance = max([
+            max_distance = max(
                 np.linalg.norm(BB_cent_vectors[i])
                 for i in BB_cent_vectors
-            ])
+            )
             BB_cent_scales = {
                 i: np.linalg.norm(BB_cent_vectors[i])/max_distance
                 for i in BB_cent_vectors
@@ -220,12 +219,12 @@ class Collapser(Optimizer):
 
         Parameters
         ----------
-        mol : :class:`.Molecule`
+        mol : :class:`stk.Molecule`
             The molecule to be optimized.
 
         Returns
         -------
-        mol : :class:`.Molecule`
+        mol : :class:`stk.Molecule`
             The optimized molecule.
 
         """
@@ -254,7 +253,7 @@ class Collapser(Optimizer):
         # `step` is the proportion of the BB_COM_vectors that is moved.
         step_no = 0
         step = self._step_size
-        while self._no_short_contacts(mol):
+        while not self._has_short_contacts(mol):
             # Update each step the building block vectors and distance.
             BB_cent_vectors, BB_cent_scales = self._get_BB_vectors(
                 mol=mol,
