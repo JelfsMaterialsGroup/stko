@@ -135,14 +135,17 @@ class OptimizerSequence(Optimizer):
 
         Returns
         -------
-        None : :class:`NoneType`
+        mol : :class:`.Molecule`
+            The optimized molecule.
 
         """
 
         for optimizer in self._optimizers:
             cls_name = optimizer.__class__.__name__
             logger.info(f'Using {cls_name} on "{mol}".')
-            optimizer.optimize(mol)
+            mol = optimizer.optimize(mol)
+
+        return mol
 
 
 class TryCatchOptimizer(Optimizer):
@@ -175,9 +178,9 @@ class TryCatchOptimizer(Optimizer):
 
         # Optimize the molecules. In each case if the optimization with
         # UFF fails, MMFF is used to optimize the molecule instead.
-        try_catch.optimize(mol1)
-        try_catch.optimize(mol2)
-        try_catch.optimzie(mol3)
+        mol1 = try_catch.optimize(mol1)
+        mol2 = try_catch.optimize(mol2)
+        mol3 = try_catch.optimzie(mol3)
 
     """
 
@@ -211,7 +214,8 @@ class TryCatchOptimizer(Optimizer):
 
         Returns
         -------
-        None : :class:`NoneType`
+        mol : :class:`.Molecule`
+            The molecule to be optimized.
 
         """
 
