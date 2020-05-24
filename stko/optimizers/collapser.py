@@ -121,18 +121,6 @@ class Collapser(Optimizer):
                 )
                 yield dist
 
-    def _get_min_inter_BB_distance(self, mol):
-        """
-        Calculate the minimum distance between building blocks.
-
-        """
-
-        min_dist = 1000
-        for dist in self._get_inter_BB_distance(mol):
-            min_dist = min([dist, min_dist])
-
-        return min_dist
-
     def _has_short_contacts(self, mol):
         """
         Calculate if there are short contants in mol.
@@ -273,7 +261,9 @@ class Collapser(Optimizer):
             )
 
         # Check that we have not gone too far.
-        min_dist = self._get_min_inter_BB_distance(mol)
+        min_dist = min(
+            dist for dist in self._get_inter_BB_distance(mol)
+        )
         if min_dist < self._distance_cut / 2:
             # Revert to half the previous step if we have.
             step = -(self._step_size/2)
