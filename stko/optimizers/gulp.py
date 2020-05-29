@@ -176,6 +176,7 @@ class GulpMetalOptimizer(Optimizer):
         """
         self._gulp_path = gulp_path
         self._metal_FF = metal_FF
+        self._conjugate_gradient = conjugate_gradient
         self._output_dir = output_dir
 
     def _add_atom_charge_flags(self, atom, atomkey):
