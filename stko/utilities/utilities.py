@@ -19,6 +19,7 @@ from collections import deque
 import tarfile
 from glob import iglob
 from itertools import chain
+from scipy.spatial.distance import euclidean
 
 
 # Holds the elements Van der Waals radii in Angstroms.
@@ -1714,3 +1715,17 @@ def to_rdkit_mol_without_metals(mol, metal_atoms, metal_bonds):
     edit_mol.AddConformer(rdkit_conf)
 
     return edit_mol
+
+
+def get_atom_distance(position_matrix, atom1_id, atom2_id):
+    """
+    Return the distance between two atoms.
+
+    """
+
+    distance = euclidean(
+        u=position_matrix[atom1_id],
+        v=position_matrix[atom2_id]
+    )
+
+    return float(distance)
