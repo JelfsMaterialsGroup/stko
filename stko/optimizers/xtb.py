@@ -3,6 +3,7 @@ XTB Optimizers
 ==============
 
 #. :class:`.XTB`
+#. :class:`.XTBFF`
 
 Wrappers for optimizers within the :mod:`xtb` code.
 
@@ -496,3 +497,239 @@ class XTB(Optimizer):
             logging.warning(f'Optimization is incomplete for {mol}.')
 
         return mol
+
+
+class XTBFF(XTB):
+    """
+    Uses GFN-FF [1]_ to optimize molecules.
+
+    Notes
+    -----
+    GFN-FF requires version 6.3 of xtb.
+
+    When running :meth:`optimize`, this calculator changes the
+    present working directory with :func:`os.chdir`. The original
+    working directory will be restored even if an error is raised, so
+    unless multi-threading is being used this implementation detail
+    should not matter.
+
+    If multi-threading is being used an error could occur if two
+    different threads need to know about the current working directory
+    as :class:`.XTB` can change it from under them.
+
+    Note that this does not have any impact on multi-processing,
+    which should always be safe.
+
+    Examples
+    --------
+    ADD.
+
+    References
+    ----------
+    .. [1] https://xtb-docs.readthedocs.io/en/latest/gfnff.html
+
+    """
+
+    def __init__(
+        self,
+        xtb_path,
+        output_dir=None,
+        opt_level='normal',
+        num_cores=1,
+        charge=0,
+        unlimited_memory=False,
+    ):
+        """
+        Initialize a :class:`XTB` instance.
+
+        Parameters
+        ----------
+        xtb_path : :class:`str`
+            The path to the xTB executable.
+
+        output_dir : :class:`str`, optional
+            The name of the directory into which files generated during
+            the optimization are written, if ``None`` then
+            :func:`uuid.uuid4` is used.
+
+        opt_level : :class:`str`, optional
+            Optimization level to use.
+            Can be one of ``'crude'``, ``'sloppy'``, ``'loose'``,
+            ``'lax'``, ``'normal'``, ``'tight'``, ``'vtight'``
+            or ``'extreme'``.
+            For details see
+            https://xtb-docs.readthedocs.io/en/latest/optimization.html
+            .
+
+        num_cores : :class:`int`, optional
+            The number of cores xTB should use.
+
+        charge : :class:`int`, optional
+            Formal molecular charge.
+
+        unlimited_memory : :class: `bool`, optional
+            If ``True`` :meth:`optimize` will be run without
+            constraints on the stack size. If memory issues are
+            encountered, this should be ``True``, however this may
+            raise issues on clusters.
+
+        """
+
+        self._xtb_path = xtb_path
+        self._output_dir = output_dir
+        self._opt_level = opt_level
+        self._num_cores = str(num_cores)
+        self._charge = str(charge)
+        self._unlimited_memory = unlimited_memory
+
+    def _is_complete(self, output_file):
+        """
+        Check if xTB optimization has completed and converged.
+
+        Parameters
+        ----------
+        output_file : :class:`str`
+            Name of xTB output file.
+
+        Returns
+        -------
+        :class:`bool`
+            Returns ``False`` if a negative frequency is present.
+
+        Raises
+        -------
+        :class:`XTBOptimizerError`
+            If the optimization failed.
+
+        :class:`XTBConvergenceError`
+            If the optimization did not converge.
+
+        """
+        if not os.path.exists(output_file):
+            # No simulation has been run.
+            return False
+        # If convergence is achieved, then .xtboptok should exist.
+        if os.path.exists('.xtboptok'):
+            return True
+        elif os.path.exists('NOT_CONVERGED'):
+            raise XTBConvergenceError('Optimization not converged.')
+        else:
+            raise XTBOptimizerError('Optimization failed to complete')
+
+    def _run_xtb(self, xyz, out_file):
+        """
+        Run GFN-xTB.
+
+        Parameters
+        ----------
+        xyz : :class:`str`
+            The name of the input structure ``.xyz`` file.
+
+        out_file : :class:`str`
+            The name of output file with xTB results.
+
+        Returns
+        -------
+        None : :class:`NoneType`
+
+        """
+
+        # Modify the memory limit.
+        if self._unlimited_memory:
+            memory = 'ulimit -s unlimited ;'
+        else:
+            memory = ''
+
+        # Set optimization level and type.
+        optimization = f'--opt {self._opt_level}'
+
+        cmd = (
+            f'{memory} {self._xtb_path} {xyz} '
+            f'--gfnff '
+            f'{optimization} --parallel {self._num_cores} '
+            f'--chrg {self._charge} '
+        )
+
+        with open(out_file, 'w') as f:
+            # Note that sp.call will hold the program until completion
+            # of the calculation.
+            sp.call(
+                cmd,
+                stdin=sp.PIPE,
+                stdout=f,
+                stderr=sp.PIPE,
+                # Shell is required to run complex arguments.
+                shell=True
+            )
+
+    def _run_optimization(self, mol):
+        """
+        Run loop of optimizations on `mol` using xTB.
+
+        Parameters
+        ----------
+        mol : :class:`.Molecule`
+            The molecule to be optimized.
+
+        Returns
+        -------
+        mol : :class:`.Molecule`
+            The optimized molecule.
+
+        opt_complete : :class:`bool`
+            Returns ``True`` if the calculation is complete and
+            ``False`` if the calculation is incomplete.
+
+        """
+
+        xyz = f'input_structure_ff.xyz'
+        out_file = f'optimization_ff.output'
+        mol.write(xyz)
+        self._run_xtb(xyz=xyz, out_file=out_file)
+
+        # Check if the optimization is complete.
+        output_xyz = 'xtbopt.xyz'
+        opt_complete = self._is_complete(out_file)
+        mol = mol.with_structure_from_file(output_xyz)
+
+        return mol, opt_complete
+
+    def optimize(self, mol):
+        """
+        Optimize `mol`.
+
+        Parameters
+        ----------
+        mol : :class:`.Molecule`
+            The molecule to be optimized.
+
+        Returns
+        -------
+        mol : :class:`.Molecule`
+            The optimized molecule.
+
+        """
+
+        if self._output_dir is None:
+            output_dir = str(uuid.uuid4().int)
+        else:
+            output_dir = self._output_dir
+        output_dir = os.path.abspath(output_dir)
+
+        if os.path.exists(output_dir):
+            shutil.rmtree(output_dir)
+
+        os.mkdir(output_dir)
+        init_dir = os.getcwd()
+        os.chdir(output_dir)
+
+        try:
+            mol, complete = self._run_optimization(mol)
+        finally:
+            os.chdir(init_dir)
+
+        if not complete:
+            logging.warning(f'Optimization is incomplete for {mol}.')
+
+        return mol
+
