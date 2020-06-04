@@ -515,14 +515,48 @@ class XTBFF(XTB):
 
     If multi-threading is being used an error could occur if two
     different threads need to know about the current working directory
-    as :class:`.XTB` can change it from under them.
+    as :class:`.XTBFF` can change it from under them.
 
     Note that this does not have any impact on multi-processing,
     which should always be safe.
 
+    Currently, we only provide inputs that work with GFN-FF,
+    specifically the charge of the system. Other electronic properties
+    of the molecule are not relavent to a forcefield optimisation.
+
     Examples
     --------
-    ADD.
+    Note that for :class:`.ConstructedMolecule` objects constructed by
+    ``stk``, :class:`XTBFF` should usually be used in a
+    :class:`.OptimizerSequence`. This is because xTB only uses
+    xyz coordinates as input and so will not recognize the long bonds
+    created during construction. An optimizer which can minimize
+    these bonds should be used before :class:`XTBFF`.
+
+    .. code-block:: python
+
+        import stk
+        import stko
+
+        bb1 = stk.BuildingBlock('NCCNCCN', [stk.PrimaryAminoFactory()])
+        bb2 = stk.BuildingBlock('O=CCCC=O', [stk.AldehydeFactory()])
+        polymer = stk.ConstructedMolecule(
+            stk.polymer.Linear(
+                building_blocks=(bb1, bb2),
+                repeating_unit="AB",
+                orientations=[0, 0],
+                num_repeating_units=1
+            )
+        )
+
+        xtb = stko.OptimizerSequence(
+            stko.UFF(),
+            stko.XTBFF(
+                xtb_path='/opt/gfnxtb/xtb',
+                unlimited_memory=True,
+            )
+        )
+        polymer = xtb.optimize(polymer)
 
     References
     ----------
