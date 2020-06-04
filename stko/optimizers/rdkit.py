@@ -35,7 +35,7 @@ from ..utilities import (
     has_metal_atom,
     get_metal_atoms,
     get_metal_bonds,
-    to_rdkit_mol_no_metals,
+    to_rdkit_mol_without_metals,
     get_atom_distance,
     vector_angle
 )
@@ -472,18 +472,18 @@ class MetalOptimizer(Optimizer):
                 if any(bonded_to_metals):
                     continue
             pos1 = [
-                i for i in mol.get_atom_positions(atom_ids=[idx1])
+                i for i in mol.get_atomic_positions(atom_ids=[idx1])
             ][0]
             pos2 = [
-                i for i in mol.get_atom_positions(atom_ids=[idx2])
+                i for i in mol.get_atomic_positions(atom_ids=[idx2])
             ][0]
             pos3 = [
-                i for i in mol.get_atom_positions(atom_ids=[idx3])
+                i for i in mol.get_atomic_positions(atom_ids=[idx3])
             ][0]
             v1 = pos1 - pos2
             v2 = pos3 - pos2
             angle = vector_angle(v1, v2)
-            if self.has_h(bond1) or self.has_h(bond2):
+            if has_h_atom(bond1) or has_h_atom(bond2):
                 # Increased force constant for angles with H atoms.
                 constraints[(bond1, bond2)] = {
                     'idx1': idx1,
@@ -546,7 +546,7 @@ class MetalOptimizer(Optimizer):
         # For bonds between ligand bonders and the rest of the ligand,
         # a weak force constant is applied to minimize to rel_distance.
         # This is the slow relaxation of the high-force bonds.
-        if self._rel_distance is not None:
+        if self._relative_distance is not None:
             for bond in mol.get_bonds():
                 idx1 = bond.get_atom1().get_id()
                 idx2 = bond.get_atom2().get_id()
@@ -566,9 +566,9 @@ class MetalOptimizer(Optimizer):
                         idx1=idx1,
                         idx2=idx2,
                         relative=False,
-                        minLen=self._rel_distance*distance,
-                        maxLen=self._rel_distance*distance,
-                        forceConstant=self._binder_ligand_fc
+                        minLen=self._relative_distance*distance,
+                        maxLen=self._relative_distance*distance,
+                        forceConstant=self._binder_ligand_forceconstant
                     )
 
         # Perform UFF optimization with rdkit.
@@ -577,7 +577,10 @@ class MetalOptimizer(Optimizer):
         # Update stk molecule from optimized molecule. This should
         # only modify atom positions, which means metal atoms will be
         # reinstated.
-        mol.update_from_rdkit_mol(edit_mol)
+        new_position_matrix = edit_mol.GetConformer().GetPositions()
+        mol = mol.with_position_matrix(new_position_matrix)
+
+        return mol
 
     def apply_metal_centre_constraints(
         self,
@@ -633,7 +636,7 @@ class MetalOptimizer(Optimizer):
                 relative=False,
                 minLen=self._metal_binder_distance,
                 maxLen=self._metal_binder_distance,
-                forceConstant=self._metal_binder_fc
+                forceConstant=self._metal_binder_forceconstant
             )
 
         # Also implement angular constraints to all atoms in the
@@ -655,13 +658,13 @@ class MetalOptimizer(Optimizer):
                 elif atom in bond2_atoms:
                     idx3 = atom.get_id()
             pos1 = [
-                i for i in mol.get_atom_positions(atom_ids=[idx1])
+                i for i in mol.get_atomic_positions(atom_ids=[idx1])
             ][0]
             pos2 = [
-                i for i in mol.get_atom_positions(atom_ids=[idx2])
+                i for i in mol.get_atomic_positions(atom_ids=[idx2])
             ][0]
             pos3 = [
-                i for i in mol.get_atom_positions(atom_ids=[idx3])
+                i for i in mol.get_atomic_positions(atom_ids=[idx3])
             ][0]
             v1 = pos1 - pos2
             v2 = pos3 - pos2
@@ -722,10 +725,10 @@ class MetalOptimizer(Optimizer):
                 idx1 = bond.get_atom1().get_id()
                 idx2 = bond.get_atom2().get_id()
             pos1 = [
-                i for i in mol.get_atom_positions(atom_ids=[idx1])
+                i for i in mol.get_atomic_positions(atom_ids=[idx1])
             ][0]
             pos2 = [
-                i for i in mol.get_atom_positions(atom_ids=[idx2])
+                i for i in mol.get_atomic_positions(atom_ids=[idx2])
             ][0]
             pos3 = molecule_centroid
             v1 = pos1 - pos2
@@ -766,13 +769,13 @@ class MetalOptimizer(Optimizer):
                 idx3 = bond2.get_atom2().get_id()
 
             pos1 = [
-                i for i in mol.get_atom_positions(atom_ids=[idx1])
+                i for i in mol.get_atomic_positions(atom_ids=[idx1])
             ][0]
             pos2 = [
-                i for i in mol.get_atom_positions(atom_ids=[idx2])
+                i for i in mol.get_atomic_positions(atom_ids=[idx2])
             ][0]
             pos3 = [
-                i for i in mol.get_atom_positions(atom_ids=[idx3])
+                i for i in mol.get_atomic_positions(atom_ids=[idx3])
             ][0]
             v1 = pos1 - pos2
             v2 = pos3 - pos2
@@ -820,7 +823,7 @@ class MetalOptimizer(Optimizer):
         # metal.
 
         # Write rdkit molecule with metal atoms and bonds deleted.
-        edit_mol = to_rdkit_mol_no_metals(
+        edit_mol = to_rdkit_mol_without_metals(
             mol=mol,
             metal_atoms=metal_atoms,
             metal_bonds=metal_bonds
@@ -889,7 +892,7 @@ class MetalOptimizer(Optimizer):
         # values.
         # The rest of the ligands are constrained to the input value.
         for i in range(self._res_steps):
-            self._restricted_optimization(
+            mol = self._restricted_optimization(
                 mol=mol,
                 edit_mol=edit_mol,
                 ff=ff,
@@ -902,7 +905,7 @@ class MetalOptimizer(Optimizer):
         # Finish with one long optimisation.
         if self._do_long_opt:
             self._max_iterations = 500
-            self._restricted_optimization(
+            mol = self._restricted_optimization(
                 mol=mol,
                 edit_mol=edit_mol,
                 ff=ff,
@@ -911,3 +914,5 @@ class MetalOptimizer(Optimizer):
                 ids_to_metals=ids_to_metals,
                 input_constraints=input_constraints
             )
+
+        return mol
