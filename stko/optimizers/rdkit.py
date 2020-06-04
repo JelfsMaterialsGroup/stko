@@ -209,8 +209,9 @@ class MetalOptimizer(Optimizer):
     --------
 
     :class:`MetalOptimizer` allows for the restricted optimization of
-    :class:`ConstructedMolecule` containing metals. Note that this
-    optimizer algorithm is not very robust to large bonds and may fail.
+    :class:`ConstructedMolecule` instances containing metals. Note that
+    this optimizer algorithm is not very robust to large bonds and may
+    fail.
 
     .. code-block:: python
 
@@ -273,12 +274,17 @@ class MetalOptimizer(Optimizer):
         # All ligand bonds and angles have restricitons applied based
         # on the input structure.
         optimizer = stk.MetalOptimizer(
-            scale=1.9,
-            force_constant=1.0e2,
-            rel_distance=0.9,
+            metal_binder_distance=1.9,
+            metal_binder_forceconstant=1.0e2,
+            binder_ligand_forceconstant=0.0,
+            ignore_vdw=False,
+            relative_distance=None,
             res_steps=50,
-            restrict_all_bonds=True,
-            restrict_orientation=True
+            restrict_bonds=True,
+            restrict_angles=True,
+            restrict_orientation=True,
+            max_iterations=40,
+            do_long_opt=False
         )
 
         # Optimize.
@@ -611,18 +617,6 @@ class MetalOptimizer(Optimizer):
         None : :class:`NoneType`
 
         """
-        # Add a very weak force constraint on all metal-metal
-        # distances.
-        #
-        # for atoms in combinations(metal_atoms, r=2):
-        #     ff.UFFAddDistanceConstraint(
-        #         idx1=atoms[0].id,
-        #         idx2=atoms[1].id,
-        #         relative=True,
-        #         minLen=0.8,
-        #         maxLen=0.8,
-        #         forceConstant=0.25e1
-        #     )
 
         # Add constraints to UFF to hold metal geometry in place.
         for bond in metal_bonds:
@@ -857,10 +851,7 @@ class MetalOptimizer(Optimizer):
                 metal_atoms
             )
 
-        # Constrain all bonds and angles based on input structure
-        # except for:
-        # (1) bonds including metals
-        # (2) bonds including atoms bonded to metals
+        # Constrain all bonds and angles based on input structure.
         for constraint in input_constraints:
             const = input_constraints[constraint]
             if const['type'] == 'bond' and self._restrict_bonds:
@@ -890,7 +881,8 @@ class MetalOptimizer(Optimizer):
         # For RDKit, the optimisation is done in loops, where the
         # metal-ligand and adjacent bonds are slowly relaxed to normal
         # values.
-        # The rest of the ligands are constrained to the input value.
+        # The rest of the ligands are constrained to the input
+        # structure.
         for i in range(self._res_steps):
             mol = self._restricted_optimization(
                 mol=mol,
