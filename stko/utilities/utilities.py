@@ -18,6 +18,8 @@ import re
 from collections import deque
 import tarfile
 from glob import iglob
+from itertools import chain
+from scipy.spatial.distance import euclidean
 
 
 # Holds the elements Van der Waals radii in Angstroms.
@@ -1571,3 +1573,159 @@ def get_acute_vector(reference, vector):
 def get_plane_normal(points):
     centroid = points.sum(axis=0) / len(points)
     return np.linalg.svd(points - centroid)[-1][2, :]
+
+
+def has_h_atom(bond):
+    """
+    Check if a bond has a H atom.
+
+    Parameters
+    ----------
+    bond : :class:`stk.Bond`
+        Bond to test if it has a H atom.
+
+    Returns
+    -------
+    :class:`bool`
+        Returns `True` if bond has H atom.
+
+    """
+
+    if bond.get_atom1().get_atomic_number() == 1:
+        return True
+    if bond.get_atom2().get_atomic_number() == 1:
+        return True
+
+    return False
+
+
+def has_metal_atom(bond, metal_atoms):
+    """
+    Check if a bond has a metal atom.
+
+    Parameters
+    ----------
+    bond : :class:`stk.Bond`
+        Bond to test if it has a metal atom.
+
+    metal_atoms : :class:`.list` of :class:`stk.Atom`
+        List of metal atoms.
+
+    Returns
+    -------
+    :class:`bool`
+        Returns `True` if bond has metal atom.
+
+    """
+
+    if bond.get_atom1() in metal_atoms:
+        return True
+    if bond.get_atom2() in metal_atoms:
+        return True
+
+    return False
+
+
+def metal_atomic_numbers():
+
+    return chain(range(21, 31), range(39, 49), range(72, 81))
+
+
+def get_metal_atoms(mol):
+    """
+    Return a list of metal atoms in molecule.
+
+    """
+
+    metal_atoms = []
+    for atom in mol.get_atoms():
+        if atom.get_atomic_number() in metal_atomic_numbers():
+            metal_atoms.append(atom)
+
+    return metal_atoms
+
+
+def get_metal_bonds(mol, metal_atoms):
+    """
+    Return a list of bonds in molecule that contain metal atoms.
+
+    """
+
+    metal_bonds = []
+    ids_to_metals = []
+    for bond in mol.get_bonds():
+        if bond.get_atom1() in metal_atoms:
+            metal_bonds.append(bond)
+            ids_to_metals.append(bond.get_atom2().get_id())
+        elif bond.get_atom2() in metal_atoms:
+            metal_bonds.append(bond)
+            ids_to_metals.append(bond.get_atom1().get_id())
+
+    return metal_bonds, ids_to_metals
+
+
+def to_rdkit_mol_without_metals(mol, metal_atoms, metal_bonds):
+    """
+    Create :class:`rdkit.Mol` with metals replaced by H atoms.
+
+    Parameters
+    ----------
+    mol : :class:`.Molecule`
+        The molecule to be optimized.
+
+    metal_atoms : :class:`.list` of :class:`stk.Atom`
+        List of metal atoms.
+
+    metal_bonds : :class:`.list` of :class:`stk.Bond`
+        List of bonds including metal atoms.
+
+    Returns
+    -------
+    edit_mol : :class:`rdkit.Mol`
+        RDKit molecule with metal atoms replaced with H atoms.
+
+    """
+    edit_mol = rdkit.EditableMol(rdkit.Mol())
+    for atom in mol.get_atoms():
+        if atom in metal_atoms:
+            # In place of metals, add H's that will be constrained.
+            # This allows the atom ids to not be changed.
+            rdkit_atom = rdkit.Atom(1)
+            rdkit_atom.SetFormalCharge(0)
+        else:
+            rdkit_atom = rdkit.Atom(atom.get_atomic_number())
+            rdkit_atom.SetFormalCharge(atom.get_charge())
+        edit_mol.AddAtom(rdkit_atom)
+
+    for bond in mol.get_bonds():
+        if bond in metal_bonds:
+            # Do not add bonds to metal atoms (replaced with H's).
+            continue
+        edit_mol.AddBond(
+            beginAtomIdx=bond.get_atom1().get_id(),
+            endAtomIdx=bond.get_atom2().get_id(),
+            order=rdkit.BondType(bond.get_order())
+        )
+
+    edit_mol = edit_mol.GetMol()
+    rdkit_conf = rdkit.Conformer(mol.get_num_atoms())
+    for atom_id, atom_coord in enumerate(mol.get_position_matrix()):
+        rdkit_conf.SetAtomPosition(atom_id, atom_coord)
+        edit_mol.GetAtomWithIdx(atom_id).SetNoImplicit(True)
+    edit_mol.AddConformer(rdkit_conf)
+
+    return edit_mol
+
+
+def get_atom_distance(position_matrix, atom1_id, atom2_id):
+    """
+    Return the distance between two atoms.
+
+    """
+
+    distance = euclidean(
+        u=position_matrix[atom1_id],
+        v=position_matrix[atom2_id]
+    )
+
+    return float(distance)
