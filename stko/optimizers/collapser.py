@@ -279,4 +279,17 @@ class Collapser(Optimizer):
                 os.path.join(output_dir, f'collapsed_rev.mol')
             )
 
+        out_file = os.path.join(output_dir, f'collapser.out')
+        with open(out_file, 'w') as f:
+            f.write(
+                f"Collapser algorithm.\n"
+                f"====================\n"
+                f"Step size: {self._step_size}\n"
+                f"Scale steps?: {self._scale_steps}\n"
+                f"Distance cut: {self._distance_cut}\n"
+                f"====================\n"
+                f"Steps run: {step_no}\n"
+                f"Minimum inter-BB distance: {min_dist}\n"
+                f"====================\n"
+            )
         return mol
