@@ -894,6 +894,7 @@ class XTBFFCREST(XTB):
         keepdir=False,
         num_cores=1,
         charge=0,
+        cross=True,
         unlimited_memory=False,
     ):
         """
@@ -950,6 +951,9 @@ class XTBFFCREST(XTB):
         charge : :class:`int`, optional
             Formal molecular charge.
 
+        cross : :class:`bool`, optional
+            Whether or not structure crossing is performed.
+
         unlimited_memory : :class: `bool`, optional
             If ``True`` :meth:`optimize` will be run without
             constraints on the stack size. If memory issues are
@@ -974,6 +978,7 @@ class XTBFFCREST(XTB):
         self._keepdir = keepdir
         self._num_cores = str(num_cores)
         self._charge = str(charge)
+        self._cross = cross
         self._unlimited_memory = unlimited_memory
 
     def _is_complete(self, output_file, output_xyzs):
@@ -1048,10 +1053,11 @@ class XTBFFCREST(XTB):
             f'-{self._speed_setting}'
             if self._speed_setting is not None else ''
         )
+        cross = ('-nocross' if self._cross is False else '')
 
         cmd = (
             f'{memory} {self._crest_path} {xyz} '
-            f'-xnam {self._xtb_path} -nozs '
+            f'-xnam {self._xtb_path} -nozs {cross} '
             f'-ewin {self._ewin} '
             f'-chrg {self._charge} '
             f'-gff {speed_settings} '
