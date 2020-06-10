@@ -1,6 +1,8 @@
 language: python
 install:
   - pip install .
+before-deploy:
+  - echo Deploying
 deploy:
   provider: pypi
   username: stevenb96
