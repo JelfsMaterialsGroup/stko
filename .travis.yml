@@ -1,6 +1,8 @@
 language: python
 install:
   - pip install .
+script:
+  - echo Hello
 before-deploy:
   - echo Deploying
 deploy:
