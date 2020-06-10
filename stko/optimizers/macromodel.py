@@ -64,7 +64,7 @@ class MacroModel(Optimizer):
         minimum_gradient,
     ):
         """
-        Initialize a :class:`_MacroModel` instance.
+        Initialize a :class:`MacroModel` instance.
 
         Parameters
         ----------
@@ -325,7 +325,7 @@ class MacroModel(Optimizer):
             return True
 
         # To check if the log file mentions a missing license file open
-        # the log file and scan for the apporpriate string.
+        # the log file and scan for the appropriate string.
 
         # Check if the file exists first. If not, this is often means
         # the calculation must be redone so return False anyway.
@@ -469,7 +469,7 @@ class MacroModel(Optimizer):
         """
         Fix bond distances and angles in ``.com`` file.
 
-        For each bond distance, bond angle and torisional angle that
+        For each bond distance, bond angle and torsional angle that
         does not involve a bond created by
         :meth:`~.Topology.construct`, a "FX" command is added to the
         body of the ``.com`` file.
@@ -913,7 +913,7 @@ class MacroModelMD(MacroModel):
             Cannot be more than ``99999.99``.
 
         eq_time : :class:`float`, optional
-            The equilibriation time in ``ps`` before the MD is run.
+            The equilibration time in ``ps`` before the MD is run.
             Cannot be more than ``999999.99``.
 
         maximum_iterations : :class:`int`, optional
