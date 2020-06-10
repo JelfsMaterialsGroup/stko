@@ -1,10 +1,6 @@
 language: python
 install:
-  - pip install .
-script:
-  - echo Hello
-before-deploy:
-  - echo Deploying
+  - skip
 deploy:
   provider: pypi
   username: stevenb96
