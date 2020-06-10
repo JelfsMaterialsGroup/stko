@@ -1,4 +1,6 @@
 language: python
+install:
+  - pip install .
 deploy:
   provider: pypi
   username: stevenb96
