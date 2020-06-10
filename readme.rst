@@ -2,3 +2,6 @@
 :Documentation: https://stko-docs.readthedocs.io
 
 Contains molecular optimizers and property calculators for use with stk.
+
+.. image:: https://travis-ci.org/JelfsMaterialsGroup/stko.svg?branch=master
+    :target: https://travis-ci.com/github/JelfsGroup/stko
