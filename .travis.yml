@@ -1,6 +1,8 @@
 language: python
 install:
   - skip
+script:
+  - echo Built.
 deploy:
   provider: pypi
   username: stevenb96
