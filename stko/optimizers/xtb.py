@@ -889,6 +889,7 @@ class XTBFFCREST(XTB):
         xtb_path,
         output_dir=None,
         opt_level='normal',
+        md_len=None,
         ewin=5,
         speed_setting=None,
         keepdir=False,
@@ -922,6 +923,11 @@ class XTBFFCREST(XTB):
             For details see
             https://xtb-docs.readthedocs.io/en/latest/optimization.html
             .
+
+        md_len : :class:`float`, optional.
+            Set length of the meta-dynamics simulations (MTD) in ps.
+            Default is chosen based on size and flexibility of the
+            system.
 
         ewin : :class:`float`, optional.
             Set the energy threshold in kcal/mol for conformer
@@ -966,6 +972,7 @@ class XTBFFCREST(XTB):
         self._xtb_path = xtb_path
         self._output_dir = output_dir
         self._opt_level = opt_level
+        self._mdlen = md_len
 
         if speed_setting is not None and ewin != 5:
             raise CRESTSettingConflictError(
@@ -1048,17 +1055,20 @@ class XTBFFCREST(XTB):
 
         # Set optimization level and type.
         optimization = f'-opt {self._opt_level}'
+        mdlen = '' if self._mdlen is None else f'-mdlen {self._mdlen} '
         keepdirs = '-keepdir' if self._keepdir is True else ''
-        speed_settings = (
-            f'-{self._speed_setting}'
-            if self._speed_setting is not None else ''
-        )
+        if self._speed_setting is not None:
+            speed_settings = f'-{self._speed_setting}'
+            ewin = ''
+        else:
+            speed_settings = ''
+            ewin = f'-ewin {self._ewin} '
         cross = ('-nocross' if self._cross is False else '')
 
         cmd = (
             f'{memory} {self._crest_path} {xyz} '
             f'-xnam {self._xtb_path} -nozs {cross} '
-            f'-ewin {self._ewin} '
+            f'{ewin} {mdlen}'
             f'-chrg {self._charge} '
             f'-gff {speed_settings} '
             f'{optimization} -T {self._num_cores} {keepdirs}'
