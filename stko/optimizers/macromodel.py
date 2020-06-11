@@ -722,6 +722,7 @@ class MacroModelForceField(MacroModel):
             rdkit_opt_mol.GetConformer().GetPositions()
         )
         move_generated_macromodel_files(run_name, output_dir)
+        return mol
 
     def _fix_distances(self, mol, fix_block):
         """
