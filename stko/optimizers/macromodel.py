@@ -798,9 +798,9 @@ class MacroModelForceField(MacroModel):
         # Go through all the bonds in the ``stk.Molecule`` . If an
         # ``stk.BuildingBlock`` associated with the bond is ``None``,
         # add a fix line to the ``fix_block``.
-        # If the bond is connected an atom present in `bonder_ids`, go
-        # to the next bond. This is because a bond between atoms, whose
-        # IDs are present in `bonder_ids`,
+        # If the bond is connected to an atom present in `bonder_ids`,
+        # go to the next bond. This is because a bond between atoms,
+        #  whose IDs are present in `bonder_ids`,
         # was added during construction and should therefore not
         # be fixed.
         for bond in mol.get_bonds():
