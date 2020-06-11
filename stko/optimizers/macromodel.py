@@ -85,6 +85,25 @@ class MacroModel(Optimizer):
 
         force_field : :class:`int`
             The number of the force field to be used.
+            Force field arguments can be the following:
+            +------------+------------+
+            |  1  | MM2               |
+            +------------+------------+
+            |  2  | MM3               |
+            +------------+------------+
+            |  3  | AMBER             |
+            +------------+------------+
+            |  4  | AMBER94           |
+            +------------+------------+
+            |  5  | OPLSA             |
+            +------------+------------+
+            |  10 | MMFF94 and MMFF94s|
+            +------------+------------+
+            |  14 | OPLS_2005         |
+            +------------+------------+
+            |  16 | OPLS3e            |
+            +------------+------------+
+
 
         maximum_iterations : :class:`int`
             The maximum number of iterations done during the
@@ -540,9 +559,10 @@ class MacroModelForceField(MacroModel):
             :func:`uuid.uuid4` is used.
 
         restricted : :class:`bool`, optional
-            If ``True`` then an optimization is performed only on the
-            bonds added by :meth:`~.Topology.construct`. If ``False``
-            then all bonds are optimized.
+            If ``True`` then an optimization is performed only on bonds
+            not associated with building block IDs. These bonds may not
+            correspond to the bonds formed between bonder atoms.
+            If ``False`` then all bonds are optimized.
 
         timeout : :class:`float`, optional
             The amount in seconds the optimization is allowed to run
@@ -551,6 +571,24 @@ class MacroModelForceField(MacroModel):
 
         force_field : :class:`int`, optional
             The number of the force field to be used.
+            Force field arguments can be the following:
+            +------------+------------+
+            |  1  | MM2               |
+            +------------+------------+
+            |  2  | MM3               |
+            +------------+------------+
+            |  3  | AMBER             |
+            +------------+------------+
+            |  4  | AMBER94           |
+            +------------+------------+
+            |  5  | OPLSA             |
+            +------------+------------+
+            |  10 | MMFF94 and MMFF94s|
+            +------------+------------+
+            |  14 | OPLS_2005         |
+            +------------+------------+
+            |  16 | OPLS3e            |
+            +------------+------------+
 
         maximum_iterations : :class:`int`, optional
             The maximum number of iterations done during the
@@ -745,8 +783,8 @@ class MacroModelForceField(MacroModel):
             A string holding fix commands in the ``.com`` file.
 
         """
-        # Identify bonds created by ``stk`` by checking if the bond if
-        # the associated ``BuildingBlock`` is ``None``.
+        # Identify bonds created by ``stk`` by checking if the
+        # ``stk.BuildingBlock`` associated with the bond is ``None``.
         bonder_ids = set(
             atom_id
             for bond_info in mol.get_bond_infos()
@@ -757,11 +795,13 @@ class MacroModelForceField(MacroModel):
             )
         )
 
-        # Go through all the bonds in the `stk` molecule. If the bond
-        # is not between bonder atoms add a fix line to the
-        # ``fix_block``. If the bond does involve two bonder atoms go
-        # to the next bond. This is because a bond between 2 bonder
-        # atoms was added during construction and should therefore not
+        # Go through all the bonds in the ``stk.Molecule`` . If an
+        # ``stk.BuildingBlock`` associated with the bond is ``None``,
+        # add a fix line to the ``fix_block``.
+        # If the bond is connected an atom present in `bonder_ids`, go
+        # to the next bond. This is because a bond between atoms, whose
+        # IDs are present in `bonder_ids`,
+        # was added during construction and should therefore not
         # be fixed.
         for bond in mol.get_bonds():
             if (
