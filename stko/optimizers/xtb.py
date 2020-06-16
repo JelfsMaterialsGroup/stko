@@ -343,7 +343,7 @@ class XTB(Optimizer):
         """
         if not os.path.exists(output_file):
             # No simulation has been run.
-            return False
+            raise XTBOptimizerError('Optimization failed to start')
 
         # If convergence is achieved, then .xtboptok should exist.
         if os.path.exists('.xtboptok'):
@@ -516,7 +516,7 @@ class XTB(Optimizer):
         return mol
 
 
-class XTBFF(XTB):
+class XTBFF(Optimizer):
     """
     Uses GFN-FF [1]_ to optimize molecules.
 
@@ -658,7 +658,7 @@ class XTBFF(XTB):
         """
         if not os.path.exists(output_file):
             # No simulation has been run.
-            return False
+            raise XTBOptimizerError('Optimization failed to start')
         # If convergence is achieved, then .xtboptok should exist.
         if os.path.exists('.xtboptok'):
             return True
@@ -785,7 +785,7 @@ class XTBFF(XTB):
         return mol
 
 
-class XTBFFCREST(XTB):
+class XTBFFCREST(Optimizer):
     """
     Uses GFN-FF [1]_ to run CREST [2]_ on molecules.
 
@@ -1021,11 +1021,11 @@ class XTBFFCREST(XTB):
 
         if not os.path.exists(output_file):
             # No simulation has been run.
-            raise CRESTNotStartedError('CREST run did not start.')
+            raise CRESTNotStartedError('CREST run did not start')
 
         elif any(not os.path.exists(i) for i in output_xyzs):
             # Best conformer was not output.
-            raise CRESTNotCompletedError('CREST run did not complete.')
+            raise CRESTNotCompletedError('CREST run did not complete')
 
         return True
 
