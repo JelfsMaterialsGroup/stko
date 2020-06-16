@@ -805,10 +805,12 @@ class MacroModelForceField(MacroModel):
         # be fixed.
         for bond in mol.get_bonds():
             if (
-                (atom1_id := bond.get_atom1().get_id()) in bonder_ids
+                bond.get_atom1().get_id() in bonder_ids
                 and
-                (atom2_id := bond.get_atom2().get_id()) in bonder_ids
+                bond.get_atom2().get_id() in bonder_ids
             ):
+                atom1_id = bond.get_atom1().get_id()
+                atom2_id = bond.get_atoms2().get_id()
                 continue
 
             # Make sure that the indices are increased by 1 in the .mae
@@ -1290,10 +1292,12 @@ class MacroModelMD(MacroModel):
         for bond in mol.get_bonds():
             bond_key = frozenset(
                 (
-                    (atom1_id := bond.get_atom1().get_id()),
-                    (atom2_id := bond.get_atom2().get_id())
+                    bond.get_atom1().get_id(),
+                    bond.get_atom2().get_id()
                 )
             )
+            atom1_id = bond.get_atom1().get_id()
+            atom2_id = bond.get_atom2().get_id()
             if (bond_key not in self._restricted_bonds):
                 continue
 
