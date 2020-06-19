@@ -153,6 +153,7 @@ class GulpUFFOptimizer(Optimizer):
         gulp_path,
         metal_FF=None,
         conjugate_gradient=False,
+        cell=None,
         output_dir=None,
     ):
         """
@@ -172,6 +173,16 @@ class GulpUFFOptimizer(Optimizer):
             ``True`` to use Conjugate Graditent method.
             Defaults to ``False``
 
+        cell : :class:`dict` of :class:`float`, optional
+            If `None`, then calculation is non-periodic.
+            Dictionary requires six items:
+                'a': length of `a` cell vetor
+                'b': length of `b` cell vetor
+                'c': length of `c` cell vetor
+                'angle1': angle between `a` and `c` vector in degrees
+                'angle2': angle between `b` and `c` vector in degrees
+                'angle3': angle between `a` and `b` vector in degrees
+
         output_dir : :class:`str`, optional
             The name of the directory into which files generated during
             the calculation are written, if ``None`` then
@@ -181,6 +192,7 @@ class GulpUFFOptimizer(Optimizer):
         self._gulp_path = gulp_path
         self._metal_FF = metal_FF
         self._conjugate_gradient = conjugate_gradient
+        self._cell = cell
         self._output_dir = output_dir
 
     def _add_atom_charge_flags(self, atom, atomkey):
@@ -466,6 +478,21 @@ class GulpUFFOptimizer(Optimizer):
 
         return type_translator
 
+    def _cell_section(self):
+        cell_section = (
+            '\ncell\n'
+            f"{round(self._cell['a'], 6)} "
+            f"{round(self._cell['b'], 6)} "
+            f"{round(self._cell['c'], 6)} "
+            f"{round(self._cell['angle1'], 6)} "
+            f"{round(self._cell['angle2'], 6)} "
+            f"{round(self._cell['angle3'], 6)} "
+            # No fixes.
+            "0 0 0 0 0 0\n"
+        )
+
+        return cell_section
+
     def _position_section(self, mol, type_translator):
         position_section = '\ncartesian\n'
         for atom in mol.get_atoms():
@@ -524,18 +551,33 @@ class GulpUFFOptimizer(Optimizer):
 
         type_translator = self._type_translator()
 
+        top_line = 'opti '
+
         if self._conjugate_gradient:
-            top_line = (
-                'opti conj unit conv noautobond fix molmec cartesian\n'
-            )
+            top_line += 'conj unit '
+
+        if self._cell is not None:
+            # Constant pressure.
+            top_line += 'conp '
+            cell_section = self._cell_section()
         else:
-            top_line = 'opti conv noautobond fix molmec cartesian\n'
+            # Constant volume.
+            top_line += 'conv '
+            cell_section = ''
+
+        top_line += 'noautobond fix molmec cartesian\n'
 
         position_section = self._position_section(mol, type_translator)
         bond_section = self._bond_section(mol, metal_atoms)
         species_section = self._species_section(type_translator)
 
         library = '\nlibrary uff4mof.lib\n'
+
+        if self._cell is not None:
+            output_cif = output_xyz.replace('xyz', 'cif')
+            periodic_output = f'output cif {output_cif}\n'
+        else:
+            periodic_output = ''
 
         output_section = (
             '\n'
@@ -544,11 +586,13 @@ class GulpUFFOptimizer(Optimizer):
             'terse in structure\n'
             'terse inout derivatives\n'
             f'output xyz {output_xyz}\n'
+            f'{periodic_output}'
             # 'output movie xyz steps_.xyz\n'
         )
 
         with open(in_file, 'w') as f:
             f.write(top_line)
+            f.write(cell_section)
             f.write(position_section)
             f.write(bond_section)
             f.write(species_section)
