@@ -2,15 +2,15 @@
 GULP Metal Optimizer
 ==============
 
-#. :class:`.GulpMetalOptimizer`
-#. :class:`.GulpMDMetalOpimizer`
+#. :class:`.GulpOptimizer`
+#. :class:`.GulpMDOpimizer`
 
 Wrappers for calculators within the :mod:`gulp` code.
 
 Examples
 --------
 
-While metal atoms are not required, UFF4MOF is a useful because it
+While metal atoms are not required, UFF4MOF is useful because it
 encompasses almost all chemical environments commonly found in
 metal-organic structures. Better forcefields exist for purely
 organic molecules! An interface with GULP is provided, which takes
@@ -74,7 +74,7 @@ optimisations.
     # Use conjugate gradient method for a slower, but more stable
     # optimisation.
 
-    gulp_opt = stko.GulpMetalOptimizer(
+    gulp_opt = stko.GulpUFFOptimizer(
         gulp_path='path/to/gulp',
         metal_FF={46: 'Pd4+2'},
         conjugate_gradient=True
@@ -95,7 +95,7 @@ or a more robust method!
 
 .. code-block:: python
 
-    gulp_MD = stko.GulpMDMetalOptimizer(
+    gulp_MD = stko.GulpUFFMDOptimizer(
         gulp_path='path/to/gulp',
         metal_FF={46: 'Pd4+2'},
         temperature=700,
@@ -128,11 +128,15 @@ from ..utilities import (
 logger = logging.getLogger(__name__)
 
 
+class ExpectedMetal(Exception):
+    ...
+
+
 class UFFTyperError(Exception):
     ...
 
 
-class GulpMetalOptimizer(Optimizer):
+class GulpUFFOptimizer(Optimizer):
     """
     Applies forcefield optimizers that can handle metal centres.
 
@@ -147,24 +151,24 @@ class GulpMetalOptimizer(Optimizer):
     def __init__(
         self,
         gulp_path,
-        metal_FF,
+        metal_FF=None,
         conjugate_gradient=False,
         output_dir=None,
     ):
         """
-        Initialize a :class:`GulpMetalOptimizer` instance.
+        Initialize a :class:`GulpUFFOptimizer` instance.
 
         Parameters
         ----------
         gulp_path : :class:`str`
             Path to GULP executable.
 
-        metal_FF : :class:`dict`
+        metal_FF : :class:`dict`, optional
             Dictionary with metal atom forcefield assignments.
             Key: :class:`int` : atomic number.
             Value: :class:`str` : UFF4MOF forcefield type.
 
-        conjugate_gradient : :class:``, optional
+        conjugate_gradient : :class:`bool`, optional
             ``True`` to use Conjugate Graditent method.
             Defaults to ``False``
 
@@ -566,6 +570,13 @@ class GulpMetalOptimizer(Optimizer):
         """
         metal_atoms = get_metal_atoms(mol)
         metal_ids = [i.get_id() for i in metal_atoms]
+
+        if len(metal_ids) > 1 and self._metal_FF is None:
+            raise ExpectedMetal(
+                'No metal FF provivded, but metal atoms were found ('
+                f'{metal_atoms})'
+            )
+
         metal_bonds, _ = get_metal_bonds(mol, metal_atoms)
         edit_mol = to_rdkit_mol_without_metals(
             mol=mol,
@@ -677,7 +688,7 @@ class GulpMetalOptimizer(Optimizer):
         return mol
 
 
-class GulpMDMetalOptimizer(GulpMetalOptimizer):
+class GulpUFFMDOptimizer(GulpUFFOptimizer):
     """
     Applies forcefield MD that can handle metal centres.
 
@@ -692,7 +703,7 @@ class GulpMDMetalOptimizer(GulpMetalOptimizer):
     def __init__(
         self,
         gulp_path,
-        metal_FF,
+        metal_FF=None,
         output_dir=None,
         integrator='stochastic',
         ensemble='nvt',
@@ -705,14 +716,14 @@ class GulpMDMetalOptimizer(GulpMetalOptimizer):
         save_conformers=False,
     ):
         """
-        Initialize a :class:`GulpMetalOptimizer` instance.
+        Initialize a :class:`GulpUFFOptimizer` instance.
 
         Parameters
         ----------
         gulp_path : :class:`str`
             Path to GULP executable.
 
-        metal_FF : :class:`dict`
+        metal_FF : :class:`dict`, optional
             Dictionary with metal atom forcefield assignments.
             Key: :class:`int` : atomic number.
             Value: :class:`str` : UFF4MOF forcefield type.
@@ -985,7 +996,7 @@ class GulpMDMetalOptimizer(GulpMetalOptimizer):
                     atom_types=atom_types
                 )
                 mol = mol.with_structure_from_file(conformer_file_name)
-                gulp_opt = GulpMetalOptimizer(
+                gulp_opt = GulpUFFOptimizer(
                     gulp_path=self._gulp_path,
                     metal_FF=self._metal_FF,
                     output_dir=self._output_dir
