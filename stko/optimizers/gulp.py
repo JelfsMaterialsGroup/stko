@@ -606,6 +606,41 @@ class GulpUFFOptimizer(Optimizer):
             f.write(library)
             f.write(output_section)
 
+    def update_cell(self, cif_filename):
+        """
+        Extract cell from optimised structure (in CIF).
+
+        Returns
+        -------
+        cell_info : :class:`dict`
+            Dictionary with cell definition.
+
+        """
+
+        cell_info = {}
+
+        targets = {
+            '_cell_length_a': 'a',
+            '_cell_length_b': 'b',
+            '_cell_length_c': 'c',
+            '_cell_angle_alpha': 'angle1',
+            '_cell_angle_beta': 'angle2',
+            '_cell_angle_gamma': 'angle3',
+        }
+
+        with open(cif_filename, 'r') as f:
+            lines = f.readlines()
+
+        for targ in targets:
+            for line in lines:
+                # Avoid running through the rest.
+                if targets[targ] in cell_info.keys():
+                    break
+                splits = line.rstrip().split(' ')
+                if splits[0] == targ:
+                    cell_info[targets[targ]] = float(splits[-1])
+
+        return cell_info
 
     def _save_cif(self, filename, output_cif):
         """
