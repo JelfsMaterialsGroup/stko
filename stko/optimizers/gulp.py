@@ -151,6 +151,7 @@ class GulpUFFOptimizer(Optimizer):
     def __init__(
         self,
         gulp_path,
+        maxcyc=1000,
         metal_FF=None,
         conjugate_gradient=False,
         cell=None,
@@ -163,6 +164,10 @@ class GulpUFFOptimizer(Optimizer):
         ----------
         gulp_path : :class:`str`
             Path to GULP executable.
+
+        maxcyc : :class:`int`
+            Set the maximum number of optimisation steps to use.
+            Default in Gulp is 1000.
 
         metal_FF : :class:`dict`, optional
             Dictionary with metal atom forcefield assignments.
@@ -190,6 +195,7 @@ class GulpUFFOptimizer(Optimizer):
 
         """
         self._gulp_path = gulp_path
+        self._maxcyc = maxcyc
         self._metal_FF = metal_FF
         self._conjugate_gradient = conjugate_gradient
         self._cell = cell
@@ -581,8 +587,9 @@ class GulpUFFOptimizer(Optimizer):
 
         output_section = (
             '\n'
+            f'maxcyc {self._maxcyc}\n'
             'terse inout potentials\n'
-            'terse inout cell\n'
+            'terse in cell\n'
             'terse in structure\n'
             'terse inout derivatives\n'
             f'output xyz {output_xyz}\n'
@@ -599,16 +606,35 @@ class GulpUFFOptimizer(Optimizer):
             f.write(library)
             f.write(output_section)
 
+
+    def _save_cif(self, filename, output_cif):
+        """
+        Save CIF from optimisation folder.
+
+        Parameters
+        ----------
+        filename : :class:`str`
+            The name of CIF file to be written.
+
+        Returns
+        -------
+        None : :class:`NoneType`
+
+        """
+
+        os.rename(f'{self._output_dir}/{output_cif}', filename)
+
     def assign_FF(self, mol):
         """
         Assign forcefield types to molecule.
 
         Parameters
         ----------
+        mol : :class:`.Molecule`
+            The molecule to be optimized.
 
         Returns
         -------
-
         None : :class:`NoneType`
 
         """
@@ -678,7 +704,7 @@ class GulpUFFOptimizer(Optimizer):
                     string = nums.search(line.rstrip()).group(0)
                     return float(string)
 
-    def optimize(self, mol):
+    def optimize(self, mol, cif_filename=None):
         """
         Optimize `mol`.
 
@@ -693,6 +719,7 @@ class GulpUFFOptimizer(Optimizer):
             The optimized molecule.
 
         """
+
         if self._output_dir is None:
             output_dir = str(uuid.uuid4().int)
         else:
@@ -707,6 +734,7 @@ class GulpUFFOptimizer(Optimizer):
         in_file = 'gulp_opt.gin'
         out_file = 'gulp_opt.ginout'
         output_xyz = 'gulp_opt.xyz'
+        output_cif = output_xyz.replace('xyz', 'cif')
 
         metal_atoms = get_metal_atoms(mol)
 
@@ -726,8 +754,15 @@ class GulpUFFOptimizer(Optimizer):
 
         # Move files.
         self._move_generated_files(
-            files=[in_file, out_file, output_xyz]
+            files=[in_file, out_file, output_xyz, output_cif]
         )
+
+        # Save CIF.
+        if self._cell is not None and cif_filename is not None:
+            self._save_cif(
+                filename=cif_filename,
+                output_cif=output_cif
+            )
 
         return mol
 
