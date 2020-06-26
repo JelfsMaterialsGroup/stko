@@ -708,7 +708,7 @@ class GulpUFFOptimizer(Optimizer):
                     string = nums.search(line.rstrip()).group(0)
                     return float(string)
 
-    def optimize(self, mol, cell=None, cif_filename=None):
+    def optimize(self, mol, cell=None):
         """
         Optimize `mol` and `cell`.
 
@@ -769,13 +769,6 @@ class GulpUFFOptimizer(Optimizer):
         self._move_generated_files(
             files=[in_file, out_file, output_xyz, output_cif]
         )
-
-        # Save CIF.
-        if self._periodic and cif_filename is not None:
-            self._move_cif(
-                filename=cif_filename,
-                output_cif=output_cif
-            )
 
         return mol
 
