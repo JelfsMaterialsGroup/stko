@@ -788,7 +788,7 @@ class XTBPeriodic(Optimizer):
 
         return mol, opt_complete
 
-    def optimize(self, mol):
+    def optimize(self, mol, cell):
         """
         Optimize `mol`.
 
