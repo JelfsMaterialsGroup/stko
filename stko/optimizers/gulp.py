@@ -484,15 +484,15 @@ class GulpUFFOptimizer(Optimizer):
 
         return type_translator
 
-    def _cell_section(self):
+    def _cell_section(self, cell):
         cell_section = (
             '\ncell\n'
-            f"{round(self._cell['a'], 6)} "
-            f"{round(self._cell['b'], 6)} "
-            f"{round(self._cell['c'], 6)} "
-            f"{round(self._cell['angle1'], 6)} "
-            f"{round(self._cell['angle2'], 6)} "
-            f"{round(self._cell['angle3'], 6)} "
+            f"{round(cell.a, 6)} "
+            f"{round(cell.b, 6)} "
+            f"{round(cell.c, 6)} "
+            f"{round(cell.alpha, 6)} "
+            f"{round(cell.beta, 6)} "
+            f"{round(cell.gamma, 6)} "
             # No fixes.
             "0 0 0 0 0 0\n"
         )
@@ -553,7 +553,14 @@ class GulpUFFOptimizer(Optimizer):
 
         return species_section
 
-    def _write_gulp_file(self, mol, metal_atoms, in_file, output_xyz):
+    def _write_gulp_file(
+        self,
+        mol,
+        metal_atoms,
+        in_file,
+        output_xyz,
+        cell=None,
+    ):
 
         type_translator = self._type_translator()
 
@@ -748,7 +755,8 @@ class GulpUFFOptimizer(Optimizer):
             mol=mol,
             metal_atoms=metal_atoms,
             in_file=in_file,
-            output_xyz=output_xyz
+            output_xyz=output_xyz,
+            cell=cell,
         )
 
         # Run.
