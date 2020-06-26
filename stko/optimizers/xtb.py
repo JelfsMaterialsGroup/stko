@@ -703,6 +703,7 @@ class XTBPeriodic(Optimizer):
 
         # Set optimization level and type.
         optimization = f'--opt {self._opt_level}'
+        cycles = 1000
 
         if self._solvent is not None:
             solvent = f'--gbsa {self._solvent} {self._solvent_grid}'
@@ -714,6 +715,7 @@ class XTBPeriodic(Optimizer):
             f'--gfn {self._gfn_version} '
             f'{optimization} --parallel {self._num_cores} '
             f'--etemp {self._electronic_temperature} '
+            f'--cycles {cycles} '
             f'{solvent} --chrg {self._charge} '
             f'--uhf {self._num_unpaired_electrons}'
         )
