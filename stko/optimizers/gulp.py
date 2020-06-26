@@ -132,6 +132,10 @@ class ExpectedMetal(Exception):
     ...
 
 
+class ExpectedCell(Exception):
+    ...
+
+
 class UFFTyperError(Exception):
     ...
 
@@ -154,7 +158,7 @@ class GulpUFFOptimizer(Optimizer):
         maxcyc=1000,
         metal_FF=None,
         conjugate_gradient=False,
-        cell=None,
+        periodic=False,
         output_dir=None,
     ):
         """
@@ -178,15 +182,10 @@ class GulpUFFOptimizer(Optimizer):
             ``True`` to use Conjugate Graditent method.
             Defaults to ``False``
 
-        cell : :class:`dict` of :class:`float`, optional
-            If `None`, then calculation is non-periodic.
-            Dictionary requires six items:
-                'a': length of `a` cell vetor
-                'b': length of `b` cell vetor
-                'c': length of `c` cell vetor
-                'angle1': angle between `a` and `c` vector in degrees
-                'angle2': angle between `b` and `c` vector in degrees
-                'angle3': angle between `a` and `b` vector in degrees
+        periodic : :class:`bool`, optional
+            If `False`, then calculation is non-periodic.
+            Periodic optimisations always optimize the cell parameters
+            at constant pressure.
 
         output_dir : :class:`str`, optional
             The name of the directory into which files generated during
@@ -194,11 +193,12 @@ class GulpUFFOptimizer(Optimizer):
             :func:`uuid.uuid4` is used.
 
         """
+
         self._gulp_path = gulp_path
         self._maxcyc = maxcyc
         self._metal_FF = metal_FF
         self._conjugate_gradient = conjugate_gradient
-        self._cell = cell
+        self._periodic = periodic
         self._output_dir = output_dir
 
     def _add_atom_charge_flags(self, atom, atomkey):
@@ -562,14 +562,18 @@ class GulpUFFOptimizer(Optimizer):
         if self._conjugate_gradient:
             top_line += 'conj unit '
 
-        if self._cell is not None:
+        if self._periodic:
             # Constant pressure.
             top_line += 'conp '
-            cell_section = self._cell_section()
+            cell_section = self._cell_section(cell)
+            # Output CIF.
+            output_cif = output_xyz.replace('xyz', 'cif')
+            periodic_output = f'output cif {output_cif}\n'
         else:
             # Constant volume.
             top_line += 'conv '
             cell_section = ''
+            periodic_output = ''
 
         top_line += 'noautobond fix molmec cartesian\n'
 
@@ -578,12 +582,6 @@ class GulpUFFOptimizer(Optimizer):
         species_section = self._species_section(type_translator)
 
         library = '\nlibrary uff4mof.lib\n'
-
-        if self._cell is not None:
-            output_cif = output_xyz.replace('xyz', 'cif')
-            periodic_output = f'output cif {output_cif}\n'
-        else:
-            periodic_output = ''
 
         output_section = (
             '\n'
@@ -605,43 +603,6 @@ class GulpUFFOptimizer(Optimizer):
             f.write(species_section)
             f.write(library)
             f.write(output_section)
-
-    @staticmethod
-    def extract_cell(cif_filename):
-        """
-        Extract cell from optimised structure (in CIF).
-
-        Returns
-        -------
-        cell_info : :class:`dict`
-            Dictionary with cell definition.
-
-        """
-
-        cell_info = {}
-
-        targets = {
-            '_cell_length_a': 'a',
-            '_cell_length_b': 'b',
-            '_cell_length_c': 'c',
-            '_cell_angle_alpha': 'angle1',
-            '_cell_angle_beta': 'angle2',
-            '_cell_angle_gamma': 'angle3',
-        }
-
-        with open(cif_filename, 'r') as f:
-            lines = f.readlines()
-
-        for targ in targets:
-            for line in lines:
-                # Avoid running through the rest.
-                if targets[targ] in cell_info.keys():
-                    break
-                splits = line.rstrip().split(' ')
-                if splits[0] == targ:
-                    cell_info[targets[targ]] = float(splits[-1])
-
-        return cell_info
 
     def _move_cif(self, filename, output_cif):
         """
@@ -740,14 +701,17 @@ class GulpUFFOptimizer(Optimizer):
                     string = nums.search(line.rstrip()).group(0)
                     return float(string)
 
-    def optimize(self, mol, cif_filename=None):
+    def optimize(self, mol, cell=None, cif_filename=None):
         """
-        Optimize `mol`.
+        Optimize `mol` and `cell`.
 
         Parameters
         ----------
-        mol : :class:`.Molecule`
+        mol : :class:`stk.Molecule`
             The molecule to be optimized.
+
+        cell : :class:`.Cell`, optional
+            The cell to be optimized if optimization is periodic.
 
         Returns
         -------
@@ -755,6 +719,11 @@ class GulpUFFOptimizer(Optimizer):
             The optimized molecule.
 
         """
+
+        if cell is None and self._periodic:
+            raise ExpectedCell(
+                'Optimisation expected a cell because periodic is True'
+            )
 
         if self._output_dir is None:
             output_dir = str(uuid.uuid4().int)
@@ -794,7 +763,7 @@ class GulpUFFOptimizer(Optimizer):
         )
 
         # Save CIF.
-        if self._cell is not None and cif_filename is not None:
+        if self._periodic and cif_filename is not None:
             self._move_cif(
                 filename=cif_filename,
                 output_cif=output_cif
@@ -1165,12 +1134,12 @@ class GulpUFFMDOptimizer(GulpUFFOptimizer):
 
         Parameters
         ----------
-        mol : :class:`.Molecule`
+        mol : :class:`stk.Molecule`
             The molecule to be optimized.
 
         Returns
         -------
-        mol : :class:`.Molecule`
+        mol : :class:`stk.Molecule`
             The optimized molecule.
 
         """
