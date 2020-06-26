@@ -606,7 +606,8 @@ class GulpUFFOptimizer(Optimizer):
             f.write(library)
             f.write(output_section)
 
-    def update_cell(self, cif_filename):
+    @staticmethod
+    def extract_cell(cif_filename):
         """
         Extract cell from optimised structure (in CIF).
 
@@ -642,9 +643,9 @@ class GulpUFFOptimizer(Optimizer):
 
         return cell_info
 
-    def _save_cif(self, filename, output_cif):
+    def _move_cif(self, filename, output_cif):
         """
-        Save CIF from optimisation folder.
+        Move CIF from optimisation folder to filename.
 
         Parameters
         ----------
@@ -665,7 +666,7 @@ class GulpUFFOptimizer(Optimizer):
 
         Parameters
         ----------
-        mol : :class:`.Molecule`
+        mol : :class:`stk.Molecule`
             The molecule to be optimized.
 
         Returns
@@ -794,7 +795,7 @@ class GulpUFFOptimizer(Optimizer):
 
         # Save CIF.
         if self._cell is not None and cif_filename is not None:
-            self._save_cif(
+            self._move_cif(
                 filename=cif_filename,
                 output_cif=output_cif
             )
