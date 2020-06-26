@@ -23,6 +23,7 @@ from ..utilities import (
     XTBInvalidSolventError,
     XTBExtractor
 )
+from ..molecular.conversion import stk_to_coord
 
 logger = logging.getLogger(__name__)
 
@@ -754,7 +755,7 @@ class XTBPeriodic(Optimizer):
                 '$end\n'
             )
 
-    def _run_optimizations(self, mol):
+    def _run_optimization(self, mol, cell):
         """
         Run loop of optimizations on `mol` using xTB.
 
@@ -762,6 +763,9 @@ class XTBPeriodic(Optimizer):
         ----------
         mol : :class:`.Molecule`
             The molecule to be optimized.
+
+        cell : :class:`.Cell`
+            The cell to be optimized if optimization is periodic.
 
         Returns
         -------
@@ -774,14 +778,18 @@ class XTBPeriodic(Optimizer):
 
         """
 
-        coord = f'input_structure.coord'
-        input = f'input.txt'
+        coord_file = f'input_structure.coord'
+        input_file = f'input.txt'
         out_file = f'optimization.output'
 
         # Write input structure and property files.
-        # mol.write(coord)
-        self._write_input_file(input)
-        self._run_xtb(input=input, coord=coord, out_file=out_file)
+        stk_to_coord(mol, filename=coord_file, cell=cell)
+        self._write_input_file(input_file)
+        self._run_xtb(
+            input=input_file,
+            coord=coord_file,
+            out_file=out_file
+        )
 
         # Check if the optimization is complete.
         output_coord = 'xtbopt.coord'
@@ -798,6 +806,9 @@ class XTBPeriodic(Optimizer):
         ----------
         mol : :class:`.Molecule`
             The molecule to be optimized.
+
+        cell : :class:`.Cell`
+            The cell to be optimized.
 
         Returns
         -------
@@ -820,7 +831,10 @@ class XTBPeriodic(Optimizer):
         os.chdir(output_dir)
 
         try:
-            mol, complete = self._run_optimization(mol)
+            mol, complete = self._run_optimization(
+                mol=mol,
+                cell=cell
+            )
         finally:
             os.chdir(init_dir)
 
