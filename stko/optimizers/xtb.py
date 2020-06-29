@@ -21,9 +21,12 @@ from .optimizers import Optimizer
 from ..utilities import (
     is_valid_xtb_solvent,
     XTBInvalidSolventError,
-    XTBExtractor
+    XTBExtractor,
 )
-from ..molecular.conversion import stk_to_coord
+from ..molecular.conversion import (
+    stk_to_coord,
+    with_structure_from_periodic_turbomole,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -794,7 +797,7 @@ class XTBPeriodic(Optimizer):
         # Check if the optimization is complete.
         output_coord = 'xtbopt.coord'
         opt_complete = self._is_complete(out_file)
-        mol = mol.with_structure_from_file(output_coord)
+        mol = with_structure_from_periodic_turbomole(mol, output_coord)
 
         return mol, opt_complete
 
