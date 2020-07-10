@@ -63,7 +63,7 @@ class Collapser(Optimizer):
         scale_steps=True,
     ):
         """
-        Initialize a :class:`MetalOptimizer` instance.
+        Initialize a :class:`Collapser` instance.
 
         Parameters
         ----------
