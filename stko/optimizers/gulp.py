@@ -153,6 +153,7 @@ class GulpUFFOptimizer(Optimizer):
         gulp_path,
         maxcyc=1000,
         metal_FF=None,
+        metal_ligand_bond_order=None,
         conjugate_gradient=False,
         cell=None,
         output_dir=None,
@@ -173,6 +174,11 @@ class GulpUFFOptimizer(Optimizer):
             Dictionary with metal atom forcefield assignments.
             Key: :class:`int` : atomic number.
             Value: :class:`str` : UFF4MOF forcefield type.
+
+        metal_ligand_bond_order : :class:`str`, optional
+            Bond order to use for metal-ligand bonds. Defaults to
+            `half`, but using `resonant` can increase the force
+            constant for stronger metal-ligand interactions.
 
         conjugate_gradient : :class:`bool`, optional
             ``True`` to use Conjugate Graditent method.
@@ -197,6 +203,10 @@ class GulpUFFOptimizer(Optimizer):
         self._gulp_path = gulp_path
         self._maxcyc = maxcyc
         self._metal_FF = metal_FF
+        self._metal_ligand_bond_order = (
+            'half' if metal_ligand_bond_order is None
+            else metal_ligand_bond_order
+        )
         self._conjugate_gradient = conjugate_gradient
         self._cell = cell
         self._output_dir = output_dir
@@ -527,7 +537,7 @@ class GulpUFFOptimizer(Optimizer):
                 # H has bond order of 1.
                 bond_type = ''
             elif has_metal_atom(bond, metal_atoms):
-                bond_type = 'half'
+                bond_type = self._metal_ligand_bond_order
             elif '_R' in atom_types[0] and '_R' in atom_types[1]:
                 bond_type = 'resonant'
             elif bond.get_order() == 1:
@@ -819,6 +829,7 @@ class GulpUFFMDOptimizer(GulpUFFOptimizer):
         self,
         gulp_path,
         metal_FF=None,
+        metal_ligand_bond_order=None,
         output_dir=None,
         integrator='stochastic',
         ensemble='nvt',
@@ -842,6 +853,11 @@ class GulpUFFMDOptimizer(GulpUFFOptimizer):
             Dictionary with metal atom forcefield assignments.
             Key: :class:`int` : atomic number.
             Value: :class:`str` : UFF4MOF forcefield type.
+
+        metal_ligand_bond_order : :class:`str`, optional
+            Bond order to use for metal-ligand bonds. Defaults to
+            `half`, but using `resonant` can increase the force
+            constant for stronger metal-ligand interactions.
 
         output_dir : :class:`str`, optional
             The name of the directory into which files generated during
@@ -887,6 +903,10 @@ class GulpUFFMDOptimizer(GulpUFFOptimizer):
         """
         self._gulp_path = gulp_path
         self._metal_FF = metal_FF
+        self._metal_ligand_bond_order = (
+            'half' if metal_ligand_bond_order is None
+            else metal_ligand_bond_order
+        )
         self._output_dir = output_dir
         self._integrator = integrator
         self._ensemble = ensemble
