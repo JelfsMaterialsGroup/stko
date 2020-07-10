@@ -298,3 +298,129 @@ class Collapser(Optimizer):
                 f"====================\n"
             )
         return mol
+
+
+class Collapserv2(Collapser):
+    """
+    Collapse stk.ConstructedMolecule to decrease enlarged bonds.
+
+    Smarter optimisation than Collapser.
+
+    """
+
+    def _get_long_bond_infos(self, mol):
+        """
+        Returns list of long bond infos.
+
+        """
+
+        long_bond_infos = []
+        for bond_infos in mol.get_bond_infos():
+            if bond_infos.get_building_block() is None:
+                long_bond_infos.append(bond_infos)
+
+        return long_bond_infos
+
+    def optimize(self, mol):
+        """
+        Optimize `mol`.
+
+        Parameters
+        ----------
+        mol : :class:`stk.Molecule`
+            The molecule to be optimized.
+
+        Returns
+        -------
+        mol : :class:`stk.Molecule`
+            The optimized molecule.
+
+        """
+
+        # Handle output dir.
+        if self._output_dir is None:
+            output_dir = str(uuid.uuid4().int)
+        else:
+            output_dir = self._output_dir
+        output_dir = os.path.abspath(output_dir)
+
+        if os.path.exists(output_dir):
+            shutil.rmtree(output_dir)
+        os.mkdir(output_dir)
+
+        # Define long bonds to optimise.
+        long_bond_infos = self._get_long_bond_infos(mol)
+        print(long_bond_infos)
+        import sys
+        sys.exit()
+
+        BB_ids = list(set([
+            i.get_building_block_id() for i in mol.get_atom_infos()
+        ]))
+        BB_atom_ids = {i: [] for i in BB_ids}
+        for i in mol.get_atom_infos():
+            BB_atom_ids[i.get_building_block_id()].append(
+                i.get_atom().get_id()
+            )
+
+        # Translate each BB along BB_COM_vectors `step`.
+        # `step` is the proportion of the BB_COM_vectors that is moved.
+        step_no = 0
+        step = self._step_size
+        while not self._has_short_contacts(mol):
+            # Update each step the building block vectors and distance.
+            BB_cent_vectors, BB_cent_scales = self._get_BB_vectors(
+                mol=mol,
+                BB_atom_ids=BB_atom_ids
+            )
+
+            new_pos = self._get_new_position_matrix(
+                mol=mol,
+                step=step,
+                vectors=BB_cent_vectors,
+                scales=BB_cent_scales
+            )
+            step_no += 1
+            mol = mol.with_position_matrix(new_pos)
+            mol.write(
+                os.path.join(output_dir, f'collapsed_{step_no}.mol')
+            )
+
+        BB_cent_vectors, BB_cent_scales = self._get_BB_vectors(
+            mol=mol,
+            BB_atom_ids=BB_atom_ids
+        )
+
+        # Check that we have not gone too far.
+        min_dist = min(
+            dist for dist in self._get_inter_BB_distance(mol)
+        )
+        if min_dist < self._distance_cut / 2:
+            # Revert to half the previous step if we have.
+            step = -(self._step_size/2)
+            new_pos = self._get_new_position_matrix(
+                mol=mol,
+                step=step,
+                vectors=BB_cent_vectors,
+                scales=BB_cent_scales
+            )
+            step_no += 1
+            mol = mol.with_position_matrix(new_pos)
+            mol.write(
+                os.path.join(output_dir, f'collapsed_rev.mol')
+            )
+
+        out_file = os.path.join(output_dir, f'collapser.out')
+        with open(out_file, 'w') as f:
+            f.write(
+                f"Collapser algorithm.\n"
+                f"====================\n"
+                f"Step size: {self._step_size}\n"
+                f"Scale steps?: {self._scale_steps}\n"
+                f"Distance cut: {self._distance_cut}\n"
+                f"====================\n"
+                f"Steps run: {step_no}\n"
+                f"Minimum inter-BB distance: {min_dist}\n"
+                f"====================\n"
+            )
+        return mol
