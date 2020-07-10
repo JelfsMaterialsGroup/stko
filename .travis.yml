@@ -1,0 +1,12 @@
+language: python
+install:
+  - skip
+script:
+  - echo Built.
+deploy:
+  provider: pypi
+  username: stevenb96
+  password:
+    secure: BVWzmDqjxtRq0xQ8x25xRZAQ299YpsMWmVSC35vNwshw9R33qJhNj5bX05faTDpXcCVMW1fapve5mkCPW/aQAUmQleg623u6N6Z5tsFwsX8ZyrSnsHqllt6zMCCs67rCk0C4Rfz9BjN5jG/24NnUDjcgcxPVQGqmb57oH5wqTU61DYEp7XqIUFFASzPkUUtwPFF6rhnUuxdA9wg/DtyrUSdfkNnQNanxCmKMI9FhZFkv1zDP+QWM2AQquUTCtWQsniG8W5fe8tGC8uplm6ILZHOCpF8n/gX/xUIIuMpcYBoFWv61nSjD766BTT53zGkQcO7KE1sC1WsPoSpybrgmt4SpCkW3qB01n+EXi7aYnPIr0FLtWGe3JgQF5VZ42lSFxKpktTEVkmfMx4vLKzJg5pzVJwKMjqBPMLBy81+/4Z6BbTmTeHRTC1Lt25xcwxQZV1AgiQxcXJgZt853LLq6Q5eUt3cU7AOuXqDpTtxQ0Qu/CzA4PR4z98VfTGNklorcuLutK5txjoknp6dHy2j1e9lCfxL61wucnsUgJA5v5ys9yotpIvZwovcTlERPy16Go3DBgeWWSC1IECwPrpDoZq/y440qMobtf7XoabswYyiiv/5a0rL+KYLWEw8jVBEhtRGauJP/B0+ZN2ZYXDVAoojZYaNXi3OiPZLffg3vCnI=
+  skip_existing: true
+  edge: true

@@ -260,6 +260,11 @@ class Collapser(Optimizer):
                 os.path.join(output_dir, f'collapsed_{step_no}.mol')
             )
 
+        BB_cent_vectors, BB_cent_scales = self._get_BB_vectors(
+            mol=mol,
+            BB_atom_ids=BB_atom_ids
+        )
+
         # Check that we have not gone too far.
         min_dist = min(
             dist for dist in self._get_inter_BB_distance(mol)
