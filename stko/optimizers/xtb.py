@@ -541,8 +541,8 @@ class XTBCREST(Optimizer):
 
     *Restrictions to iMTD-GC Algorithm*
     Z-matrix sorting is forced to be off because :class:`stk.Molecules`
-    cannot have their ordering changed by an external program at this
-    stage. This may impact the effectiveness of the algorithm.
+    cannot have their atom ordering changed by an external program at
+    this stage.
 
     Examples
     --------
@@ -593,12 +593,12 @@ class XTBCREST(Optimizer):
     :attr:`keepdir` is `False`, the files listed below are kept in
     :attr:`output_dir` and could be useful for further analysis!
 
-        | crest_best.xyx: Structure of the lowest energy conformer.
+        | crest_best.xyz: Structure of the lowest energy conformer.
         |    This structure is output by :meth:`optimize`.
-        | crest_conformers.xyx: Structure of all conformers.
+        | crest_conformers.xyz: Structure of all conformers.
         |    All conformers with RMSD and energy threshold of the
         |    lowest energy conformer.
-        | crest_rotamers.xyx: Structure of all rotamers.
+        | crest_rotamers.xyz: Structure of all rotamers.
         |    All unique rotamers explored by CREST.
         | crest.energies: Relative conformer energies in a.u..
         | gfn_topo: GFN-FF binary topology file.
@@ -764,10 +764,10 @@ class XTBCREST(Optimizer):
 
         output_xyzs : :class:`str`
             Name of CREST conformer and rotamer output files.
-            crest_best.xyx > Best conformer, exists throughout run.
-            crest_conformers.xyx > All conformers,
+            crest_best.xyz > Best conformer, exists throughout run.
+            crest_conformers.xyz > All conformers,
                 exists throughout run.
-            crest_rotamers.xyx > All rotamers, exists one run is done.
+            crest_rotamers.xyz > All rotamers, exists one run is done.
 
         Returns
         -------
@@ -1231,8 +1231,8 @@ class XTBFFCREST(Optimizer):
 
     *Restrictions to iMTD-GC Algorithm*
     Z-matrix sorting is forced to be off because :class:`stk.Molecules`
-    cannot have their ordering changed by an external program at this
-    stage. This may impact the effectiveness of the algorithm.
+    cannot have their atom ordering changed by an external program at
+    this stage.
 
     Examples
     --------
@@ -1283,12 +1283,12 @@ class XTBFFCREST(Optimizer):
     :attr:`keepdir` is `False`, the files listed below are kept in
     :attr:`output_dir` and could be useful for further analysis!
 
-        | crest_best.xyx: Structure of the lowest energy conformer.
+        | crest_best.xyz: Structure of the lowest energy conformer.
         |    This structure is output by :meth:`optimize`.
-        | crest_conformers.xyx: Structure of all conformers.
+        | crest_conformers.xyz: Structure of all conformers.
         |    All conformers with RMSD and energy threshold of the
         |    lowest energy conformer.
-        | crest_rotamers.xyx: Structure of all rotamers.
+        | crest_rotamers.xyz: Structure of all rotamers.
         |    All unique rotamers explored by CREST.
         | crest.energies: Relative conformer energies in a.u..
         | gfn_topo: GFN-FF binary topology file.
@@ -1417,10 +1417,10 @@ class XTBFFCREST(Optimizer):
 
         output_xyzs : :class:`str`
             Name of CREST conformer and rotamer output files.
-            crest_best.xyx > Best conformer, exists throughout run.
-            crest_conformers.xyx > All conformers,
+            crest_best.xyz > Best conformer, exists throughout run.
+            crest_conformers.xyz > All conformers,
                 exists throughout run.
-            crest_rotamers.xyx > All rotamers, exists one run is done.
+            crest_rotamers.xyz > All rotamers, exists one run is done.
 
         Returns
         -------
