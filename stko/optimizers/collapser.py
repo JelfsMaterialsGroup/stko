@@ -304,22 +304,95 @@ class Collapserv2(Collapser):
     """
     Collapse stk.ConstructedMolecule to decrease enlarged bonds.
 
-    Smarter optimisation than Collapser.
+    Smarter optimisation than Collapser using simple Monte Carlo
+    algorithm to perform rigid translations of building blocks.
 
     """
 
+    def __init__(
+        self,
+        output_dir,
+        step_size,
+        target_bond_length,
+    ):
+        """
+        Initialize a :class:`Collapser` instance.
+
+        Parameters
+        ----------
+        output_dir : :class:`str`
+            The name of the directory into which files generated during
+            the calculation are written, if ``None`` then
+            :func:`uuid.uuid4` is used.
+
+        step_size : :class:`float`
+            The relative size of the step to take during step.
+
+        target_bond_length : :class:`float`
+            Target equilibrium bond length for long bonds to minimize
+            to.
+
+        self._output_dir = output_dir
+        self._step_size = step_size
+        self._target_bond_length = target_bond_length
+    def _get_bb_atom_ids(self, mol):
+
+        bb_ids = list(set([
+            i.get_building_block_id() for i in mol.get_atom_infos()
+        ]))
+        bb_atom_ids = {i: [] for i in bb_ids}
+        for i in mol.get_atom_infos():
+            bb_atom_ids[i.get_building_block_id()].append(
+                i.get_atom().get_id()
+            )
+
+        return bb_atom_ids
+
+    def _get_bond_length(self, mol, bond):
+
+        position_matrix = mol.get_position_matrix()
+        return get_atom_distance(
+            position_matrix=position_matrix,
+            atom1_id=bond.get_atom1().get_id(),
+            atom2_id=bond.get_atom2().get_id()
+        )
+
+    def _get_bond_vector(self, mol, bond):
+
+        position_matrix = mol.get_position_matrix()
+        atom1_pos = position_matrix[bond.get_atom1().get_id()]
+        atom2_pos = position_matrix[bond.get_atom2().get_id()]
+        return atom2_pos - atom1_pos
+
     def _get_long_bond_infos(self, mol):
         """
-        Returns list of long bond infos.
+        Returns dict of long bond infos.
 
         """
 
-        long_bond_infos = []
+        long_bond_infos = {}
         for bond_infos in mol.get_bond_infos():
             if bond_infos.get_building_block() is None:
-                long_bond_infos.append(bond_infos)
+                ids = (
+                    bond_infos.get_bond().get_atom1().get_id(),
+                    bond_infos.get_bond().get_atom2().get_id(),
+                )
+                long_bond_infos[ids] = bond_infos
 
         return long_bond_infos
+
+    def _get_bb_centroids(self, mol, bb_atom_ids):
+        """
+        Returns dict of building block centroids.
+
+        """
+
+        bb_centroids = {
+            i: mol.get_centroid(atom_ids=bb_atom_ids[i])
+            for i in bb_atom_ids
+        }
+
+        return bb_centroids
 
     def optimize(self, mol):
         """
@@ -327,12 +400,12 @@ class Collapserv2(Collapser):
 
         Parameters
         ----------
-        mol : :class:`stk.Molecule`
+        mol : :class:`stk.ConstructedMolecule`
             The molecule to be optimized.
 
         Returns
         -------
-        mol : :class:`stk.Molecule`
+        mol : :class:`stk.ConstructedMolecule`
             The optimized molecule.
 
         """
@@ -350,16 +423,11 @@ class Collapserv2(Collapser):
 
         # Define long bonds to optimise.
         long_bond_infos = self._get_long_bond_infos(mol)
-        print(long_bond_infos)
-        import sys
-        sys.exit()
 
-        BB_ids = list(set([
-            i.get_building_block_id() for i in mol.get_atom_infos()
-        ]))
-        BB_atom_ids = {i: [] for i in BB_ids}
-        for i in mol.get_atom_infos():
-            BB_atom_ids[i.get_building_block_id()].append(
+        # Get bb atom ids and bb centroids.
+        bb_atom_ids = self._get_bb_atom_ids(mol)
+        bb_centroids = self._get_bb_centroids(mol, bb_atom_ids)
+
                 i.get_atom().get_id()
             )
 
