@@ -91,7 +91,7 @@ class Collapser(Optimizer):
         self._distance_cut = distance_cut
         self._scale_steps = scale_steps
 
-    def _get_inter_BB_distance(self, mol):
+    def _get_inter_bb_distance(self, mol):
         """
         Yield The distances between building blocks in mol.
 
@@ -129,7 +129,7 @@ class Collapser(Optimizer):
 
         return any(
             dist < self._distance_cut
-            for dist in self._get_inter_BB_distance(mol)
+            for dist in self._get_inter_bb_distance(mol)
         )
 
     def _get_new_position_matrix(self, mol, step, vectors, scales):
@@ -149,26 +149,26 @@ class Collapser(Optimizer):
 
         return new_position_matrix
 
-    def _get_BB_vectors(self, mol, BB_atom_ids):
+    def _get_bb_vectors(self, mol, bb_atom_ids):
         """
-        Get the BB to COM vectors.
+        Get the bb to COM vectors.
 
         Parameters
         ----------
         mol : :class:`.Molecule`
             The molecule to be optimized.
 
-        BB_atom_ids : :class:`dict`
+        bb_atom_ids : :class:`dict`
             Atom ids (values) in each distinct building block in the
             molecule. Keys are building block ids.
 
         Returns
         -------
-        BB_cent_vectors : :class:`dict`
+        bb_cent_vectors : :class:`dict`
             Vector from building block (Key is building block id) to
             molecules centroid.
 
-        BB_cent_scales : :class:`dict`
+        bb_cent_scales : :class:`dict`
             Relative size of vector between building blocks and
             centroid.
 
@@ -176,30 +176,30 @@ class Collapser(Optimizer):
 
         cent = mol.get_centroid()
 
-        # Get BB COM vector to molecule COM.
-        BB_cent_vectors = {
-            i: mol.get_centroid(atom_ids=BB_atom_ids[i])-cent
-            for i in BB_atom_ids
+        # Get bb COM vector to molecule COM.
+        bb_cent_vectors = {
+            i: mol.get_centroid(atom_ids=bb_atom_ids[i])-cent
+            for i in bb_atom_ids
         }
 
         # Scale the step size based on the different distances of
-        # BBs from the COM. Impacts anisotropic topologies.
+        # bbs from the COM. Impacts anisotropic topologies.
         if self._scale_steps:
             max_distance = max(
-                np.linalg.norm(BB_cent_vectors[i])
-                for i in BB_cent_vectors
+                np.linalg.norm(bb_cent_vectors[i])
+                for i in bb_cent_vectors
             )
-            BB_cent_scales = {
-                i: np.linalg.norm(BB_cent_vectors[i])/max_distance
-                for i in BB_cent_vectors
+            bb_cent_scales = {
+                i: np.linalg.norm(bb_cent_vectors[i])/max_distance
+                for i in bb_cent_vectors
             }
         else:
-            BB_cent_scales = {
+            bb_cent_scales = {
                 i: 1
-                for i in BB_cent_vectors
+                for i in bb_cent_vectors
             }
 
-        return BB_cent_vectors, BB_cent_scales
+        return bb_cent_vectors, bb_cent_scales
 
     def optimize(self, mol):
         """
@@ -207,12 +207,12 @@ class Collapser(Optimizer):
 
         Parameters
         ----------
-        mol : :class:`stk.Molecule`
+        mol : :class:`stk.ConstructedMolecule`
             The molecule to be optimized.
 
         Returns
         -------
-        mol : :class:`stk.Molecule`
+        mol : :class:`stk.ConstructedMolecule`
             The optimized molecule.
 
         """
@@ -228,31 +228,31 @@ class Collapser(Optimizer):
             shutil.rmtree(output_dir)
         os.mkdir(output_dir)
 
-        BB_ids = list(set([
+        bb_ids = list(set([
             i.get_building_block_id() for i in mol.get_atom_infos()
         ]))
-        BB_atom_ids = {i: [] for i in BB_ids}
+        bb_atom_ids = {i: [] for i in bb_ids}
         for i in mol.get_atom_infos():
-            BB_atom_ids[i.get_building_block_id()].append(
+            bb_atom_ids[i.get_building_block_id()].append(
                 i.get_atom().get_id()
             )
 
-        # Translate each BB along BB_COM_vectors `step`.
-        # `step` is the proportion of the BB_COM_vectors that is moved.
+        # Translate each bb along bb_COM_vectors `step`.
+        # `step` is the proportion of the bb_COM_vectors that is moved.
         step_no = 0
         step = self._step_size
         while not self._has_short_contacts(mol):
             # Update each step the building block vectors and distance.
-            BB_cent_vectors, BB_cent_scales = self._get_BB_vectors(
+            bb_cent_vectors, bb_cent_scales = self._get_bb_vectors(
                 mol=mol,
-                BB_atom_ids=BB_atom_ids
+                bb_atom_ids=bb_atom_ids
             )
 
             new_pos = self._get_new_position_matrix(
                 mol=mol,
                 step=step,
-                vectors=BB_cent_vectors,
-                scales=BB_cent_scales
+                vectors=bb_cent_vectors,
+                scales=bb_cent_scales
             )
             step_no += 1
             mol = mol.with_position_matrix(new_pos)
@@ -260,14 +260,14 @@ class Collapser(Optimizer):
                 os.path.join(output_dir, f'collapsed_{step_no}.mol')
             )
 
-        BB_cent_vectors, BB_cent_scales = self._get_BB_vectors(
+        bb_cent_vectors, bb_cent_scales = self._get_bb_vectors(
             mol=mol,
-            BB_atom_ids=BB_atom_ids
+            bb_atom_ids=bb_atom_ids
         )
 
         # Check that we have not gone too far.
         min_dist = min(
-            dist for dist in self._get_inter_BB_distance(mol)
+            dist for dist in self._get_inter_bb_distance(mol)
         )
         if min_dist < self._distance_cut / 2:
             # Revert to half the previous step if we have.
@@ -275,8 +275,8 @@ class Collapser(Optimizer):
             new_pos = self._get_new_position_matrix(
                 mol=mol,
                 step=step,
-                vectors=BB_cent_vectors,
-                scales=BB_cent_scales
+                vectors=bb_cent_vectors,
+                scales=bb_cent_scales
             )
             step_no += 1
             mol = mol.with_position_matrix(new_pos)
@@ -294,7 +294,7 @@ class Collapser(Optimizer):
                 f"Distance cut: {self._distance_cut}\n"
                 f"====================\n"
                 f"Steps run: {step_no}\n"
-                f"Minimum inter-BB distance: {min_dist}\n"
+                f"Minimum inter-bb distance: {min_dist}\n"
                 f"====================\n"
             )
         return mol
