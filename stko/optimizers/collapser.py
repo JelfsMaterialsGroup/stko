@@ -610,6 +610,10 @@ class Collapserv2(Collapser):
         # Define long bonds to optimise.
         long_bond_infos = self._get_long_bond_infos(mol)
 
+        # If no long bonds, then optimisation is done.
+        if len(long_bond_infos) == 0:
+            return mol
+
         # Get bb atom ids and bb centroids.
         bb_atom_ids = self._get_bb_atom_ids(mol)
         bb_centroids = self._get_bb_centroids(mol, bb_atom_ids)
@@ -630,9 +634,7 @@ class Collapserv2(Collapser):
 
         with open(os.path.join(output_dir, f'coll.out'), 'w') as f:
             f.write(self._output_top_lines())
-            mol.write(
-                os.path.join(output_dir, f'testing_0.mol')
-            )
+            mol.write(os.path.join(output_dir, f'coll_0.mol'))
             steps = [0]
             passed = []
             spots = [system_potential]
@@ -741,9 +743,7 @@ class Collapserv2(Collapser):
                         vector=-translation_vector,
                     )
 
-                mol.write(
-                    os.path.join(output_dir, f'testing_{step}.xyz')
-                )
+                mol.write(os.path.join(output_dir, f'coll_{step}.xyz'))
                 steps.append(step)
                 spots.append(system_potential)
                 npots.append(
