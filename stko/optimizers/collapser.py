@@ -343,6 +343,34 @@ class Collapserv2(Collapser):
 
         num_steps : :class:`int`
             Number of MC moves to perform.
+
+        bond_epsilon : :class:`float`, optional
+            Value of epsilon used in the bond potential in MC moves.
+            Determines strength of the bond potential.
+            Defaults to 50.
+
+        nonbond_epsilon : :class:`float`, optional
+            Value of epsilon used in the nonbond potential in MC moves.
+            Determines strength of the nonbond potential.
+            Defaults to 20.
+
+        nonbond_sigma : :class:`float`, optional
+            Value of sigma used in the nonbond potential in MC moves.
+            Defaults to 1.2.
+
+        nonbond_mu : :class:`float`, optional
+            Value of mu used in the nonbond potential in MC moves.
+            Determines the steepness of the nonbond potential.
+            Defaults to 3.
+
+        beta : :class:`float`, optional
+            Value of beta used in the in MC moves. Beta takes the
+            place of the inverse boltzmann temperature.
+            Defaults to 2.
+
+
+        """
+
         self._output_dir = output_dir
         self._step_size = step_size
         self._target_bond_length = target_bond_length
