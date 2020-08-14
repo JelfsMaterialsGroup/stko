@@ -59,6 +59,12 @@ class MMFF(Optimizer):
 
     """
 
+    def __init__(self, ignore_inter_interactions=True):
+
+        self._ignore_inter_interactions = (
+            ignore_inter_interactions
+        )
+
     def optimize(self, mol):
         """
         Optimize `mol`.
@@ -78,10 +84,15 @@ class MMFF(Optimizer):
         rdkit_mol = mol.to_rdkit_mol()
         # Needs to be sanitized to get force field params.
         rdkit.SanitizeMol(rdkit_mol)
-        rdkit.MMFFOptimizeMolecule(rdkit_mol)
+        rdkit.MMFFOptimizeMolecule(
+            rdkit_mol,
+            ignoreInterfragInteractions=self._ignore_inter_interactions
+        )
         mol = mol.with_position_matrix(
             position_matrix=rdkit_mol.GetConformer().GetPositions()
         )
+
+        return mol
 
 
 class UFF(Optimizer):
@@ -100,6 +111,10 @@ class UFF(Optimizer):
 
     """
 
+    def __init__(self, ignore_inter_interactions=True):
+
+        self._ignore_inter_interactions = ignore_inter_interactions
+
     def optimize(self, mol):
         """
         Optimize `mol`.
@@ -119,7 +134,10 @@ class UFF(Optimizer):
         rdkit_mol = mol.to_rdkit_mol()
         # Needs to be sanitized to get force field params.
         rdkit.SanitizeMol(rdkit_mol)
-        rdkit.UFFOptimizeMolecule(rdkit_mol)
+        rdkit.UFFOptimizeMolecule(
+            rdkit_mol,
+            ignoreInterfragInteractions=self._ignore_inter_interactions
+        )
         mol = mol.with_position_matrix(
             position_matrix=rdkit_mol.GetConformer().GetPositions()
         )
