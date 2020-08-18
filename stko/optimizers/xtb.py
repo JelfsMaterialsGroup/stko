@@ -563,7 +563,7 @@ class XTBCREST(Optimizer):
             stko.XTB(
                 xtb_path='/opt/gfnxtb/xtb',
                 unlimited_memory=True,
-            )
+            ),
             # Perform quick conformer search.
             stko.XTBCREST(
                 crest_path='/opt/crest/crest',
@@ -571,7 +571,7 @@ class XTBCREST(Optimizer):
                 opt_level='normal',
                 speed_setting='quick',
                 unlimited_memory=True,
-            )
+            ),
         )
         polymer = xtb.optimize(polymer)
 
@@ -926,7 +926,7 @@ class XTBFF(Optimizer):
 
     Notes
     -----
-    GFN-FF requires version 6.3 of xtb.
+    GFN-FF requires >= version 6.3 of xtb.
 
     When running :meth:`optimize`, this calculator changes the
     present working directory with :func:`os.chdir`. The original
@@ -968,7 +968,7 @@ class XTBFF(Optimizer):
             stko.XTBFF(
                 xtb_path='/opt/gfnxtb/xtb',
                 unlimited_memory=True,
-            )
+            ),
         )
         polymer = xtb.optimize(polymer)
 
@@ -1239,7 +1239,7 @@ class XTBFFCREST(Optimizer):
             stko.XTBFF(
                 xtb_path='/opt/gfnxtb/xtb',
                 unlimited_memory=True,
-            )
+            ),
             # Perform quick conformer search.
             stko.XTBFFCREST(
                 crest_path='/opt/crest/crest',
@@ -1247,7 +1247,7 @@ class XTBFFCREST(Optimizer):
                 opt_level='normal',
                 speed_setting='quick',
                 unlimited_memory=True,
-            )
+            ),
         )
         polymer = xtb.optimize(polymer)
 
