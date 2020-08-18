@@ -62,13 +62,6 @@ class XTB(Optimizer):
     unless multi-threading is being used this implementation detail
     should not matter.
 
-    If multi-threading is being used an error could occur if two
-    different threads need to know about the current working directory
-    as :class:`.XTB` can change it from under them.
-
-    Note that this does not have any impact on multi-processing,
-    which should always be safe.
-
     Furthermore, :meth:`optimize` will check that the
     structure is adequately optimized by checking for negative
     frequencies after a Hessian calculation. `max_runs` can be
@@ -532,13 +525,6 @@ class XTBCREST(Optimizer):
     unless multi-threading is being used this implementation detail
     should not matter.
 
-    If multi-threading is being used an error could occur if two
-    different threads need to know about the current working directory
-    as :class:`.XTBCREST` can change it from under them.
-
-    Note that this does not have any impact on multi-processing,
-    which should always be safe.
-
     *Restrictions to iMTD-GC Algorithm*
     Z-matrix sorting is forced to be off because :class:`stk.Molecules`
     cannot have their atom ordering changed by an external program at
@@ -948,13 +934,6 @@ class XTBFF(Optimizer):
     unless multi-threading is being used this implementation detail
     should not matter.
 
-    If multi-threading is being used an error could occur if two
-    different threads need to know about the current working directory
-    as :class:`.XTBFF` can change it from under them.
-
-    Note that this does not have any impact on multi-processing,
-    which should always be safe.
-
     Currently, we only provide inputs that work with GFN-FF,
     specifically the charge of the system. Other electronic properties
     of the molecule are not relavent to a forcefield optimisation.
@@ -1216,13 +1195,6 @@ class XTBFFCREST(Optimizer):
     working directory will be restored even if an error is raised, so
     unless multi-threading is being used this implementation detail
     should not matter.
-
-    If multi-threading is being used an error could occur if two
-    different threads need to know about the current working directory
-    as :class:`.XTBFFCREST` can change it from under them.
-
-    Note that this does not have any impact on multi-processing,
-    which should always be safe.
 
     Currently, we only provide inputs that work with GFN-FF,
     specifically the charge of the system. Other electronic properties
