@@ -59,7 +59,6 @@ there are no requirements. New optimizers can be added into the
 """
 
 import logging
-import numpy as np
 
 from ..base_calculator import Calculator
 
