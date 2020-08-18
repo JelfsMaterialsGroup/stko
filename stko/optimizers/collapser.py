@@ -303,9 +303,9 @@ class Collapser(Optimizer):
         return mol
 
 
-class Collapserv2(Collapser):
+class CollapserMC(Collapser):
     """
-    Collapse stk.ConstructedMolecule to decrease enlarged bonds.
+    Collapse molecule to decrease enlarged bonds using MC algorithm.
 
     Smarter optimisation than Collapser using simple Monte Carlo
     algorithm to perform rigid translations of building blocks.
