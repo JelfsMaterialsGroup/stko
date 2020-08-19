@@ -11,6 +11,7 @@ Optimizer for collapsing enlarged topologies.
 import logging
 from itertools import combinations
 import numpy as np
+from collections import defaultdict
 import matplotlib.pyplot as plt
 from scipy.spatial.distance import pdist
 import random
@@ -144,8 +145,8 @@ class Collapser(Optimizer):
         new_position_matrix = mol.get_position_matrix()
         for atom in mol.get_atom_infos():
             bb_id = atom.get_building_block_id()
-            id = atom.get_atom().get_id()
-            pos = mol.get_position_matrix()[id]
+            _id = atom.get_atom().get_id()
+            pos = mol.get_position_matrix()[_id]
             new_position_matrix[id] = (
                 pos - step*vectors[bb_id]*scales[bb_id]
             )
@@ -154,26 +155,31 @@ class Collapser(Optimizer):
 
     def _get_bb_vectors(self, mol, bb_atom_ids):
         """
-        Get the bb to COM vectors.
+        Get the building block to COM vectors.
 
         Parameters
         ----------
         mol : :class:`.Molecule`
             The molecule to be optimized.
 
-        bb_atom_ids : :class:`dict`
-            Atom ids (values) in each distinct building block in the
-            molecule. Keys are building block ids.
+        bb_atom_ids : :class:`dict` mapping :class:`int`: :class:`list`
+            Dictionary mapping building block ids (keys) to a list of
+            atom ids (values) in each distinct building block in the
+            molecule.
 
         Returns
         -------
-        bb_cent_vectors : :class:`dict`
-            Vector from building block (Key is building block id) to
-            molecules centroid.
+        bb_cent_vectors :
+            :class:`dict` mapping :class:`int`: :class:`numpy.ndarray`
+            Dictionary mapping building block ids (keys) to centroid
+            vectors (values) of each distinct building block in the
+            molecule.
 
-        bb_cent_scales : :class:`dict`
-            Relative size of vector between building blocks and
-            centroid.
+        bb_cent_scales :
+            :class:`dict` mapping :class:`int`: :class:`float`
+            Dictionary mapping building block ids (keys) to relative
+            magnitude of centroid vectors (values) of each distinct
+            building block in the molecule.
 
         """
 
@@ -188,13 +194,14 @@ class Collapser(Optimizer):
         # Scale the step size based on the different distances of
         # bbs from the COM. Impacts anisotropic topologies.
         if self._scale_steps:
-            max_distance = max(
-                np.linalg.norm(bb_cent_vectors[i])
+            norms = {
+                i: np.linalg.norm(bb_cent_vectors[i])
                 for i in bb_cent_vectors
-            )
+            }
+            max_distance = max(list(norms.values()))
             bb_cent_scales = {
-                i: np.linalg.norm(bb_cent_vectors[i])/max_distance
-                for i in bb_cent_vectors
+                i: norms[i]/max_distance
+                for i in norms
             }
         else:
             bb_cent_scales = {
@@ -231,17 +238,15 @@ class Collapser(Optimizer):
             shutil.rmtree(output_dir)
         os.mkdir(output_dir)
 
-        bb_ids = list(set([
-            i.get_building_block_id() for i in mol.get_atom_infos()
-        ]))
-        bb_atom_ids = {i: [] for i in bb_ids}
+        bb_atom_ids = defaultdict(list)
         for i in mol.get_atom_infos():
             bb_atom_ids[i.get_building_block_id()].append(
                 i.get_atom().get_id()
             )
 
-        # Translate each bb along bb_COM_vectors `step`.
-        # `step` is the proportion of the bb_COM_vectors that is moved.
+        # Translate each building block along bb_COM_vectors by a
+        # distance `step`. I.e. `step` is the proportion of the
+        # bb_COM_vectors that the building block is moved.
         step_no = 0
         step = self._step_size
         while not self._has_short_contacts(mol):
@@ -383,10 +388,7 @@ class CollapserMC(Collapser):
 
     def _get_bb_atom_ids(self, mol):
 
-        bb_ids = list(set([
-            i.get_building_block_id() for i in mol.get_atom_infos()
-        ]))
-        bb_atom_ids = {i: [] for i in bb_ids}
+        bb_atom_ids = defaultdict(list)
         for i in mol.get_atom_infos():
             bb_atom_ids[i.get_building_block_id()].append(
                 i.get_atom().get_id()
@@ -477,8 +479,6 @@ class CollapserMC(Collapser):
 
         potential = (distance - self._target_bond_length) ** 2
         potential = self._bond_epsilon * potential
-        # force = -2 * (distance - self._target_bond_length)
-        # force = self._bond_epsilon * force
 
         return potential
 
@@ -523,8 +523,8 @@ class CollapserMC(Collapser):
 
         new_position_matrix = mol.get_position_matrix()
         for atom in mol.get_atom_infos(atom_ids=atom_ids):
-            id = atom.get_atom().get_id()
-            pos = mol.get_position_matrix()[id]
+            _id = atom.get_atom().get_id()
+            pos = mol.get_position_matrix()[_id]
             new_position_matrix[id] = pos - vector
 
         return mol.with_position_matrix(new_position_matrix)
@@ -537,8 +537,7 @@ class CollapserMC(Collapser):
         target_vector,
         axis
     ):
-
-        return None
+        raise NotImplementedError()
 
     def _test_move(self, curr_pot, new_pot):
 
