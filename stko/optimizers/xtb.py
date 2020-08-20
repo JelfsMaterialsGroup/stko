@@ -3,9 +3,10 @@ XTB Optimizers
 ==============
 
 #. :class:`.XTB`
-#. :class:`.XTBPeriodic`
+#. :class:`.XTBCREST`
 #. :class:`.XTBFF`
 #. :class:`.XTBFFCREST`
+#. :class:`.XTBPeriodic`
 
 Wrappers for optimizers within the :mod:`xtb` code.
 
@@ -24,6 +25,7 @@ from ..utilities import (
     XTBInvalidSolventError,
     XTBExtractor,
 )
+
 from ..molecular.conversion import (
     with_structure_from_periodic_turbomole,
 )
@@ -516,339 +518,7 @@ class XTB(Optimizer):
         return mol
 
 
-class XTBPeriodic(Optimizer):
-    """
-    Uses GFN-xTB [1]_ to optimize periodic systems.
-
-    Notes
-    -----
-    When running :meth:`optimize`, this calculator changes the
-    present working directory with :func:`os.chdir`. The original
-    working directory will be restored even if an error is raised, so
-    unless multi-threading is being used this implementation detail
-    should not matter.
-
-    If multi-threading is being used an error could occur if two
-    different threads need to know about the current working directory
-    as :class:`.XTB` can change it from under them.
-
-    Note that this does not have any impact on multi-processing,
-    which should always be safe.
-
-    Periodic optimisations require GFN1-xTB usage and usage of the
-    inertial optimiser engine.[2]_
-
-    Examples
-    --------
-
-
-    References
-    ----------
-    .. [1] https://xtb-docs.readthedocs.io/en/latest/setup.html
-    .. [2] https://xtb-docs.readthedocs.io/en/latest/
-    periodic_boundary_conditions.html
-
-    """
-
-    def __init__(
-        self,
-        xtb_path,
-        output_dir=None,
-        opt_level='normal',
-        num_cores=1,
-        electronic_temperature=300,
-        solvent=None,
-        solvent_grid='normal',
-        charge=0,
-        num_unpaired_electrons=0,
-        unlimited_memory=False,
-    ):
-        """
-        Initialize a :class:`XTB` instance.
-
-        Parameters
-        ----------
-        xtb_path : :class:`str`
-            The path to the xTB executable.
-
-        output_dir : :class:`str`, optional
-            The name of the directory into which files generated during
-            the optimization are written, if ``None`` then
-            :func:`uuid.uuid4` is used.
-
-        opt_level : :class:`str`, optional
-            Optimization level to use.
-            Can be one of ``'crude'``, ``'sloppy'``, ``'loose'``,
-            ``'lax'``, ``'normal'``, ``'tight'``, ``'vtight'``
-            or ``'extreme'``.
-            For details see
-            https://xtb-docs.readthedocs.io/en/latest/optimization.html
-            .
-
-        num_cores : :class:`int`, optional
-            The number of cores xTB should use.
-
-        electronic_temperature : :class:`int`, optional
-            Electronic temperature in Kelvin.
-
-        solvent : :class:`str`, optional
-            Solvent to use in GBSA implicit solvation method.
-            For details see
-            https://xtb-docs.readthedocs.io/en/latest/gbsa.html.
-
-        solvent_grid : :class:`str`, optional
-            Grid level to use in SASA calculations for GBSA implicit
-            solvent.
-            Can be one of ``'normal'``, ``'tight'``, ``'verytight'``
-            or ``'extreme'``.
-            For details see
-            https://xtb-docs.readthedocs.io/en/latest/gbsa.html.
-
-        charge : :class:`int`, optional
-            Formal molecular charge.
-
-        num_unpaired_electrons : :class:`int`, optional
-            Number of unpaired electrons.
-
-        unlimited_memory : :class: `bool`, optional
-            If ``True`` :meth:`optimize` will be run without
-            constraints on the stack size. If memory issues are
-            encountered, this should be ``True``, however this may
-            raise issues on clusters.
-
-        """
-
-        if solvent is not None:
-            solvent = solvent.lower()
-            if not is_valid_xtb_solvent(1, solvent):
-                raise XTBInvalidSolventError(
-                    f'Solvent {solvent!r} is invalid for ',
-                    f'version gfn version 1.'
-                )
-
-        self._xtb_path = xtb_path
-        self._gfn_version = str(1)
-        self._output_dir = output_dir
-        self._opt_level = opt_level
-        self._num_cores = str(num_cores)
-        self._electronic_temperature = str(electronic_temperature)
-        self._solvent = solvent
-        self._solvent_grid = solvent_grid
-        self._charge = str(charge)
-        self._num_unpaired_electrons = str(num_unpaired_electrons)
-        self._unlimited_memory = unlimited_memory
-
-    def _is_complete(self, output_file):
-        """
-        Check if xTB optimization has completed and converged.
-
-        Parameters
-        ----------
-        output_file : :class:`str`
-            Name of xTB output file.
-
-        Returns
-        -------
-        :class:`bool`
-            Returns ``False`` if a negative frequency is present.
-
-        Raises
-        -------
-        :class:`XTBOptimizerError`
-            If the optimization failed.
-
-        :class:`XTBConvergenceError`
-            If the optimization did not converge.
-
-        """
-
-        if not os.path.exists(output_file):
-            # No simulation has been run.
-            raise XTBOptimizerError('Optimization failed to start')
-        # If convergence is achieved, then .xtboptok should exist.
-        if os.path.exists('.xtboptok'):
-            return True
-        elif os.path.exists('NOT_CONVERGED'):
-            raise XTBConvergenceError('Optimization not converged.')
-        else:
-            raise XTBOptimizerError('Optimization failed to complete')
-
-    def _run_xtb(self, input, coord, out_file):
-        """
-        Run GFN-xTB.
-
-        Parameters
-        ----------
-        input : :class:`str`
-            The name of the input properties file.
-
-        coord : :class:`str`
-            The name of the input structure ``.coord`` file.
-
-        out_file : :class:`str`
-            The name of output file with xTB results.
-
-        Returns
-        -------
-        None : :class:`NoneType`
-
-        """
-
-        # Modify the memory limit.
-        if self._unlimited_memory:
-            memory = 'ulimit -s unlimited ;'
-        else:
-            memory = ''
-
-        # Set optimization level and type.
-        optimization = f'--opt {self._opt_level}'
-        cycles = 1000
-
-        if self._solvent is not None:
-            solvent = f'--gbsa {self._solvent} {self._solvent_grid}'
-        else:
-            solvent = ''
-
-        cmd = (
-            f'{memory} {self._xtb_path} --input {input} {coord} '
-            f'--gfn {self._gfn_version} '
-            f'{optimization} --parallel {self._num_cores} '
-            f'--etemp {self._electronic_temperature} '
-            f'--cycles {cycles} '
-            f'{solvent} --chrg {self._charge} '
-            f'--uhf {self._num_unpaired_electrons}'
-        )
-
-        with open(out_file, 'w') as f:
-            # Note that sp.call will hold the program until completion
-            # of the calculation.
-            sp.call(
-                cmd,
-                stdin=sp.PIPE,
-                stdout=f,
-                stderr=sp.PIPE,
-                # Shell is required to run complex arguments.
-                shell=True
-            )
-
-    def _write_input_file(self, input):
-        """
-        Write input properties file for xtb usage.
-
-        Parameters
-        ----------
-        input : :class:`str`
-            The name of the input properties file.
-
-        Returns
-        -------
-        None : :class:`NoneType`
-
-        """
-
-        with open(input, 'w') as f:
-            f.write(
-                '$opt\n'
-                '   engine=inertial\n'
-                '   periodic=true\n'
-                '$end\n'
-            )
-
-    def _run_optimization(self, mol, unit_cell):
-        """
-        Run loop of optimizations on `mol` using xTB.
-
-        Parameters
-        ----------
-        mol : :class:`.Molecule`
-            The molecule to be optimized.
-
-        unit_cell : :class:`.UnitCell`
-            The cell to be optimized if optimization is periodic.
-
-        Returns
-        -------
-        mol : :class:`.Molecule`
-            The optimized molecule.
-
-        opt_complete : :class:`bool`
-            Returns ``True`` if the calculation is complete and
-            ``False`` if the calculation is incomplete.
-
-        """
-
-        coord_file = f'input_structure.coord'
-        input_file = f'input.txt'
-        out_file = f'optimization.output'
-
-        # Write input structure and property files.
-        TurbomoleWriter().write(
-            molecule=mol,
-            path=coord_file,
-            periodic_info=unit_cell.get_periodic_info()
-        )
-        self._write_input_file(input_file)
-        self._run_xtb(
-            input=input_file,
-            coord=coord_file,
-            out_file=out_file
-        )
-
-        # Check if the optimization is complete.
-        output_coord = 'xtbopt.coord'
-        opt_complete = self._is_complete(out_file)
-        mol = with_structure_from_periodic_turbomole(mol, output_coord)
-        unit_cell = UPDATE
-
-        return mol, unit_cell, opt_complete
-
-    def p_optimize(self, mol, unit_cell):
-        """
-        Optimize `mol` and `unit_cell`.
-
-        Parameters
-        ----------
-        mol : :class:`.Molecule`
-            The molecule to be optimized.
-
-        unit_cell : :class:`.UnitCell`
-            The cell to be optimized.
-
-        Returns
-        -------
-        mol : :class:`.Molecule`
-            The optimized molecule.
-
-        """
-
-        if self._output_dir is None:
-            output_dir = str(uuid.uuid4().int)
-        else:
-            output_dir = self._output_dir
-        output_dir = os.path.abspath(output_dir)
-
-        if os.path.exists(output_dir):
-            shutil.rmtree(output_dir)
-
-        os.mkdir(output_dir)
-        init_dir = os.getcwd()
-        os.chdir(output_dir)
-
-        try:
-            mol, unit_cell, complete = self._run_optimization(
-                mol=mol,
-                cell=unit_cell
-            )
-        finally:
-            os.chdir(init_dir)
-
-        if not complete:
-            logging.warning(f'Optimization is incomplete for {mol}.')
-
-        return mol, unit_cell
-
-
-class XTBFF(Optimizer):
+class XTBCREST(Optimizer):
     """
     Uses GFN-n [1]_ to run CREST [2]_ on molecules.
 
@@ -1390,7 +1060,6 @@ class XTBFF(Optimizer):
             If the optimization did not converge.
 
         """
-
         if not os.path.exists(output_file):
             # No simulation has been run.
             raise XTBOptimizerError('Optimization failed to start')
@@ -1888,3 +1557,335 @@ class XTBFFCREST(Optimizer):
             logging.warning(f'CREST run is incomplete for {mol}.')
 
         return mol
+
+
+class XTBPeriodic(Optimizer):
+    """
+    Uses GFN-xTB [1]_ to optimize periodic systems.
+
+    Notes
+    -----
+    When running :meth:`optimize`, this calculator changes the
+    present working directory with :func:`os.chdir`. The original
+    working directory will be restored even if an error is raised, so
+    unless multi-threading is being used this implementation detail
+    should not matter.
+
+    If multi-threading is being used an error could occur if two
+    different threads need to know about the current working directory
+    as :class:`.XTB` can change it from under them.
+
+    Note that this does not have any impact on multi-processing,
+    which should always be safe.
+
+    Periodic optimisations require GFN1-xTB usage and usage of the
+    inertial optimiser engine.[2]_
+
+    Examples
+    --------
+
+
+    References
+    ----------
+    .. [1] https://xtb-docs.readthedocs.io/en/latest/setup.html
+    .. [2] https://xtb-docs.readthedocs.io/en/latest/
+    periodic_boundary_conditions.html
+
+    """
+
+    def __init__(
+        self,
+        xtb_path,
+        output_dir=None,
+        opt_level='normal',
+        num_cores=1,
+        electronic_temperature=300,
+        solvent=None,
+        solvent_grid='normal',
+        charge=0,
+        num_unpaired_electrons=0,
+        unlimited_memory=False,
+    ):
+        """
+        Initialize a :class:`XTB` instance.
+
+        Parameters
+        ----------
+        xtb_path : :class:`str`
+            The path to the xTB executable.
+
+        output_dir : :class:`str`, optional
+            The name of the directory into which files generated during
+            the optimization are written, if ``None`` then
+            :func:`uuid.uuid4` is used.
+
+        opt_level : :class:`str`, optional
+            Optimization level to use.
+            Can be one of ``'crude'``, ``'sloppy'``, ``'loose'``,
+            ``'lax'``, ``'normal'``, ``'tight'``, ``'vtight'``
+            or ``'extreme'``.
+            For details see
+            https://xtb-docs.readthedocs.io/en/latest/optimization.html
+            .
+
+        num_cores : :class:`int`, optional
+            The number of cores xTB should use.
+
+        electronic_temperature : :class:`int`, optional
+            Electronic temperature in Kelvin.
+
+        solvent : :class:`str`, optional
+            Solvent to use in GBSA implicit solvation method.
+            For details see
+            https://xtb-docs.readthedocs.io/en/latest/gbsa.html.
+
+        solvent_grid : :class:`str`, optional
+            Grid level to use in SASA calculations for GBSA implicit
+            solvent.
+            Can be one of ``'normal'``, ``'tight'``, ``'verytight'``
+            or ``'extreme'``.
+            For details see
+            https://xtb-docs.readthedocs.io/en/latest/gbsa.html.
+
+        charge : :class:`int`, optional
+            Formal molecular charge.
+
+        num_unpaired_electrons : :class:`int`, optional
+            Number of unpaired electrons.
+
+        unlimited_memory : :class: `bool`, optional
+            If ``True`` :meth:`optimize` will be run without
+            constraints on the stack size. If memory issues are
+            encountered, this should be ``True``, however this may
+            raise issues on clusters.
+
+        """
+
+        if solvent is not None:
+            solvent = solvent.lower()
+            if not is_valid_xtb_solvent(1, solvent):
+                raise XTBInvalidSolventError(
+                    f'Solvent {solvent!r} is invalid for ',
+                    f'version gfn version 1.'
+                )
+
+        self._xtb_path = xtb_path
+        self._gfn_version = str(1)
+        self._output_dir = output_dir
+        self._opt_level = opt_level
+        self._num_cores = str(num_cores)
+        self._electronic_temperature = str(electronic_temperature)
+        self._solvent = solvent
+        self._solvent_grid = solvent_grid
+        self._charge = str(charge)
+        self._num_unpaired_electrons = str(num_unpaired_electrons)
+        self._unlimited_memory = unlimited_memory
+
+    def _is_complete(self, output_file):
+        """
+        Check if xTB optimization has completed and converged.
+
+        Parameters
+        ----------
+        output_file : :class:`str`
+            Name of xTB output file.
+
+        Returns
+        -------
+        :class:`bool`
+            Returns ``False`` if a negative frequency is present.
+
+        Raises
+        -------
+        :class:`XTBOptimizerError`
+            If the optimization failed.
+
+        :class:`XTBConvergenceError`
+            If the optimization did not converge.
+
+        """
+
+        if not os.path.exists(output_file):
+            # No simulation has been run.
+            raise XTBOptimizerError('Optimization failed to start')
+        # If convergence is achieved, then .xtboptok should exist.
+        if os.path.exists('.xtboptok'):
+            return True
+        elif os.path.exists('NOT_CONVERGED'):
+            raise XTBConvergenceError('Optimization not converged.')
+        else:
+            raise XTBOptimizerError('Optimization failed to complete')
+
+    def _run_xtb(self, input, coord, out_file):
+        """
+        Run GFN-xTB.
+
+        Parameters
+        ----------
+        input : :class:`str`
+            The name of the input properties file.
+
+        coord : :class:`str`
+            The name of the input structure ``.coord`` file.
+
+        out_file : :class:`str`
+            The name of output file with xTB results.
+
+        Returns
+        -------
+        None : :class:`NoneType`
+
+        """
+
+        # Modify the memory limit.
+        if self._unlimited_memory:
+            memory = 'ulimit -s unlimited ;'
+        else:
+            memory = ''
+
+        # Set optimization level and type.
+        optimization = f'--opt {self._opt_level}'
+        cycles = 1000
+
+        if self._solvent is not None:
+            solvent = f'--gbsa {self._solvent} {self._solvent_grid}'
+        else:
+            solvent = ''
+
+        cmd = (
+            f'{memory} {self._xtb_path} --input {input} {coord} '
+            f'--gfn {self._gfn_version} '
+            f'{optimization} --parallel {self._num_cores} '
+            f'--etemp {self._electronic_temperature} '
+            f'--cycles {cycles} '
+            f'{solvent} --chrg {self._charge} '
+            f'--uhf {self._num_unpaired_electrons}'
+        )
+
+        with open(out_file, 'w') as f:
+            # Note that sp.call will hold the program until completion
+            # of the calculation.
+            sp.call(
+                cmd,
+                stdin=sp.PIPE,
+                stdout=f,
+                stderr=sp.PIPE,
+                # Shell is required to run complex arguments.
+                shell=True
+            )
+
+    def _write_input_file(self, input):
+        """
+        Write input properties file for xtb usage.
+
+        Parameters
+        ----------
+        input : :class:`str`
+            The name of the input properties file.
+
+        Returns
+        -------
+        None : :class:`NoneType`
+
+        """
+
+        with open(input, 'w') as f:
+            f.write(
+                '$opt\n'
+                '   engine=inertial\n'
+                '   periodic=true\n'
+                '$end\n'
+            )
+
+    def _run_optimization(self, mol, unit_cell):
+        """
+        Run loop of optimizations on `mol` using xTB.
+
+        Parameters
+        ----------
+        mol : :class:`.Molecule`
+            The molecule to be optimized.
+
+        unit_cell : :class:`.UnitCell`
+            The cell to be optimized if optimization is periodic.
+
+        Returns
+        -------
+        mol : :class:`.Molecule`
+            The optimized molecule.
+
+        opt_complete : :class:`bool`
+            Returns ``True`` if the calculation is complete and
+            ``False`` if the calculation is incomplete.
+
+        """
+
+        coord_file = f'input_structure.coord'
+        input_file = f'input.txt'
+        out_file = f'optimization.output'
+
+        # Write input structure and property files.
+        TurbomoleWriter().write(
+            molecule=mol,
+            path=coord_file,
+            periodic_info=unit_cell.get_periodic_info()
+        )
+        self._write_input_file(input_file)
+        self._run_xtb(
+            input=input_file,
+            coord=coord_file,
+            out_file=out_file
+        )
+
+        # Check if the optimization is complete.
+        output_coord = 'xtbopt.coord'
+        opt_complete = self._is_complete(out_file)
+        mol = with_structure_from_periodic_turbomole(mol, output_coord)
+        unit_cell = UPDATE
+
+        return mol, unit_cell, opt_complete
+
+    def p_optimize(self, mol, unit_cell):
+        """
+        Optimize `mol` and `unit_cell`.
+
+        Parameters
+        ----------
+        mol : :class:`.Molecule`
+            The molecule to be optimized.
+
+        unit_cell : :class:`.UnitCell`
+            The cell to be optimized.
+
+        Returns
+        -------
+        mol : :class:`.Molecule`
+            The optimized molecule.
+
+        """
+
+        if self._output_dir is None:
+            output_dir = str(uuid.uuid4().int)
+        else:
+            output_dir = self._output_dir
+        output_dir = os.path.abspath(output_dir)
+
+        if os.path.exists(output_dir):
+            shutil.rmtree(output_dir)
+
+        os.mkdir(output_dir)
+        init_dir = os.getcwd()
+        os.chdir(output_dir)
+
+        try:
+            mol, unit_cell, complete = self._run_optimization(
+                mol=mol,
+                cell=unit_cell
+            )
+        finally:
+            os.chdir(init_dir)
+
+        if not complete:
+            logging.warning(f'Optimization is incomplete for {mol}.')
+
+        return mol, unit_cell
