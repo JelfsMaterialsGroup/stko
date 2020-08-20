@@ -328,6 +328,7 @@ class CollapserMC(Collapser):
         nonbond_sigma=1.2,
         nonbond_mu=3,
         beta=2,
+        random_seed=None,
     ):
         """
         Initialize a :class:`Collapser` instance.
@@ -373,6 +374,11 @@ class CollapserMC(Collapser):
             place of the inverse boltzmann temperature.
             Defaults to 2.
 
+        random_seed : :class:`int`, optional
+            Random seed to use for MC algorithm. Should only be set
+            if exactly reproducible results are required, otherwise
+            a system-based random seed should be used for proper
+            sampling.
 
         """
 
@@ -385,6 +391,10 @@ class CollapserMC(Collapser):
         self._nonbond_sigma = nonbond_sigma
         self._nonbond_mu = nonbond_mu
         self._beta = beta
+        if random_seed is None:
+            random.seed()
+        else:
+            random.seed(random_seed)
 
     def _get_bb_atom_ids(self, mol):
 
@@ -620,8 +630,6 @@ class CollapserMC(Collapser):
             The optimized molecule.
 
         """
-
-        random.seed()
 
         # Handle output dir.
         if self._output_dir is None:
