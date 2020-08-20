@@ -1,13 +1,9 @@
 """
-Unit Cell
-====
-
-Class holding periodic cell information.
+Utilities for periodic molecules.
 
 """
 
 import logging
-from stk import PeriodicInfo
 import numpy as np
 
 logger = logging.getLogger(__name__)
