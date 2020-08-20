@@ -67,13 +67,6 @@ class XTB(Optimizer):
     unless multi-threading is being used this implementation detail
     should not matter.
 
-    If multi-threading is being used an error could occur if two
-    different threads need to know about the current working directory
-    as :class:`.XTB` can change it from under them.
-
-    Note that this does not have any impact on multi-processing,
-    which should always be safe.
-
     Furthermore, :meth:`optimize` will check that the
     structure is adequately optimized by checking for negative
     frequencies after a Hessian calculation. `max_runs` can be
@@ -398,7 +391,9 @@ class XTB(Optimizer):
             optimization = f'--opt {self._opt_level}'
 
         if self._solvent is not None:
-            solvent = f'--gbsa {self._solvent} {self._solvent_grid}'
+            solvent = (
+                f'--gbsa {self._solvent} bar1M {self._solvent_grid}'
+            )
         else:
             solvent = ''
 
@@ -855,11 +850,11 @@ class XTBPeriodic(Optimizer):
 
 class XTBFF(Optimizer):
     """
-    Uses GFN-FF [1]_ to optimize molecules.
+    Uses GFN-n [1]_ to run CREST [2]_ on molecules.
 
     Notes
     -----
-    GFN-FF requires version 6.3 of xtb.
+    Requires version > 6.2 of xtb.
 
     When running :meth:`optimize`, this calculator changes the
     present working directory with :func:`os.chdir`. The original
@@ -867,12 +862,414 @@ class XTBFF(Optimizer):
     unless multi-threading is being used this implementation detail
     should not matter.
 
-    If multi-threading is being used an error could occur if two
-    different threads need to know about the current working directory
-    as :class:`.XTBFF` can change it from under them.
+    *Restrictions to iMTD-GC Algorithm*
+    Z-matrix sorting is forced to be off because :class:`stk.Molecules`
+    cannot have their atom ordering changed by an external program at
+    this stage.
 
-    Note that this does not have any impact on multi-processing,
-    which should always be safe.
+    Examples
+    --------
+
+    Note that for :class:`.ConstructedMolecule` objects constructed by
+    ``stk``, :class:`XTBCREST` should usually be used in a
+    :class:`.OptimizerSequence`. This is because xTB only uses
+    xyz coordinates as input and so will not recognize the long bonds
+    created during construction. An optimizer which can minimize
+    these bonds should be used before :class:`XTBCREST`. Further,
+    CREST runs best on an input structure optimized at the same level
+    used throughout the algorithm (i.e. :class:`XTB`).
+
+    .. code-block:: python
+
+        import stk
+        import stko
+
+        bb1 = stk.BuildingBlock('NCCNCCN', [stk.PrimaryAminoFactory()])
+        bb2 = stk.BuildingBlock('O=CCCC=O', [stk.AldehydeFactory()])
+        polymer = stk.ConstructedMolecule(
+            stk.polymer.Linear(
+                building_blocks=(bb1, bb2),
+                repeating_unit="AB",
+                orientations=[0, 0],
+                num_repeating_units=1
+            )
+        )
+
+        xtb = stko.OptimizerSequence(
+            stko.UFF(),
+            stko.XTB(
+                xtb_path='/opt/gfnxtb/xtb',
+                unlimited_memory=True,
+            ),
+            # Perform quick conformer search.
+            stko.XTBCREST(
+                crest_path='/opt/crest/crest',
+                xtb_path='/opt/gfnxtb/xtb',
+                opt_level='normal',
+                speed_setting='quick',
+                unlimited_memory=True,
+            ),
+        )
+        polymer = xtb.optimize(polymer)
+
+    While most auxiliary and MD run files will be deleted if
+    :attr:`keepdir` is `False`, the files listed below are kept in
+    :attr:`output_dir` and could be useful for further analysis!
+
+        | crest_best.xyz: Structure of the lowest energy conformer.
+        |    This structure is output by :meth:`optimize`.
+        | crest_conformers.xyz: Structure of all conformers.
+        |    All conformers with RMSD and energy threshold of the
+        |    lowest energy conformer.
+        | crest_rotamers.xyz: Structure of all rotamers.
+        |    All unique rotamers explored by CREST.
+        | crest.energies: Relative conformer energies in a.u..
+        | gfn_topo: GFN-FF binary topology file.
+        |    Defines the molecules force field topology.
+
+    References
+    ----------
+    .. [1] https://xtb-docs.readthedocs.io/en/latest/setup.html
+    .. [2] https://xtb-docs.readthedocs.io/en/latest/crestcmd.html
+
+    """
+
+    def __init__(
+        self,
+        crest_path,
+        xtb_path,
+        gfn_version=2,
+        output_dir=None,
+        opt_level='normal',
+        md_len=None,
+        ewin=5,
+        speed_setting=None,
+        keepdir=False,
+        num_cores=4,
+        cross=True,
+        charge=0,
+        electronic_temperature=300,
+        solvent=None,
+        num_unpaired_electrons=0,
+        unlimited_memory=False,
+    ):
+        """
+        Initialize a :class:`XTBCREST` instance.
+
+        Parameters
+        ----------
+        crest_path : :class:`str`
+            The path to the CREST executable.
+
+        xtb_path : :class:`str`
+            The path to the xTB executable.
+            Version >6.3.0 is required.
+
+        gfn_version : :class:`int`, optional
+            Parameterization of GFN to use in xTB.
+            For details see
+            https://xtb-docs.readthedocs.io/en/latest/basics.html.
+
+        output_dir : :class:`str`, optional
+            The name of the directory into which files generated during
+            the optimization are written, if ``None`` then
+            :func:`uuid.uuid4` is used.
+
+        opt_level : :class:`str`, optional
+            Optimization level to use.
+            Can be one of ``'crude'``, ``'sloppy'``, ``'loose'``,
+            ``'lax'``, ``'normal'``, ``'tight'``, ``'vtight'``
+            or ``'extreme'``.
+            For details see
+            https://xtb-docs.readthedocs.io/en/latest/optimization.html
+            .
+
+        md_len : :class:`float`, optional.
+            Set length of the meta-dynamics simulations (MTD) in ps.
+            Default is chosen based on size and flexibility of the
+            system.
+
+        ewin : :class:`float`, optional.
+            Set the energy threshold in kcal/mol for conformer
+            selection. Double this is used in crude optimization.
+            Defaults ot 5 kcal/mol and is overridden by
+            :attr:`speed_setting`.
+
+        speed_setting : :class:`str` or :class:`NoneType`, optional
+            Conformer search speed setting. Fast methods turn off
+            parts of the calculations and alter MD run times.
+            Defaults to no modification of iMTD-GC algorithm: `None`.
+            Can be one of ``'norotmd'``, ``'quick'``, ``'squick'``
+            or ``'mquick'``.
+            Overrides :attr:`ewin` with chosen parameters.
+            For details see
+            https://xtb-docs.readthedocs.io/en/latest/crestcmd.html.
+
+        keepdir : :class:`bool`, optional
+            `True` to keep subdirectories from MD runs.
+            Defaults to `False`.
+            For details see
+            https://xtb-docs.readthedocs.io/en/latest/crestcmd.html.
+
+        num_cores : :class:`int`, optional
+            The number of cores CREST should use.
+
+        charge : :class:`int`, optional
+            Formal molecular charge.
+
+        electronic_temperature : :class:`int`, optional
+            Electronic temperature in Kelvin.
+
+        solvent : :class:`str`, optional
+            Solvent to use in GBSA implicit solvation method.
+            For details see
+            https://xtb-docs.readthedocs.io/en/latest/gbsa.html.
+
+        num_unpaired_electrons : :class:`int`, optional
+            Number of unpaired electrons.
+
+        cross : :class:`bool`, optional
+            Whether or not structure crossing is performed.
+
+        unlimited_memory : :class: `bool`, optional
+            If ``True`` :meth:`optimize` will be run without
+            constraints on the stack size. If memory issues are
+            encountered, this should be ``True``, however this may
+            raise issues on clusters.
+
+        """
+
+        if solvent is not None:
+            solvent = solvent.lower()
+            if gfn_version == 0:
+                raise XTBInvalidSolventError(
+                    f'No solvent valid for version',
+                    f' {gfn_version!r}.'
+                )
+            if not is_valid_xtb_solvent(gfn_version, solvent):
+                raise XTBInvalidSolventError(
+                    f'Solvent {solvent!r} is invalid for ',
+                    f'version {gfn_version!r}.'
+                )
+
+        self._crest_path = crest_path
+        self._xtb_path = xtb_path
+        self._gfn_version = str(gfn_version)
+        self._output_dir = output_dir
+        self._opt_level = opt_level
+        self._mdlen = md_len
+
+        if speed_setting is not None and ewin != 5:
+            raise CRESTSettingConflictError(
+                f'The chosen speed setting {speed_setting} will ',
+                f'override the chosen energy window {ewin}.'
+            )
+
+        self._ewin = ewin
+        self._speed_setting = speed_setting
+        self._keepdir = keepdir
+        self._num_cores = str(num_cores)
+        self._electronic_temperature = str(electronic_temperature)
+        self._solvent = solvent
+        self._charge = str(charge)
+        self._num_unpaired_electrons = str(num_unpaired_electrons)
+        self._cross = cross
+        self._unlimited_memory = unlimited_memory
+
+    def _is_complete(self, output_file, output_xyzs):
+        """
+        Check if CREST run has completed.
+
+        Parameters
+        ----------
+        output_file : :class:`str`
+            Name of CREST output file.
+
+        output_xyzs : :class:`str`
+            Name of CREST conformer and rotamer output files.
+            crest_best.xyz > Best conformer, exists throughout run.
+            crest_conformers.xyz > All conformers,
+                exists throughout run.
+            crest_rotamers.xyz > All rotamers, exists one run is done.
+
+        Returns
+        -------
+        :class:`bool`
+            Returns ``False`` if a negative frequency is present.
+
+        Raises
+        -------
+        :class:`CRESTNotStartedError`
+            If the CREST run failed to start.
+
+        :class:`CRESTNotCompletedError`
+            If the CREST run failed to complete.
+
+        """
+
+        if not os.path.exists(output_file):
+            # No simulation has been run.
+            raise CRESTNotStartedError('CREST run did not start')
+
+        elif any(not os.path.exists(i) for i in output_xyzs):
+            # Best conformer was not output.
+            raise CRESTNotCompletedError('CREST run did not complete')
+
+        return True
+
+    def _run_crest(self, xyz, out_file):
+        """
+        Run CREST along side GFN-xTB.
+
+        Parameters
+        ----------
+        xyz : :class:`str`
+            The name of the input structure ``.xyz`` file.
+
+        out_file : :class:`str`
+            The name of output file with xTB results.
+
+        Returns
+        -------
+        None : :class:`NoneType`
+
+        """
+
+        # Modify the memory limit.
+        if self._unlimited_memory:
+            memory = 'ulimit -s unlimited ;'
+        else:
+            memory = ''
+
+        if self._solvent is not None:
+            solvent = f'-g {self._solvent}'
+        else:
+            solvent = ''
+
+        # Set optimization level and type.
+        optimization = f'-opt {self._opt_level}'
+        mdlen = '' if self._mdlen is None else f'-mdlen {self._mdlen} '
+        keepdirs = '-keepdir' if self._keepdir is True else ''
+        if self._speed_setting is not None:
+            speed_settings = f'-{self._speed_setting}'
+            ewin = ''
+        else:
+            speed_settings = ''
+            ewin = f'-ewin {self._ewin} '
+        cross = ('-nocross' if self._cross is False else '')
+
+        cmd = (
+            f'{memory} {self._crest_path} {xyz} '
+            f'-xnam {self._xtb_path} -nozs {cross} '
+            f'{ewin} {mdlen}'
+            f'{solvent} -chrg {self._charge} '
+            f'-uhf {self._num_unpaired_electrons} '
+            f'-gfn{self._gfn_version} '
+            f'{speed_settings} '
+            f'{optimization} -T {self._num_cores} {keepdirs}'
+        )
+
+        with open(out_file, 'w') as f:
+            # Note that sp.call will hold the program until completion
+            # of the calculation.
+            sp.call(
+                cmd,
+                stdin=sp.PIPE,
+                stdout=f,
+                stderr=sp.PIPE,
+                # Shell is required to run complex arguments.
+                shell=True
+            )
+
+    def _run_optimization(self, mol):
+        """
+        Run loop of optimizations on `mol` using xTB.
+
+        Parameters
+        ----------
+        mol : :class:`.Molecule`
+            The molecule to be optimized.
+
+        Returns
+        -------
+        mol : :class:`.Molecule`
+            The optimized molecule.
+
+        opt_complete : :class:`bool`
+            Returns ``True`` if the calculation is complete and
+            ``False`` if the calculation is incomplete.
+
+        """
+
+        xyz = f'input_structure.xyz'
+        out_file = f'crest.output'
+        mol.write(xyz)
+        self._run_crest(xyz=xyz, out_file=out_file)
+
+        # Check if the optimization is complete.
+        output_xyzs = [
+            'crest_best.xyz',
+            'crest_conformers.xyz',
+            'crest_rotamers.xyz'
+        ]
+        opt_complete = self._is_complete(out_file, output_xyzs)
+        mol = mol.with_structure_from_file(output_xyzs[0])
+
+        return mol, opt_complete
+
+    def optimize(self, mol):
+        """
+        Optimize `mol`.
+
+        Parameters
+        ----------
+        mol : :class:`.Molecule`
+            The molecule to be optimized.
+
+        Returns
+        -------
+        mol : :class:`.Molecule`
+            The optimized molecule.
+
+        """
+
+        if self._output_dir is None:
+            output_dir = str(uuid.uuid4().int)
+        else:
+            output_dir = self._output_dir
+        output_dir = os.path.abspath(output_dir)
+
+        if os.path.exists(output_dir):
+            shutil.rmtree(output_dir)
+
+        os.mkdir(output_dir)
+        init_dir = os.getcwd()
+        os.chdir(output_dir)
+
+        try:
+            mol, complete = self._run_optimization(mol)
+        finally:
+            os.chdir(init_dir)
+
+        if not complete:
+            logging.warning(f'CREST run is incomplete for {mol}.')
+
+        return mol
+
+
+class XTBFF(Optimizer):
+    """
+    Uses GFN-FF [1]_ to optimize molecules.
+
+    Notes
+    -----
+    GFN-FF requires >= version 6.3 of xtb.
+
+    When running :meth:`optimize`, this calculator changes the
+    present working directory with :func:`os.chdir`. The original
+    working directory will be restored even if an error is raised, so
+    unless multi-threading is being used this implementation detail
+    should not matter.
 
     Currently, we only provide inputs that work with GFN-FF,
     specifically the charge of the system. Other electronic properties
@@ -908,7 +1305,7 @@ class XTBFF(Optimizer):
             stko.XTBFF(
                 xtb_path='/opt/gfnxtb/xtb',
                 unlimited_memory=True,
-            )
+            ),
         )
         polymer = xtb.optimize(polymer)
 
@@ -1137,13 +1534,6 @@ class XTBFFCREST(Optimizer):
     unless multi-threading is being used this implementation detail
     should not matter.
 
-    If multi-threading is being used an error could occur if two
-    different threads need to know about the current working directory
-    as :class:`.XTBFFCREST` can change it from under them.
-
-    Note that this does not have any impact on multi-processing,
-    which should always be safe.
-
     Currently, we only provide inputs that work with GFN-FF,
     specifically the charge of the system. Other electronic properties
     of the molecule are not relavent to a forcefield optimisation.
@@ -1151,8 +1541,8 @@ class XTBFFCREST(Optimizer):
 
     *Restrictions to iMTD-GC Algorithm*
     Z-matrix sorting is forced to be off because :class:`stk.Molecules`
-    cannot have their ordering changed by an external program at this
-    stage. This may impact the effectiveness of the algorithm.
+    cannot have their atom ordering changed by an external program at
+    this stage.
 
     Examples
     --------
@@ -1187,7 +1577,7 @@ class XTBFFCREST(Optimizer):
             stko.XTBFF(
                 xtb_path='/opt/gfnxtb/xtb',
                 unlimited_memory=True,
-            )
+            ),
             # Perform quick conformer search.
             stko.XTBFFCREST(
                 crest_path='/opt/crest/crest',
@@ -1195,7 +1585,7 @@ class XTBFFCREST(Optimizer):
                 opt_level='normal',
                 speed_setting='quick',
                 unlimited_memory=True,
-            )
+            ),
         )
         polymer = xtb.optimize(polymer)
 
@@ -1203,12 +1593,12 @@ class XTBFFCREST(Optimizer):
     :attr:`keepdir` is `False`, the files listed below are kept in
     :attr:`output_dir` and could be useful for further analysis!
 
-        | crest_best.xyx: Structure of the lowest energy conformer.
+        | crest_best.xyz: Structure of the lowest energy conformer.
         |    This structure is output by :meth:`optimize`.
-        | crest_conformers.xyx: Structure of all conformers.
+        | crest_conformers.xyz: Structure of all conformers.
         |    All conformers with RMSD and energy threshold of the
         |    lowest energy conformer.
-        | crest_rotamers.xyx: Structure of all rotamers.
+        | crest_rotamers.xyz: Structure of all rotamers.
         |    All unique rotamers explored by CREST.
         | crest.energies: Relative conformer energies in a.u..
         | gfn_topo: GFN-FF binary topology file.
@@ -1337,10 +1727,10 @@ class XTBFFCREST(Optimizer):
 
         output_xyzs : :class:`str`
             Name of CREST conformer and rotamer output files.
-            crest_best.xyx > Best conformer, exists throughout run.
-            crest_conformers.xyx > All conformers,
+            crest_best.xyz > Best conformer, exists throughout run.
+            crest_conformers.xyz > All conformers,
                 exists throughout run.
-            crest_rotamers.xyx > All rotamers, exists one run is done.
+            crest_rotamers.xyz > All rotamers, exists one run is done.
 
         Returns
         -------

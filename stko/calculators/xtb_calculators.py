@@ -346,7 +346,9 @@ class XTBEnergy(Calculator):
             memory = ''
 
         if self._solvent is not None:
-            solvent = f'--gbsa {self._solvent} {self._solvent_grid}'
+            solvent = (
+                f'--gbsa {self._solvent} bar1M {self._solvent_grid}'
+            )
         else:
             solvent = ''
 
