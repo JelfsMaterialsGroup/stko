@@ -147,7 +147,7 @@ class Collapser(Optimizer):
             bb_id = atom.get_building_block_id()
             _id = atom.get_atom().get_id()
             pos = mol.get_position_matrix()[_id]
-            new_position_matrix[id] = (
+            new_position_matrix[_id] = (
                 pos - step*vectors[bb_id]*scales[bb_id]
             )
 
