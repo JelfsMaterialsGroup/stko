@@ -484,15 +484,15 @@ class GulpUFFOptimizer(Optimizer):
 
         return type_translator
 
-    def _cell_section(self, cell):
+    def _cell_section(self, unit_cell):
         cell_section = (
             '\ncell\n'
-            f"{round(cell.a, 6)} "
-            f"{round(cell.b, 6)} "
-            f"{round(cell.c, 6)} "
-            f"{round(cell.alpha, 6)} "
-            f"{round(cell.beta, 6)} "
-            f"{round(cell.gamma, 6)} "
+            f"{round(unit_cell.a, 6)} "
+            f"{round(unit_cell.b, 6)} "
+            f"{round(unit_cell.c, 6)} "
+            f"{round(unit_cell.alpha, 6)} "
+            f"{round(unit_cell.beta, 6)} "
+            f"{round(unit_cell.gamma, 6)} "
             # No fixes.
             "0 0 0 0 0 0\n"
         )
@@ -559,7 +559,7 @@ class GulpUFFOptimizer(Optimizer):
         metal_atoms,
         in_file,
         output_xyz,
-        cell=None,
+        unit_cell=None,
     ):
 
         type_translator = self._type_translator()
@@ -572,7 +572,7 @@ class GulpUFFOptimizer(Optimizer):
         if self._periodic:
             # Constant pressure.
             top_line += 'conp '
-            cell_section = self._cell_section(cell)
+            cell_section = self._cell_section(unit_cell)
             # Output CIF.
             output_cif = output_xyz.replace('xyz', 'cif')
             periodic_output = f'output cif {output_cif}\n'
@@ -708,17 +708,14 @@ class GulpUFFOptimizer(Optimizer):
                     string = nums.search(line.rstrip()).group(0)
                     return float(string)
 
-    def optimize(self, mol, cell=None):
+    def optimize(self, mol):
         """
-        Optimize `mol` and `cell`.
+        Optimize `mol`.
 
         Parameters
         ----------
         mol : :class:`stk.Molecule`
             The molecule to be optimized.
-
-        cell : :class:`.Cell`, optional
-            The cell to be optimized if optimization is periodic.
 
         Returns
         -------
@@ -727,9 +724,69 @@ class GulpUFFOptimizer(Optimizer):
 
         """
 
-        if cell is None and self._periodic:
+        if self._output_dir is None:
+            output_dir = str(uuid.uuid4().int)
+        else:
+            output_dir = self._output_dir
+        output_dir = os.path.abspath(output_dir)
+
+        if os.path.exists(output_dir):
+            shutil.rmtree(output_dir)
+
+        os.mkdir(output_dir)
+
+        in_file = 'gulp_opt.gin'
+        out_file = 'gulp_opt.ginout'
+        output_xyz = 'gulp_opt.xyz'
+        output_cif = output_xyz.replace('xyz', 'cif')
+
+        metal_atoms = get_metal_atoms(mol)
+
+        # Write GULP file.
+        self._write_gulp_file(
+            mol=mol,
+            metal_atoms=metal_atoms,
+            in_file=in_file,
+            output_xyz=output_xyz,
+            unit_cell=None,
+        )
+
+        # Run.
+        self._run_gulp(in_file, out_file)
+
+        # Update from output.
+        mol = mol.with_structure_from_file(output_xyz)
+
+        # Move files.
+        self._move_generated_files(
+            files=[in_file, out_file, output_xyz, output_cif]
+        )
+
+        return mol
+
+    def p_optimize(self, mol, unit_cell):
+        """
+        Optimize `mol` and `unit_cell`.
+
+        Parameters
+        ----------
+        mol : :class:`stk.Molecule`
+            The molecule to be optimized.
+
+        unit_cell : :class:`.UnitCell`
+            The unit_cell to be optimized if optimization is periodic.
+
+        Returns
+        -------
+        mol : :class:`.Molecule`
+            The optimized molecule.
+
+        """
+
+        if unit_cell is None and self._periodic:
             raise ExpectedCell(
-                'Optimisation expected a cell because periodic is True'
+                'Optimisation expected a unit cell because periodic '
+                'is True'
             )
 
         if self._output_dir is None:
@@ -756,7 +813,7 @@ class GulpUFFOptimizer(Optimizer):
             metal_atoms=metal_atoms,
             in_file=in_file,
             output_xyz=output_xyz,
-            cell=cell,
+            unit_cell=unit_cell,
         )
 
         # Run.
@@ -764,13 +821,14 @@ class GulpUFFOptimizer(Optimizer):
 
         # Update from output.
         mol = mol.with_structure_from_file(output_xyz)
+        unit_cell = UPDATE
 
         # Move files.
         self._move_generated_files(
             files=[in_file, out_file, output_xyz, output_cif]
         )
 
-        return mol
+        return mol, unit_cell
 
 
 class GulpUFFMDOptimizer(GulpUFFOptimizer):

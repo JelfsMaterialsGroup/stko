@@ -16,6 +16,7 @@ import os
 import shutil
 import uuid
 import subprocess as sp
+from stk import TurbomoleWriter
 
 from .optimizers import Optimizer
 from ..utilities import (
@@ -24,7 +25,6 @@ from ..utilities import (
     XTBExtractor,
 )
 from ..molecular.conversion import (
-    stk_to_coord,
     with_structure_from_periodic_turbomole,
 )
 
@@ -755,10 +755,11 @@ class XTBPeriodic(Optimizer):
             f.write(
                 '$opt\n'
                 '   engine=inertial\n'
+                '   periodic=true\n'
                 '$end\n'
             )
 
-    def _run_optimization(self, mol, cell):
+    def _run_optimization(self, mol, unit_cell):
         """
         Run loop of optimizations on `mol` using xTB.
 
@@ -767,7 +768,7 @@ class XTBPeriodic(Optimizer):
         mol : :class:`.Molecule`
             The molecule to be optimized.
 
-        cell : :class:`.Cell`
+        unit_cell : :class:`.UnitCell`
             The cell to be optimized if optimization is periodic.
 
         Returns
@@ -786,7 +787,11 @@ class XTBPeriodic(Optimizer):
         out_file = f'optimization.output'
 
         # Write input structure and property files.
-        stk_to_coord(mol, filename=coord_file, cell=cell)
+        TurbomoleWriter().write(
+            molecule=mol,
+            path=coord_file,
+            periodic_info=unit_cell.get_periodic_info()
+        )
         self._write_input_file(input_file)
         self._run_xtb(
             input=input_file,
@@ -798,19 +803,20 @@ class XTBPeriodic(Optimizer):
         output_coord = 'xtbopt.coord'
         opt_complete = self._is_complete(out_file)
         mol = with_structure_from_periodic_turbomole(mol, output_coord)
+        unit_cell = UPDATE
 
-        return mol, opt_complete
+        return mol, unit_cell, opt_complete
 
-    def optimize(self, mol, cell):
+    def p_optimize(self, mol, unit_cell):
         """
-        Optimize `mol`.
+        Optimize `mol` and `unit_cell`.
 
         Parameters
         ----------
         mol : :class:`.Molecule`
             The molecule to be optimized.
 
-        cell : :class:`.Cell`
+        unit_cell : :class:`.UnitCell`
             The cell to be optimized.
 
         Returns
@@ -834,9 +840,9 @@ class XTBPeriodic(Optimizer):
         os.chdir(output_dir)
 
         try:
-            mol, complete = self._run_optimization(
+            mol, unit_cell, complete = self._run_optimization(
                 mol=mol,
-                cell=cell
+                cell=unit_cell
             )
         finally:
             os.chdir(init_dir)
@@ -844,7 +850,7 @@ class XTBPeriodic(Optimizer):
         if not complete:
             logging.warning(f'Optimization is incomplete for {mol}.')
 
-        return mol
+        return mol, unit_cell
 
 
 class XTBFF(Optimizer):
