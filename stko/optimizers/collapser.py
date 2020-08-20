@@ -535,7 +535,7 @@ class CollapserMC(Collapser):
         for atom in mol.get_atom_infos(atom_ids=atom_ids):
             _id = atom.get_atom().get_id()
             pos = mol.get_position_matrix()[_id]
-            new_position_matrix[id] = pos - vector
+            new_position_matrix[_id] = pos - vector
 
         return mol.with_position_matrix(new_position_matrix)
 
