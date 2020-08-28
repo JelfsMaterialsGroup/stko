@@ -132,10 +132,6 @@ class ExpectedMetal(Exception):
     ...
 
 
-class ExpectedCell(Exception):
-    ...
-
-
 class UFFTyperError(Exception):
     ...
 
@@ -159,7 +155,6 @@ class GulpUFFOptimizer(Optimizer):
         metal_FF=None,
         metal_ligand_bond_order=None,
         conjugate_gradient=False,
-        periodic=False,
         output_dir=None,
     ):
         """
@@ -188,11 +183,6 @@ class GulpUFFOptimizer(Optimizer):
             ``True`` to use Conjugate Graditent method.
             Defaults to ``False``
 
-        periodic : :class:`bool`, optional
-            If `False`, then calculation is non-periodic.
-            Periodic optimisations always optimize the cell parameters
-            at constant pressure.
-
         output_dir : :class:`str`, optional
             The name of the directory into which files generated during
             the calculation are written, if ``None`` then
@@ -208,7 +198,6 @@ class GulpUFFOptimizer(Optimizer):
             else metal_ligand_bond_order
         )
         self._conjugate_gradient = conjugate_gradient
-        self._periodic = periodic
         self._output_dir = output_dir
 
     def _add_atom_charge_flags(self, atom, atomkey):
@@ -497,12 +486,12 @@ class GulpUFFOptimizer(Optimizer):
     def _cell_section(self, unit_cell):
         cell_section = (
             '\ncell\n'
-            f"{round(unit_cell.a, 6)} "
-            f"{round(unit_cell.b, 6)} "
-            f"{round(unit_cell.c, 6)} "
-            f"{round(unit_cell.alpha, 6)} "
-            f"{round(unit_cell.beta, 6)} "
-            f"{round(unit_cell.gamma, 6)} "
+            f"{round(unit_cell.get_a(), 6)} "
+            f"{round(unit_cell.get_b(), 6)} "
+            f"{round(unit_cell.get_c(), 6)} "
+            f"{round(unit_cell.get_alpha(), 6)} "
+            f"{round(unit_cell.get_beta(), 6)} "
+            f"{round(unit_cell.get_gamma(), 6)} "
             # No fixes.
             "0 0 0 0 0 0\n"
         )
@@ -579,7 +568,7 @@ class GulpUFFOptimizer(Optimizer):
         if self._conjugate_gradient:
             top_line += 'conj unit '
 
-        if self._periodic:
+        if unit_cell is not None:
             # Constant pressure.
             top_line += 'conp '
             cell_section = self._cell_section(unit_cell)
@@ -791,13 +780,10 @@ class GulpUFFOptimizer(Optimizer):
         mol : :class:`.Molecule`
             The optimized molecule.
 
-        """
+        unit_cell : :class:`.UnitCell`
+            The optimized cell.
 
-        if unit_cell is None and self._periodic:
-            raise ExpectedCell(
-                'Optimisation expected a unit cell because periodic '
-                'is True'
-            )
+        """
 
         if self._output_dir is None:
             output_dir = str(uuid.uuid4().int)
@@ -831,7 +817,7 @@ class GulpUFFOptimizer(Optimizer):
 
         # Update from output.
         mol = mol.with_structure_from_file(output_xyz)
-        unit_cell = UPDATE
+        unit_cell = unit_cell.with_cell_from_cif(output_cif)
 
         # Move files.
         self._move_generated_files(

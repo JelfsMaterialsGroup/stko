@@ -1791,9 +1791,11 @@ class XTBPeriodic(Optimizer):
 
         with open(input, 'w') as f:
             f.write(
+                '$gfn\n'
+                '   periodic=true\n'
+                '$end\n'
                 '$opt\n'
                 '   engine=inertial\n'
-                '   periodic=true\n'
                 '$end\n'
             )
 
@@ -1828,7 +1830,7 @@ class XTBPeriodic(Optimizer):
         TurbomoleWriter().write(
             molecule=mol,
             path=coord_file,
-            periodic_info=unit_cell.get_periodic_info()
+            periodic_info=unit_cell,
         )
         self._write_input_file(input_file)
         self._run_xtb(
@@ -1840,8 +1842,8 @@ class XTBPeriodic(Optimizer):
         # Check if the optimization is complete.
         output_coord = 'xtbopt.coord'
         opt_complete = self._is_complete(out_file)
-        mol = with_structure_from_periodic_turbomole(mol, output_coord)
-        unit_cell = UPDATE
+        mol = mol.with_structure_from_file(output_coord)
+        unit_cell = unit_cell.with_cell_from_turbomole(output_coord)
 
         return mol, unit_cell, opt_complete
 
@@ -1862,6 +1864,9 @@ class XTBPeriodic(Optimizer):
         mol : :class:`.Molecule`
             The optimized molecule.
 
+        unit_cell : :class:`.UnitCell`
+            The optimized cell.
+
         """
 
         if self._output_dir is None:
@@ -1880,7 +1885,7 @@ class XTBPeriodic(Optimizer):
         try:
             mol, unit_cell, complete = self._run_optimization(
                 mol=mol,
-                cell=unit_cell
+                unit_cell=unit_cell
             )
         finally:
             os.chdir(init_dir)
