@@ -54,28 +54,78 @@ def with_structure_from_periodic_turbomole(mol, path):
         number of atoms in the molecule or if atom elements in the
         file do not agree with the atom elements in the molecule.
 
+    :class:`RuntimeError`
+        If the the Turbomole file has coordinates defined as fractional
+        based on a unit cell.
+
     """
 
     bohr_to_ang = 0.5291772105638411
-
-    content = []
-    with open(path, 'r') as f:
-        for line in f.readlines()[1:-6]:
-            content.append(line)
-
-    # Check the atom count is correct.
     num_atoms = mol.get_num_atoms()
-    if len(content) != num_atoms:
-        raise RuntimeError(
-            'The number of atoms in the coord file, '
-            f'{len(content)}, does not match the number of atoms '
-            f'in the molecule, {num_atoms}.'
-        )
+    with open(path, 'r') as f:
+        content = f.readlines()
+
+    periodicity = False
+    lattice_vectors = None
+    lattice_units = None
+    cell_parameters = None
+    cell_units = None
+    for line_number, line in enumerate(content):
+        if '$periodic' in line:
+            periodicity = int(line.rstrip().split()[1])
+        if '$cell' in line:
+            if 'angs' in line:
+                cell_units = 'angstrom'
+            else:
+                raise ValueError('cell not in Angstroms.')
+            cell_parameters = [
+                float(j)
+                for j in content[line_number+1].rstrip().split()
+            ]
+        if '$lattice' in line:
+            if 'angs' in line:
+                lattice_units = 'angstrom'
+            else:
+                raise ValueError('lattice not in Angstroms.')
+            lattice_vectors = (
+                [
+                    float(j)
+                    for j in content[line_number+1].rstrip().split()
+                ],
+                [
+                    float(j)
+                    for j in content[line_number+2].rstrip().split()
+                ],
+                [
+                    float(j)
+                    for j in content[line_number+3].rstrip().split()
+                ],
+            )
+        if '$coord' in line:
+            if 'angs' in line:
+                coord_units = 'angstrom'
+            elif 'frac' in line:
+                coord_units = 'fractional'
+                raise RuntimeError(
+                    'Fractional coordinates are not handled currently.'
+                )
+            elif 'bohr' in line:
+                coord_units = 'bohr'
+            else:
+                coord_units = 'bohr'
+            coord_section = (
+                content[line_number+1:line_number+1+num_atoms]
+            )
+
+    # Check that cell is only defined once.
+    chk2 = lattice_vectors is not None and cell_parameters is not None
+    if periodicity and chk2:
+        raise RuntimeError('The cell is defined twice in the file.')
 
     # Save all the coords in the file.
     new_coords = []
     elements = [i.__class__.__name__ for i in mol.get_atoms()]
-    for i, line in enumerate(content):
+    for i, line in enumerate(coord_section):
         *coords, element = line.split()
         if element.isnumeric():
             element = periodic_table[int(element)]
@@ -84,8 +134,14 @@ def with_structure_from_periodic_turbomole(mol, path):
             raise RuntimeError(
                 f'Atom {i} element does not match file.'
             )
-
-        new_coords.append([float(i)*bohr_to_ang for i in coords])
+        if coord_units == 'bohr':
+            new_coords.append([float(i)*bohr_to_ang for i in coords])
+        elif coord_units == 'fractional':
+            raise RuntimeError(
+                'Fractional coordinates are not handled currently.'
+            )
+        else:
+            new_coords.append([float(i) for i in coords])
 
     # Check that the correct number of atom
     # lines was present in the file.
