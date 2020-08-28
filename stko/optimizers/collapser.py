@@ -18,6 +18,7 @@ import random
 import uuid
 import os
 import shutil
+from stk import PdbWriter
 
 from .optimizers import Optimizer
 from ..utilities import get_atom_distance
@@ -147,11 +148,29 @@ class Collapser(Optimizer):
             bb_id = atom.get_building_block_id()
             _id = atom.get_atom().get_id()
             pos = mol.get_position_matrix()[_id]
-            new_position_matrix[id] = (
+            new_position_matrix[_id] = (
                 pos - step*vectors[bb_id]*scales[bb_id]
             )
 
         return new_position_matrix
+
+    def _get_new_cell_vectors(self, unit_cell, step, scales):
+        """
+        Get the unit cell vectors after collapse step.
+
+        """
+
+        vector_1 = unit_cell.get_vector_1()
+        vector_2 = unit_cell.get_vector_2()
+        vector_3 = unit_cell.get_vector_3()
+
+        max_scale = max(list(scales.values()))
+
+        vector_1 = vector_1 - vector_1*step*max_scale
+        vector_2 = vector_2 - vector_2*step*max_scale
+        vector_3 = vector_3 - vector_3*step*max_scale
+
+        return vector_1, vector_2, vector_3
 
     def _get_bb_vectors(self, mol, bb_atom_ids):
         """
@@ -306,6 +325,140 @@ class Collapser(Optimizer):
                 f"====================\n"
             )
         return mol
+
+    def p_optimize(self, mol, unit_cell):
+        """
+        Optimize `mol`.
+
+        Parameters
+        ----------
+        mol : :class:`stk.ConstructedMolecule`
+            The molecule to be optimized.
+
+        unit_cell : :class:`.UnitCell`
+            The cell to be optimized.
+
+        Returns
+        -------
+        mol : :class:`stk.ConstructedMolecule`
+            The optimized molecule.
+
+        unit_cell : :class:`.UnitCell`
+            The optimized cell.
+
+        """
+
+        # Handle output dir.
+        if self._output_dir is None:
+            output_dir = str(uuid.uuid4().int)
+        else:
+            output_dir = self._output_dir
+        output_dir = os.path.abspath(output_dir)
+
+        if os.path.exists(output_dir):
+            shutil.rmtree(output_dir)
+        os.mkdir(output_dir)
+
+        bb_atom_ids = defaultdict(list)
+        for i in mol.get_atom_infos():
+            bb_atom_ids[i.get_building_block_id()].append(
+                i.get_atom().get_id()
+            )
+
+        # Translate each building block along bb_COM_vectors by a
+        # distance `step`. I.e. `step` is the proportion of the
+        # bb_COM_vectors that the building block is moved.
+        step_no = 0
+        step = self._step_size
+        while not self._has_short_contacts(mol):
+            # Update each step the building block vectors and distance.
+            bb_cent_vectors, bb_cent_scales = self._get_bb_vectors(
+                mol=mol,
+                bb_atom_ids=bb_atom_ids
+            )
+
+            new_pos = self._get_new_position_matrix(
+                mol=mol,
+                step=step,
+                vectors=bb_cent_vectors,
+                scales=bb_cent_scales,
+            )
+            step_no += 1
+            mol = mol.with_position_matrix(new_pos)
+            new_vector_1, new_vector_2, new_vector_3 = (
+                self._get_new_cell_vectors(
+                    unit_cell=unit_cell,
+                    step=step,
+                    scales=bb_cent_scales,
+                )
+            )
+            unit_cell = unit_cell.with_cell_from_vectors(
+                vector_1=new_vector_1,
+                vector_2=new_vector_2,
+                vector_3=new_vector_3,
+            )
+            PdbWriter().write(
+                molecule=mol,
+                path=os.path.join(
+                    output_dir, f'collapsed_{step_no}.pdb'
+                ),
+                periodic_info=unit_cell,
+            )
+
+        bb_cent_vectors, bb_cent_scales = self._get_bb_vectors(
+            mol=mol,
+            bb_atom_ids=bb_atom_ids
+        )
+
+        # Check that we have not gone too far.
+        min_dist = min(
+            dist for dist in self._get_inter_bb_distance(mol)
+        )
+        if min_dist < self._distance_cut / 2:
+            # Revert to half the previous step if we have.
+            step = -(self._step_size/2)
+            new_pos = self._get_new_position_matrix(
+                mol=mol,
+                step=step,
+                vectors=bb_cent_vectors,
+                scales=bb_cent_scales
+            )
+            step_no += 1
+            mol = mol.with_position_matrix(new_pos)
+            new_vector_1, new_vector_2, new_vector_3 = (
+                self._get_new_cell_vectors(
+                    unit_cell=unit_cell,
+                    step=step,
+                    scales=bb_cent_scales,
+                )
+            )
+            unit_cell = unit_cell.with_cell_from_vectors(
+                vector_1=new_vector_1,
+                vector_2=new_vector_2,
+                vector_3=new_vector_3,
+            )
+            PdbWriter().write(
+                molecule=mol,
+                path=os.path.join(
+                    output_dir, f'collapsed_rev.pdb'
+                ),
+                periodic_info=unit_cell,
+            )
+
+        out_file = os.path.join(output_dir, f'collapser.out')
+        with open(out_file, 'w') as f:
+            f.write(
+                f"Collapser algorithm.\n"
+                f"====================\n"
+                f"Step size: {self._step_size}\n"
+                f"Scale steps?: {self._scale_steps}\n"
+                f"Distance cut: {self._distance_cut}\n"
+                f"====================\n"
+                f"Steps run: {step_no}\n"
+                f"Minimum inter-bb distance: {min_dist}\n"
+                f"====================\n"
+            )
+        return mol, unit_cell
 
 
 class CollapserMC(Collapser):
@@ -535,7 +688,7 @@ class CollapserMC(Collapser):
         for atom in mol.get_atom_infos(atom_ids=atom_ids):
             _id = atom.get_atom().get_id()
             pos = mol.get_position_matrix()[_id]
-            new_position_matrix[id] = pos - vector
+            new_position_matrix[_id] = pos - vector
 
         return mol.with_position_matrix(new_position_matrix)
 
