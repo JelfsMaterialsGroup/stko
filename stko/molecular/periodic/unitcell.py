@@ -1,14 +1,16 @@
 """
 Unit Cell
-====
+=========
 
 Class holding periodic cell information.
 
 """
 
+import numpy as np
 import logging
 from stk import PeriodicInfo
-import numpy as np
+
+from .utilities import get_from_parameters
 
 logger = logging.getLogger(__name__)
 
@@ -19,7 +21,7 @@ class UnitCell(PeriodicInfo):
 
     """
 
-    def _update_periodic_info(self, x_vector, y_vector, z_vector):
+    def _update_periodic_info(self, vector_1, vector_2, vector_3):
         """
         Return clone of :class:`.UnitCell` with new parameters.
 
@@ -28,12 +30,39 @@ class UnitCell(PeriodicInfo):
         clone = self.__class__.__new__(self.__class__)
         UnitCell.__init__(
             self=clone,
-            x_vector=x_vector,
-            y_vector=y_vector,
-            z_vector=z_vector,
+            vector_1=vector_1,
+            vector_2=vector_2,
+            vector_3=vector_3,
         )
 
         return clone
+
+    def with_cell_from_vectors(self, vector_1, vector_2, vector_3):
+        """
+        Update cell.
+
+        Parameters
+        ----------
+        vector_1 : :class:`numpy.ndarray`
+            First cell lattice vector of shape (3, ) in
+            Angstrom.
+
+        vector_2 : :class:`numpy.ndarray`
+            Second cell lattice vector of shape (3, ) in
+            Angstrom.
+
+        vector_3 : :class:`numpy.ndarray`
+            Third cell lattice vector of shape (3, ) in
+            Angstrom.
+
+        Returns
+        -------
+        :class:`.UnitCell`
+            Clone with updated cell parameters.
+
+        """
+
+        return self._update_periodic_info(vector_1, vector_2, vector_3)
 
     def with_cell_from_turbomole(self, filename):
         """
@@ -46,8 +75,101 @@ class UnitCell(PeriodicInfo):
 
         """
 
-        raise NotImplementedError()
-        print(unit_cell)
+        bohr_to_ang = 0.5291772105638411
+
+        with open(filename, 'r') as f:
+            content = f.readlines()
+
+        periodicity = False
+        lattice_vectors = None
+        lattice_units = None
+        cell_parameters = None
+        cell_units = None
+        for line_number, line in enumerate(content):
+            if '$periodic' in line:
+                periodicity = int(line.rstrip().split()[1])
+            if '$cell' in line:
+                if 'angs' in line:
+                    cell_units = 'angstrom'
+                elif 'bohr' in line:
+                    cell_units = 'bohr'
+                else:
+                    raise ValueError('cell not in Angstroms.')
+                cell_parameters = [
+                    float(j)
+                    for j in content[line_number+1].rstrip().split()
+                ]
+            if '$lattice' in line:
+                if 'angs' in line:
+                    lattice_units = 'angstrom'
+                elif 'bohr' in line:
+                    lattice_units = 'bohr'
+                else:
+                    raise ValueError('lattice not in Angstroms.')
+                lattice_vectors = (
+                    np.array([
+                        float(j) for j
+                        in content[line_number+1].rstrip().split()
+                    ]),
+                    np.array([
+                        float(j) for j
+                        in content[line_number+2].rstrip().split()
+                    ]),
+                    np.array([
+                        float(j) for j
+                        in content[line_number+3].rstrip().split()
+                    ]),
+                )
+
+        # Check that cell is only defined once.
+        chk2 = (
+            lattice_vectors is not None and cell_parameters is not None
+        )
+        if periodicity and chk2:
+            raise RuntimeError(
+                'The cell is defined twice in the file.'
+            )
+
+        if lattice_vectors is not None:
+            vector_1 = (
+                lattice_vectors[0]*bohr_to_ang
+                if lattice_units == 'bohr' else lattice_vectors[0]
+            )
+            vector_2 = (
+                lattice_vectors[1]*bohr_to_ang
+                if lattice_units == 'bohr' else lattice_vectors[0]
+            )
+            vector_3 = (
+                lattice_vectors[2]*bohr_to_ang
+                if lattice_units == 'bohr' else lattice_vectors[0]
+            )
+        elif cell_parameters is not None:
+            vector_1, vector_2, vector_3 = get_from_parameters(
+                a=(
+                    cell_parameters[0] * bohr_to_ang
+                    if cell_units == 'bohr'
+                    else cell_parameters[0]
+                ),
+                b=(
+                    cell_parameters[1] * bohr_to_ang
+                    if cell_units == 'bohr'
+                    else cell_parameters[1]
+                ),
+                c=(
+                    cell_parameters[2] * bohr_to_ang
+                    if cell_units == 'bohr'
+                    else cell_parameters[2]
+                ),
+                alpha=cell_parameters[3],
+                beta=cell_parameters[4],
+                gamma=cell_parameters[5],
+            )
+        else:
+            raise RuntimeError(
+                'The cell is not defined in the file.'
+            )
+        # Update the cell.
+        return self._update_periodic_info(vector_1, vector_2, vector_3)
 
     def with_cell_from_cif(self, filename):
         """
@@ -71,8 +193,6 @@ class UnitCell(PeriodicInfo):
             '_cell_angle_gamma': 'gamma',
         }
 
-        raise NotImplementedError()
-
         with open(filename, 'r') as f:
             lines = f.readlines()
 
@@ -85,9 +205,13 @@ class UnitCell(PeriodicInfo):
                 if splits[0] == targ:
                     cell_info[targets[targ]] = float(splits[-1])
 
-        self.a = cell_info['a']
-        self.b = cell_info['b']
-        self.c = cell_info['c']
-        self.alpha = cell_info['alpha']
-        self.beta = cell_info['beta']
-        self.gamma = cell_info['gamma']
+        vector_1, vector_2, vector_3 = get_from_parameters(
+            a=cell_info['a'],
+            b=cell_info['b'],
+            c=cell_info['c'],
+            alpha=cell_info['alpha'],
+            beta=cell_info['beta'],
+            gamma=cell_info['gamma'],
+        )
+        # Update the cell.
+        return self._update_periodic_info(vector_1, vector_2, vector_3)
