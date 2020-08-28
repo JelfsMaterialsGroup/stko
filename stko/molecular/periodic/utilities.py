@@ -19,16 +19,13 @@ def get_approximate_cell_size(molecule, vector_1, vector_2, vector_3):
         Molecule to get approximate cell size of.
 
     vector_1 : :class:`numpy.ndarray`
-        Cell lattice vector of shape (3, ) in x direction in
-        Angstrom.
+        First cell lattice vector of shape (3, ) in Angstrom.
 
     vector_2 : :class:`numpy.ndarray`
-        Cell lattice vector of shape (3, ) in y direction in
-        Angstrom.
+        Second cell lattice vector of shape (3, ) in Angstrom.
 
     vector_3 : :class:`numpy.ndarray`
-        Cell lattice vector of shape (3, ) in z direction in
-        Angstrom.
+        Third cell lattice vector of shape (3, ) in Angstrom.
 
     Returns
     -------
@@ -97,16 +94,33 @@ def get_from_parameters(a, b, c, alpha, beta, gamma):
     """
     Create a Lattice using unit cell lengths and angles (in degrees).
 
-    Args:
-        a (float): *a* lattice parameter.
-        b (float): *b* lattice parameter.
-        c (float): *c* lattice parameter.
-        alpha (float): *alpha* angle in degrees.
-        beta (float): *beta* angle in degrees.
-        gamma (float): *gamma* angle in degrees.
+    This code is modified from the pymatgen source code [1]_.
 
-    Returns:
-        Lattice vectors.
+    Parameters
+    ----------
+    a : :class:`float`:
+        *a* lattice parameter.
+
+    b : :class:`float`:
+        *b* lattice parameter.
+
+    c : :class:`float`:
+        *c* lattice parameter.
+
+    alpha : :class:`float`:
+        *alpha* angle in degrees.
+
+    beta : :class:`float`:
+        *beta* angle in degrees.
+
+    gamma : :class:`float`:
+        *gamma* angle in degrees.
+
+
+    Returns
+    -------
+    :class:`tuple` of three :class:`numpy.ndarray`
+        Tuple of cell lattice vectors of shape (3, ) in Angstrom.
 
     """
 
