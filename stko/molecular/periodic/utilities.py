@@ -9,7 +9,7 @@ import numpy as np
 logger = logging.getLogger(__name__)
 
 
-def get_approximate_cell_size(molecule, x_vector, y_vector, z_vector):
+def get_approximate_cell_size(molecule, vector_1, vector_2, vector_3):
     """
     Cell size determined from projection of atoms on cell vectors.
 
@@ -18,15 +18,15 @@ def get_approximate_cell_size(molecule, x_vector, y_vector, z_vector):
     molecule : :class:`stk.Molecule`
         Molecule to get approximate cell size of.
 
-    x_vector : :class:`numpy.ndarray`
+    vector_1 : :class:`numpy.ndarray`
         Cell lattice vector of shape (3, ) in x direction in
         Angstrom.
 
-    y_vector : :class:`numpy.ndarray`
+    vector_2 : :class:`numpy.ndarray`
         Cell lattice vector of shape (3, ) in y direction in
         Angstrom.
 
-    z_vector : :class:`numpy.ndarray`
+    vector_3 : :class:`numpy.ndarray`
         Cell lattice vector of shape (3, ) in z direction in
         Angstrom.
 
@@ -74,15 +74,15 @@ def get_approximate_cell_size(molecule, x_vector, y_vector, z_vector):
     for atom_pos in molecule.get_position_matrix():
         v1_mag = get_magnitude_along_vector(
             atom_pos=atom_pos,
-            vector=x_vector
+            vector=vector_1
         )
         v2_mag = get_magnitude_along_vector(
             atom_pos=atom_pos,
-            vector=y_vector
+            vector=vector_2
         )
         v3_mag = get_magnitude_along_vector(
             atom_pos=atom_pos,
-            vector=z_vector
+            vector=vector_3
         )
         extent_of_vector_1 = max([v1_mag, extent_of_vector_1])
         extent_of_vector_2 = max([v2_mag, extent_of_vector_2])
