@@ -809,10 +809,10 @@ class MacroModelForceField(MacroModel):
                 and
                 bond.get_atom2().get_id() in bonder_ids
             ):
-                atom1_id = bond.get_atom1().get_id()
-                atom2_id = bond.get_atoms2().get_id()
                 continue
 
+            atom1_id = bond.get_atom1().get_id()
+            atom2_id = bond.get_atom2().get_id()
             # Make sure that the indices are increased by 1 in the .mae
             # file.
             atom1_id += 1
@@ -1263,6 +1263,7 @@ class MacroModelMD(MacroModel):
             rdkit_opt_mol.GetConformer().GetPositions()
         )
         move_generated_macromodel_files(run_name, output_dir)
+        return mol
 
     def _fix_distances(self, mol, fix_block):
         """
