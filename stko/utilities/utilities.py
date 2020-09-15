@@ -11,6 +11,7 @@ from rdkit.Geometry import Point3D
 import numpy as np
 import time
 from contextlib import contextmanager
+import shutil
 import os
 import subprocess as sp
 import gzip
@@ -738,7 +739,7 @@ def move_generated_macromodel_files(basename, output_dir):
         # Do not move the output_dir.
         if filename == output_dir:
             continue
-        os.rename(filename, f'{output_dir}/{filename}')
+        shutil.move(filename, f'{output_dir}/{filename}')
 
 
 def normalize_vector(vector):
