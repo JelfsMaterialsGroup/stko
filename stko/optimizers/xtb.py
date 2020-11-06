@@ -26,9 +26,6 @@ from ..utilities import (
     XTBExtractor,
 )
 
-from ..molecular.conversion import (
-    with_structure_from_periodic_turbomole,
-)
 
 logger = logging.getLogger(__name__)
 
