@@ -12,12 +12,11 @@ import logging
 from itertools import combinations
 import numpy as np
 from collections import defaultdict
-import matplotlib.pyplot as plt
-from scipy.spatial.distance import pdist
-import random
 import uuid
 import os
 import shutil
+
+import mchammer as mch
 
 from .optimizers import Optimizer
 from ..utilities import get_atom_distance
@@ -382,9 +381,7 @@ class CollapserMC(Collapser):
 
         """
 
-        from mchammer import Optimizer
-
-        self._optimizer = Optimizer(
+        self._optimizer = mch.Optimizer(
             output_dir=output_dir,
             step_size=step_size,
             target_bond_length=target_bond_length,
@@ -413,4 +410,41 @@ class CollapserMC(Collapser):
 
         """
 
-        return self._optimizer.optimize(mol)
+        def get_long_bond_ids(mol):
+            """
+            Returns dict of long bond infos.
+
+            """
+
+            long_bond_ids = []
+            for bond_infos in mol.get_bond_infos():
+                if bond_infos.get_building_block() is None:
+                    ids = (
+                        bond_infos.get_bond().get_atom1().get_id(),
+                        bond_infos.get_bond().get_atom2().get_id(),
+                    )
+                    long_bond_ids.append(ids)
+
+            return tuple(long_bond_ids)
+
+        stk_long_bond_ids = get_long_bond_ids(mol)
+        mch_mol = mch.Molecule(
+            atoms=(
+                mch.Atom(
+                    id=atom.get_id(),
+                    element_string=atom.__class__.__name__,
+                ) for atom in mol.get_atoms()
+            ),
+            bonds=(
+                mch.Bond(
+                    id=i,
+                    atom1_id=bond.get_atom1().get_id(),
+                    atom2_id=bond.get_atom2().get_id()
+                ) for i, bond in enumerate(mol.get_bonds())
+            ),
+            position_matrix=mol.get_position_matrix(),
+        )
+        mch_mol = self._optimizer.optimize(mch_mol, stk_long_bond_ids)
+        mol = mol.with_position_matrix(mch_mol.get_position_matrix())
+
+        return mol
