@@ -15,14 +15,6 @@ class ASEConverter:
 
     """
 
-    def to_stk(self, atoms, periodic=False):
-        """
-        Convert ase.Atoms() to stk.Molecule.
-
-        """
-
-        raise NotImplementedError()
-
     def from_stk(self, molecule, unit_cell=None):
         """
         Convert molecule to ase.Atoms().
