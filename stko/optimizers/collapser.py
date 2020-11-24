@@ -19,7 +19,7 @@ import shutil
 import mchammer as mch
 
 from .optimizers import Optimizer
-from ..utilities import get_atom_distance
+from ..utilities import get_atom_distance, get_long_bond_ids
 
 
 logger = logging.getLogger(__name__)
@@ -409,23 +409,6 @@ class CollapserMC(Collapser):
             The optimized molecule.
 
         """
-
-        def get_long_bond_ids(mol):
-            """
-            Returns dict of long bond infos.
-
-            """
-
-            long_bond_ids = []
-            for bond_infos in mol.get_bond_infos():
-                if bond_infos.get_building_block() is None:
-                    ids = (
-                        bond_infos.get_bond().get_atom1().get_id(),
-                        bond_infos.get_bond().get_atom2().get_id(),
-                    )
-                    long_bond_ids.append(ids)
-
-            return tuple(long_bond_ids)
 
         stk_long_bond_ids = get_long_bond_ids(mol)
         mch_mol = mch.Molecule(
