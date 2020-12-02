@@ -1,10 +1,6 @@
-# This is an example for incorporating the benzene fixture
-import numpy as np
 from .utilities import compare_molecules
 
 import stko
-
-from ..fixtures.benzene import benzene_build
 
 
 def test_fake_opt(benzene_build):

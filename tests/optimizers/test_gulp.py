@@ -6,8 +6,6 @@ from os.path import join
 from stko import GulpUFFOptimizer, GulpUFFMDOptimizer
 from.utilities import compare_molecules
 
-from ..fixtures.benzene import benzene_build
-
 
 odir = 'gulp_tests_output'
 if not os.path.exists(odir):
