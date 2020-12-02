@@ -621,23 +621,6 @@ class GulpUFFOptimizer(Optimizer):
             f.write(library)
             f.write(output_section)
 
-    def _move_cif(self, filename, output_cif):
-        """
-        Move CIF from optimisation folder to filename.
-
-        Parameters
-        ----------
-        filename : :class:`str`
-            The name of CIF file to be written.
-
-        Returns
-        -------
-        None : :class:`NoneType`
-
-        """
-
-        os.rename(f'{self._output_dir}/{output_cif}', filename)
-
     def assign_FF(self, mol):
         """
         Assign forcefield types to molecule.
@@ -702,14 +685,6 @@ class GulpUFFOptimizer(Optimizer):
                 shell=True
             )
 
-    def _move_generated_files(self, files):
-        if not os.path.exists(self._output_dir):
-            os.mkdir(self._output_dir)
-
-        for file in files:
-            if os.path.exists(file):
-                os.rename(file, f'{self._output_dir}/{file}')
-
     def extract_final_energy(self, file):
         nums = re.compile(r"[+-]?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?")
         with open(file, 'r') as f:
@@ -752,40 +727,32 @@ class GulpUFFOptimizer(Optimizer):
             shutil.rmtree(output_dir)
 
         os.mkdir(output_dir)
+        init_dir = os.getcwd()
+        os.chdir(output_dir)
 
         in_file = 'gulp_opt.gin'
         out_file = 'gulp_opt.ginout'
         output_xyz = 'gulp_opt.xyz'
-        output_cif = output_xyz.replace('xyz', 'cif')
 
         metal_atoms = get_metal_atoms(mol)
 
-        # Write GULP file.
-        self._write_gulp_file(
-            mol=mol,
-            metal_atoms=metal_atoms,
-            in_file=in_file,
-            output_xyz=output_xyz,
-            cell=cell,
-        )
-
-        # Run.
-        self._run_gulp(in_file, out_file)
-
-        # Update from output.
-        mol = mol.with_structure_from_file(output_xyz)
-
-        # Move files.
-        self._move_generated_files(
-            files=[in_file, out_file, output_xyz, output_cif]
-        )
-
-        # Save CIF.
-        if self._periodic and cif_filename is not None:
-            self._move_cif(
-                filename=cif_filename,
-                output_cif=output_cif
+        try:
+            # Write GULP file.
+            self._write_gulp_file(
+                mol=mol,
+                metal_atoms=metal_atoms,
+                in_file=in_file,
+                output_xyz=output_xyz,
+                cell=cell,
             )
+            # Run.
+            self._run_gulp(in_file, out_file)
+
+            # Update from output.
+            mol = mol.with_structure_from_file(output_xyz)
+
+        finally:
+            os.chdir(init_dir)
 
         return mol
 
@@ -1171,6 +1138,7 @@ class GulpUFFMDOptimizer(GulpUFFOptimizer):
             The optimized molecule.
 
         """
+
         if self._output_dir is None:
             output_dir = str(uuid.uuid4().int)
         else:
@@ -1181,47 +1149,44 @@ class GulpUFFMDOptimizer(GulpUFFOptimizer):
             shutil.rmtree(output_dir)
 
         os.mkdir(output_dir)
+        init_dir = os.getcwd()
+        os.chdir(output_dir)
 
         in_file = 'gulp_MD.gin'
         out_file = 'gulp_MD.ginout'
         output_xyz = 'gulp_MD_template.xyz'
-        mol.write(output_xyz)
         output_traj = 'gulp_MD.trg'
         xyz_traj = 'gulp_MD_traj.xyz'
         low_conf_xyz = 'low_energy_conf.xyz'
 
         metal_atoms = get_metal_atoms(mol)
 
-        # Write GULP file.
-        self._write_gulp_file(
-            mol=mol,
-            metal_atoms=metal_atoms,
-            in_file=in_file,
-            output_traj=output_traj
-        )
+        try:
+            mol.write(output_xyz)
+            # Write GULP file.
+            self._write_gulp_file(
+                mol=mol,
+                metal_atoms=metal_atoms,
+                in_file=in_file,
+                output_traj=output_traj
+            )
 
-        # Run.
-        self._run_gulp(in_file, out_file)
+            # Run.
+            self._run_gulp(in_file, out_file)
 
-        # Get lowest energy conformer from trajectory.
-        self._save_lowest_energy_conf(
-            mol=mol,
-            output_xyz=output_xyz,
-            output_traj=output_traj,
-            xyz_traj=xyz_traj,
-            low_conf_xyz=low_conf_xyz
-        )
+            # Get lowest energy conformer from trajectory.
+            self._save_lowest_energy_conf(
+                mol=mol,
+                output_xyz=output_xyz,
+                output_traj=output_traj,
+                xyz_traj=xyz_traj,
+                low_conf_xyz=low_conf_xyz
+            )
 
-        # Update from output.
-        mol = mol.with_structure_from_file(low_conf_xyz)
+            # Update from output.
+            mol = mol.with_structure_from_file(low_conf_xyz)
 
-        # Move files.
-        self._move_generated_files(
-            files=[
-                in_file, out_file, output_xyz,
-                output_traj, xyz_traj, low_conf_xyz,
-                'temp_conf.xyz'
-            ]
-        )
+        finally:
+            os.chdir(init_dir)
 
         return mol
