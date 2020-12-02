@@ -1,5 +1,4 @@
 # This is an example for incorporating the benzene fixture
-from ..fixtures.benzene import benzene_build
 import numpy as np
 from .utilities import compare_molecules
 
