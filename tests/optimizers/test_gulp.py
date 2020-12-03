@@ -48,9 +48,9 @@ def test_optimizer2(gulp_path, benzene_build, tmpdir):
         ensemble='nvt',
         temperature=300,
         equilbration=1.0,
-        production=1.0,
+        production=5.0,
         timestep=0.5,
-        N_conformers=2,
+        N_conformers=4,
         opt_conformers=True,
         save_conformers=False,
     )
@@ -60,6 +60,27 @@ def test_optimizer2(gulp_path, benzene_build, tmpdir):
         initial_molecule=benzene_build,
         optimized_molecule=opt_benzene,
     )
+
+
+@gulp
+def test_optimizer3(gulp_path, benzene_build, tmpdir):
+    gulpuffmdoptimizer = GulpUFFMDOptimizer(
+        gulp_path=gulp_path,
+        metal_FF=None,
+        metal_ligand_bond_order=None,
+        output_dir=join(odir, 'test_optimizer3'),
+        integrator='stochastic',
+        ensemble='nvt',
+        temperature=150.0,
+        equilbration=1.0,
+        production=10.0,
+        timestep=0.5,
+        N_conformers=4,
+        opt_conformers=False,
+        save_conformers=False,
+    )
+    gulpuffmdoptimizer.assign_FF(benzene_build)
+    opt_benzene = gulpuffmdoptimizer.optimize(benzene_build)
     compare_benzenes(
         initial_molecule=benzene_build,
         optimized_molecule=opt_benzene,
