@@ -1065,20 +1065,23 @@ class GulpUFFMDOptimizer(GulpUFFOptimizer):
                     atom_types=atom_types
                 )
                 mol = mol.with_structure_from_file(conformer_file_name)
+                conformer_opt_dir = os.path.join(
+                    os.getcwd(),
+                    f'conf_{ts}_opt'
+                )
                 gulp_opt = GulpUFFOptimizer(
                     gulp_path=self._gulp_path,
                     metal_FF=self._metal_FF,
-                    output_dir=self._output_dir
+                    output_dir=conformer_opt_dir,
                 )
                 gulp_opt.assign_FF(mol)
                 mol = gulp_opt.optimize(mol=mol)
                 energy = gulp_opt.extract_final_energy(
                     file=os.path.join(
-                        self._output_dir,
+                        conformer_opt_dir,
                         'gulp_opt.ginout'
                     )
                 )
-
                 if energy < min_energy:
                     min_energy = energy
                     self._write_conformer_xyz_file(
