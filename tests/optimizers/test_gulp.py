@@ -4,7 +4,7 @@ import os
 from os.path import join
 
 from stko import GulpUFFOptimizer, GulpUFFMDOptimizer
-from.utilities import compare_molecules
+from.utilities import compare_benzenes
 
 
 odir = 'gulp_tests_output'
@@ -31,7 +31,7 @@ def test_optimizer1(gulp_path, benzene_build, tmpdir):
     )
     gulpuffoptimizer.assign_FF(benzene_build)
     opt_benzene = gulpuffoptimizer.optimize(benzene_build)
-    compare_molecules(
+    compare_benzenes(
         initial_molecule=benzene_build,
         optimized_molecule=opt_benzene,
     )
@@ -56,7 +56,11 @@ def test_optimizer2(gulp_path, benzene_build, tmpdir):
     )
     gulpuffmdoptimizer.assign_FF(benzene_build)
     opt_benzene = gulpuffmdoptimizer.optimize(benzene_build)
-    compare_molecules(
+    compare_benzenes(
+        initial_molecule=benzene_build,
+        optimized_molecule=opt_benzene,
+    )
+    compare_benzenes(
         initial_molecule=benzene_build,
         optimized_molecule=opt_benzene,
     )

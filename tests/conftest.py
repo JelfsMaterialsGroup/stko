@@ -7,6 +7,7 @@ import stk
 def benzene_build():
     """
     Benzene fixture with distorted geometry.
+
     """
 
     path_to_current_file = os.path.realpath(__file__)

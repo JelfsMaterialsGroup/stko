@@ -12,7 +12,7 @@ def compute_angle(atom_a, atom_b, atom_c):
     return np.degrees(angle)
 
 
-def compare_molecules(initial_molecule, optimized_molecule):
+def compare_benzenes(initial_molecule, optimized_molecule):
     # Check position matrices.
     original_pos_mat = initial_molecule.get_position_matrix()
     new_pos_mat = optimized_molecule.get_position_matrix()
