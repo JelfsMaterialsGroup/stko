@@ -1084,13 +1084,8 @@ class GulpUFFMDOptimizer(GulpUFFOptimizer):
                 )
                 if energy < min_energy:
                     min_energy = energy
-                    self._write_conformer_xyz_file(
-                        id=id,
-                        filename=low_conf_xyz,
-                        s_times=s_times,
-                        s_coords=s_coords,
-                        atom_types=atom_types
-                    )
+                    # Write out optimised conformer.
+                    mol.write(low_conf_xyz)
         else:
             if self._save_conformers:
                 for ts in trajectory_data:
