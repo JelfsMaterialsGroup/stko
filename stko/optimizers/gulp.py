@@ -928,90 +928,86 @@ class GulpUFFMDOptimizer(GulpUFFOptimizer):
             lines = f.readlines()
 
         # Split file using strings.
-        id = 0
-        s_times = {}
-        s_coords = {}
-        s_vels = {}
-        s_derivs = {}
-        s_sites = {}
-        coords = []
-        vels = []
-        derivs = []
-        sites = []
-        switch = None
-        for line in lines:
-            li = line.rstrip()
-            if '#  Time/KE/E/T' in li:
-                switch = 'times'
-                s_coords[id] = coords
-                coords = []
-                s_vels[id] = vels
-                vels = []
-                s_derivs[id] = derivs
-                derivs = []
-                s_sites[id] = sites
-                sites = []
-                id += 1
-            elif '#  Coordinates' in li:
-                switch = 'coords'
-            elif '#  Velocities' in li:
-                switch = 'vels'
-            elif '#  Derivatives' in li:
-                switch = 'derivs'
-            elif '#  Site energies' in li:
-                switch = 'sites'
-            elif switch == 'coords':
-                coords.append([i for i in li.split(' ') if i])
-            elif switch == 'vels':
-                vels.append([i for i in li.split(' ') if i])
-            elif switch == 'derivs':
-                derivs.append([i for i in li.split(' ') if i])
-            elif switch == 'sites':
-                sites.append([i for i in li.split(' ') if i])
-            elif switch == 'times':
-                s_times[id] = [i for i in li.split(' ') if i]
-            elif switch is None:
-                pass
-        # Add final timestep.
-        s_coords[id] = coords
-        coords = []
-        s_vels[id] = vels
-        vels = []
-        s_derivs[id] = derivs
-        derivs = []
-        s_sites[id] = sites
-        sites = []
-
-        ids = []
-        tt = []
-        pot_energies = []
-        new_lines = []
-        for id in s_times:
-            times = s_times[id]
-            ids.append(id)
-            tt.append(float(times[0]))
-            pot_energies.append(float(times[2]))
-            coords = s_coords[id]
-            sites = s_sites[id]
-            xyz_string = (
-                f'{len(coords)}\n'
-                f'{times[0]},{times[1]},{times[2]},{times[3]}\n'
+        timesteps = ''.join(lines).split('#  Time/KE/E/T')[1:]
+        trajectory_data = {}
+        xyz_traj_lines = []
+        for ts, cont in enumerate(timesteps):
+            ts_data = {}
+            time_section = (
+                cont.split('#  Coordinates\n')[0]
+            )
+            coords_section = (
+                cont.split('#  Coordinates\n')[1].split(
+                    '#  Velocities\n'
+                )[0]
+            )
+            vels_section = (
+                cont.split('#  Velocities\n')[1].split(
+                    '#  Derivatives \n'
+                )[0]
+            )
+            derivs_section = (
+                cont.split('#  Derivatives \n')[1].split(
+                    '#  Site energies \n'
+                )[0]
+            )
+            sites_section = (
+                cont.split('#  Site energies \n')[1]
             )
 
-            for i, coord in enumerate(coords):
-                site = sites[i][0]
+            ts_data['time'] = float(
+                [i for i in time_section.strip().split(' ') if i][0]
+            )
+            ts_data['KE'] = float(
+                [i for i in time_section.strip().split(' ') if i][1]
+            )
+            ts_data['E'] = float(
+                [i for i in time_section.strip().split(' ') if i][2]
+            )
+            ts_data['T'] = float(
+                [i for i in time_section.strip().split(' ') if i][3]
+            )
+            ts_data['coords'] = [
+                [i for i in li.split(' ') if i]
+                for li in coords_section.split('\n')[:-1]
+            ]
+            ts_data['vels'] = [
+                [i for i in li.split(' ') if i]
+                for li in vels_section.split('\n')[:-1]
+            ]
+            ts_data['derivs'] = [
+                [i for i in li.split(' ') if i]
+                for li in derivs_section.split('\n')[:-1]
+            ]
+            ts_data['sites'] = [
+                [i for i in li.split(' ') if i]
+                for li in sites_section.split('\n')[:-1]
+            ]
+
+            trajectory_data[ts] = ts_data
+
+            # Write XYZ string for XYZ traj file.
+            xyz_string = (
+                f"{len(ts_data['coords'])}\n"
+                f"{ts_data['time']},{ts_data['KE']},"
+                f"{ts_data['E']},{ts_data['T']}\n"
+            )
+
+            for i, coord in enumerate(ts_data['coords']):
+                site_E = ts_data['sites'][i][0]
                 xyz_string += (
                     f'{atom_types[i]} {coord[0]} {coord[1]} '
-                    f'{coord[2]} {site}\n'
+                    f'{coord[2]} {site_E}\n'
                 )
 
-            new_lines.append(xyz_string)
+            xyz_traj_lines.append(xyz_string)
 
+        # Write XYZ trajectory file.
         with open(xyz_traj, 'w') as f:
-            for line in new_lines:
+            for line in xyz_traj_lines:
                 f.write(line)
 
-        return atom_types, ids, tt, pot_energies, s_times, s_coords
+        return atom_types, trajectory_data
 
     def _write_conformer_xyz_file(
         self,
