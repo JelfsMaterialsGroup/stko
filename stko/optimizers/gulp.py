@@ -1011,18 +1011,19 @@ class GulpUFFMDOptimizer(GulpUFFOptimizer):
 
     def _write_conformer_xyz_file(
         self,
-        id,
+        ts,
+        ts_data,
         filename,
-        s_times,
-        s_coords,
-        atom_types
+        atom_types,
     ):
-        times = s_times[id]
-        coords = s_coords[id]
+
+        coords = ts_data['coords']
         xyz_string = (
-            f'{len(coords)}\n'
-            f'{times[0]},{times[1]},{times[2]},{times[3]}\n'
+            f"{len(ts_data['coords'])}\n"
+            f"{ts},{ts_data['time']},{ts_data['KE']},"
+            f"{ts_data['E']},{ts_data['T']}\n"
         )
+
         for i, coord in enumerate(coords):
             xyz_string += (
                 f'{atom_types[i]} {coord[0]} {coord[1]} {coord[2]}\n'
@@ -1040,34 +1041,27 @@ class GulpUFFMDOptimizer(GulpUFFOptimizer):
     ):
 
         # Convert GULP trajectory file to xyz trajectory.
-        results = self._convert_traj_to_xyz(
+        atom_types, trajectory_data = self._convert_traj_to_xyz(
             output_xyz,
             output_traj,
             xyz_traj
         )
-        atom_types, ids, tt, pot_energies, s_times, s_coords = results
 
         # Find lowest energy conformation and output to XYZ.
         if self._opt_conformers:
             # Optimise all conformers.
             min_energy = 1E10
-            for id in ids:
+            for ts in trajectory_data:
                 if self._save_conformers:
-                    conformer_file_name = os.path.join(
-                        self._output_dir,
-                        f'conf_{id}.xyz'
-                    )
+                    conformer_file_name = f'conf_{ts}.xyz'
                 else:
                     # This will get overwrriten each time.
-                    conformer_file_name = os.path.join(
-                        self._output_dir,
-                        'temp_conf.xyz'
-                    )
+                    conformer_file_name = 'temp_conf.xyz'
+
                 self._write_conformer_xyz_file(
-                    id=id,
+                    ts=ts,
+                    ts_data=trajectory_data[ts],
                     filename=conformer_file_name,
-                    s_times=s_times,
-                    s_coords=s_coords,
                     atom_types=atom_types
                 )
                 mol = mol.with_structure_from_file(conformer_file_name)
@@ -1096,26 +1090,27 @@ class GulpUFFMDOptimizer(GulpUFFOptimizer):
                     )
         else:
             if self._save_conformers:
-                for id in ids:
-                    conformer_file_name = os.path.join(
-                        self._output_dir,
-                        f'conf_{id}.xyz'
-                    )
+                for ts in trajectory_data:
+                    conformer_file_name = f'conf_{ts}.xyz'
                     self._write_conformer_xyz_file(
-                        id=id,
+                        ts=ts,
+                        ts_data=trajectory_data[ts],
                         filename=conformer_file_name,
-                        s_times=s_times,
-                        s_coords=s_coords,
                         atom_types=atom_types
                     )
 
-            min_energy = min(pot_energies)
-            min_id = ids[pot_energies.index(min_energy)]
+            energies = [
+                trajectory_data[ts]['E']
+                for ts in trajectory_data
+            ]
+            min_energy = min(energies)
+            min_ts = list(trajectory_data.keys())[
+                energies.index(min_energy)
+            ]
             self._write_conformer_xyz_file(
-                id=min_id,
+                ts=min_ts,
+                ts_data=trajectory_data[min_ts],
                 filename=low_conf_xyz,
-                s_times=s_times,
-                s_coords=s_coords,
                 atom_types=atom_types
             )
 
