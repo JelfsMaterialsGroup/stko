@@ -394,6 +394,23 @@ class CollapserMC(Collapser):
             random_seed=random_seed,
         )
 
+    def _get_reordered_bonds(self, mol):
+        """
+        Returns bonds with atom1_id < atom2_id.
+
+        """
+
+        bond_identifiers = []
+        for i, bond in enumerate(mol.get_bonds()):
+            ba1 = bond.get_atom1().get_id()
+            ba2 = bond.get_atom2().get_id()
+            if ba1 < ba2:
+                bond_identifiers.append((i, ba1, ba2))
+            else:
+                bond_identifiers.append((i, ba2, ba1))
+
+        return bond_identifiers
+
     def optimize(self, mol):
         """
         Optimize `mol`.
@@ -410,7 +427,8 @@ class CollapserMC(Collapser):
 
         """
 
-        stk_long_bond_ids = get_long_bond_ids(mol)
+        long_bond_ids = get_long_bond_ids(mol, reorder=True)
+        reordered_bonds = self._get_reordered_bonds(mol)
         mch_mol = mch.Molecule(
             atoms=(
                 mch.Atom(
@@ -419,15 +437,12 @@ class CollapserMC(Collapser):
                 ) for atom in mol.get_atoms()
             ),
             bonds=(
-                mch.Bond(
-                    id=i,
-                    atom1_id=bond.get_atom1().get_id(),
-                    atom2_id=bond.get_atom2().get_id()
-                ) for i, bond in enumerate(mol.get_bonds())
+                mch.Bond(id=i, atom1_id=j, atom2_id=k)
+                for i, j, k in reordered_bonds
             ),
             position_matrix=mol.get_position_matrix(),
         )
-        mch_mol = self._optimizer.optimize(mch_mol, stk_long_bond_ids)
+        mch_mol = self._optimizer.optimize(mch_mol, long_bond_ids)
         mol = mol.with_position_matrix(mch_mol.get_position_matrix())
 
         return mol
