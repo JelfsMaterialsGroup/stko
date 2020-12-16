@@ -125,14 +125,14 @@ def with_structure_from_periodic_turbomole(mol, path):
     # Save all the coords in the file.
     new_coords = []
     elements = [i.__class__.__name__ for i in mol.get_atoms()]
-    for i, line in enumerate(coord_section):
+    for _id, line in enumerate(coord_section):
         *coords, element = line.split()
         if element.isnumeric():
             element = periodic_table[int(element)]
 
         if element != elements[i]:
             raise RuntimeError(
-                f'Atom {i} element does not match file.'
+                f'Atom {_id} element does not match file.'
             )
         if coord_units == 'bohr':
             new_coords.append([float(i)*bohr_to_ang for i in coords])
@@ -145,10 +145,10 @@ def with_structure_from_periodic_turbomole(mol, path):
 
     # Check that the correct number of atom
     # lines was present in the file.
-    if i+1 != num_atoms:
+    if _id+1 != num_atoms:
         raise RuntimeError(
             'The number of atoms lines in the coord file, '
-            f'{i+1}, does not match the number of atoms '
+            f'{_id+1}, does not match the number of atoms '
             f'in the molecule, {num_atoms}.'
         )
 
