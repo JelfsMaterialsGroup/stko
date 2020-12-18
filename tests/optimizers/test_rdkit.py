@@ -8,9 +8,6 @@ from .utilities import compare_molecules
 
 import stko
 
-def test_me():
-    assert True
-
 def test_MMFF_opt(benzene_build):
 
     # Perform optimisation.
