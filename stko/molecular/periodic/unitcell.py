@@ -21,13 +21,14 @@ class UnitCell(PeriodicInfo):
 
     """
 
-    def _update_periodic_info(self, vector_1, vector_2, vector_3):
+    @classmethod
+    def _update_periodic_info(cls, vector_1, vector_2, vector_3):
         """
         Return clone of :class:`.UnitCell` with new parameters.
 
         """
 
-        clone = self.__class__.__new__(self.__class__)
+        clone = cls.__new__(cls)
         UnitCell.__init__(
             self=clone,
             vector_1=vector_1,
@@ -62,7 +63,11 @@ class UnitCell(PeriodicInfo):
 
         """
 
-        return self._update_periodic_info(vector_1, vector_2, vector_3)
+        return self.__class__._update_periodic_info(
+            vector_1=vector_1,
+            vector_2=vector_2,
+            vector_3=vector_3,
+        )
 
     def with_cell_from_turbomole(self, filename):
         """
