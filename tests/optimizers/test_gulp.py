@@ -7,10 +7,12 @@ from stko import GulpUFFOptimizer, GulpUFFMDOptimizer
 from.utilities import compare_benzenes
 
 
-odir = 'gulp_tests_output'
+odir = join(
+    os.path.dirname(os.path.abspath(__file__)),
+    'gulp_tests_output',
+)
 if not os.path.exists(odir):
     os.mkdir(odir)
-
 
 gulp = pytest.mark.skipif(
     all('gulp_path' not in x for x in sys.argv),
@@ -19,7 +21,7 @@ gulp = pytest.mark.skipif(
 
 
 @gulp
-def test_optimizer1(gulp_path, benzene_build, tmpdir):
+def test_optimizer1(gulp_path, benzene_build):
     gulpuffoptimizer = GulpUFFOptimizer(
         gulp_path=gulp_path,
         maxcyc=1000,
@@ -38,7 +40,7 @@ def test_optimizer1(gulp_path, benzene_build, tmpdir):
 
 
 @gulp
-def test_optimizer2(gulp_path, benzene_build, tmpdir):
+def test_optimizer2(gulp_path, benzene_build):
     gulpuffmdoptimizer = GulpUFFMDOptimizer(
         gulp_path=gulp_path,
         metal_FF=None,
@@ -63,7 +65,7 @@ def test_optimizer2(gulp_path, benzene_build, tmpdir):
 
 
 @gulp
-def test_optimizer3(gulp_path, benzene_build, tmpdir):
+def test_optimizer3(gulp_path, benzene_build):
     gulpuffmdoptimizer = GulpUFFMDOptimizer(
         gulp_path=gulp_path,
         metal_FF=None,
