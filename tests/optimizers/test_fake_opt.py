@@ -1,6 +1,4 @@
-# This is an example for incorporating the benzene fixture
-import numpy as np
-from .utilities import compare_molecules
+from .utilities import compare_benzenes
 
 import stko
 
@@ -11,7 +9,7 @@ def test_fake_opt(benzene_build):
     optimizer = stko.ETKDG()
     opt_benzene = optimizer.optimize(benzene_build)
 
-    compare_molecules(
+    compare_benzenes(
         initial_molecule=benzene_build,
         optimized_molecule=opt_benzene,
     )
