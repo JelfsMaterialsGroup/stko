@@ -769,6 +769,8 @@ class GulpUFFOptimizer(Optimizer):
             shutil.rmtree(output_dir)
 
         os.mkdir(output_dir)
+        init_dir = os.getcwd()
+        os.chdir(output_dir)
 
         in_file = 'gulp_opt.gin'
         out_file = 'gulp_opt.ginout'
@@ -777,26 +779,25 @@ class GulpUFFOptimizer(Optimizer):
 
         metal_atoms = get_metal_atoms(mol)
 
-        # Write GULP file.
-        self._write_gulp_file(
-            mol=mol,
-            metal_atoms=metal_atoms,
-            in_file=in_file,
-            output_xyz=output_xyz,
-            unit_cell=unit_cell,
-        )
+        try:
+            # Write GULP file.
+            self._write_gulp_file(
+                mol=mol,
+                metal_atoms=metal_atoms,
+                in_file=in_file,
+                output_xyz=output_xyz,
+                unit_cell=unit_cell,
+            )
 
-        # Run.
-        self._run_gulp(in_file, out_file)
+            # Run.
+            self._run_gulp(in_file, out_file)
 
-        # Update from output.
-        mol = mol.with_structure_from_file(output_xyz)
-        unit_cell = unit_cell.with_cell_from_cif(output_cif)
+            # Update from output.
+            mol = mol.with_structure_from_file(output_xyz)
+            unit_cell = unit_cell.with_cell_from_cif(output_cif)
 
-        # Move files.
-        self._move_generated_files(
-            files=[in_file, out_file, output_xyz, output_cif]
-        )
+        finally:
+            os.chdir(init_dir)
 
         return mol, unit_cell
 
