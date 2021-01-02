@@ -823,6 +823,39 @@ class MCHCollapser(Optimizer):
     """
     Collapse molecule to decrease enlarged bonds using MC algorithm.
 
+    Examples
+    --------
+    This optimisation code specifically works on
+    :class:`stk.ConstructedMolecules` and automatically merges
+    building blocks by `buildingblockid` and outputs the
+    full trajectory and information from MCHammer. For more control,
+    use the MCHammer class directly.
+
+    .. code-block:: python
+
+        import stk
+        import stko
+
+        bb1 = stk.BuildingBlock(
+            smiles='C1(C(C1Br)Br)Br',
+            functional_groups=[stk.BromoFactory()],
+        )
+        bb2 = stk.BuildingBlock(
+            smiles='C1=C(C(=CC(=C1Br)Br)Br)Br',
+            functional_groups=[stk.BromoFactory()],
+        )
+        topology_graph = stk.cage.M8L6Cube(building_blocks=(bb1, bb2))
+        cage = stk.ConstructedMolecule(topology_graph)
+
+        stko_optimizer = stko.MCHCollapser(
+            output_dir='stko_colls',
+            step_size=0.05,
+            distance_threshold=2,
+            scale_steps=True,
+        )
+
+        cage = stko_optimizer.optimize(cage)
+
     """
 
     def __init__(
@@ -998,6 +1031,38 @@ class MCHOptimizer(MCHCollapser):
 
     Smarter optimisation than Collapser using simple Monte Carlo
     algorithm to perform rigid translations of building blocks.
+
+    Examples
+    --------
+    This optimisation code specifically works on
+    :class:`stk.ConstructedMolecules` and automatically merges
+    building blocks by `buildingblockid` and outputs the
+    full trajectory and information from MCHammer. For more control,
+    use the MCHammer class directly.
+
+    .. code-block:: python
+
+        import stk
+        import stko
+
+        bb1 = stk.BuildingBlock(
+            smiles='C1(C(C1Br)Br)Br',
+            functional_groups=[stk.BromoFactory()],
+        )
+        bb2 = stk.BuildingBlock(
+            smiles='C1=C(C(=CC(=C1Br)Br)Br)Br',
+            functional_groups=[stk.BromoFactory()],
+        )
+        topology_graph = stk.cage.M8L6Cube(building_blocks=(bb1, bb2))
+        cage = stk.ConstructedMolecule(topology_graph)
+
+        stko_optimizer = stko.MCHOptimizer(
+            output_dir='output_dir',
+            step_size=0.25,
+            target_bond_length=1.2,
+            num_steps=500,
+        )
+        cage = stko_optimizer.optimize(cage)
 
     """
 
