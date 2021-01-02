@@ -4,7 +4,8 @@ Collapser Optimizer
 
 #. :class:`.Collapser`
 #. :class:`.CollapserMC`
-#. :class:`.MCHammerCollapser`
+#. :class:`.MCHCollapser`
+#. :class:`.MCHOptimizer`
 
 Optimizer for collapsing enlarged topologies.
 
@@ -33,6 +34,9 @@ logger = logging.getLogger(__name__)
 class Collapser(Optimizer):
     """
     Collapse stk.ConstructedMolecule to decrease enlarged bonds.
+
+    It is recommended to use the MCHammer version of this code with
+    :class:`MCHCollapser`.
 
     This optimizer aims to bring extended bonds closer together for
     further optimisation.
@@ -315,6 +319,9 @@ class Collapser(Optimizer):
 class CollapserMC(Collapser):
     """
     Collapse molecule to decrease enlarged bonds using MC algorithm.
+
+    It is recommended to use the MCHammer version of this code with
+    :class:`MCHOptimizer`.
 
     Smarter optimisation than Collapser using simple Monte Carlo
     algorithm to perform rigid translations of building blocks.
@@ -812,7 +819,180 @@ class CollapserMC(Collapser):
         return mol
 
 
-class MCHammerCollapser(Collapser):
+class MCHCollapser(Optimizer):
+    """
+    Collapse molecule to decrease enlarged bonds using MC algorithm.
+
+    """
+
+    def __init__(
+        self,
+        output_dir,
+        step_size,
+        distance_threshold,
+        scale_steps,
+    ):
+        """
+        Initialize a :class:`MCHCollapser` instance.
+
+        Parameters
+        ----------
+        output_dir : :class:`str`
+            The name of the directory into which files generated during
+            the calculation are written, if ``None`` then
+            :func:`uuid.uuid4` is used.
+
+        step_size : :class:`float`
+            The relative size of the step to take during collapse.
+
+        distance_threshold : :class:`float`
+            Distance between distinct subunits to use as
+            threshold for halting collapse in Angstrom.
+
+        scale_steps : :class:`bool`, optional
+            Whether to scale the step of each distict building block
+            by their relative distance from the molecules centroid.
+            Defaults to ``True``
+
+        """
+
+        self._optimizer = mch.Collapser(
+            step_size=step_size,
+            distance_threshold=distance_threshold,
+            scale_steps=scale_steps,
+        )
+        self._output_dir = output_dir
+
+    def _get_reordered_bonds(self, mol):
+        """
+        Returns bonds with atom1_id < atom2_id.
+
+        """
+
+        bond_identifiers = []
+        for i, bond in enumerate(mol.get_bonds()):
+            ba1 = bond.get_atom1().get_id()
+            ba2 = bond.get_atom2().get_id()
+            if ba1 < ba2:
+                bond_identifiers.append((i, ba1, ba2))
+            else:
+                bond_identifiers.append((i, ba2, ba1))
+
+        return bond_identifiers
+
+    def _merge_subunits_by_buildingblockid(self, mol, subunits):
+        """
+        Merge subunits in stk.Molecule by building block ids.
+
+        """
+
+        subunit_building_block_ids = {i: set() for i in subunits}
+        for su in subunits:
+            su_ids = subunits[su]
+            for i in su_ids:
+                atom_info = next(mol.get_atom_infos(atom_ids=i))
+                subunit_building_block_ids[su].add(
+                    atom_info.get_building_block_id()
+                )
+
+        new_subunits = {}
+        taken_subunits = set()
+        for su in subunits:
+            bb_ids = subunit_building_block_ids[su]
+            if len(bb_ids) > 1:
+                raise ValueError(
+                    'Subunits not made up of singular BuildingBlock'
+                )
+            bb_id = list(bb_ids)[0]
+            if su in taken_subunits:
+                continue
+
+            compound_subunit = subunits[su]
+            has_same_bb_id = [
+                (su_id, bb_id) for su_id in subunits
+                if list(subunit_building_block_ids[su_id])[0] == bb_id
+                and su_id != su
+            ]
+
+            for su_id, bb_id in has_same_bb_id:
+                for i in subunits[su_id]:
+                    compound_subunit.add(i)
+                taken_subunits.add(su_id)
+            new_subunits[su] = compound_subunit
+
+        return new_subunits
+
+    def optimize(self, mol):
+        """
+        Optimize `mol`.
+
+        Parameters
+        ----------
+        mol : :class:`stk.ConstructedMolecule`
+            The molecule to be optimized.
+
+        Returns
+        -------
+        mol : :class:`stk.ConstructedMolecule`
+            The optimized molecule.
+
+        """
+
+        if self._output_dir is None:
+            output_dir = str(uuid.uuid4().int)
+        else:
+            output_dir = self._output_dir
+        output_dir = os.path.abspath(output_dir)
+
+        if os.path.exists(output_dir):
+            shutil.rmtree(output_dir)
+
+        os.mkdir(output_dir)
+
+        long_bond_ids = get_long_bond_ids(mol, reorder=True)
+        reordered_bonds = self._get_reordered_bonds(mol)
+
+        mch_mol = mch.Molecule(
+            atoms=(
+                mch.Atom(
+                    id=atom.get_id(),
+                    element_string=atom.__class__.__name__,
+                ) for atom in mol.get_atoms()
+            ),
+            bonds=(
+                mch.Bond(id=i, atom1_id=j, atom2_id=k)
+                for i, j, k in reordered_bonds
+            ),
+            position_matrix=mol.get_position_matrix(),
+        )
+        subunits = self._merge_subunits_by_buildingblockid(
+            mol=mol,
+            subunits=mch_mol.get_subunits(
+                bond_pair_ids=long_bond_ids,
+            ),
+        )
+        mch_result = self._optimizer.get_trajectory(
+            mol=mch_mol,
+            bond_pair_ids=long_bond_ids,
+            subunits=subunits,
+        )
+
+        mol = mol.with_position_matrix(
+            mch_result.get_final_position_matrix()
+        )
+
+        # Output trajectory as separate xyz files for visualisation.
+        with open(f'{output_dir}/optimization.out', 'w') as f:
+            f.write(mch_result.get_log())
+
+        for step, new_pos_mat in mch_result.get_trajectory():
+            mch_mol.update_position_matrix(new_pos_mat)
+            mch_mol.write_xyz_file(f'{output_dir}/traj_{step}.xyz')
+
+        return mol
+
+
+class MCHOptimizer(MCHCollapser):
     """
     Collapse molecule to decrease enlarged bonds using MC algorithm.
 
@@ -835,7 +1015,7 @@ class MCHammerCollapser(Collapser):
         random_seed=None,
     ):
         """
-        Initialize a :class:`Collapser` instance.
+        Initialize a :class:`MCHOptimizer` instance.
 
         Parameters
         ----------
@@ -887,7 +1067,6 @@ class MCHammerCollapser(Collapser):
         """
 
         self._optimizer = mch.Optimizer(
-            output_dir=output_dir,
             step_size=step_size,
             target_bond_length=target_bond_length,
             num_steps=num_steps,
@@ -898,23 +1077,7 @@ class MCHammerCollapser(Collapser):
             beta=beta,
             random_seed=random_seed,
         )
-
-    def _get_reordered_bonds(self, mol):
-        """
-        Returns bonds with atom1_id < atom2_id.
-
-        """
-
-        bond_identifiers = []
-        for i, bond in enumerate(mol.get_bonds()):
-            ba1 = bond.get_atom1().get_id()
-            ba2 = bond.get_atom2().get_id()
-            if ba1 < ba2:
-                bond_identifiers.append((i, ba1, ba2))
-            else:
-                bond_identifiers.append((i, ba2, ba1))
-
-        return bond_identifiers
+        self._output_dir = output_dir
 
     def optimize(self, mol):
         """
@@ -932,8 +1095,20 @@ class MCHammerCollapser(Collapser):
 
         """
 
+        if self._output_dir is None:
+            output_dir = str(uuid.uuid4().int)
+        else:
+            output_dir = self._output_dir
+        output_dir = os.path.abspath(output_dir)
+
+        if os.path.exists(output_dir):
+            shutil.rmtree(output_dir)
+
+        os.mkdir(output_dir)
+
         long_bond_ids = get_long_bond_ids(mol, reorder=True)
         reordered_bonds = self._get_reordered_bonds(mol)
+
         mch_mol = mch.Molecule(
             atoms=(
                 mch.Atom(
@@ -947,7 +1122,94 @@ class MCHammerCollapser(Collapser):
             ),
             position_matrix=mol.get_position_matrix(),
         )
-        mch_mol = self._optimizer.optimize(mch_mol, long_bond_ids)
-        mol = mol.with_position_matrix(mch_mol.get_position_matrix())
+        subunits = self._merge_subunits_by_buildingblockid(
+            mol=mol,
+            subunits=mch_mol.get_subunits(
+                bond_pair_ids=long_bond_ids,
+            ),
+        )
+        mch_result = self._optimizer.get_trajectory(
+            mol=mch_mol,
+            bond_pair_ids=long_bond_ids,
+            subunits=subunits,
+        )
+
+        mol = mol.with_position_matrix(
+            mch_result.get_final_position_matrix()
+        )
+
+        # Output trajectory as separate xyz files for visualisation.
+        with open(f'{output_dir}/optimization.out', 'w') as f:
+            f.write(mch_result.get_log())
+
+        for step, new_pos_mat in mch_result.get_trajectory():
+            mch_mol.update_position_matrix(new_pos_mat)
+            mch_mol.write_xyz_file(f'{output_dir}/traj_{step}.xyz')
+
+        # Plot properties for parameterisation.
+        data = {
+            'steps': [],
+            'max_bond_distances': [],
+            'system_potentials': [],
+            'nonbonded_potentials': [],
+        }
+        for step, prop in mch_result.get_steps_properties():
+            data['steps'].append(step)
+            data['max_bond_distances'].append(
+                prop['max_bond_distance']
+            )
+            data['system_potentials'].append(prop['system_potential'])
+            data['nonbonded_potentials'].append(
+                prop['nonbonded_potential']
+            )
+
+        # Show plotting from results to viauslise progress.
+        fig, ax = plt.subplots(figsize=(8, 5))
+        ax.plot(
+            data['steps'],
+            data['max_bond_distances'],
+            c='k', lw=2
+        )
+        # Set number of ticks for x-axis
+        ax.tick_params(axis='both', which='major', labelsize=16)
+        ax.set_xlim(0, None)
+        ax.set_xlabel('step', fontsize=16)
+        ax.set_ylabel('max long bond length [angstrom]', fontsize=16)
+        ax.axhline(
+            y=self._optimizer._target_bond_length,
+            c='r', linestyle='--'
+        )
+        fig.tight_layout()
+        fig.savefig(
+            f'{output_dir}/maxd_vs_step.pdf',
+            dpi=360,
+            bbox_inches='tight'
+        )
+        plt.close()
+        # Plot energy vs timestep.
+        fig, ax = plt.subplots(figsize=(8, 5))
+        ax.plot(
+            data['steps'],
+            data['system_potentials'],
+            c='k', lw=2, label='system potential'
+        )
+        ax.plot(
+            data['steps'],
+            data['nonbonded_potentials'],
+            c='r', lw=2, label='nonbonded potential'
+        )
+        # Set number of ticks for x-axis
+        ax.tick_params(axis='both', which='major', labelsize=16)
+        ax.set_xlim(0, None)
+        ax.set_xlabel('step', fontsize=16)
+        ax.set_ylabel('potential', fontsize=16)
+        ax.legend(fontsize=16)
+        fig.tight_layout()
+        fig.savefig(
+            f'{output_dir}/pot_vs_step.pdf',
+            dpi=360,
+            bbox_inches='tight'
+        )
+        plt.close()
 
         return mol
