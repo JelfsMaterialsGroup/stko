@@ -610,23 +610,6 @@ class GulpUFFOptimizer(Optimizer):
             f.write(library)
             f.write(output_section)
 
-    def _move_cif(self, filename, output_cif):
-        """
-        Move CIF from optimisation folder to filename.
-
-        Parameters
-        ----------
-        filename : :class:`str`
-            The name of CIF file to be written.
-
-        Returns
-        -------
-        None : :class:`NoneType`
-
-        """
-
-        os.rename(f'{self._output_dir}/{output_cif}', filename)
-
     def assign_FF(self, mol):
         """
         Assign forcefield types to molecule.
@@ -691,14 +674,6 @@ class GulpUFFOptimizer(Optimizer):
                 shell=True
             )
 
-    def _move_generated_files(self, files):
-        if not os.path.exists(self._output_dir):
-            os.mkdir(self._output_dir)
-
-        for file in files:
-            if os.path.exists(file):
-                os.rename(file, f'{self._output_dir}/{file}')
-
     def extract_final_energy(self, file):
         nums = re.compile(r"[+-]?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?")
         with open(file, 'r') as f:
@@ -733,33 +708,32 @@ class GulpUFFOptimizer(Optimizer):
             shutil.rmtree(output_dir)
 
         os.mkdir(output_dir)
+        init_dir = os.getcwd()
+        os.chdir(output_dir)
 
         in_file = 'gulp_opt.gin'
         out_file = 'gulp_opt.ginout'
         output_xyz = 'gulp_opt.xyz'
-        output_cif = output_xyz.replace('xyz', 'cif')
 
         metal_atoms = get_metal_atoms(mol)
 
-        # Write GULP file.
-        self._write_gulp_file(
-            mol=mol,
-            metal_atoms=metal_atoms,
-            in_file=in_file,
-            output_xyz=output_xyz,
-            unit_cell=None,
-        )
+        try:
+            # Write GULP file.
+            self._write_gulp_file(
+                mol=mol,
+                metal_atoms=metal_atoms,
+                in_file=in_file,
+                output_xyz=output_xyz,
+                unit_cell=None,
+            )
+            # Run.
+            self._run_gulp(in_file, out_file)
 
-        # Run.
-        self._run_gulp(in_file, out_file)
+            # Update from output.
+            mol = mol.with_structure_from_file(output_xyz)
 
-        # Update from output.
-        mol = mol.with_structure_from_file(output_xyz)
-
-        # Move files.
-        self._move_generated_files(
-            files=[in_file, out_file, output_xyz, output_cif]
-        )
+        finally:
+            os.chdir(init_dir)
 
         return mol
 
@@ -998,105 +972,102 @@ class GulpUFFMDOptimizer(GulpUFFOptimizer):
             lines = f.readlines()
 
         # Split file using strings.
-        id = 0
-        s_times = {}
-        s_coords = {}
-        s_vels = {}
-        s_derivs = {}
-        s_sites = {}
-        coords = []
-        vels = []
-        derivs = []
-        sites = []
-        switch = None
-        for line in lines:
-            li = line.rstrip()
-            if '#  Time/KE/E/T' in li:
-                switch = 'times'
-                s_coords[id] = coords
-                coords = []
-                s_vels[id] = vels
-                vels = []
-                s_derivs[id] = derivs
-                derivs = []
-                s_sites[id] = sites
-                sites = []
-                id += 1
-            elif '#  Coordinates' in li:
-                switch = 'coords'
-            elif '#  Velocities' in li:
-                switch = 'vels'
-            elif '#  Derivatives' in li:
-                switch = 'derivs'
-            elif '#  Site energies' in li:
-                switch = 'sites'
-            elif switch == 'coords':
-                coords.append([i for i in li.split(' ') if i])
-            elif switch == 'vels':
-                vels.append([i for i in li.split(' ') if i])
-            elif switch == 'derivs':
-                derivs.append([i for i in li.split(' ') if i])
-            elif switch == 'sites':
-                sites.append([i for i in li.split(' ') if i])
-            elif switch == 'times':
-                s_times[id] = [i for i in li.split(' ') if i]
-            elif switch is None:
-                pass
-        # Add final timestep.
-        s_coords[id] = coords
-        coords = []
-        s_vels[id] = vels
-        vels = []
-        s_derivs[id] = derivs
-        derivs = []
-        s_sites[id] = sites
-        sites = []
-
-        ids = []
-        tt = []
-        pot_energies = []
-        new_lines = []
-        for id in s_times:
-            times = s_times[id]
-            ids.append(id)
-            tt.append(float(times[0]))
-            pot_energies.append(float(times[2]))
-            coords = s_coords[id]
-            sites = s_sites[id]
-            xyz_string = (
-                f'{len(coords)}\n'
-                f'{times[0]},{times[1]},{times[2]},{times[3]}\n'
+        timesteps = ''.join(lines).split('#  Time/KE/E/T')[1:]
+        trajectory_data = {}
+        xyz_traj_lines = []
+        for ts, cont in enumerate(timesteps):
+            ts_data = {}
+            time_section = (
+                cont.split('#  Coordinates\n')[0]
+            )
+            coords_section = (
+                cont.split('#  Coordinates\n')[1].split(
+                    '#  Velocities\n'
+                )[0]
+            )
+            vels_section = (
+                cont.split('#  Velocities\n')[1].split(
+                    '#  Derivatives \n'
+                )[0]
+            )
+            derivs_section = (
+                cont.split('#  Derivatives \n')[1].split(
+                    '#  Site energies \n'
+                )[0]
+            )
+            sites_section = (
+                cont.split('#  Site energies \n')[1]
             )
 
-            for i, coord in enumerate(coords):
-                site = sites[i][0]
+            ts_data['time'] = float(
+                [i for i in time_section.strip().split(' ') if i][0]
+            )
+            ts_data['KE'] = float(
+                [i for i in time_section.strip().split(' ') if i][1]
+            )
+            ts_data['E'] = float(
+                [i for i in time_section.strip().split(' ') if i][2]
+            )
+            ts_data['T'] = float(
+                [i for i in time_section.strip().split(' ') if i][3]
+            )
+            ts_data['coords'] = [
+                [i for i in li.split(' ') if i]
+                for li in coords_section.split('\n')[:-1]
+            ]
+            ts_data['vels'] = [
+                [i for i in li.split(' ') if i]
+                for li in vels_section.split('\n')[:-1]
+            ]
+            ts_data['derivs'] = [
+                [i for i in li.split(' ') if i]
+                for li in derivs_section.split('\n')[:-1]
+            ]
+            ts_data['sites'] = [
+                [i for i in li.split(' ') if i]
+                for li in sites_section.split('\n')[:-1]
+            ]
+
+            trajectory_data[ts] = ts_data
+
+            # Write XYZ string for XYZ traj file.
+            xyz_string = (
+                f"{len(ts_data['coords'])}\n"
+                f"{ts_data['time']},{ts_data['KE']},"
+                f"{ts_data['E']},{ts_data['T']}\n"
+            )
+
+            for i, coord in enumerate(ts_data['coords']):
+                site_E = ts_data['sites'][i][0]
                 xyz_string += (
                     f'{atom_types[i]} {coord[0]} {coord[1]} '
-                    f'{coord[2]} {site}\n'
+                    f'{coord[2]} {site_E}\n'
                 )
 
-            new_lines.append(xyz_string)
+            xyz_traj_lines.append(xyz_string)
 
+        # Write XYZ trajectory file.
         with open(xyz_traj, 'w') as f:
-            for line in new_lines:
+            for line in xyz_traj_lines:
                 f.write(line)
 
-        return atom_types, ids, tt, pot_energies, s_times, s_coords
+        return atom_types, trajectory_data
 
     def _write_conformer_xyz_file(
         self,
-        id,
+        ts,
+        ts_data,
         filename,
-        s_times,
-        s_coords,
-        atom_types
+        atom_types,
     ):
-        times = s_times[id]
-        coords = s_coords[id]
+
+        coords = ts_data['coords']
         xyz_string = (
-            f'{len(coords)}\n'
-            f'{times[0]},{times[1]},{times[2]},{times[3]}\n'
+            f"{len(ts_data['coords'])}\n"
+            f"{ts},{ts_data['time']},{ts_data['KE']},"
+            f"{ts_data['E']},{ts_data['T']}\n"
         )
+
         for i, coord in enumerate(coords):
             xyz_string += (
                 f'{atom_types[i]} {coord[0]} {coord[1]} {coord[2]}\n'
@@ -1114,82 +1085,74 @@ class GulpUFFMDOptimizer(GulpUFFOptimizer):
     ):
 
         # Convert GULP trajectory file to xyz trajectory.
-        results = self._convert_traj_to_xyz(
+        atom_types, trajectory_data = self._convert_traj_to_xyz(
             output_xyz,
             output_traj,
             xyz_traj
         )
-        atom_types, ids, tt, pot_energies, s_times, s_coords = results
 
         # Find lowest energy conformation and output to XYZ.
         if self._opt_conformers:
             # Optimise all conformers.
             min_energy = 1E10
-            for id in ids:
+            for ts in trajectory_data:
                 if self._save_conformers:
-                    conformer_file_name = os.path.join(
-                        self._output_dir,
-                        f'conf_{id}.xyz'
-                    )
+                    conformer_file_name = f'conf_{ts}.xyz'
                 else:
                     # This will get overwrriten each time.
-                    conformer_file_name = os.path.join(
-                        self._output_dir,
-                        'temp_conf.xyz'
-                    )
+                    conformer_file_name = 'temp_conf.xyz'
+
                 self._write_conformer_xyz_file(
-                    id=id,
+                    ts=ts,
+                    ts_data=trajectory_data[ts],
                     filename=conformer_file_name,
-                    s_times=s_times,
-                    s_coords=s_coords,
                     atom_types=atom_types
                 )
                 mol = mol.with_structure_from_file(conformer_file_name)
+                conformer_opt_dir = os.path.join(
+                    os.getcwd(),
+                    f'conf_{ts}_opt'
+                )
                 gulp_opt = GulpUFFOptimizer(
                     gulp_path=self._gulp_path,
                     metal_FF=self._metal_FF,
-                    output_dir=self._output_dir
+                    output_dir=conformer_opt_dir,
                 )
                 gulp_opt.assign_FF(mol)
                 mol = gulp_opt.optimize(mol=mol)
                 energy = gulp_opt.extract_final_energy(
                     file=os.path.join(
-                        self._output_dir,
+                        conformer_opt_dir,
                         'gulp_opt.ginout'
                     )
                 )
-
                 if energy < min_energy:
                     min_energy = energy
-                    self._write_conformer_xyz_file(
-                        id=id,
-                        filename=low_conf_xyz,
-                        s_times=s_times,
-                        s_coords=s_coords,
-                        atom_types=atom_types
-                    )
+                    # Write out optimised conformer.
+                    mol.write(low_conf_xyz)
         else:
             if self._save_conformers:
-                for id in ids:
-                    conformer_file_name = os.path.join(
-                        self._output_dir,
-                        f'conf_{id}.xyz'
-                    )
+                for ts in trajectory_data:
+                    conformer_file_name = f'conf_{ts}.xyz'
                     self._write_conformer_xyz_file(
-                        id=id,
+                        ts=ts,
+                        ts_data=trajectory_data[ts],
                         filename=conformer_file_name,
-                        s_times=s_times,
-                        s_coords=s_coords,
                         atom_types=atom_types
                     )
 
-            min_energy = min(pot_energies)
-            min_id = ids[pot_energies.index(min_energy)]
+            energies = [
+                trajectory_data[ts]['E']
+                for ts in trajectory_data
+            ]
+            min_energy = min(energies)
+            min_ts = list(trajectory_data.keys())[
+                energies.index(min_energy)
+            ]
             self._write_conformer_xyz_file(
-                id=min_id,
+                ts=min_ts,
+                ts_data=trajectory_data[min_ts],
                 filename=low_conf_xyz,
-                s_times=s_times,
-                s_coords=s_coords,
                 atom_types=atom_types
             )
 
@@ -1208,6 +1171,7 @@ class GulpUFFMDOptimizer(GulpUFFOptimizer):
             The optimized molecule.
 
         """
+
         if self._output_dir is None:
             output_dir = str(uuid.uuid4().int)
         else:
@@ -1218,47 +1182,44 @@ class GulpUFFMDOptimizer(GulpUFFOptimizer):
             shutil.rmtree(output_dir)
 
         os.mkdir(output_dir)
+        init_dir = os.getcwd()
+        os.chdir(output_dir)
 
         in_file = 'gulp_MD.gin'
         out_file = 'gulp_MD.ginout'
         output_xyz = 'gulp_MD_template.xyz'
-        mol.write(output_xyz)
         output_traj = 'gulp_MD.trg'
         xyz_traj = 'gulp_MD_traj.xyz'
         low_conf_xyz = 'low_energy_conf.xyz'
 
         metal_atoms = get_metal_atoms(mol)
 
-        # Write GULP file.
-        self._write_gulp_file(
-            mol=mol,
-            metal_atoms=metal_atoms,
-            in_file=in_file,
-            output_traj=output_traj
-        )
+        try:
+            mol.write(output_xyz)
+            # Write GULP file.
+            self._write_gulp_file(
+                mol=mol,
+                metal_atoms=metal_atoms,
+                in_file=in_file,
+                output_traj=output_traj
+            )
 
-        # Run.
-        self._run_gulp(in_file, out_file)
+            # Run.
+            self._run_gulp(in_file, out_file)
 
-        # Get lowest energy conformer from trajectory.
-        self._save_lowest_energy_conf(
-            mol=mol,
-            output_xyz=output_xyz,
-            output_traj=output_traj,
-            xyz_traj=xyz_traj,
-            low_conf_xyz=low_conf_xyz
-        )
+            # Get lowest energy conformer from trajectory.
+            self._save_lowest_energy_conf(
+                mol=mol,
+                output_xyz=output_xyz,
+                output_traj=output_traj,
+                xyz_traj=xyz_traj,
+                low_conf_xyz=low_conf_xyz
+            )
 
-        # Update from output.
-        mol = mol.with_structure_from_file(low_conf_xyz)
+            # Update from output.
+            mol = mol.with_structure_from_file(low_conf_xyz)
 
-        # Move files.
-        self._move_generated_files(
-            files=[
-                in_file, out_file, output_xyz,
-                output_traj, xyz_traj, low_conf_xyz,
-                'temp_conf.xyz'
-            ]
-        )
+        finally:
+            os.chdir(init_dir)
 
         return mol
