@@ -918,8 +918,8 @@ class MCHCollapser(Optimizer):
         -------
         subunits : :class:`.dict`
             The subunits of `mol` split by building block id. Key is
-            subunit identifier, Value is :class:`iterable` of atom ids in
-            subunit.
+            subunit identifier, Value is :class:`iterable` of atom ids
+            in subunit.
 
         """
 
@@ -959,7 +959,7 @@ class MCHCollapser(Optimizer):
         os.mkdir(output_dir)
 
         long_bond_ids = get_long_bond_ids(mol, reorder=True)
-        reordered_bonds = self._get_reordered_bonds(mol)
+        reordered_bonds = self._get_bonds(mol)
 
         mch_mol = mch.Molecule(
             atoms=(
@@ -969,7 +969,7 @@ class MCHCollapser(Optimizer):
                 ) for atom in mol.get_atoms()
             ),
             bonds=(
-                mch.Bond(id=i, atom1_id=j, atom2_id=k)
+                mch.Bond(id=i, atom_ids=(j, k))
                 for i, j, k in reordered_bonds
             ),
             position_matrix=mol.get_position_matrix(),
@@ -1141,7 +1141,7 @@ class MCHOptimizer(MCHCollapser):
         os.mkdir(output_dir)
 
         long_bond_ids = get_long_bond_ids(mol, reorder=True)
-        reordered_bonds = self._get_reordered_bonds(mol)
+        reordered_bonds = self._get_bonds(mol)
 
         mch_mol = mch.Molecule(
             atoms=(
@@ -1151,7 +1151,7 @@ class MCHOptimizer(MCHCollapser):
                 ) for atom in mol.get_atoms()
             ),
             bonds=(
-                mch.Bond(id=i, atom1_id=j, atom2_id=k)
+                mch.Bond(id=i, atom_ids=(j, k))
                 for i, j, k in reordered_bonds
             ),
             position_matrix=mol.get_position_matrix(),
