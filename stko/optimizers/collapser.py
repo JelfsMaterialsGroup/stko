@@ -896,9 +896,9 @@ class MCHCollapser(Optimizer):
         )
         self._output_dir = output_dir
 
-    def _get_reordered_bonds(self, mol):
+    def _get_bonds(self, mol):
         """
-        Returns bonds with atom1_id < atom2_id.
+        Returns bonds.
 
         """
 
@@ -906,54 +906,30 @@ class MCHCollapser(Optimizer):
         for i, bond in enumerate(mol.get_bonds()):
             ba1 = bond.get_atom1().get_id()
             ba2 = bond.get_atom2().get_id()
-            if ba1 < ba2:
-                bond_identifiers.append((i, ba1, ba2))
-            else:
-                bond_identifiers.append((i, ba2, ba1))
+            bond_identifiers.append((i, ba1, ba2))
 
         return bond_identifiers
 
-    def _merge_subunits_by_buildingblockid(self, mol, subunits):
+    def get_subunits(self, mol):
         """
-        Merge subunits in stk.Molecule by building block ids.
+        Get connected graphs based on building block ids.
+
+        Returns
+        -------
+        subunits : :class:`.dict`
+            The subunits of `mol` split by building block id. Key is
+            subunit identifier, Value is :class:`iterable` of atom ids in
+            subunit.
 
         """
 
-        subunit_building_block_ids = {i: set() for i in subunits}
-        for su in subunits:
-            su_ids = subunits[su]
-            for i in su_ids:
-                atom_info = next(mol.get_atom_infos(atom_ids=i))
-                subunit_building_block_ids[su].add(
-                    atom_info.get_building_block_id()
-                )
+        subunits = defaultdict(list)
+        for atom_info in mol.get_atom_infos():
+            subunits[atom_info.get_building_block_id()].append(
+                atom_info.get_atom().get_id()
+            )
 
-        new_subunits = {}
-        taken_subunits = set()
-        for su in subunits:
-            bb_ids = subunit_building_block_ids[su]
-            if len(bb_ids) > 1:
-                raise ValueError(
-                    'Subunits not made up of singular BuildingBlock'
-                )
-            bb_id = list(bb_ids)[0]
-            if su in taken_subunits:
-                continue
-
-            compound_subunit = subunits[su]
-            has_same_bb_id = [
-                (su_id, bb_id) for su_id in subunits
-                if list(subunit_building_block_ids[su_id])[0] == bb_id
-                and su_id != su
-            ]
-
-            for su_id, bb_id in has_same_bb_id:
-                for i in subunits[su_id]:
-                    compound_subunit.add(i)
-                taken_subunits.add(su_id)
-            new_subunits[su] = compound_subunit
-
-        return new_subunits
+        return subunits
 
     def optimize(self, mol):
         """
@@ -998,29 +974,22 @@ class MCHCollapser(Optimizer):
             ),
             position_matrix=mol.get_position_matrix(),
         )
-        subunits = self._merge_subunits_by_buildingblockid(
-            mol=mol,
-            subunits=mch_mol.get_subunits(
-                bond_pair_ids=long_bond_ids,
-            ),
-        )
-        mch_result = self._optimizer.get_trajectory(
+        subunits = self.get_subunits(mol=mol)
+        mch_mol, mch_result = self._optimizer.get_trajectory(
             mol=mch_mol,
             bond_pair_ids=long_bond_ids,
             subunits=subunits,
         )
 
-        mol = mol.with_position_matrix(
-            mch_result.get_final_position_matrix()
-        )
+        mol = mol.with_position_matrix(mch_mol.get_position_matrix())
 
         # Output trajectory as separate xyz files for visualisation.
         with open(f'{output_dir}/optimization.out', 'w') as f:
             f.write(mch_result.get_log())
 
         for step, new_pos_mat in mch_result.get_trajectory():
-            mch_mol.update_position_matrix(new_pos_mat)
-            mch_mol.write_xyz_file(f'{output_dir}/traj_{step}.xyz')
+            new_mol = mch_mol.with_position_matrix(new_pos_mat)
+            new_mol.write_xyz_file(f'{output_dir}/traj_{step}.xyz')
 
         return mol
 
@@ -1187,29 +1156,22 @@ class MCHOptimizer(MCHCollapser):
             ),
             position_matrix=mol.get_position_matrix(),
         )
-        subunits = self._merge_subunits_by_buildingblockid(
-            mol=mol,
-            subunits=mch_mol.get_subunits(
-                bond_pair_ids=long_bond_ids,
-            ),
-        )
-        mch_result = self._optimizer.get_trajectory(
+        subunits = self.get_subunits(mol=mol)
+        mch_mol, mch_result = self._optimizer.get_trajectory(
             mol=mch_mol,
             bond_pair_ids=long_bond_ids,
             subunits=subunits,
         )
 
-        mol = mol.with_position_matrix(
-            mch_result.get_final_position_matrix()
-        )
+        mol = mol.with_position_matrix(mch_mol.get_position_matrix())
 
         # Output trajectory as separate xyz files for visualisation.
         with open(f'{output_dir}/optimization.out', 'w') as f:
             f.write(mch_result.get_log())
 
         for step, new_pos_mat in mch_result.get_trajectory():
-            mch_mol.update_position_matrix(new_pos_mat)
-            mch_mol.write_xyz_file(f'{output_dir}/traj_{step}.xyz')
+            new_mol = mch_mol.with_position_matrix(new_pos_mat)
+            new_mol.write_xyz_file(f'{output_dir}/traj_{step}.xyz')
 
         # Plot properties for parameterisation.
         data = {
