@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from main.molecular.torsion import Torsion
+from stko.molecular.torsions.torsion import Torsion
 import stk
 @dataclass
 class TorsionInfo:
