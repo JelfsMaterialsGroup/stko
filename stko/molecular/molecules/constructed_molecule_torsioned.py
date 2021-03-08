@@ -1,5 +1,6 @@
 # %%
 from dataclasses import dataclass
+from stko.molecular.torsions.torsion_info import TorsionInfo
 from stko.molecular.torsions.torsion import Torsion
 import stk
 from rdkit.Chem import TorsionFingerprints
@@ -31,13 +32,24 @@ class ConstructedMoleculeTorsioned():
         
     def get_torsion_infos(self):
         'yield data about the torsions in the molecule'
+        for torsion, atom_ids in zip(self.get_torsions(), self.get_torsion_list()):
+            atom_infos = self.stk_molecule.get_atom_infos(atom_ids)
+            building_block_ids = {atom_info.get_building_block_id() for atom_info in atom_infos}
+            if len(building_block_ids) == 1:
+                bb_atoms = [atom_info.get_building_block_atom() for atom_info in atom_infos]
+                building_block_torsion = Torsion(*bb_atoms)
+                building_block = atom_infos[0].get_building_block()
+                building_block_id = building_block_ids.pop()
+                yield TorsionInfo(torsion, building_block_torsion, building_block, building_block_id)
+            else:
+                yield TorsionInfo(torsion, None, None, None)
 
     def get_env(self):
         'returns a gym environment corresponding to this molecule'
     
-    if __name__ == "__main__":
-        xor_gate = ConstructedMoleculeTorsioned(XorGate(3, 8).polymer)
-        print(xor_gate.torsion_list)
+if __name__ == "__main__":
+    xor_gate = ConstructedMoleculeTorsioned(XorGate(3, 8).polymer)
+    print(xor_gate.torsion_list)
         
 
 # %%
