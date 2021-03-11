@@ -1,5 +1,6 @@
 # %%
 from dataclasses import dataclass
+from collections import defaultdict
 from stko.molecular.torsions.torsion_info import TorsionInfo
 from stko.molecular.torsions.torsion import Torsion
 import stk
@@ -27,8 +28,12 @@ class ConstructedMoleculeTorsioned():
         for torsion in self.torsion_list:
             yield Torsion(*self.stk_molecule.get_atoms(torsion))
 
-    def get_torsions_by_building_block(self):
+    def get_torsion_infos_by_building_block(self):
         'return a set of the torsions corresponding to each building block of this molecule'
+        torsion_infos_by_building_block = defaultdict(list)
+        for torsion_info in self.get_torsion_infos():
+            torsion_infos_by_building_block[torsion_info.building_block_id].append(torsion_info)
+        return torsion_infos_by_building_block
         
     def get_torsion_infos(self):
         'yield data about the torsions in the molecule'
@@ -44,13 +49,13 @@ class ConstructedMoleculeTorsioned():
             else:
                 yield TorsionInfo(torsion, None, None, None)
 
-    def get_env(self):
-        'returns a gym environment corresponding to this molecule'
-    
 if __name__ == "__main__":
     xor_gate = ConstructedMoleculeTorsioned(XorGate(3, 8).polymer)
     print(xor_gate.torsion_list)
     print([torsion_info.building_block_id for torsion_info in xor_gate.get_torsion_infos()])
+    # print([(key, value.building_block_torsion) 
+    #       for key, value in xor_gate.get_torsion_infos_by_building_block().items()])
+    print(xor_gate.get_torsion_infos_by_building_block())
         
 
 # %%
