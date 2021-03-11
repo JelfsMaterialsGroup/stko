@@ -7,14 +7,14 @@ import stk
 from rdkit.Chem import TorsionFingerprints
 from generate_molecule.xor_gate import XorGate
 
-@dataclass
 class ConstructedMoleculeTorsioned():
     """
     
     """
     stk_molecule: stk.ConstructedMolecule
     
-    def __post_init__(self):
+    def __init__(self, stk_molecule: stk.ConstructedMolecule):
+        self.stk_molecule = stk_molecule.clone()
         nonring, ring = TorsionFingerprints.CalculateTorsionLists(
             self.stk_molecule.to_rdkit_mol())
         self.torsion_list = [list(atoms[0]) for atoms, ang in nonring]
