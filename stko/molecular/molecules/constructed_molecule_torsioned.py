@@ -17,16 +17,15 @@ class ConstructedMoleculeTorsioned():
         self.stk_molecule = stk_molecule.clone()
         nonring, ring = TorsionFingerprints.CalculateTorsionLists(
             self.stk_molecule.to_rdkit_mol())
-        self.torsion_list = [list(atoms[0]) for atoms, ang in nonring]
+        self.torsions = [Torsion(*atoms[0]) for atoms, ang in nonring]
     
     def get_torsion_list(self):
         'returns a list torsions in the molecule, where each torsion is a list of atom indices'
-        return self.torsion_list
+        return [torsion.get_atoms() for torsion in self.torsions]
 
     def get_torsions(self):
         'yield the torsions in the molecule'
-        for torsion in self.torsion_list:
-            yield Torsion(*self.stk_molecule.get_atoms(torsion))
+        yield from self.torsions
 
     def get_torsion_infos_by_building_block(self):
         'return a set of the torsions corresponding to each building block of this molecule'
@@ -51,7 +50,7 @@ class ConstructedMoleculeTorsioned():
 
 if __name__ == "__main__":
     xor_gate = ConstructedMoleculeTorsioned(XorGate(3, 8).polymer)
-    print(xor_gate.torsion_list)
+    print(xor_gate.get_torsion_list())
     print([torsion_info.building_block_id for torsion_info in xor_gate.get_torsion_infos()])
     # print([(key, value.building_block_torsion) 
     #       for key, value in xor_gate.get_torsion_infos_by_building_block().items()])
