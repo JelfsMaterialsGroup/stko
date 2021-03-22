@@ -20,6 +20,9 @@ class Torsion:
     
     def get_atoms(self):
         return [self.atom1, self.atom2, self.atom3, self.atom4]
+    
+    def __iter__(self):
+        return iter(self.get_atoms())
 
 if __name__ == "__main__":
     import doctest
