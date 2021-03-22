@@ -47,6 +47,36 @@ class ConstructedMoleculeTorsioned():
                 yield TorsionInfo(torsion, building_block_torsion, building_block, building_block_id)
             else:
                 yield TorsionInfo(torsion, None, None, None)
+    
+    def set_torsions(self, torsions):
+        'sets the torsions'
+        self.torsions = torsions
+        
+    def transfer_torsions(self, building_block_map):
+        """
+        building_block_map is a map from each building block of this molecule
+        to a ConstructedMoleculeTorsioned which contains its torsions
+        """
+        self.torsions = []
+        'for each building block id, get the building block and an atom map'
+        for id, building_block in enumerate(self.get_building_blocks()):
+            for building_block_torsion in building_block_map[building_block].get_torsions():
+                torsion = Torsion([atom_map[id][atom] for atom in building_block_torsion])
+                self.torsions.append(torsion)
+                
+    def get_building_blocks(self):
+        return {atom_info.get_building_block_id(): atom_info.get_building_block()
+                for atom_info in self.stk_molecule.get_atom_infos()}
+     
+    def get_atom_map(self):
+        """
+        map from building block atom ids to constructed molecule atoms for a
+        specified building block id
+        """
+        
+        return {atom_info.get_building_block_atom().get_id(): atom_info.get_atom()
+                for atom_info in self.stk_molecule.get_atom_infos()
+                if atom_info.get_building_block_id() == building_block_id}   
 
 if __name__ == "__main__":
     xor_gate = ConstructedMoleculeTorsioned(XorGate(3, 8).polymer)
