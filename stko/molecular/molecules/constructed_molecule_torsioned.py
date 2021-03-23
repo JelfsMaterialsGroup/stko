@@ -59,11 +59,13 @@ class ConstructedMoleculeTorsioned():
         """
         self.torsions = []
         print('Here!!!!!')
-        print(f'self.get_building_blocks() = {self.get_building_blocks()}')
+        # print(f'self.get_building_blocks() = {self.get_building_blocks()}')
         for id, building_block in self.get_building_blocks().items():
-            print(f'id: {id}\nbuilding_block: {building_block}')
+            print(f'id: {id}')
+            # print(f'building_block_map[building_block].get_torsions() = {list(building_block_map[building_block].get_torsions())}')
+            print(f'self.atom_maps[id] = {self.atom_maps[id]}')
             for building_block_torsion in building_block_map[building_block].get_torsions():
-                torsion = Torsion([self.atom_maps[id][atom] for atom in building_block_torsion])
+                torsion = Torsion(*[self.atom_maps[id][atom.get_id()] for atom in building_block_torsion])
                 self.torsions.append(torsion)
                 
     def get_building_blocks(self):
@@ -78,17 +80,19 @@ class ConstructedMoleculeTorsioned():
         self.atom_maps = defaultdict(dict)
         for atom_info in self.stk_molecule.get_atom_infos():
             current_atom_map = self.atom_maps[atom_info.get_building_block_id()]
-            current_atom_map[atom_info.get_building_block_atom()] = atom_info.get_atom()
+            current_atom_map[atom_info.get_building_block_atom().get_id()] = atom_info.get_atom()
         return self.atom_maps
     
 if __name__ == "__main__":
     from generate_molecule.xor_gate import XorGate
     xor_gate = ConstructedMoleculeTorsioned(XorGate(3, 8).polymer)
     print(xor_gate.get_torsion_list())
+    print(f'xor_gate.get_torsion_infos_by_building_block()[0]={xor_gate.get_torsion_infos_by_building_block()[0]}')
     print([torsion_info.building_block_id for torsion_info in xor_gate.get_torsion_infos()])
+    print(f'xor_gate.atom_maps = {xor_gate.atom_maps}')
     # print([(key, value.building_block_torsion) 
     #       for key, value in xor_gate.get_torsion_infos_by_building_block().items()])
-    print(xor_gate.get_torsion_infos_by_building_block())
+    # print(xor_gate.get_torsion_infos_by_building_block())
         
 
 # %%
