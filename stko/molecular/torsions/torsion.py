@@ -1,5 +1,5 @@
 # %%
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 import stk
 
 @dataclass
@@ -12,6 +12,8 @@ class Torsion:
     C(19)
     >>> print(torsion.get_atoms())
     [N(23), C(18), C(19), O(31)]
+    >>> print(torsion.get_atom_ids())
+    [23, 18, 19, 31]
     """
     atom1: stk.Atom
     atom2: stk.Atom
@@ -20,6 +22,9 @@ class Torsion:
     
     def get_atoms(self):
         return [self.atom1, self.atom2, self.atom3, self.atom4]
+    
+    def get_atom_ids(self):
+        return [atom.get_id() for atom in self]
     
     def __iter__(self):
         return iter(self.get_atoms())

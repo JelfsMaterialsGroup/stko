@@ -1,5 +1,4 @@
 # %%
-from dataclasses import dataclass
 from collections import defaultdict
 from stko.molecular.torsions.torsion_info import TorsionInfo
 from stko.molecular.torsions.torsion import Torsion
@@ -21,7 +20,7 @@ class ConstructedMoleculeTorsioned():
     
     def get_torsion_list(self):
         'returns a list torsions in the molecule, where each torsion is a list of atom indices'
-        return [torsion.get_atoms() for torsion in self.torsions]
+        return [torsion.get_atom_ids() for torsion in self.torsions]
 
     def get_torsions(self):
         'yield the torsions in the molecule'
@@ -58,12 +57,7 @@ class ConstructedMoleculeTorsioned():
         to a ConstructedMoleculeTorsioned which contains its torsions
         """
         self.torsions = []
-        print('Here!!!!!')
-        # print(f'self.get_building_blocks() = {self.get_building_blocks()}')
         for id, building_block in self.get_building_blocks().items():
-            print(f'id: {id}')
-            # print(f'building_block_map[building_block].get_torsions() = {list(building_block_map[building_block].get_torsions())}')
-            print(f'self.atom_maps[id] = {self.atom_maps[id]}')
             for building_block_torsion in building_block_map[building_block].get_torsions():
                 torsion = Torsion(*[self.atom_maps[id][atom.get_id()] for atom in building_block_torsion])
                 self.torsions.append(torsion)
