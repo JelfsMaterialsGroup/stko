@@ -3,6 +3,7 @@ Collapser Optimizer
 ===================
 
 #. :class:`.Collapser`
+#. :class:`.CollapserMC`
 
 Optimizer for collapsing enlarged topologies.
 
@@ -12,9 +13,9 @@ import logging
 from itertools import combinations
 import numpy as np
 from collections import defaultdict
-import matplotlib.pyplot as plt
 from scipy.spatial.distance import pdist
 import random
+import matplotlib.pyplot as plt
 import uuid
 import os
 import shutil
@@ -30,6 +31,10 @@ logger = logging.getLogger(__name__)
 class Collapser(Optimizer):
     """
     Collapse stk.ConstructedMolecule to decrease enlarged bonds.
+
+    It is recommended to use the MCHammer version of this code with
+    :mod:`MCHammer` [1]_, where a much cleaner version is written.
+    The utilities `get_long_bond_ids` will help generate sub units.
 
     This optimizer aims to bring extended bonds closer together for
     further optimisation.
@@ -57,6 +62,10 @@ class Collapser(Optimizer):
             scale_steps=True,
         )
         cage1 = optimizer.optimize(mol=cage1)
+
+    References
+    ----------
+    .. [1] https://github.com/andrewtarzia/MCHammer
 
     """
 
@@ -465,8 +474,16 @@ class CollapserMC(Collapser):
     """
     Collapse molecule to decrease enlarged bonds using MC algorithm.
 
+    It is recommended to use the MCHammer version of this code with
+    :mod:`MCHammer` [1]_, where a much cleaner version is written.
+    The utilities `get_long_bond_ids` will help generate sub units.
+
     Smarter optimisation than Collapser using simple Monte Carlo
     algorithm to perform rigid translations of building blocks.
+
+    References
+    ----------
+    .. [1] https://github.com/andrewtarzia/MCHammer
 
     """
 
@@ -637,7 +654,6 @@ class CollapserMC(Collapser):
         Define an arbitrary parabolic bond potential.
 
         This potential has no relation to an empircal forcefield.
-
         """
 
         potential = (distance - self._target_bond_length) ** 2
@@ -650,7 +666,6 @@ class CollapserMC(Collapser):
         Define an arbitrary repulsive nonbonded potential.
 
         This potential has no relation to an empircal forcefield.
-
         """
 
         return (
@@ -663,9 +678,11 @@ class CollapserMC(Collapser):
 
         # Get all pairwise distances.
         pair_dists = pdist(mol.get_position_matrix())
-        non_bonded_potential = self._non_bond_potential(pair_dists)
+        nonbonded_potential = np.sum(
+            self._non_bond_potential(pair_dists)
+        )
 
-        return sum(non_bonded_potential)
+        return nonbonded_potential
 
     def _compute_potential(self, mol, long_bond_infos):
 

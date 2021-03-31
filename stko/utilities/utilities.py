@@ -1730,3 +1730,35 @@ def get_atom_distance(position_matrix, atom1_id, atom2_id):
     )
 
     return float(distance)
+
+
+def get_long_bond_ids(mol, reorder=False):
+    """
+    Return tuple of long bond ids in a ConstructedMolecule.
+
+    """
+
+    long_bond_ids = []
+    for bond_infos in mol.get_bond_infos():
+        if bond_infos.get_building_block() is None:
+            if reorder:
+                ba1 = bond_infos.get_bond().get_atom1().get_id()
+                ba2 = bond_infos.get_bond().get_atom2().get_id()
+                if ba1 < ba2:
+                    ids = (
+                        bond_infos.get_bond().get_atom1().get_id(),
+                        bond_infos.get_bond().get_atom2().get_id(),
+                    )
+                else:
+                    ids = (
+                        bond_infos.get_bond().get_atom2().get_id(),
+                        bond_infos.get_bond().get_atom1().get_id(),
+                    )
+            else:
+                ids = (
+                    bond_infos.get_bond().get_atom1().get_id(),
+                    bond_infos.get_bond().get_atom2().get_id(),
+                )
+            long_bond_ids.append(ids)
+
+    return tuple(long_bond_ids)
