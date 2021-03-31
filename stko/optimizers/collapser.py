@@ -4,8 +4,6 @@ Collapser Optimizer
 
 #. :class:`.Collapser`
 #. :class:`.CollapserMC`
-#. :class:`.MCHCollapser`
-#. :class:`.MCHOptimizer`
 
 Optimizer for collapsing enlarged topologies.
 
@@ -22,10 +20,8 @@ import uuid
 import os
 import shutil
 
-import mchammer as mch
-
 from .optimizers import Optimizer
-from ..utilities import get_atom_distance, get_long_bond_ids
+from ..utilities import get_atom_distance
 
 
 logger = logging.getLogger(__name__)
@@ -36,7 +32,8 @@ class Collapser(Optimizer):
     Collapse stk.ConstructedMolecule to decrease enlarged bonds.
 
     It is recommended to use the MCHammer version of this code with
-    :class:`MCHCollapser`.
+    :mod:`MCHammer` [1]_, where a much cleaner version is written.
+    The utilities `get_long_bond_ids` will help generate sub units.
 
     This optimizer aims to bring extended bonds closer together for
     further optimisation.
@@ -64,6 +61,10 @@ class Collapser(Optimizer):
             scale_steps=True,
         )
         cage1 = optimizer.optimize(mol=cage1)
+
+    References
+    ----------
+    .. [1] https://github.com/andrewtarzia/MCHammer
 
     """
 
@@ -321,10 +322,15 @@ class CollapserMC(Collapser):
     Collapse molecule to decrease enlarged bonds using MC algorithm.
 
     It is recommended to use the MCHammer version of this code with
-    :class:`MCHOptimizer`.
+    :mod:`MCHammer` [1]_, where a much cleaner version is written.
+    The utilities `get_long_bond_ids` will help generate sub units.
 
     Smarter optimisation than Collapser using simple Monte Carlo
     algorithm to perform rigid translations of building blocks.
+
+    References
+    ----------
+    .. [1] https://github.com/andrewtarzia/MCHammer
 
     """
 
@@ -815,428 +821,5 @@ class CollapserMC(Collapser):
             )
 
         self._plot_progess(steps, maxds, spots, npots, output_dir)
-
-        return mol
-
-
-class MCHCollapser(Optimizer):
-    """
-    Collapse molecule to decrease enlarged bonds using MC algorithm.
-
-    Examples
-    --------
-    This optimisation code specifically works on
-    :class:`stk.ConstructedMolecules` and automatically merges
-    building blocks by `buildingblockid` and outputs the
-    full trajectory and information from MCHammer. For more control,
-    use the MCHammer class directly.
-
-    .. code-block:: python
-
-        import stk
-        import stko
-
-        bb1 = stk.BuildingBlock(
-            smiles='C1(C(C1Br)Br)Br',
-            functional_groups=[stk.BromoFactory()],
-        )
-        bb2 = stk.BuildingBlock(
-            smiles='C1=C(C(=CC(=C1Br)Br)Br)Br',
-            functional_groups=[stk.BromoFactory()],
-        )
-        topology_graph = stk.cage.M8L6Cube(building_blocks=(bb1, bb2))
-        cage = stk.ConstructedMolecule(topology_graph)
-
-        stko_optimizer = stko.MCHCollapser(
-            output_dir='stko_colls',
-            step_size=0.05,
-            distance_threshold=2,
-            scale_steps=True,
-        )
-
-        cage = stko_optimizer.optimize(cage)
-
-    """
-
-    def __init__(
-        self,
-        output_dir,
-        step_size,
-        distance_threshold,
-        scale_steps,
-    ):
-        """
-        Initialize a :class:`MCHCollapser` instance.
-
-        Parameters
-        ----------
-        output_dir : :class:`str`
-            The name of the directory into which files generated during
-            the calculation are written, if ``None`` then
-            :func:`uuid.uuid4` is used.
-
-        step_size : :class:`float`
-            The relative size of the step to take during collapse.
-
-        distance_threshold : :class:`float`
-            Distance between distinct subunits to use as
-            threshold for halting collapse in Angstrom.
-
-        scale_steps : :class:`bool`, optional
-            Whether to scale the step of each distict building block
-            by their relative distance from the molecules centroid.
-            Defaults to ``True``
-
-        """
-
-        self._optimizer = mch.Collapser(
-            step_size=step_size,
-            distance_threshold=distance_threshold,
-            scale_steps=scale_steps,
-        )
-        self._output_dir = output_dir
-
-    def _get_bonds(self, mol):
-        """
-        Returns bonds.
-
-        """
-
-        bond_identifiers = []
-        for i, bond in enumerate(mol.get_bonds()):
-            ba1 = bond.get_atom1().get_id()
-            ba2 = bond.get_atom2().get_id()
-            bond_identifiers.append((i, ba1, ba2))
-
-        return bond_identifiers
-
-    def get_subunits(self, mol):
-        """
-        Get connected graphs based on building block ids.
-
-        Returns
-        -------
-        subunits : :class:`.dict`
-            The subunits of `mol` split by building block id. Key is
-            subunit identifier, Value is :class:`iterable` of atom ids
-            in subunit.
-
-        """
-
-        subunits = defaultdict(list)
-        for atom_info in mol.get_atom_infos():
-            subunits[atom_info.get_building_block_id()].append(
-                atom_info.get_atom().get_id()
-            )
-
-        return subunits
-
-    def optimize(self, mol):
-        """
-        Optimize `mol`.
-
-        Parameters
-        ----------
-        mol : :class:`stk.ConstructedMolecule`
-            The molecule to be optimized.
-
-        Returns
-        -------
-        mol : :class:`stk.ConstructedMolecule`
-            The optimized molecule.
-
-        """
-
-        if self._output_dir is None:
-            output_dir = str(uuid.uuid4().int)
-        else:
-            output_dir = self._output_dir
-        output_dir = os.path.abspath(output_dir)
-
-        if os.path.exists(output_dir):
-            shutil.rmtree(output_dir)
-
-        os.mkdir(output_dir)
-
-        long_bond_ids = get_long_bond_ids(mol, reorder=True)
-        reordered_bonds = self._get_bonds(mol)
-
-        mch_mol = mch.Molecule(
-            atoms=(
-                mch.Atom(
-                    id=atom.get_id(),
-                    element_string=atom.__class__.__name__,
-                ) for atom in mol.get_atoms()
-            ),
-            bonds=(
-                mch.Bond(id=i, atom_ids=(j, k))
-                for i, j, k in reordered_bonds
-            ),
-            position_matrix=mol.get_position_matrix(),
-        )
-        subunits = self.get_subunits(mol=mol)
-        mch_mol, mch_result = self._optimizer.get_trajectory(
-            mol=mch_mol,
-            bond_pair_ids=long_bond_ids,
-            subunits=subunits,
-        )
-
-        mol = mol.with_position_matrix(mch_mol.get_position_matrix())
-
-        # Output trajectory as separate xyz files for visualisation.
-        with open(f'{output_dir}/optimization.out', 'w') as f:
-            f.write(mch_result.get_log())
-
-        for step, new_pos_mat in mch_result.get_trajectory():
-            new_mol = mch_mol.with_position_matrix(new_pos_mat)
-            new_mol.write_xyz_file(f'{output_dir}/traj_{step}.xyz')
-
-        return mol
-
-
-class MCHOptimizer(MCHCollapser):
-    """
-    Collapse molecule to decrease enlarged bonds using MC algorithm.
-
-    Smarter optimisation than Collapser using simple Monte Carlo
-    algorithm to perform rigid translations of building blocks.
-
-    Examples
-    --------
-    This optimisation code specifically works on
-    :class:`stk.ConstructedMolecules` and automatically merges
-    building blocks by `buildingblockid` and outputs the
-    full trajectory and information from MCHammer. For more control,
-    use the MCHammer class directly.
-
-    .. code-block:: python
-
-        import stk
-        import stko
-
-        bb1 = stk.BuildingBlock(
-            smiles='C1(C(C1Br)Br)Br',
-            functional_groups=[stk.BromoFactory()],
-        )
-        bb2 = stk.BuildingBlock(
-            smiles='C1=C(C(=CC(=C1Br)Br)Br)Br',
-            functional_groups=[stk.BromoFactory()],
-        )
-        topology_graph = stk.cage.M8L6Cube(building_blocks=(bb1, bb2))
-        cage = stk.ConstructedMolecule(topology_graph)
-
-        stko_optimizer = stko.MCHOptimizer(
-            output_dir='output_dir',
-            step_size=0.25,
-            target_bond_length=1.2,
-            num_steps=500,
-        )
-        cage = stko_optimizer.optimize(cage)
-
-    """
-
-    def __init__(
-        self,
-        output_dir,
-        step_size,
-        target_bond_length,
-        num_steps,
-        bond_epsilon=50,
-        nonbond_epsilon=20,
-        nonbond_sigma=1.2,
-        nonbond_mu=3,
-        beta=2,
-        random_seed=None,
-    ):
-        """
-        Initialize a :class:`MCHOptimizer` instance.
-
-        Parameters
-        ----------
-        output_dir : :class:`str`
-            The name of the directory into which files generated during
-            the calculation are written, if ``None`` then
-            :func:`uuid.uuid4` is used.
-
-        step_size : :class:`float`
-            The relative size of the step to take during step.
-
-        target_bond_length : :class:`float`
-            Target equilibrium bond length for long bonds to minimize
-            to.
-
-        num_steps : :class:`int`
-            Number of MC moves to perform.
-
-        bond_epsilon : :class:`float`, optional
-            Value of epsilon used in the bond potential in MC moves.
-            Determines strength of the bond potential.
-            Defaults to 50.
-
-        nonbond_epsilon : :class:`float`, optional
-            Value of epsilon used in the nonbond potential in MC moves.
-            Determines strength of the nonbond potential.
-            Defaults to 20.
-
-        nonbond_sigma : :class:`float`, optional
-            Value of sigma used in the nonbond potential in MC moves.
-            Defaults to 1.2.
-
-        nonbond_mu : :class:`float`, optional
-            Value of mu used in the nonbond potential in MC moves.
-            Determines the steepness of the nonbond potential.
-            Defaults to 3.
-
-        beta : :class:`float`, optional
-            Value of beta used in the in MC moves. Beta takes the
-            place of the inverse boltzmann temperature.
-            Defaults to 2.
-
-        random_seed : :class:`int`, optional
-            Random seed to use for MC algorithm. Should only be set
-            if exactly reproducible results are required, otherwise
-            a system-based random seed should be used for proper
-            sampling.
-
-        """
-
-        self._optimizer = mch.Optimizer(
-            step_size=step_size,
-            target_bond_length=target_bond_length,
-            num_steps=num_steps,
-            bond_epsilon=bond_epsilon,
-            nonbond_epsilon=nonbond_epsilon,
-            nonbond_sigma=nonbond_sigma,
-            nonbond_mu=nonbond_mu,
-            beta=beta,
-            random_seed=random_seed,
-        )
-        self._output_dir = output_dir
-
-    def optimize(self, mol):
-        """
-        Optimize `mol`.
-
-        Parameters
-        ----------
-        mol : :class:`stk.ConstructedMolecule`
-            The molecule to be optimized.
-
-        Returns
-        -------
-        mol : :class:`stk.ConstructedMolecule`
-            The optimized molecule.
-
-        """
-
-        if self._output_dir is None:
-            output_dir = str(uuid.uuid4().int)
-        else:
-            output_dir = self._output_dir
-        output_dir = os.path.abspath(output_dir)
-
-        if os.path.exists(output_dir):
-            shutil.rmtree(output_dir)
-
-        os.mkdir(output_dir)
-
-        long_bond_ids = get_long_bond_ids(mol, reorder=True)
-        reordered_bonds = self._get_bonds(mol)
-
-        mch_mol = mch.Molecule(
-            atoms=(
-                mch.Atom(
-                    id=atom.get_id(),
-                    element_string=atom.__class__.__name__,
-                ) for atom in mol.get_atoms()
-            ),
-            bonds=(
-                mch.Bond(id=i, atom_ids=(j, k))
-                for i, j, k in reordered_bonds
-            ),
-            position_matrix=mol.get_position_matrix(),
-        )
-        subunits = self.get_subunits(mol=mol)
-        mch_mol, mch_result = self._optimizer.get_trajectory(
-            mol=mch_mol,
-            bond_pair_ids=long_bond_ids,
-            subunits=subunits,
-        )
-
-        mol = mol.with_position_matrix(mch_mol.get_position_matrix())
-
-        # Output trajectory as separate xyz files for visualisation.
-        with open(f'{output_dir}/optimization.out', 'w') as f:
-            f.write(mch_result.get_log())
-
-        for step, new_pos_mat in mch_result.get_trajectory():
-            new_mol = mch_mol.with_position_matrix(new_pos_mat)
-            new_mol.write_xyz_file(f'{output_dir}/traj_{step}.xyz')
-
-        # Plot properties for parameterisation.
-        data = {
-            'steps': [],
-            'max_bond_distances': [],
-            'system_potentials': [],
-            'nonbonded_potentials': [],
-        }
-        for step, prop in mch_result.get_steps_properties():
-            data['steps'].append(step)
-            data['max_bond_distances'].append(
-                prop['max_bond_distance']
-            )
-            data['system_potentials'].append(prop['system_potential'])
-            data['nonbonded_potentials'].append(
-                prop['nonbonded_potential']
-            )
-
-        # Show plotting from results to viauslise progress.
-        fig, ax = plt.subplots(figsize=(8, 5))
-        ax.plot(
-            data['steps'],
-            data['max_bond_distances'],
-            c='k', lw=2
-        )
-        # Set number of ticks for x-axis
-        ax.tick_params(axis='both', which='major', labelsize=16)
-        ax.set_xlim(0, None)
-        ax.set_xlabel('step', fontsize=16)
-        ax.set_ylabel('max long bond length [angstrom]', fontsize=16)
-        ax.axhline(
-            y=self._optimizer._target_bond_length,
-            c='r', linestyle='--'
-        )
-        fig.tight_layout()
-        fig.savefig(
-            f'{output_dir}/maxd_vs_step.pdf',
-            dpi=360,
-            bbox_inches='tight'
-        )
-        plt.close()
-        # Plot energy vs timestep.
-        fig, ax = plt.subplots(figsize=(8, 5))
-        ax.plot(
-            data['steps'],
-            data['system_potentials'],
-            c='k', lw=2, label='system potential'
-        )
-        ax.plot(
-            data['steps'],
-            data['nonbonded_potentials'],
-            c='r', lw=2, label='nonbonded potential'
-        )
-        # Set number of ticks for x-axis
-        ax.tick_params(axis='both', which='major', labelsize=16)
-        ax.set_xlim(0, None)
-        ax.set_xlabel('step', fontsize=16)
-        ax.set_ylabel('potential', fontsize=16)
-        ax.legend(fontsize=16)
-        fig.tight_layout()
-        fig.savefig(
-            f'{output_dir}/pot_vs_step.pdf',
-            dpi=360,
-            bbox_inches='tight'
-        )
-        plt.close()
 
         return mol

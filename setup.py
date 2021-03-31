@@ -14,7 +14,6 @@ setuptools.setup(
     install_requires=(
         'scipy',
         'numpy',
-        'MCHammer',
     ),
     classifiers=[
         "Programming Language :: Python :: 3",
