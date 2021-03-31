@@ -132,10 +132,6 @@ class ExpectedMetal(Exception):
     ...
 
 
-class ExpectedCell(Exception):
-    ...
-
-
 class UFFTyperError(Exception):
     ...
 
@@ -159,7 +155,6 @@ class GulpUFFOptimizer(Optimizer):
         metal_FF=None,
         metal_ligand_bond_order=None,
         conjugate_gradient=False,
-        periodic=False,
         output_dir=None,
     ):
         """
@@ -188,11 +183,6 @@ class GulpUFFOptimizer(Optimizer):
             ``True`` to use Conjugate Graditent method.
             Defaults to ``False``
 
-        periodic : :class:`bool`, optional
-            If `False`, then calculation is non-periodic.
-            Periodic optimisations always optimize the cell parameters
-            at constant pressure.
-
         output_dir : :class:`str`, optional
             The name of the directory into which files generated during
             the calculation are written, if ``None`` then
@@ -208,7 +198,6 @@ class GulpUFFOptimizer(Optimizer):
             else metal_ligand_bond_order
         )
         self._conjugate_gradient = conjugate_gradient
-        self._periodic = periodic
         self._output_dir = output_dir
 
     def _add_atom_charge_flags(self, atom, atomkey):
@@ -494,15 +483,15 @@ class GulpUFFOptimizer(Optimizer):
 
         return type_translator
 
-    def _cell_section(self, cell):
+    def _cell_section(self, unit_cell):
         cell_section = (
             '\ncell\n'
-            f"{round(cell.a, 6)} "
-            f"{round(cell.b, 6)} "
-            f"{round(cell.c, 6)} "
-            f"{round(cell.alpha, 6)} "
-            f"{round(cell.beta, 6)} "
-            f"{round(cell.gamma, 6)} "
+            f"{round(unit_cell.get_a(), 6)} "
+            f"{round(unit_cell.get_b(), 6)} "
+            f"{round(unit_cell.get_c(), 6)} "
+            f"{round(unit_cell.get_alpha(), 6)} "
+            f"{round(unit_cell.get_beta(), 6)} "
+            f"{round(unit_cell.get_gamma(), 6)} "
             # No fixes.
             "0 0 0 0 0 0\n"
         )
@@ -569,7 +558,7 @@ class GulpUFFOptimizer(Optimizer):
         metal_atoms,
         in_file,
         output_xyz,
-        cell=None,
+        unit_cell=None,
     ):
 
         type_translator = self._type_translator()
@@ -579,10 +568,10 @@ class GulpUFFOptimizer(Optimizer):
         if self._conjugate_gradient:
             top_line += 'conj unit '
 
-        if self._periodic:
+        if unit_cell is not None:
             # Constant pressure.
             top_line += 'conp '
-            cell_section = self._cell_section(cell)
+            cell_section = self._cell_section(unit_cell)
             # Output CIF.
             output_cif = output_xyz.replace('xyz', 'cif')
             periodic_output = f'output cif {output_cif}\n'
@@ -693,17 +682,14 @@ class GulpUFFOptimizer(Optimizer):
                     string = nums.search(line.rstrip()).group(0)
                     return float(string)
 
-    def optimize(self, mol, cell=None, cif_filename=None):
+    def optimize(self, mol):
         """
-        Optimize `mol` and `cell`.
+        Optimize `mol`.
 
         Parameters
         ----------
         mol : :class:`stk.Molecule`
             The molecule to be optimized.
-
-        cell : :class:`.Cell`, optional
-            The cell to be optimized if optimization is periodic.
 
         Returns
         -------
@@ -711,11 +697,6 @@ class GulpUFFOptimizer(Optimizer):
             The optimized molecule.
 
         """
-
-        if cell is None and self._periodic:
-            raise ExpectedCell(
-                'Optimisation expected a cell because periodic is True'
-            )
 
         if self._output_dir is None:
             output_dir = str(uuid.uuid4().int)
@@ -743,7 +724,7 @@ class GulpUFFOptimizer(Optimizer):
                 metal_atoms=metal_atoms,
                 in_file=in_file,
                 output_xyz=output_xyz,
-                cell=cell,
+                unit_cell=None,
             )
             # Run.
             self._run_gulp(in_file, out_file)
@@ -755,6 +736,70 @@ class GulpUFFOptimizer(Optimizer):
             os.chdir(init_dir)
 
         return mol
+
+    def p_optimize(self, mol, unit_cell):
+        """
+        Optimize `mol` and `unit_cell`.
+
+        Parameters
+        ----------
+        mol : :class:`stk.Molecule`
+            The molecule to be optimized.
+
+        unit_cell : :class:`.UnitCell`
+            The unit_cell to be optimized if optimization is periodic.
+
+        Returns
+        -------
+        mol : :class:`.Molecule`
+            The optimized molecule.
+
+        unit_cell : :class:`.UnitCell`
+            The optimized cell.
+
+        """
+
+        if self._output_dir is None:
+            output_dir = str(uuid.uuid4().int)
+        else:
+            output_dir = self._output_dir
+        output_dir = os.path.abspath(output_dir)
+
+        if os.path.exists(output_dir):
+            shutil.rmtree(output_dir)
+
+        os.mkdir(output_dir)
+        init_dir = os.getcwd()
+        os.chdir(output_dir)
+
+        in_file = 'gulp_opt.gin'
+        out_file = 'gulp_opt.ginout'
+        output_xyz = 'gulp_opt.xyz'
+        output_cif = output_xyz.replace('xyz', 'cif')
+
+        metal_atoms = get_metal_atoms(mol)
+
+        try:
+            # Write GULP file.
+            self._write_gulp_file(
+                mol=mol,
+                metal_atoms=metal_atoms,
+                in_file=in_file,
+                output_xyz=output_xyz,
+                unit_cell=unit_cell,
+            )
+
+            # Run.
+            self._run_gulp(in_file, out_file)
+
+            # Update from output.
+            mol = mol.with_structure_from_file(output_xyz)
+            unit_cell = unit_cell.with_cell_from_cif(output_cif)
+
+        finally:
+            os.chdir(init_dir)
+
+        return mol, unit_cell
 
 
 class GulpUFFMDOptimizer(GulpUFFOptimizer):
