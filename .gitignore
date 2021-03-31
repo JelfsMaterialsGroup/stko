@@ -130,3 +130,5 @@ dmypy.json
 
 # Test output directories.
 gulp_tests_output/
+
+.vscode
