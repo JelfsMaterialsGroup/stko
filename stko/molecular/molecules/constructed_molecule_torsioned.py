@@ -15,7 +15,7 @@ class ConstructedMoleculeTorsioned():
         self.stk_molecule = stk_molecule.clone()
         nonring, ring = TorsionFingerprints.CalculateTorsionLists(
             self.stk_molecule.to_rdkit_mol())
-        self.torsions = [Torsion(*atoms[0]) for atoms, ang in nonring]
+        self.torsions = [Torsion(*stk_molecule.get_atoms(atoms[0])) for atoms, ang in nonring]
         self.set_atom_maps()
     
     def get_torsion_list(self):
