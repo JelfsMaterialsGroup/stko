@@ -3,8 +3,9 @@ XTB Optimizers
 ==============
 
 #. :class:`.XTB`
+#. :class:`.XTBCREST`
 #. :class:`.XTBFF`
-#. :class:`.XTBFFMD`
+#. :class:`.XTBFFCREST`
 
 Wrappers for optimizers within the :mod:`xtb` code.
 

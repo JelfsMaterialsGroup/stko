@@ -122,7 +122,7 @@ class XTBEnergy(Calculator):
         polymer = opt.optimize(polymer)
 
         # Calculate energy using GFN-xTB.
-        xtb = stk.XTBEnergy(
+        xtb = stko.XTBEnergy(
             xtb_path='/opt/gfnxtb/xtb',
             unlimited_memory=True
         )
@@ -150,9 +150,9 @@ class XTBEnergy(Calculator):
 
         # Optimize the constructed molecule so that it has a
         # reasonable structure.
-        optimizer = stk.OptimizerSequence(
-            stk.ETKDG(),
-            stk.XTB(
+        optimizer = stko.OptimizerSequence(
+            stko.ETKDG(),
+            stko.XTB(
                 xtb_path='/opt/gfnxtb/xtb',
                 unlimited_memory=True,
                 opt_level='verytight'
@@ -161,7 +161,7 @@ class XTBEnergy(Calculator):
         polymer = optimizer.optimize(polymer)
 
         # Calculate energy using GFN-xTB.
-        xtb = stk.XTBEnergy(
+        xtb = stko.XTBEnergy(
             xtb_path='/opt/gfnxtb/xtb',
             unlimited_memory=True,
             calculate_free_energy=True

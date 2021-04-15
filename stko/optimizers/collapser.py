@@ -54,9 +54,8 @@ class Collapser(Optimizer):
         )
 
         # Perform collapser optimisation.
-        output_dir = f'cage_opt_{cage_name}_coll'
         optimizer = stko.Collapser(
-            output_dir=output_dir,
+            output_dir='test_coll',
             step_size=0.05,
             distance_cut=2.0,
             scale_steps=True,
@@ -708,16 +707,6 @@ class CollapserMC(Collapser):
             new_position_matrix[_id] = pos - vector
 
         return mol.with_position_matrix(new_position_matrix)
-
-    def _rotate_atoms_onto_vector(
-        self,
-        mol,
-        atom_ids,
-        start_vector,
-        target_vector,
-        axis
-    ):
-        raise NotImplementedError()
 
     def _test_move(self, curr_pot, new_pot):
 
