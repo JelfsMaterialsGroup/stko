@@ -36,10 +36,7 @@ optimisations.
     # Build a building block with two functional groups using
     # the SmartsFunctionalGroupFactory.
     bb1 = stk.BuildingBlock(
-        smiles=(
-            '[H]C1=NC([H])=C([H])C(C2=C([H])C([H])=C([H])C(C3=C('
-            '[H])C([H])=NC([H])=C3[H])=C2[H])=C1[H]'
-        ),
+        smiles=('C1=CC(=CC(=C1)C2=CN=CC=C2)C3=CN=CC=C3'),
         functional_groups=[
             stk.SmartsFunctionalGroupFactory(
                 smarts='[#6]~[#7X2]~[#6]',
@@ -98,7 +95,7 @@ or a more robust method!
     gulp_MD = stko.GulpUFFMDOptimizer(
         gulp_path='path/to/gulp',
         metal_FF={46: 'Pd4+2'},
-        temperature=700,
+        temperature=300,
         N_conformers=10,
         opt_conformers=True,
     )

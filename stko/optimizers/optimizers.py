@@ -17,17 +17,20 @@ with :meth:`~.Optimizer.optimize`.
     import stk
     import stko
 
-    mol = stk.BuildingBlock('NCCCN', ['amine'])
+    mol = stk.BuildingBlock('NCCCN', [stk.PrimaryAminoFactory()])
     mmff = stko.MMFF()
-    mmff.optimize(mol)
+    mol = mmff.optimize(mol)
 
     # Optimizers also work with ConstructedMolecule objects.
     polymer = stk.ConstructedMolecule(
-        building_blocks=[mol],
-        topology_graph=stk.polymer.Linear('A', [0], n=3)
+        topology_graph=stk.polymer.Linear(
+            building_blocks=(mol, ),
+            repeating_unit='A',
+            num_repeating_units=3,
+        )
     )
     etkdg = stko.ETKDG()
-    etkdg.optimize(polymer)
+    polymer = etkdg.optimize(polymer)
 
 Sometimes it is desirable to chain multiple optimizations, one after
 another. For example, before running an optimization, it may be
@@ -41,7 +44,7 @@ desirable to embed a molecule first, to generate an initial structure.
     optimizer_sequence = stko.OptimizerSequence(etkdg, mmff)
 
     # Run each optimizer in sequence.
-    optimizer_sequence.optimize(polymer)
+    polymer = optimizer_sequence.optimize(polymer)
 
 .. _`adding optimizers`:
 
@@ -83,7 +86,8 @@ class Optimizer(Calculator):
 
         Returns
         -------
-        None : :class:`NoneType`
+        mol : :class:`.Molecule`
+            The optimized molecule.
 
         """
 
@@ -102,10 +106,11 @@ class OptimizerSequence(Optimizer):
     .. code-block:: python
 
         import stk
+        import stko
 
-        mol = stk.BuildingBlock('NCCNCCN', ['amine'])
-        optimizer = stk.OptimizerSequence(stk.ETKDG(), stk.MMFF())
-        optimizer.optimize(mol)
+        mol = stk.BuildingBlock('NCCCN', [stk.PrimaryAminoFactory()])
+        optimizer = stko.OptimizerSequence(stko.ETKDG(), stko.MMFF())
+        mol = optimizer.optimize(mol)
 
     """
 
@@ -124,20 +129,6 @@ class OptimizerSequence(Optimizer):
         self._optimizers = optimizers
 
     def optimize(self, mol):
-        """
-        Optimize `mol`.
-
-        Parameters
-        ----------
-        mol : :class:`.Molecule`
-            The molecule to be optimized.
-
-        Returns
-        -------
-        mol : :class:`.Molecule`
-            The optimized molecule.
-
-        """
 
         for optimizer in self._optimizers:
             cls_name = optimizer.__class__.__name__
@@ -156,30 +147,31 @@ class TryCatchOptimizer(Optimizer):
     .. code-block:: python
 
         import stk
+        import stko
 
         # Create some molecules to optimize.
-        mol1 = stk.BuildingBlock('NCCN', ['amine'])
+        mol1 = stk.BuildingBlock('NCCN')
         mol2 = stk.BuildingBlock('CCCCC')
         mol3 = stk.BuildingBlock('O=CCCN')
 
         # Create an optimizer which may fail.
-        uff = stk.UFF()
+        uff = stko.UFF()
 
         # Create a backup optimizer.
-        mmff = stk.MMFF()
+        mmff = stko.MMFF()
 
         # Make an optimizer which tries to run raiser and if that
         # raises an error, will run mmff on the molecule instead.
-        try_catch = stk.TryCatchOptimizer(
+        try_catch = stko.TryCatchOptimizer(
             try_optimizer=uff,
-            catch_optimizer=mmff
+            catch_optimizer=mmff,
         )
 
         # Optimize the molecules. In each case if the optimization with
         # UFF fails, MMFF is used to optimize the molecule instead.
         mol1 = try_catch.optimize(mol1)
         mol2 = try_catch.optimize(mol2)
-        mol3 = try_catch.optimzie(mol3)
+        mol3 = try_catch.optimize(mol3)
 
     """
 

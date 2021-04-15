@@ -27,12 +27,14 @@ class MMFFEnergy(Calculator):
     .. code-block:: python
 
         import stk
+        import stko
+
 
         # Create a molecule whose energy we want to know.
         mol1 = stk.BuildingBlock('CCCNCCCN')
 
         # Create the energy calculator.
-        mmff = stk.MMFFEnergy()
+        mmff = stko.MMFFEnergy()
 
         # Calculate the energy.
         energy1 = mmff.get_energy(mol1)
@@ -74,12 +76,14 @@ class UFFEnergy(Calculator):
     .. code-block:: python
 
         import stk
+        import stko
+
 
         # Create a molecule whose energy we want to know.
         mol1 = stk.BuildingBlock('CCCNCCCN')
 
         # Create the energy calculator.
-        uff = stk.UFFEnergy()
+        uff = stko.UFFEnergy()
 
         # Calculate the energy.
         energy1 = uff.get_energy(mol1)

@@ -531,6 +531,49 @@ class MacroModelForceField(MacroModel):
     """
     Uses MacroModel force fields to optimize molecules.
 
+    Examples
+    --------
+    Optimisation of any :class:`stk.Molecule` is possible with
+    `restricted=False`.
+
+    .. code-block:: python
+
+        import stk
+        import stko
+
+        mol = stk.BuildingBlock('NCCCN')
+        optimizer = stko.MacroModelForceField(
+            macromodel_path='/path/to/macromodel/',
+        )
+        mol = optimizer.optimize(mol)
+
+    Optimisation of `long bonds` only within
+    :class:`stk.ConstructedMolecule` is possible with
+    `restricted=True`. This fixes all other bonds. Therefore, if the
+    molecule is not a `ConstructedMolecule`, no positions will be
+    optimized.
+
+    .. code-block:: python
+
+        import stk
+        import stko
+
+        bb1 = stk.BuildingBlock('NCCNCCN', [stk.PrimaryAminoFactory()])
+        bb2 = stk.BuildingBlock('O=CCCC=O', [stk.AldehydeFactory()])
+        polymer = stk.ConstructedMolecule(
+            stk.polymer.Linear(
+                building_blocks=(bb1, bb2),
+                repeating_unit="AB",
+                orientations=[0, 0],
+                num_repeating_units=1
+            )
+        )
+        optimizer = stko.MacroModelForceField(
+            macromodel_path='/path/to/macromodel/',
+            restricted=True,
+        )
+        polymer = optimizer.optimize(polymer)
+
     """
 
     def __init__(
@@ -734,6 +777,7 @@ class MacroModelForceField(MacroModel):
         Returns
         -------
         mol : :class:`stk.ConstructedMolecule`
+            The optimized molecule.
 
         """
 
@@ -897,6 +941,25 @@ class MacroModelForceField(MacroModel):
 class MacroModelMD(MacroModel):
     """
     Runs a molecular dynamics conformer search using MacroModel.
+
+    Examples
+    --------
+    Molecular dynamics can be run on any :class:`stk.Molecule` using
+    this class. Restrictions can be applied, but are not by default.
+    This class collects a series of conformers from the trajectory,
+    optimises them, then returns the lowest energy conformer.
+
+    .. code-block:: python
+
+        import stk
+        import stko
+
+        mol = stk.BuildingBlock('NCCCN')
+        optimizer = stko.MacroModelMD(
+            macromodel_path='/path/to/macromodel/',
+            conformers=40,
+        )
+        mol = optimizer.optimize(mol)
 
     """
 
@@ -1231,12 +1294,13 @@ class MacroModelMD(MacroModel):
 
         Parameters
         ----------
-        mol : :class:`stk.ConstructedMolecule`
+        mol : :class:`.Molecule`
             The molecule to be optimized.
 
         Returns
         -------
-        None : :class:`NoneType`
+        mol : :class:`.Molecule`
+            The molecule to be optimized.
 
         """
 
