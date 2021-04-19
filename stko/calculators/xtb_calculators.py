@@ -252,7 +252,7 @@ class XTBEnergy(Calculator):
             solvent = solvent.lower()
             if gfn_version == 0:
                 raise XTBInvalidSolventError(
-                    f'No solvent valid for version',
+                    'No solvent valid for version',
                     f' {gfn_version!r}.'
                 )
             if not is_valid_xtb_solvent(gfn_version, solvent):

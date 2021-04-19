@@ -262,8 +262,8 @@ def kill_macromodel():
 
     try:
         if os.name == 'nt':
-            # In Windows, use the ``Taskkill`` command to force a close on
-            # the applications.
+            # In Windows, use the ``Taskkill`` command to
+            # force a close on the applications.
             sp.run(
                 ["Taskkill", "/IM", "jserver-watcher.exe", "/F"],
                 stdout=sp.PIPE,
