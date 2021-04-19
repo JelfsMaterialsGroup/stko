@@ -259,7 +259,7 @@ class XTB(Optimizer):
             solvent = solvent.lower()
             if gfn_version == 0:
                 raise XTBInvalidSolventError(
-                    f'No solvent valid for version',
+                    'No solvent valid for version',
                     f' {gfn_version!r}.'
                 )
             if not is_valid_xtb_solvent(gfn_version, solvent):
@@ -707,7 +707,7 @@ class XTBCREST(Optimizer):
             solvent = solvent.lower()
             if gfn_version == 0:
                 raise XTBInvalidSolventError(
-                    f'No solvent valid for version',
+                    'No solvent valid for version',
                     f' {gfn_version!r}.'
                 )
             if not is_valid_xtb_solvent(gfn_version, solvent):
@@ -865,8 +865,8 @@ class XTBCREST(Optimizer):
 
         """
 
-        xyz = f'input_structure.xyz'
-        out_file = f'crest.output'
+        xyz = 'input_structure.xyz'
+        out_file = 'crest.output'
         mol.write(xyz)
         self._run_crest(xyz=xyz, out_file=out_file)
 
@@ -1131,8 +1131,8 @@ class XTBFF(Optimizer):
 
         """
 
-        xyz = f'input_structure_ff.xyz'
-        out_file = f'optimization_ff.output'
+        xyz = 'input_structure_ff.xyz'
+        out_file = 'optimization_ff.output'
         mol.write(xyz)
         self._run_xtb(xyz=xyz, out_file=out_file)
 
@@ -1497,8 +1497,8 @@ class XTBFFCREST(Optimizer):
 
         """
 
-        xyz = f'input_structure_ff.xyz'
-        out_file = f'crest_ff.output'
+        xyz = 'input_structure_ff.xyz'
+        out_file = 'crest_ff.output'
         mol.write(xyz)
         self._run_crest(xyz=xyz, out_file=out_file)
 

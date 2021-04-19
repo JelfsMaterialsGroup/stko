@@ -1256,7 +1256,10 @@ class MacroModelMD(MacroModel):
         line9 = ('BGIN', 0, 0, 0, 0, 0, 0, 0, 0)
         line10 = ('READ', -2, 0, 0, 0, 0, 0, 0, 0)
         line11 = ('CONV', 2, 0, 0, 0, self._minimum_gradient, 0, 0, 0)
-        line12 = ('MINI', 1, 0, self._maximum_iterations, 0, 0, 0, 0, 0)
+        line12 = (
+            'MINI', 1, 0, self._maximum_iterations,
+            0, 0, 0, 0, 0,
+        )
         line13 = ('END', 0, 1, 0, 0, 0, 0, 0, 0)
 
         com_block = "\n".join([
@@ -1437,7 +1440,9 @@ class MacroModelMD(MacroModel):
         )
         # Apply the fix.
         for atom_ids in paths:
-            if frozenset(atom_ids) in self._restricted_torsional_angles:
+            if frozenset(atom_ids) in (
+                self._restricted_torsional_angles
+            ):
                 atom_ids = [i+1 for i in atom_ids]
                 args = ('FXTA', *atom_ids, 99999, 361, 0, 0)
                 fix_block += self._get_com_line(*args)

@@ -316,14 +316,14 @@ class Collapser(Optimizer):
             step_no += 1
             mol = mol.with_position_matrix(new_pos)
             mol.write(
-                os.path.join(output_dir, f'collapsed_rev.mol')
+                os.path.join(output_dir, 'collapsed_rev.mol')
             )
 
-        out_file = os.path.join(output_dir, f'collapser.out')
+        out_file = os.path.join(output_dir, 'collapser.out')
         with open(out_file, 'w') as f:
             f.write(
-                f"Collapser algorithm.\n"
-                f"====================\n"
+                "Collapser algorithm.\n"
+                "====================\n"
                 f"Step size: {self._step_size}\n"
                 f"Scale steps?: {self._scale_steps}\n"
                 f"Distance cut: {self._distance_cut}\n"
@@ -448,16 +448,16 @@ class Collapser(Optimizer):
             PdbWriter().write(
                 molecule=mol,
                 path=os.path.join(
-                    output_dir, f'collapsed_rev.pdb'
+                    output_dir, 'collapsed_rev.pdb'
                 ),
                 periodic_info=unit_cell,
             )
 
-        out_file = os.path.join(output_dir, f'collapser.out')
+        out_file = os.path.join(output_dir, 'collapser.out')
         with open(out_file, 'w') as f:
             f.write(
-                f"Collapser algorithm.\n"
-                f"====================\n"
+                "Collapser algorithm.\n"
+                "====================\n"
                 f"Step size: {self._step_size}\n"
                 f"Scale steps?: {self._scale_steps}\n"
                 f"Distance cut: {self._distance_cut}\n"
@@ -752,7 +752,7 @@ class CollapserMC(Collapser):
         ax.axhline(y=self._target_bond_length, c='r')
         fig.tight_layout()
         fig.savefig(
-            os.path.join(output_dir, f'maxd_vs_step.pdf'),
+            os.path.join(output_dir, 'maxd_vs_step.pdf'),
             dpi=360,
             bbox_inches='tight'
         )
@@ -768,7 +768,7 @@ class CollapserMC(Collapser):
         ax.legend(fontsize=16)
         fig.tight_layout()
         fig.savefig(
-            os.path.join(output_dir, f'pot_vs_step.pdf'),
+            os.path.join(output_dir, 'pot_vs_step.pdf'),
             dpi=360,
             bbox_inches='tight'
         )
@@ -808,10 +808,6 @@ class CollapserMC(Collapser):
         if len(long_bond_infos) == 0:
             return mol
 
-        # Get bb atom ids and bb centroids.
-        bb_atom_ids = self._get_bb_atom_ids(mol)
-        bb_centroids = self._get_bb_centroids(mol, bb_atom_ids)
-
         # Define bb centroid - long bond atom vectors.
         # These are to be maintained during optimisation.
         # centroid_to_lb_vectors = self._get_cent_to_lb_vector(
@@ -826,9 +822,9 @@ class CollapserMC(Collapser):
             long_bond_infos=long_bond_infos
         )
 
-        with open(os.path.join(output_dir, f'coll.out'), 'w') as f:
+        with open(os.path.join(output_dir, 'coll.out'), 'w') as f:
             f.write(self._output_top_lines())
-            mol.write(os.path.join(output_dir, f'coll_0.mol'))
+            mol.write(os.path.join(output_dir, 'coll_0.mol'))
             steps = [0]
             passed = []
             spots = [system_potential]

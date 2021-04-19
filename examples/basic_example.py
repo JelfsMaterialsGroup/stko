@@ -35,6 +35,5 @@ def main():
     polymer.write(f'{examples_output}/poly_etkdg.mol')
 
 
-
 if __name__ == "__main__":
     main()

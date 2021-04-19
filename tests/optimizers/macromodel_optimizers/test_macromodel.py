@@ -1,11 +1,6 @@
 import pytest
 import sys
-from stko import (
-    MacroModel,
-    MacroModelMD,
-    MAEExtractor,
-    MacroModelForceField,
-)
+from stko import MacroModelMD, MacroModelForceField
 
 
 macromodel_check = pytest.mark.skipif(
