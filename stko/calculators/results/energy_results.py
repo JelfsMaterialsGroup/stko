@@ -13,9 +13,9 @@ class EnergyResults(Results):
 
     """
 
-    def __init__(self, value, unit_string):
+    def __init__(self, generator, unit_string):
 
-        self._value = value
+        self._value = next(generator)
         self._unit_string = unit_string
 
     def get_energy(self):
