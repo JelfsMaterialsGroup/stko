@@ -14,9 +14,27 @@ class Calculator(ABC):
 
     """
 
-    def get_results(self, mol):
+    def calculate(self, mol):
         """
         Perform calculation on `mol`.
+
+        Parameters
+        ----------
+        mol : :class:`.Molecule`
+            The :class:`.Molecule` to calculate properties of.
+
+        Yields
+        ------
+        :class:`function`
+            The function to perform the calculation.
+
+        """
+
+        raise NotImplementedError()
+
+    def get_results(self, mol):
+        """
+        Get results of calculation on `mol`.
 
         Parameters
         ----------

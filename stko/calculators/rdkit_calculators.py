@@ -44,6 +44,16 @@ class MMFFEnergy(Calculator):
 
     """
 
+    def calculate(self, mol):
+        rdkit_mol = mol.to_rdkit_mol()
+        rdkit.SanitizeMol(rdkit_mol)
+        rdkit.GetSSSR(rdkit_mol)
+        ff = rdkit.MMFFGetMoleculeForceField(
+            rdkit_mol,
+            rdkit.MMFFGetMoleculeProperties(rdkit_mol)
+        )
+        yield ff.CalcEnergy()
+
     def get_results(self, mol):
         """
         Calculate the energy of `mol`.
@@ -60,14 +70,10 @@ class MMFFEnergy(Calculator):
 
         """
 
-        rdkit_mol = mol.to_rdkit_mol()
-        rdkit.SanitizeMol(rdkit_mol)
-        rdkit.GetSSSR(rdkit_mol)
-        ff = rdkit.MMFFGetMoleculeForceField(
-            rdkit_mol,
-            rdkit.MMFFGetMoleculeProperties(rdkit_mol)
+        return EnergyResults(
+            generator=self.calculate(mol),
+            unit_string='kcal mol-1',
         )
-        return EnergyResults(ff.CalcEnergy(), 'kcal mol-1')
 
 
 class UFFEnergy(Calculator):
@@ -95,6 +101,15 @@ class UFFEnergy(Calculator):
 
     """
 
+    def calculate(self, mol):
+        rdkit_mol = mol.to_rdkit_mol()
+        rdkit.SanitizeMol(rdkit_mol)
+        # RingInfo needs to be initialized, else rdkit may raise an
+        # error.
+        rdkit.GetSSSR(rdkit_mol)
+        ff = rdkit.UFFGetMoleculeForceField(rdkit_mol)
+        yield ff.CalcEnergy()
+
     def get_results(self, mol):
         """
         Calculate the energy of `mol`.
@@ -111,10 +126,7 @@ class UFFEnergy(Calculator):
 
         """
 
-        rdkit_mol = mol.to_rdkit_mol()
-        rdkit.SanitizeMol(rdkit_mol)
-        # RingInfo needs to be initialized, else rdkit may raise an
-        # error.
-        rdkit.GetSSSR(rdkit_mol)
-        ff = rdkit.UFFGetMoleculeForceField(rdkit_mol)
-        return EnergyResults(ff.CalcEnergy(), 'kcal mol-1')
+        return EnergyResults(
+            generator=self.calculate(mol),
+            unit_string='kcal mol-1',
+        )
