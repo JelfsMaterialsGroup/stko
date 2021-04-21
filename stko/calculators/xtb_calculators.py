@@ -15,11 +15,8 @@ import uuid
 import subprocess as sp
 
 from .calculators import Calculator
-from ..utilities import (
-    is_valid_xtb_solvent,
-    XTBInvalidSolventError,
-    XTBExtractor
-)
+from .results import XtbResults
+from ..utilities import is_valid_xtb_solvent, XTBInvalidSolventError
 
 logger = logging.getLogger(__name__)
 
@@ -34,7 +31,7 @@ class XTBEnergy(Calculator):
 
     Notes
     -----
-    When running :meth:`get_energy`, this calculator changes the
+    When running :meth:`calculate`, this calculator changes the
     present working directory with :func:`os.chdir`. The original
     working directory will be restored even if an error is raised, so
     unless multi-threading is being used this implementation detail
@@ -46,54 +43,6 @@ class XTBEnergy(Calculator):
 
     Note that this does not have any impact on multi-processing,
     which should always be safe.
-
-    Attributes
-    ----------
-    total_energies : :class:`dict`
-        :class:`dict` of the total energy of each :class:`.Molecule`
-        passed to :meth:`get_energy`.
-
-    homo_lumo_gaps : :class:`dict`
-        :class:`dict` of the HOMO-LUMO gap of each :class:`.Molecule`
-        passed to :meth:`get_energy`.
-
-    fermi_levels : :class:`dict`
-        :class:`dict` of the Fermi level of each :class:`.Molecule`
-        passed to :meth:`get_energy`.
-
-    homo_lumo_orbitals : :class:`dict`
-        :class:`dict` of the HOMO-LUMO orbital properties of
-        each :class:`.Molecule` passed to :meth:`get_energy`.
-
-    qonly_dipole_moments : :class:`dict`
-        :class:`dict` of the q only dipole moment of
-        each :class:`.Molecule` passed to :meth:`get_energy`.
-
-    full_dipole_moments : :class:`dict`
-        :class:`dict` of the full dipole moment of
-        each :class:`.Molecule` passed to :meth:`get_energy`.
-
-    qonly_quadrupole_moments : :class:`dict`
-        :class:`dict` of the q only quadrupole moment of
-        each :class:`.Molecule` passed to :meth:`get_energy`.
-
-    qdip_quadrupole_moments : :class:`dict`
-        :class:`dict` of the q+dip quadrupole moment of
-        each :class:`.Molecule` passed to :meth:`get_energy`.
-
-    full_quadrupole_moments : :class:`dict`
-        :class:`dict` of the full quadrupole moment of
-        each :class:`.Molecule` passed to :meth:`get_energy`.
-
-    total_free_energies : :class:`dict`
-        :class:`dict` of the total free energy of
-        each :class:`.Molecule` passed to :meth:`get_energy`.
-        This is empty if :attr:`calculate_free_energy` is ``False``.
-
-    frequencies : :class:`dict`
-        :class:`dict` of the vibrational frequencies of
-        each :class:`.Molecule` passed to :meth:`get_energy`.
-        This is empty if `calculate_free_energy` was ``False``.
 
     Examples
     --------
@@ -127,19 +76,15 @@ class XTBEnergy(Calculator):
             unlimited_memory=True
         )
 
-        p_total_energy = xtb.get_energy(polymer)
+        xtb_results = xtb.get_results(polymer)
 
         # Extract properties from the energy calculator for a given
         # molecule.
-        homo_lumo_gap = xtb.homo_lumo_gaps[polymer]
-        fermi_levels = xtb.fermi_levels[polymer]
-        homo_lumo_orbitals = xtb.homo_lumo_orbitals[polymer]
-        full_dipole_moments = xtb.full_dipole_moments[polymer]
-        full_quadrupole_moments = xtb.full_quadrupole_moments[polymer]
-
-        # The total energy can be extracted at any point from the
-        # calculator.
-        total_energy = xtb.total_energies[polymer]
+        total_energy = xtb_results.get_total_energy()
+        homo_lumo_gap = xtb_results.get_homo_lumo_gap()
+        fermi_levels = xtb_results.get_fermi_level()
+        homo_lumo_orbitals = xtb_results.get_homo_lumo_orbitals()
+        full_dipole_moments = xtb_results.get_full_dipole_moments()
 
     If `calculate_free_energy` is ``True``, xTB performs a
     numerical Hessian calculation and calculates the total free energy
@@ -167,12 +112,12 @@ class XTBEnergy(Calculator):
             calculate_free_energy=True
         )
 
-        p_total_energy = xtb.get_energy(polymer)
+        xtb_results = xtb.get_results(polymer)
 
         # Extract properties from the energy calculator for a given
         # molecule.
-        p_total_free_energy = xtb.total_energies[polymer]
-        p_frequencies = xtb.frequencies[polymer]
+        total_free_energy = xtb_results.get_total_free_energy()
+        total_frequencies = xtb_results.get_frequencies()
 
     References
     ----------
@@ -273,55 +218,7 @@ class XTBEnergy(Calculator):
         self._num_unpaired_electrons = str(num_unpaired_electrons)
         self._unlimited_memory = unlimited_memory
 
-        self.total_energies = {}
-        self.homo_lumo_gaps = {}
-        self.fermi_levels = {}
-        self.homo_lumo_orbitals = {}
-        self.qonly_dipole_moments = {}
-        self.full_dipole_moments = {}
-        self.qonly_quadrupole_moments = {}
-        self.qdip_quadrupole_moments = {}
-        self.full_quadrupole_moments = {}
-        self.total_free_energies = {}
-        self.frequencies = {}
-
-    def _get_properties(self, mol, output_file):
-        """
-        Extracts properties from a GFN-xTB energy calculation.
-
-        Parameters
-        ----------
-        mol : :class:`.Molecule`
-            The :class:`.Molecule` whose energy was calculated.
-
-        output_file : :class: `str`
-            Name of the output file with xTB results.
-
-        Returns
-        -------
-        None : :class:`NoneType`
-
-        """
-        # Get properties from output_file.
-        xtbext = XTBExtractor(output_file=output_file)
-
-        self.total_energies[mol] = xtbext.total_energy
-        self.homo_lumo_gaps[mol] = xtbext.homo_lumo_gap
-        self.fermi_levels[mol] = xtbext.fermi_level
-        self.homo_lumo_orbitals[mol] = xtbext.homo_lumo_occ
-        self.qonly_dipole_moments[mol] = xtbext.qonly_dipole_moment
-        self.full_dipole_moments[mol] = xtbext.full_dipole_moment
-        self.qonly_quadrupole_moments[mol] = \
-            xtbext.qonly_quadrupole_moment
-        self.qdip_quadrupole_moments[mol] = \
-            xtbext.qdip_quadrupole_moment
-        self.full_quadrupole_moments[mol] = \
-            xtbext.full_quadrupole_moment
-        if self._calculate_free_energy:
-            self.total_free_energies[mol] = xtbext.total_free_energy
-            self.frequencies[mol] = xtbext.frequencies
-
-    def _run_xtb(self, xyz, out_file):
+    def _run_xtb(self, xyz, out_file, init_dir, output_dir):
         """
         Runs GFN-xTB.
 
@@ -332,6 +229,13 @@ class XTBEnergy(Calculator):
 
         out_file : :class:`str`
             The name of output file with xTB results.
+
+        init_dir : :class:`str`
+            The name of the current working directory.
+
+        output_dir : :class:`str`
+            The name of the directory into which files generated during
+            the calculation are written.
 
         Returns
         -------
@@ -366,34 +270,23 @@ class XTBEnergy(Calculator):
             f'--uhf {self._num_unpaired_electrons}'
         )
 
-        with open(out_file, 'w') as f:
-            # Note that sp.call will hold the program until completion
-            # of the calculation.
-            sp.call(
-                cmd,
-                stdin=sp.PIPE,
-                stdout=f,
-                stderr=sp.PIPE,
-                # Shell is required to run complex arguments.
-                shell=True
-            )
+        try:
+            os.chdir(output_dir)
+            with open(out_file, 'w') as f:
+                # Note that sp.call will hold the program until completion
+                # of the calculation.
+                sp.call(
+                    cmd,
+                    stdin=sp.PIPE,
+                    stdout=f,
+                    stderr=sp.PIPE,
+                    # Shell is required to run complex arguments.
+                    shell=True
+                )
+        finally:
+            os.chdir(init_dir)
 
-    def get_energy(self, mol):
-        """
-        Calculate the energy of `mol`.
-
-        Parameters
-        ----------
-        mol : :class:`.Molecule`
-            The :class:`.Molecule` whose energy is to be calculated.
-
-        Returns
-        -------
-        :class:`float`
-            The energy.
-
-        """
-
+    def calculate(self, mol):
         if self._output_dir is None:
             output_dir = str(uuid.uuid4().int)
         else:
@@ -408,15 +301,38 @@ class XTBEnergy(Calculator):
         xyz = os.path.join(output_dir, 'input_structure.xyz')
         out_file = os.path.join(output_dir, 'energy.output')
         mol.write(xyz)
-
-        try:
-            os.chdir(output_dir)
-            self._run_xtb(xyz=xyz, out_file=out_file)
-        finally:
-            os.chdir(init_dir)
-
-        self._get_properties(
-            mol=mol,
-            output_file=out_file
+        yield self._run_xtb(
+            xyz=xyz,
+            out_file=out_file,
+            init_dir=init_dir,
+            output_dir=output_dir,
         )
-        return self.total_energies[mol]
+
+    def get_results(self, mol):
+        """
+        Calculate the xTB properties of `mol`.
+
+        Parameters
+        ----------
+        mol : :class:`.Molecule`
+            The :class:`.Molecule` whose energy is to be calculated.
+
+        Returns
+        -------
+        :class:`.XtbResults`
+            The properties, with units, from xTB calculations.
+
+        """
+
+        if self._output_dir is None:
+            output_dir = str(uuid.uuid4().int)
+        else:
+            output_dir = self._output_dir
+        output_dir = os.path.abspath(output_dir)
+
+        out_file = os.path.join(output_dir, 'energy.output')
+
+        return XtbResults(
+            generator=self.calculate(mol),
+            output_file=out_file,
+        )
