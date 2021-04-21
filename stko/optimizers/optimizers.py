@@ -63,13 +63,11 @@ there are no requirements. New optimizers can be added into the
 
 import logging
 
-from ..base_calculator import Calculator
-
 
 logger = logging.getLogger(__name__)
 
 
-class Optimizer(Calculator):
+class Optimizer:
     """
     A base class for optimizers.
 

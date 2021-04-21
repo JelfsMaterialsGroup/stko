@@ -12,7 +12,8 @@ Wrappers for calculators within the :mod:`rdkit` code.
 import logging
 from rdkit.Chem import AllChem as rdkit
 
-from ..base_calculator import Calculator
+from .calculators import Calculator
+from .results import EnergyResults
 
 
 logger = logging.getLogger(__name__)
@@ -37,11 +38,13 @@ class MMFFEnergy(Calculator):
         mmff = stko.MMFFEnergy()
 
         # Calculate the energy.
-        energy1 = mmff.get_energy(mol1)
+        results = mmff.get_results(mol1)
+        energy = results.get_energy()
+        unit_string = results.get_unit_string()
 
     """
 
-    def get_energy(self, mol):
+    def get_results(self, mol):
         """
         Calculate the energy of `mol`.
 
@@ -52,8 +55,8 @@ class MMFFEnergy(Calculator):
 
         Returns
         -------
-        :class:`float`
-            The energy.
+        :class:`.EnergyResults`
+            The energy and units of the energy.
 
         """
 
@@ -64,7 +67,7 @@ class MMFFEnergy(Calculator):
             rdkit_mol,
             rdkit.MMFFGetMoleculeProperties(rdkit_mol)
         )
-        return ff.CalcEnergy()
+        return EnergyResults(ff.CalcEnergy(), 'kcal mol-1')
 
 
 class UFFEnergy(Calculator):
@@ -86,11 +89,13 @@ class UFFEnergy(Calculator):
         uff = stko.UFFEnergy()
 
         # Calculate the energy.
-        energy1 = uff.get_energy(mol1)
+        results = uff.get_results(mol1)
+        energy = results.get_energy()
+        unit_string = results.get_unit_string()
 
     """
 
-    def get_energy(self, mol):
+    def get_results(self, mol):
         """
         Calculate the energy of `mol`.
 
@@ -101,8 +106,8 @@ class UFFEnergy(Calculator):
 
         Returns
         -------
-        :class:`float`
-            The energy.
+        :class:`.EnergyResults`
+            The energy and units of the energy.
 
         """
 
@@ -112,4 +117,4 @@ class UFFEnergy(Calculator):
         # error.
         rdkit.GetSSSR(rdkit_mol)
         ff = rdkit.UFFGetMoleculeForceField(rdkit_mol)
-        return ff.CalcEnergy()
+        return EnergyResults(ff.CalcEnergy(), 'kcal mol-1')

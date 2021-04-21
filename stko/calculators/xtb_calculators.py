@@ -14,7 +14,7 @@ import shutil
 import uuid
 import subprocess as sp
 
-from ..base_calculator import Calculator
+from .calculators import Calculator
 from ..utilities import (
     is_valid_xtb_solvent,
     XTBInvalidSolventError,
