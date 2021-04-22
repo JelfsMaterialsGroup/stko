@@ -39,7 +39,10 @@ def main():
             mol,
             stko.ShapeResults(
                 shape_calc.calculate(mol)
-            ).get_planarity()
+            ).get_spherocity_index(),
+            stko.ShapeResults(
+                shape_calc.calculate(mol)
+            ).get_eccentricity(),
         )
 
 
