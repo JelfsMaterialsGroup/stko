@@ -23,40 +23,32 @@ class TopologyExtractor:
         self,
         molecule,
         atom_ids_to_disconnect,
-        vertex_options,
     ):
+
+        flat_tuple = []
+        for i in atom_ids_to_disconnect:
+            flat_tuple.append(i[0])
+            flat_tuple.append(i[1])
+        flat_tuple = tuple(set(flat_tuple))
+
         connected_graphs = self.get_connected_graphs(
             molecule=molecule,
             atom_ids_to_disconnect=atom_ids_to_disconnect,
         )
-        print(connected_graphs)
 
         # Get centroids.
-        centroids = {
-            i: molecule.get_centroid(
+        self._centroids = {}
+        self._connectivities = {}
+        for i, cg in enumerate(connected_graphs):
+            self._centroids[i] = molecule.get_centroid(
                 atom_ids=[i.get_id() for i in list(cg)]
             )
-            for i, cg in enumerate(connected_graphs)
-        }
-        print(centroids)
-
-        # Define vertices and edges.
-        self._vertices = {
-            i: vertex_options[i](
-                id=i,
-                position=centroids[i],
-                flip
-            )
-            for i in centroids
-        }
-        print(self._vertices)
-        import sys
-        sys.exit()
-        self._edges = {
-        }
-        print(self._edges)
-        import sys
-        sys.exit()
+            disconnections = 0
+            for atom in list(cg):
+                aid = atom.get_id()
+                if aid in flat_tuple:
+                    disconnections += 1
+            self._connectivities[i] = disconnections
 
     def get_connected_graphs(
         self,
@@ -68,11 +60,11 @@ class TopologyExtractor:
         connected_graphs = graph.get_connected_graphs()
         return connected_graphs
 
-    def get_vertices(self):
-        return self._vertices
+    def get_vertex_positions(self):
+        return self._centroids
 
-    def get_edges(self):
-        return self._edges
+    def get_connectivities(self):
+        return self._connectivities
 
     def __str__(self):
         return repr(self)
