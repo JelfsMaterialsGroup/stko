@@ -47,6 +47,10 @@ class XTBEnergy(Calculator):
     Note that this does not have any impact on multi-processing,
     which should always be safe.
 
+    *Contributors*
+    We thank Andrew Tarzia and Alejandro Santana-Bonilla for their
+    contributions to this code.
+
     Attributes
     ----------
     total_energies : :class:`dict`

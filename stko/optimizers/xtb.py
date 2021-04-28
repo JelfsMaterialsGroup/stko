@@ -74,6 +74,10 @@ class XTB(Optimizer):
     The presence of negative frequencies can occur even when the
     optimization has converged based on the given `opt_level`.
 
+    *Contributors*
+    We thank Andrew Tarzia and Alejandro Santana-Bonilla for their
+    contributions to this code.
+
     Attributes
     ----------
     incomplete : :class:`set` of :class:`.Molecule`
