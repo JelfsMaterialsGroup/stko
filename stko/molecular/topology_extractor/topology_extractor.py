@@ -19,22 +19,60 @@ class TopologyExtractor:
 
     """
 
-    def __init__(self, vertex_options):
-        self._vertex_options = vertex_options
+    def extract_topology(
+        self,
+        molecule,
+        atom_ids_to_disconnect,
+        vertex_options,
+    ):
+        connected_graphs = self.get_connected_graphs(
+            molecule=molecule,
+            atom_ids_to_disconnect=atom_ids_to_disconnect,
+        )
+        print(connected_graphs)
 
-    def extract_topology(self, molecule, bond_ids_to_break):
-        raise NotImplementedError()
+        # Get centroids.
+        centroids = {
+            i: molecule.get_centroid(
+                atom_ids=[i.get_id() for i in list(cg)]
+            )
+            for i, cg in enumerate(connected_graphs)
+        }
+        print(centroids)
 
-    def get_disconnected_graphs(self):
+        # Define vertices and edges.
+        self._vertices = {
+            i: vertex_options[i](
+                id=i,
+                position=centroids[i],
+                flip
+            )
+            for i in centroids
+        }
+        print(self._vertices)
+        import sys
+        sys.exit()
+        self._edges = {
+        }
+        print(self._edges)
+        import sys
+        sys.exit()
+
+    def get_connected_graphs(
+        self,
+        molecule,
+        atom_ids_to_disconnect
+    ):
         graph = Network(molecule)
-        graph.delete_bonds(bonds_to_break)
-        return disconnected_graphs
+        graph.delete_bonds(atom_ids_to_disconnect)
+        connected_graphs = graph.get_connected_graphs()
+        return connected_graphs
 
     def get_vertices(self):
-        raise NotImplementedError()
+        return self._vertices
 
     def get_edges(self):
-        raise NotImplementedError()
+        return self._edges
 
     def __str__(self):
         return repr(self)

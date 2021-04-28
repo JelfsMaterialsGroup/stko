@@ -7,20 +7,17 @@ def main():
         'output_directory/poly_uff.mol'
     )
 
-    new_topology_graph = stko.TopologyExtractor(
-        vertex_options={
-            2: stk.polymer.vertices._LinearVertex,
-            1: stk.polymer.vertices._TerminalVertex,
-        },
-    )
+    new_topology_graph = stko.TopologyExtractor()
     print(new_topology_graph)
     new_topology_graph.extract_topology(
         molecule=molecule,
-        bond_ids_to_break=((6, 18), ),
+        atom_ids_to_disconnect=((6, 18), ),
+        vertex_options={
+            1: stk.polymer.vertices._TerminalVertex,
+        },
     )
     print([i for i in new_topology_graph.get_vertices()])
     print([i for i in new_topology_graph.get_edges()])
-    print([i for i in new_topology_graph.get_disconnected_graphs()])
 
 
 if __name__ == "__main__":
