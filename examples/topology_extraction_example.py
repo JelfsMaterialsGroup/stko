@@ -12,21 +12,29 @@ def main():
         topology_graph=stk.cage.FourPlusSix((bb1, bb2)),
     )
 
-    disconnections = []
+    broken_bonds_by_id = []
+    disconnectors = []
     for bi in cage1.get_bond_infos():
         if bi.get_building_block() is None:
             a1id = bi.get_bond().get_atom1().get_id()
             a2id = bi.get_bond().get_atom2().get_id()
-            disconnections.append(sorted((a1id, a2id)))
+            broken_bonds_by_id.append(sorted((a1id, a2id)))
+            disconnectors.extend((a1id, a2id))
 
-    print(disconnections)
+    print(broken_bonds_by_id)
+    print(disconnectors)
+    print('--')
     new_topology_graph = stko.TopologyExtractor()
-    new_topology_graph.extract_topology(
+    tg_info = new_topology_graph.extract_topology(
         molecule=cage1,
-        atom_ids_to_disconnect=disconnections,
+        broken_bonds_by_id=broken_bonds_by_id,
+        disconnectors=set(disconnectors),
     )
-    print(new_topology_graph.get_vertex_positions())
-    print(new_topology_graph.get_connectivities())
+    print(tg_info.get_vertex_positions())
+    print(tg_info.get_connectivities())
+    print(tg_info.get_edge_pairs())
+    cage1.write('output_directory/tg_cage.mol')
+    tg_info.write('output_directory/tg_info.pdb')
 
 
 if __name__ == "__main__":
