@@ -18,34 +18,80 @@ class Network:
 
     """
 
-    def __init__(self, molecule):
-        self._molecule = molecule
-        self._graph = self.get_graph()
+    def __init__(self, graph):
+        """
+        Initialize a Network from a networkx.graph.
 
-    def get_graph(self):
+        """
+
+        self._graph = graph
+
+    @classmethod
+    def init_from_molecule(cls, molecule):
+        """
+        Initialize a Network from a stk.Molecule.
+
+        """
+
         g = nx.Graph()
         # Define by adding edges.
-        for bond in self._molecule.get_bonds():
+        for bond in molecule.get_bonds():
             g.add_edge(bond.get_atom1(), bond.get_atom2())
 
-        return g
+        return cls(g)
 
-    def delete_bonds(self, atom_ids_to_disconnect):
-        atom_ids_to_disconnect = [
-            tuple(sorted(i)) for i in atom_ids_to_disconnect
-        ]
+    def get_graph(self):
+        """
+        Return a networkx.graph.
+
+        """
+
+        return self._graph
+
+    def clone(self):
+        """
+        Return a clone.
+
+        """
+
+        clone = self.__class__.__new__(self.__class__)
+        Network.__init__(self=clone, graph=self._graph)
+        return clone
+
+    def _with_deleted_bonds(self, atom_ids):
+        sorted_set = {tuple(sorted(i)) for i in atom_ids}
         to_delete = []
         for edge in self._graph.edges:
             a1id = edge[0].get_id()
             a2id = edge[1].get_id()
             pair = tuple(sorted((a1id, a2id)))
-            if pair in atom_ids_to_disconnect:
+            if pair in sorted_set:
                 to_delete.append(edge)
 
-        for tdel in to_delete:
-            self._graph.remove_edge(u=tdel[0], v=tdel[1])
+        for id1, id2 in to_delete:
+            self._graph.remove_edge(id1, id2)
 
-    def get_connected_graphs(self):
+        return self
+
+    def with_deleted_bonds(self, atom_ids):
+        """
+        Return a clone with edges between `atom_ids` deleted.
+
+        """
+
+        return self.clone()._with_deleted_bonds(atom_ids)
+
+    def get_connected_components(self):
+        """
+        Get connected components within full graph.
+
+        Returns
+        -------
+        :class:`list` of :class:`networkx.graph`
+            List of connected components of graph.
+
+        """
+
         return [
             sorted(subgraph, key=lambda a: a.get_id())
             for subgraph in sorted(
