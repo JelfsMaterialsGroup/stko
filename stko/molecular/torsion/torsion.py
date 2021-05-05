@@ -15,6 +15,21 @@ class Torsion:
     """
     Represents a torsion angle in a molecule.
 
+    Examples
+    --------
+    .. code-block:: python
+
+        import stk
+        import stko
+
+        # Create a molecule whose energy we want to know.
+        mol1 = stk.BuildingBlock('CCCNCCCN')
+
+        # Create the energy calculator.
+       ....
+
+    """
+
     def __init__(self, atom1, atom2, atom3, atom4):
         """
         Defines a torsion.
@@ -33,7 +48,7 @@ class Torsion:
         atom4 : :class:`stk.Atom`
             Fourth atom in torsion.
 
-    """
+        """
 
         self._atom1 = atom1
         self._atom2 = atom2
