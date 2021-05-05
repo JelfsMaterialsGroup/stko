@@ -24,7 +24,7 @@ To get ``stko``, you can install it with pip::
 
 Make sure you also install rdkit, which is a dependency::
 
-    $ conda install -c rdkit rdkit=2020
+    $ conda install -c conda-forge rdkit
 
 Examples
 ========
