@@ -44,13 +44,20 @@ class MMFFEnergy(Calculator):
 
     """
 
+    def __init__(self, ignore_inter_interactions=True):
+
+        self._ignore_inter_interactions = (
+            ignore_inter_interactions
+        )
+
     def calculate(self, mol):
         rdkit_mol = mol.to_rdkit_mol()
         rdkit.SanitizeMol(rdkit_mol)
         rdkit.GetSSSR(rdkit_mol)
         ff = rdkit.MMFFGetMoleculeForceField(
             rdkit_mol,
-            rdkit.MMFFGetMoleculeProperties(rdkit_mol)
+            rdkit.MMFFGetMoleculeProperties(rdkit_mol),
+            ignoreInterfragInteractions=self._ignore_inter_interactions
         )
         yield ff.CalcEnergy()
 
@@ -101,13 +108,22 @@ class UFFEnergy(Calculator):
 
     """
 
+    def __init__(self, ignore_inter_interactions=True):
+
+        self._ignore_inter_interactions = (
+            ignore_inter_interactions
+        )
+
     def calculate(self, mol):
         rdkit_mol = mol.to_rdkit_mol()
         rdkit.SanitizeMol(rdkit_mol)
         # RingInfo needs to be initialized, else rdkit may raise an
         # error.
         rdkit.GetSSSR(rdkit_mol)
-        ff = rdkit.UFFGetMoleculeForceField(rdkit_mol)
+        ff = rdkit.UFFGetMoleculeForceField(
+            mol=rdkit_mol,
+            ignoreInterfragInteractions=self._ignore_inter_interactions
+        )
         yield ff.CalcEnergy()
 
     def get_results(self, mol):

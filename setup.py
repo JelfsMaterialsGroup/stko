@@ -14,6 +14,7 @@ setuptools.setup(
     install_requires=(
         'scipy',
         'numpy',
+        'networkx',
     ),
     classifiers=[
         "Programming Language :: Python :: 3",
