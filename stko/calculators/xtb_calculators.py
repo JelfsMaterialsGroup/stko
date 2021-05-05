@@ -25,9 +25,9 @@ class XTBEnergy(Calculator):
     """
     Uses GFN-xTB [1]_ to calculate energy and other properties.
 
-    By default, :meth:`get_energy` will extract other properties of the
-    :class:`.Molecule` passed to :meth:`get_energy`, which
-    will be saved in the attributes of :class:`.XTBEnergy`.
+    By default, :meth:`get_results` will extract other properties of
+    the :class:`.Molecule` passed to :meth:`calculate`, which
+    will be saved in the attributes of :class:`.XtbResults`.
 
     Notes
     -----
@@ -43,6 +43,10 @@ class XTBEnergy(Calculator):
 
     Note that this does not have any impact on multi-processing,
     which should always be safe.
+
+    *Contributors*
+    We thank Andrew Tarzia and Alejandro Santana-Bonilla for their
+    contributions to this code.
 
     Examples
     --------
@@ -273,8 +277,8 @@ class XTBEnergy(Calculator):
         try:
             os.chdir(output_dir)
             with open(out_file, 'w') as f:
-                # Note that sp.call will hold the program until completion
-                # of the calculation.
+                # Note that sp.call will hold the program until
+                # completion of the calculation.
                 sp.call(
                     cmd,
                     stdin=sp.PIPE,
@@ -336,3 +340,21 @@ class XTBEnergy(Calculator):
             generator=self.calculate(mol),
             output_file=out_file,
         )
+
+    def get_energy(self, mol):
+        """
+        Calculate the energy of `mol`.
+
+        Parameters
+        ----------
+        mol : :class:`.Molecule`
+            The :class:`.Molecule` whose energy is to be calculated.
+
+        Returns
+        -------
+        :class:`float`
+            The energy.
+
+        """
+
+        return self.get_results(mol).get_total_energy()[0]

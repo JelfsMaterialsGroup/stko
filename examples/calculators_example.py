@@ -23,13 +23,19 @@ def main():
 
     print(
         uff_results,
+        # Get energy from results.
         uff_results.get_energy(),
         uff_results.get_unit_string(),
+        # Get energy directly through Calculator.
+        uff.get_energy(bb1),
     )
     print(
         mmff_results,
+        # Get energy from results.
         mmff_results.get_energy(),
         mmff_results.get_unit_string(),
+        # Get energy directly through Calculator.
+        mmff.get_energy(bb1),
     )
 
     if xtb_path is not None:
@@ -53,6 +59,8 @@ def main():
             total_energy, homo_lumo_gap, homo_lumo_orbitals,
             fermi_levels, full_dipole_moments,
         )
+        # From results, vs from calculator.
+        print(xtb.get_energy(bb1), total_energy)
         try:
             xtb_results.get_total_free_energy()
         except AttributeError:
