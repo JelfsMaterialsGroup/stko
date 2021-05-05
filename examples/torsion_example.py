@@ -19,10 +19,7 @@ def main():
     tors_calculator = stko.TorsionCalculator()
     tors_results = tors_calculator.get_results(bb1)
     print(tors_results.get_molecule())
-    for t, ang in zip(
-        tors_results.get_torsions(),
-        tors_results.get_torsion_angles()
-    ):
+    for t, ang in tors_results.get_torsion_angles():
         print(t, ang, t.get_atom_ids())
 
     # Run calculations for constructed molecule.
@@ -30,14 +27,15 @@ def main():
     tors_calculator = stko.ConstructedMoleculeTorsionCalculator()
     tors_results = tors_calculator.get_results(polymer)
     print(tors_results.get_molecule())
-    for t, ang in zip(
-        tors_results.get_torsions(),
-        tors_results.get_torsion_angles()
-    ):
+    for t, ang in tors_results.get_torsion_angles():
         print(t, ang, t.get_atom_ids())
-    torsion_infos = tors_results.get_torsion_infos()
-    for t in torsion_infos:
-        print(t)
+    for t in tors_results.get_torsion_infos():
+        print(
+            'c', t.get_torsion(),
+            t.get_building_block(),
+            t.get_building_block_id(),
+            t.get_building_block_torsion(),
+        )
     print(tors_results.get_atom_maps())
 
 
