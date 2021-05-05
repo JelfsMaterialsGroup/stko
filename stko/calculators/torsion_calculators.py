@@ -10,7 +10,8 @@ import logging
 
 from .calculators import Calculator
 from .results import TorsionResults, ConstructedMoleculeTorsionResults
-
+from rdkit.Chem import TorsionFingerprints
+from ..molecular.torsion import Torsion
 
 logger = logging.getLogger(__name__)
 
@@ -30,7 +31,7 @@ class TorsionCalculator(Calculator):
         mol1 = stk.BuildingBlock('CCCNCCCN')
 
         # Create the calculator.
-        mmff = stko.TorsionCalculator()
+        tc = stko.TorsionCalculator()
 
         # Extract the torsions.
         ........
@@ -39,7 +40,14 @@ class TorsionCalculator(Calculator):
     """
 
     def calculate(self, mol):
-        yield
+        yield tuple(
+            Torsion(*mol.get_atoms(atoms[0]))
+            for atoms, _ in (
+                TorsionFingerprints.CalculateTorsionLists(
+                    mol.to_rdkit_mol()
+                )[0]
+            )
+        )
 
     def get_results(self, mol):
         """
@@ -57,9 +65,7 @@ class TorsionCalculator(Calculator):
 
         """
 
-        return TorsionResults(
-            generator=self.calculate(mol),
-        )
+        return TorsionResults(self.calculate(mol), mol)
 
 
 class ConstructedMoleculeTorsionCalculator(TorsionCalculator):
@@ -85,9 +91,6 @@ class ConstructedMoleculeTorsionCalculator(TorsionCalculator):
 
     """
 
-    def calculate(self, mol):
-        yield
-
     def get_results(self, mol):
         """
         Calculate the energy of `mol`.
@@ -106,4 +109,5 @@ class ConstructedMoleculeTorsionCalculator(TorsionCalculator):
 
         return ConstructedMoleculeTorsionResults(
             generator=self.calculate(mol),
+            mol=mol,
         )
