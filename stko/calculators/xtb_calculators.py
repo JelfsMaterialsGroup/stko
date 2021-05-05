@@ -340,3 +340,21 @@ class XTBEnergy(Calculator):
             generator=self.calculate(mol),
             output_file=out_file,
         )
+
+    def get_energy(self, mol):
+        """
+        Calculate the energy of `mol`.
+
+        Parameters
+        ----------
+        mol : :class:`.Molecule`
+            The :class:`.Molecule` whose energy is to be calculated.
+
+        Returns
+        -------
+        :class:`float`
+            The energy.
+
+        """
+
+        return self.get_results(mol).get_total_energy()[0]

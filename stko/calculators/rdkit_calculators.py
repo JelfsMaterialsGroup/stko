@@ -82,6 +82,24 @@ class MMFFEnergy(Calculator):
             unit_string='kcal mol-1',
         )
 
+    def get_energy(self, mol):
+        """
+        Calculate the energy of `mol`.
+
+        Parameters
+        ----------
+        mol : :class:`.Molecule`
+            The :class:`.Molecule` whose energy is to be calculated.
+
+        Returns
+        -------
+        :class:`float`
+            The energy.
+
+        """
+
+        return self.get_results(mol).get_energy()
+
 
 class UFFEnergy(Calculator):
     """
@@ -146,3 +164,21 @@ class UFFEnergy(Calculator):
             generator=self.calculate(mol),
             unit_string='kcal mol-1',
         )
+
+    def get_energy(self, mol):
+        """
+        Calculate the energy of `mol`.
+
+        Parameters
+        ----------
+        mol : :class:`.Molecule`
+            The :class:`.Molecule` whose energy is to be calculated.
+
+        Returns
+        -------
+        :class:`float`
+            The energy.
+
+        """
+
+        return self.get_results(mol).get_energy()
