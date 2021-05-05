@@ -273,8 +273,8 @@ class XTBEnergy(Calculator):
         try:
             os.chdir(output_dir)
             with open(out_file, 'w') as f:
-                # Note that sp.call will hold the program until completion
-                # of the calculation.
+                # Note that sp.call will hold the program until
+                # completion of the calculation.
                 sp.call(
                     cmd,
                     stdin=sp.PIPE,
