@@ -84,18 +84,25 @@ dependencies:
   - zlib=1.2.11=h516909a_1010
   - zstd=1.4.9=ha95c52a_0
   - pip:
+    - attrs==20.3.0
     - decorator==4.4.2
     - dill==0.3.3
     - dnspython==1.16.0
+    - iniconfig==1.1.1
     - mchammer==1.0.3
     - multiprocess==0.70.11.1
     - networkx==2.5.1
+    - packaging==20.9
     - pandas==1.2.4
     - pathos==0.2.7
     - pillow==8.2.0
+    - pluggy==0.13.1
     - pox==0.2.9
     - ppft==1.6.6.3
+    - py==1.10.0
     - pymongo==3.11.4
+    - pytest==6.2.4
     - scipy==1.6.3
     - seaborn==0.11.1
     - stk==2021.4.27.0
+    - toml==0.10.2
