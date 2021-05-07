@@ -20,14 +20,21 @@ Contains molecular optimizers and property calculators for use with stk.
    :caption: Calculators
    :maxdepth: 2
 
-   RDKit <stko.calculators.rdkit>
-   XTB <stko.calculators.xtb>
+   RDKit <stko.calculators.rdkit_calculators>
+   XTB <stko.calculators.xtb_calculators>
+
 
 .. toctree::
    :hidden:
-   :caption: Extended Systems
+   :caption: Molecular Systems
+   :maxdepth: 2
 
-   Cell <stko.molecular.periodic.cell>
+   Topology Extraction <stko.molecular.topology_extractor>
+   Unit Cell <stko.molecular.periodic.unitcell>
+   Network Material <stko.molecular.networkx>
+
+
+
 
 
 Module Summary
@@ -35,9 +42,5 @@ Module Summary
 
 .. autosummary::
 
-   stko.optimizers.xtb
-   stko.optimizers.rdkit
-   stko.optimizers.gulp
-   stko.optimizers.collapser
-   stko.optimizers.macromodel
-   stko.molecular.periodic.unitcell
+   stko.optimizers
+   stko.calculators
