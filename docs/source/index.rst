@@ -1,7 +1,40 @@
 Welcome to stko's documentation!
 ================================
 
-Contains molecular optimizers and property calculators for use with stk.
+============
+Introduction
+============
+
+GitHub: https://github.com/JelfsMaterialsGroup/stko
+
+
+
+Overview
+========
+
+`stko <https://github.com/lukasturcani/stk>`_ is a Python library which performs optimizations and calculations on
+complex molecules built using `stk <https://github.com/JelfsMaterialsGroup/stko>`_.
+Optimizations or calculations are typically performed by providing an :class:`stk.ConstructedMolecule` to the function.
+In the case of optimizations, a clone of :class:`stk.ConstructedMolecule` is returned
+and calculators return a :class:`float`.
+
+
+Documentation
+=============
+
+.. glossary::
+
+   Version
+      |version|
+
+
+.. toctree::
+   :hidden:
+   :caption: Installation
+   :maxdepth: 1
+
+   Install <install>
+
 
 .. toctree::
    :hidden:
@@ -10,7 +43,7 @@ Contains molecular optimizers and property calculators for use with stk.
 
    XTB <stko.optimizers.xtb>
    RDKit <stko.optimizers.rdkit>
-   Gulp <stko.optimizers.gulp>
+   GULP <stko.optimizers.gulp>
    Collapser <stko.optimizers.collapser>
    MacroModel <stko.optimizers.macromodel>
 
@@ -34,13 +67,8 @@ Contains molecular optimizers and property calculators for use with stk.
    Network Material <stko.molecular.networkx>
 
 
+Indices and Tables
+==================
 
-
-
-Module Summary
-==============
-
-.. autosummary::
-
-   stko.optimizers
-   stko.calculators
+* :ref:`genindex`
+* :ref:`py-modindex`
