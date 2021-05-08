@@ -2,7 +2,7 @@
 MacroModel Optimizers
 =====================
 
-#. :class:`.
+Performs optimizations using MacroModel
 
 """
 
