@@ -56,7 +56,7 @@ copyright = '2020, Steven Bennett, Andrew Tarzia'
 author = 'Steven Bennett, Andrew Tarzia'
 
 # The full version, including alpha/beta/rc tags
-version = '0.0.3'
+version = '0.0.1'
 
 
 # -- General configuration ---------------------------------------------
