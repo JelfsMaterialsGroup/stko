@@ -15,7 +15,9 @@
 # shown here.
 
 import sys
-
+import os
+# Appends main directory to the path to import the package
+sys.path.insert(0, os.path.abspath('../../'))
 
 # For mocking external dependencies when building.
 from unittest.mock import MagicMock
