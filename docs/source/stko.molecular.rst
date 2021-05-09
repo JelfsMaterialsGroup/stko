@@ -15,3 +15,4 @@ Subpackages
    stko.molecular.networkx
    stko.molecular.periodic
    stko.molecular.topology_extractor
+   stko.molecular.torsion

@@ -16,11 +16,3 @@ Subpackages
    stko.molecular
    stko.optimizers
    stko.utilities
-
-Submodules
-----------
-
-.. toctree::
-   :maxdepth: 4
-
-   stko.base_calculator
