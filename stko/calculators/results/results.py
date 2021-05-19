@@ -2,6 +2,10 @@
 Results
 =======
 
+#. :class:`.Results`
+
+Base results class for extracting molecule properties.
+
 """
 
 from abc import ABC

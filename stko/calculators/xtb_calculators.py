@@ -15,7 +15,7 @@ import uuid
 import subprocess as sp
 
 from .calculators import Calculator
-from .results import XtbResults
+from .results import XTBResults
 from ..utilities import is_valid_xtb_solvent, XTBInvalidSolventError
 
 logger = logging.getLogger(__name__)
@@ -27,7 +27,7 @@ class XTBEnergy(Calculator):
 
     By default, :meth:`get_results` will extract other properties of
     the :class:`.Molecule` passed to :meth:`calculate`, which
-    will be saved in the attributes of :class:`.XtbResults`.
+    will be saved in the attributes of :class:`.XTBResults`.
 
     Notes
     -----
@@ -323,7 +323,7 @@ class XTBEnergy(Calculator):
 
         Returns
         -------
-        :class:`.XtbResults`
+        :class:`.XTBResults`
             The properties, with units, from xTB calculations.
 
         """
@@ -336,7 +336,7 @@ class XTBEnergy(Calculator):
 
         out_file = os.path.join(output_dir, 'energy.output')
 
-        return XtbResults(
+        return XTBResults(
             generator=self.calculate(mol),
             output_file=out_file,
         )

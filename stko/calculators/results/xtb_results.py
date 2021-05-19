@@ -1,6 +1,10 @@
 """
-XtbResults
-==========
+XTB Results
+===========
+
+#. :class:`.XTBResults`
+
+Results class for the output of XTB.
 
 """
 
@@ -8,7 +12,7 @@ from .results import Results
 from ...utilities import XTBExtractor
 
 
-class XtbResults(Results):
+class XTBResults(Results):
     """
     Results class containing molecule xTB properties.
 
