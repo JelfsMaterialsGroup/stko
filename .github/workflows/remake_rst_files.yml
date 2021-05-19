@@ -17,7 +17,7 @@ jobs:
                 pip install -r docs/requirements.txt .
 
             - name: Remake rst files
-              run: docs/remake_modules.sh
+              run: docs/remake_modules.bash
 
             - name: Commit changes
               uses: EndBug/add-and-commit@v7
