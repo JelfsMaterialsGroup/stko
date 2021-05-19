@@ -1,4 +1,4 @@
 .. automodule:: stko.molecular.networkx.network
-   :members:
-   :undoc-members:
-   :show-inheritance:
+    :members:
+    :undoc-members:
+    :show-inheritance:
