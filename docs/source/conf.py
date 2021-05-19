@@ -5,7 +5,7 @@
 # list see the documentation:
 # https://www.sphinx-doc.org/en/master/usage/configuration.html
 
-# -- Path setup --------------------------------------------------------
+# -- Path setup -------------------------------------------------------
 
 # If extensions (or modules to document with autodoc) are in another
 # directory,
@@ -22,10 +22,12 @@ sys.path.insert(0, os.path.abspath('../../'))
 # For mocking external dependencies when building.
 from unittest.mock import MagicMock
 
+
 class Mock(MagicMock):
     @classmethod
     def __getattr__(cls, name):
         return MagicMock()
+
 
 MOCK_MODULES = [
     'rdkit',
@@ -51,7 +53,7 @@ MOCK_MODULES = [
 sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
 
 
-# -- Project information -----------------------------------------------
+# -- Project information ----------------------------------------------
 
 project = 'stko'
 copyright = '2020, Steven Bennett, Andrew Tarzia'
@@ -61,7 +63,7 @@ author = 'Steven Bennett, Andrew Tarzia'
 version = '0.0.1'
 
 
-# -- General configuration ---------------------------------------------
+# -- General configuration --------------------------------------------
 
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
@@ -104,7 +106,7 @@ pygments_style = 'sphinx'
 todo_include_todos = True
 
 
-# -- Options for HTML output -------------------------------------------
+# -- Options for HTML output ------------------------------------------
 
 # The theme to use for HTML and HTML Help pages.  See the documentation
 # for a list of builtin themes.
