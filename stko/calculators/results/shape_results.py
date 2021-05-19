@@ -1,6 +1,10 @@
 """
-ShapeResults
+Shape Results
 =============
+
+#. :class:`.ShapeResults`
+
+Results class for extracting molecular shape properties.
 
 """
 

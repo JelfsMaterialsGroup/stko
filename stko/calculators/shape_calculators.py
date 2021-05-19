@@ -4,6 +4,8 @@ Shape Calculators
 
 #. :class:`.ShapeCalculator`
 
+Wrappers for shape calculators within the :mod:`rdkit` code.
+
 """
 
 import logging

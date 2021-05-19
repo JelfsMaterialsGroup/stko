@@ -2,7 +2,9 @@
 Network
 =======
 
-Class for defining a networkx graph from a molecule.
+#. :class:`.Network`
+
+Class for defining a :mod:`networkx` graph from a molecule.
 
 """
 
