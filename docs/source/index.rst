@@ -42,8 +42,8 @@ Documentation
    GULP <stko.optimizers.gulp>
    Collapser <stko.optimizers.collapser>
    MacroModel <stko.optimizers.macromodel>
-
-
+   
+   
 .. toctree::
    :hidden:
    :caption: Calculators
@@ -56,7 +56,7 @@ Documentation
    Torsion <stko.calculators.torsion_calculators>
 
 
- .. toctree::
+.. toctree::
    :hidden:
    :caption: Results
    :maxdepth: 2
