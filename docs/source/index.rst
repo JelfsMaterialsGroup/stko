@@ -56,7 +56,7 @@ Documentation
    Torsion <stko.calculators.torsion_calculators>
 
 
-   .. toctree::
+ .. toctree::
    :hidden:
    :caption: Results
    :maxdepth: 2
