@@ -1,4 +1,4 @@
 .. automodule:: stko.optimizers.gulp
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:

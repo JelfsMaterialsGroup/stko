@@ -1,4 +1,4 @@
 .. automodule:: stko.utilities.utilities
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:
