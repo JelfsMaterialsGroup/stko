@@ -2,17 +2,17 @@ stko package
 ============
 
 .. automodule:: stko
-   :members:
-   :undoc-members:
-   :show-inheritance:
+    :members:
+    :undoc-members:
+    :show-inheritance:
 
 Subpackages
 -----------
 
 .. toctree::
-   :maxdepth: 4
 
-   stko.calculators
-   stko.molecular
-   stko.optimizers
-   stko.utilities
+    stko.calculators
+    stko.molecular
+    stko.optimizers
+    stko.utilities
+
