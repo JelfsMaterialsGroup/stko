@@ -115,9 +115,9 @@ class ConstructedMoleculeTorsionCalculator(TorsionCalculator):
 
     """
     
-    def calculate(self, mol):
-        for torsion in super().calculate(mol):
-            pass
+    # def calculate(self, mol):
+    #     for torsion in super().calculate(mol):
+    #         pass
 
     def get_results(self, mol):
         """
