@@ -1079,7 +1079,8 @@ class GulpUFFMDOptimizer(GulpUFFOptimizer):
 
         for i, coord in enumerate(coords):
             xyz_string += (
-                f'{atom_types[i]} {coord[0]} {coord[1]} {coord[2]}\n'
+                f'{atom_types[i]} {round(coord[0], 5)} '
+                f'{round(coord[1], 5)} {round(coord[2], 5)}\n'
             )
         with open(filename, 'w') as f:
             f.write(xyz_string)
