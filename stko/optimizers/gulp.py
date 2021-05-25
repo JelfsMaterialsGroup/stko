@@ -1049,9 +1049,9 @@ class GulpUFFMDOptimizer(GulpUFFOptimizer):
             for i, coord in enumerate(ts_data['coords']):
                 site_E = ts_data['sites'][i][0]
                 xyz_string += (
-                    f'{atom_types[i]} {round(coord[0], 5)} '
-                    f'{round(coord[1], 5)} '
-                    f'{round(coord[2], 5)} {site_E}\n'
+                    f'{atom_types[i]} {round(float(coord[0]), 5)} '
+                    f'{round(float(coord[1]), 5)} '
+                    f'{round(float(coord[2]), 5)} {site_E}\n'
                 )
 
             xyz_traj_lines.append(xyz_string)
