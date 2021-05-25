@@ -115,9 +115,18 @@ class ConstructedMoleculeTorsionCalculator(TorsionCalculator):
 
     """
     
-    # def calculate(self, mol):
-    #     for torsion in super().calculate(mol):
-    #         pass
+    def calculate(self, mol):
+        test = super().calculate(mol)
+        for torsion in next(super().calculate(mol)):
+            atom_ids = list(torsion.get_atom_ids())
+            atom_infos = list(mol.get_atom_infos(atom_ids))
+            if atom_infos[1].get_building_block_id() != atom_infos[2].get_building_block_id():
+                continue
+            central_atoms = [atom_id for atom_id in list(torsion.get_atom_ids())[1:3]]
+            # build_block_id = mol.get_atom_infos(central_atoms[0])
+            # if all(atom_info.get_building_block_id() mol.get_atom_infos(central_atoms))
+            pass
+        
 
     def get_results(self, mol):
         """
