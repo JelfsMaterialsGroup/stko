@@ -625,10 +625,10 @@ class GulpUFFOptimizer(Optimizer):
         """
 
         FutureWarning(
-            'We have found some discrepancies in this assignment '
-            'algorithm, which is based off rdkit code. Changes should '
-            'come soon. This UFF optimisation should not be your '
-            'final step! Due to this, some tests in '
+            'We have found some minor discrepancies in this '
+            'assignment algorithm, which is based off rdkit code. '
+            'Changes should come soon. This UFF optimisation should '
+            ' not be your final step! Due to this, some tests in '
             'test_uff_assign_ff.py have been muted.'
         )
 
