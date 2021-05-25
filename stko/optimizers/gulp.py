@@ -464,7 +464,9 @@ class GulpUFFOptimizer(Optimizer):
 
     def _type_translator(self):
         type_translator = {}
-        types = set([self.atom_labels[i][0] for i in self.atom_labels])
+        types = sorted(
+            set([self.atom_labels[i][0] for i in self.atom_labels])
+        )
         for t in types:
             if not t[1].isalpha():
                 symb = t[0]
