@@ -1,6 +1,9 @@
 import stko
 from copy import deepcopy
-from .utilities import inequivalent_position_matrices, is_equivalent_molecule
+from .utilities import (
+    inequivalent_position_matrices,
+    is_equivalent_molecule,
+)
 
 
 def test_optimizer_sequence(

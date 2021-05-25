@@ -5,20 +5,13 @@ import stk
 
 
 def a_molecule():
-    atoms = [stk.Atom(0, 1), stk.Atom(1, 1)]
-    return stk.Molecule(
-        atoms=atoms,
-        bonds=[stk.Bond(atoms[0], atoms[1], 1)],
-        position_matrix=np.array(([0, 0, 0], [0, 1, 0])),
-    )
+    return stk.BuildingBlock(smiles='CC')
 
 
 class PassingOptimizer(stko.Optimizer):
 
     def optimize(self, mol):
-        return a_molecule().with_position_matrix(
-            np.array(([0, 0, 3], [0, 2, 0]))
-        )
+        return a_molecule().with_centroid(np.array(([1, 3, 3])))
 
 
 class FailingOptimizer(stko.Optimizer):
