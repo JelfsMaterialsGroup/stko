@@ -623,6 +623,15 @@ class GulpUFFOptimizer(Optimizer):
         None : :class:`NoneType`
 
         """
+
+        FutureWarning(
+            'We have found some discrepancies in this assignment '
+            'algorithm, which is based off rdkit code. Changes should '
+            'come soon. This UFF optimisation should not be your '
+            'final step! Due to this, some tests in '
+            'test_uff_assign_ff.py have been muted.'
+        )
+
         metal_atoms = get_metal_atoms(mol)
         metal_ids = [i.get_id() for i in metal_atoms]
 
