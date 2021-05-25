@@ -1,5 +1,6 @@
 import pytest
 import numpy as np
+import os
 from stko import GulpUFFOptimizer, GulpUFFMDOptimizer, get_metal_atoms
 from .conftest import a_molecule
 
@@ -67,11 +68,6 @@ def test_gulp_position_section(unoptimized_mol, position_section):
 def test_gulp_bond_section(unoptimized_mol, bond_section):
     opt = FakeGulpUFFOptimizer(
         gulp_path='',
-        maxcyc=1000,
-        metal_FF=None,
-        metal_ligand_bond_order=None,
-        conjugate_gradient=False,
-        output_dir='',
     )
     opt.assign_FF(unoptimized_mol)
     metal_atoms = get_metal_atoms(unoptimized_mol)
@@ -82,13 +78,103 @@ def test_gulp_bond_section(unoptimized_mol, bond_section):
 def test_gulp_species_section(unoptimized_mol, species_section):
     opt = FakeGulpUFFOptimizer(
         gulp_path='',
-        maxcyc=1000,
-        metal_FF=None,
-        metal_ligand_bond_order=None,
-        conjugate_gradient=False,
-        output_dir='',
     )
     opt.assign_FF(unoptimized_mol)
     type_translator = opt._type_translator()
     test = opt._species_section(type_translator)
     assert species_section == test
+
+
+@pytest.fixture
+def atom_types():
+    return ['C', 'C', 'H', 'H', 'H', 'H', 'H', 'H']
+
+
+@pytest.fixture
+def trajectory():
+    """
+    Defines output of the trajectory properties ignoring coords.
+
+    """
+
+    return {
+        0: {
+            'time': 2.99999999999978,
+            'KE': 0.148961461675797,
+            'E': 0.322914341829668,
+            'T': 192.069356724061,
+        },
+        1: {
+            'time': 5.0,
+            'KE': 0.207467138253947,
+            'E': 0.245970616427967,
+            'T': 267.505966560289,
+        },
+        2: {
+            'time': 7.00000000000067,
+            'KE': 0.267980085285543,
+            'E': 0.207888721719671,
+            'T': 345.530730006366,
+        },
+        3: {
+            'time': 9.00000000000045,
+            'KE': 0.203650341841703,
+            'E': 0.203495426725446,
+            'T': 262.584629031782,
+        },
+        4: {
+            'time': 10.9999999999993,
+            'KE': 0.209627546107803,
+            'E': 0.246948965763409,
+            'T': 270.291573938759,
+        },
+    }
+
+
+@pytest.fixture
+def min_energy_time_step():
+    return 3
+
+
+def test_gulp_convert_traj_to_xyz(atom_types, trajectory):
+    test_dir = os.path.dirname(os.path.abspath(__file__))
+    test_xyz = f'{test_dir}/fixtures/gulp_MD_template.xyz'
+    test_traj = f'{test_dir}/fixtures/gulp_MD.trg'
+    opt = FakeGulpUFFMDOptimizer(
+        gulp_path='',
+    )
+    test_atom_types, test_trajectory_data, _ = (
+        opt._convert_traj_to_xyz(
+            output_xyz=test_xyz,
+            output_traj=test_traj,
+        )
+    )
+
+    for i, t in zip(atom_types, test_atom_types):
+        assert i == t
+
+    for ts in trajectory:
+        test_ts_dict = test_trajectory_data[ts]
+        ts_dict = trajectory[ts]
+        assert test_ts_dict['time'] == ts_dict['time']
+        assert test_ts_dict['KE'] == ts_dict['KE']
+        assert test_ts_dict['E'] == ts_dict['E']
+        assert test_ts_dict['T'] == ts_dict['T']
+
+
+def test_gulp_calculate_lowest_energy_conformer(min_energy_time_step):
+    test_dir = os.path.dirname(os.path.abspath(__file__))
+    test_xyz = f'{test_dir}/fixtures/gulp_MD_template.xyz'
+    test_traj = f'{test_dir}/fixtures/gulp_MD.trg'
+    opt = FakeGulpUFFMDOptimizer(
+        gulp_path='',
+    )
+    atom_types, trajectory_data, xyz_traj_lines = (
+        opt._convert_traj_to_xyz(
+            output_xyz=test_xyz,
+            output_traj=test_traj,
+        )
+    )
+    min_ts = opt._calculate_lowest_energy_conformer(trajectory_data)
+
+    assert min_ts == min_energy_time_step
