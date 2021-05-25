@@ -79,3 +79,10 @@ def is_equivalent_molecule(molecule1, molecule2):
     )
     for bond1, bond2 in bonds:
         is_equivalent_bond(bond1, bond2)
+
+
+def inequivalent_position_matrices(molecule1, molecule2):
+    pos1 = molecule1.get_position_matrix()
+    pos2 = molecule2.get_position_matrix()
+
+    assert not np.allclose(pos1, pos2)
