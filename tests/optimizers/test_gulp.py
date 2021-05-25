@@ -1,89 +1,94 @@
 import pytest
-import sys
-import os
-from os.path import join
-
-from stko import GulpUFFOptimizer, GulpUFFMDOptimizer
-from.utilities import compare_benzenes
+import numpy as np
+from stko import GulpUFFOptimizer, GulpUFFMDOptimizer, get_metal_atoms
+from .conftest import a_molecule
 
 
-odir = join(
-    os.path.dirname(os.path.abspath(__file__)),
-    'gulp_tests_output',
-)
-if not os.path.exists(odir):
-    os.mkdir(odir)
+class FakeGulpUFFOptimizer(GulpUFFOptimizer):
 
-gulp = pytest.mark.skipif(
-    all('gulp_path' not in x for x in sys.argv),
-    reason="Only run when explicitly asked."
-)
+    def optimize(self, mol):
+        return a_molecule().with_centroid(np.array(([1, 3, 3])))
 
 
-@gulp
-def test_optimizer1(gulp_path, benzene_build):
-    gulpuffoptimizer = GulpUFFOptimizer(
-        gulp_path=gulp_path,
+class FakeGulpUFFMDOptimizer(GulpUFFMDOptimizer):
+
+    def optimize(self, mol):
+        return a_molecule().with_centroid(np.array(([1, 3, 3])))
+
+
+@pytest.fixture
+def position_section():
+    return (
+        '\ncartesian\n'
+        'C1 core -0.74031 0.03171 0.10194\n'
+        'C1 core 0.75974 -0.01804 -0.03434\n'
+        'H1 core -1.14779 -0.63142 -0.70939\n'
+        'H1 core -1.11274 -0.39237 1.04655\n'
+        'H1 core -1.12625 1.0535 -0.10345\n'
+        'H1 core 0.97939 0.03507 -1.13219\n'
+        'H1 core 1.25573 0.87341 0.40438\n'
+        'H1 core 1.13222 -0.95187 0.4265\n'
+    )
+
+
+@pytest.fixture
+def bond_section():
+    return (
+        '\nconnect 1 2 \n'
+        'connect 1 3 \n'
+        'connect 1 4 \n'
+        'connect 1 5 \n'
+        'connect 2 6 \n'
+        'connect 2 7 \n'
+        'connect 2 8 \n'
+    )
+
+
+@pytest.fixture
+def species_section():
+    return '\nspecies\nC1 C_3\nH1 H_\n'
+
+
+def test_gulp_position_section(unoptimized_mol, position_section):
+    opt = FakeGulpUFFOptimizer(
+        gulp_path='',
         maxcyc=1000,
         metal_FF=None,
         metal_ligand_bond_order=None,
         conjugate_gradient=False,
-        periodic=False,
-        output_dir=join(odir, 'test_optimizer1'),
+        output_dir='',
     )
-    gulpuffoptimizer.assign_FF(benzene_build)
-    opt_benzene = gulpuffoptimizer.optimize(benzene_build)
-    compare_benzenes(
-        initial_molecule=benzene_build,
-        optimized_molecule=opt_benzene,
-    )
+    opt.assign_FF(unoptimized_mol)
+    type_translator = opt._type_translator()
+    test = opt._position_section(unoptimized_mol, type_translator)
+    assert position_section == test
 
 
-@gulp
-def test_optimizer2(gulp_path, benzene_build):
-    gulpuffmdoptimizer = GulpUFFMDOptimizer(
-        gulp_path=gulp_path,
+def test_gulp_bond_section(unoptimized_mol, bond_section):
+    opt = FakeGulpUFFOptimizer(
+        gulp_path='',
+        maxcyc=1000,
         metal_FF=None,
         metal_ligand_bond_order=None,
-        output_dir=join(odir, 'test_optimizer2'),
-        integrator='stochastic',
-        ensemble='nvt',
-        temperature=300,
-        equilbration=1.0,
-        production=5.0,
-        timestep=0.5,
-        N_conformers=4,
-        opt_conformers=True,
-        save_conformers=False,
+        conjugate_gradient=False,
+        output_dir='',
     )
-    gulpuffmdoptimizer.assign_FF(benzene_build)
-    opt_benzene = gulpuffmdoptimizer.optimize(benzene_build)
-    compare_benzenes(
-        initial_molecule=benzene_build,
-        optimized_molecule=opt_benzene,
-    )
+    opt.assign_FF(unoptimized_mol)
+    metal_atoms = get_metal_atoms(unoptimized_mol)
+    test = opt._bond_section(unoptimized_mol, metal_atoms)
+    assert bond_section == test
 
 
-@gulp
-def test_optimizer3(gulp_path, benzene_build):
-    gulpuffmdoptimizer = GulpUFFMDOptimizer(
-        gulp_path=gulp_path,
+def test_gulp_species_section(unoptimized_mol, species_section):
+    opt = FakeGulpUFFOptimizer(
+        gulp_path='',
+        maxcyc=1000,
         metal_FF=None,
         metal_ligand_bond_order=None,
-        output_dir=join(odir, 'test_optimizer3'),
-        integrator='stochastic',
-        ensemble='nvt',
-        temperature=150.0,
-        equilbration=1.0,
-        production=10.0,
-        timestep=0.5,
-        N_conformers=4,
-        opt_conformers=False,
-        save_conformers=False,
+        conjugate_gradient=False,
+        output_dir='',
     )
-    gulpuffmdoptimizer.assign_FF(benzene_build)
-    opt_benzene = gulpuffmdoptimizer.optimize(benzene_build)
-    compare_benzenes(
-        initial_molecule=benzene_build,
-        optimized_molecule=opt_benzene,
-    )
+    opt.assign_FF(unoptimized_mol)
+    type_translator = opt._type_translator()
+    test = opt._species_section(type_translator)
+    assert species_section == test
