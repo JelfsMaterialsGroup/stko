@@ -9,6 +9,7 @@ Methods to extract torsions from a molecule or constructed molecule.
 
 """
 
+from collections import defaultdict
 import logging
 
 from .calculators import Calculator
@@ -56,12 +57,12 @@ class TorsionCalculator(Calculator):
 
     def get_results(self, mol):
         """
-        Calculate the energy of `mol`.
+        Calculate the torsions of `mol`.
 
         Parameters
         ----------
         mol : :class:`.Molecule`
-            The :class:`.Molecule` whose energy is to be calculated.
+            The :class:`.Molecule` whose torsions are to be calculated.
 
         Returns
         -------
@@ -116,26 +117,54 @@ class ConstructedMoleculeTorsionCalculator(TorsionCalculator):
     """
     
     def calculate(self, mol):
-        test = super().calculate(mol)
-        for torsion in next(super().calculate(mol)):
+        def get_atom_maps():
+            """
+            map from building block atom ids to constructed molecule atoms for a
+            specified building block id
+            """
+            atom_maps = defaultdict(dict)
+            for atom_info in mol.get_atom_infos():
+                current_atom_map = atom_maps[atom_info.get_building_block_id()]
+                current_atom_map[atom_info.get_building_block_atom().get_id()] = atom_info.get_atom()
+            return atom_maps
+        
+        torsions = list(next(super().calculate(mol)))
+        atom_maps = get_atom_maps()
+        
+        for i, torsion in enumerate(torsions):
             atom_ids = list(torsion.get_atom_ids())
             atom_infos = list(mol.get_atom_infos(atom_ids))
+            build_block_ids = [atom_info.get_building_block_id() for atom_info in atom_infos]
+            
+            # check if two central atoms of torsion are from the same building block
+            if build_block_ids[1] is None:
+                continue
             if atom_infos[1].get_building_block_id() != atom_infos[2].get_building_block_id():
                 continue
-            central_atoms = [atom_id for atom_id in list(torsion.get_atom_ids())[1:3]]
-            # build_block_id = mol.get_atom_infos(central_atoms[0])
-            # if all(atom_info.get_building_block_id() mol.get_atom_infos(central_atoms))
-            pass
-        
+            
+            central_atom_ids = set(atom_ids[1:3])
+            build_block_torsions = TorsionCalculator().get_results(
+                    atom_infos[1].get_building_block()).get_torsions()
+            
+            # look for a torsion in the building block that has the same central atoms
+            for bb_torsion in build_block_torsions:
+                bb_central_atom_ids = set(list(bb_torsion.get_atom_ids())[1:3])
+                if bb_central_atom_ids == central_atom_ids:
+                    # set the constructed molecule torsion to match the building block torsion
+                    atoms = [atom_maps[build_block_ids[1]][atom_id]
+                             for atom_id in bb_torsion.get_atom_ids()]
+                    torsions[i] = Torsion(*atoms)
+            
+        yield tuple(torsions)
 
     def get_results(self, mol):
         """
-        Calculate the energy of `mol`.
+        Calculate the torsions of `mol`.
 
         Parameters
         ----------
         mol : :class:`.Molecule`
-            The :class:`.Molecule` whose energy is to be calculated.
+            The :class:`.Molecule` whose torsions are to be calculated.
 
         Returns
         -------

@@ -29,6 +29,7 @@ def test_constructed_molecule():
         
     bb1 = stk.BuildingBlock('NCCNCCN', [stk.PrimaryAminoFactory()])
     bb2 = stk.BuildingBlock('O=CCCC=O', [stk.AldehydeFactory()])
+    
     bb3 = stk.BuildingBlock('CCCC', [stk.SingleAtom(stk.C(1))])
     bb4 = stk.BuildingBlock('C', [stk.SingleAtom(stk.C(0))])
 
