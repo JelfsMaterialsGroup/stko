@@ -754,11 +754,10 @@ class XTBCREST(Optimizer):
             Name of CREST output file.
 
         output_xyzs : :class:`str`
-            Name of CREST conformer and rotamer output files.
+            Name of CREST conformer output files.
             crest_best.xyz > Best conformer, exists throughout run.
             crest_conformers.xyz > All conformers,
                 exists throughout run.
-            crest_rotamers.xyz > All rotamers, exists one run is done.
 
         Returns
         -------
@@ -878,7 +877,6 @@ class XTBCREST(Optimizer):
         output_xyzs = [
             'crest_best.xyz',
             'crest_conformers.xyz',
-            'crest_rotamers.xyz'
         ]
         opt_complete = self._is_complete(out_file, output_xyzs)
         mol = mol.with_structure_from_file(output_xyzs[0])
@@ -1393,11 +1391,10 @@ class XTBFFCREST(Optimizer):
             Name of CREST output file.
 
         output_xyzs : :class:`str`
-            Name of CREST conformer and rotamer output files.
+            Name of CREST conformer output files.
             crest_best.xyz > Best conformer, exists throughout run.
             crest_conformers.xyz > All conformers,
                 exists throughout run.
-            crest_rotamers.xyz > All rotamers, exists one run is done.
 
         Returns
         -------
@@ -1510,7 +1507,6 @@ class XTBFFCREST(Optimizer):
         output_xyzs = [
             'crest_best.xyz',
             'crest_conformers.xyz',
-            'crest_rotamers.xyz'
         ]
         opt_complete = self._is_complete(out_file, output_xyzs)
         mol = mol.with_structure_from_file(output_xyzs[0])
