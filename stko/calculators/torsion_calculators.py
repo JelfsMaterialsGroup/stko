@@ -117,6 +117,8 @@ class ConstructedMoleculeTorsionCalculator(TorsionCalculator):
     """
     
     def calculate(self, mol):
+        """extract torsions with rdkit, then match to building blocks
+        """
         def get_atom_maps():
             """
             map from building block atom ids to constructed molecule atoms for a
@@ -131,12 +133,17 @@ class ConstructedMoleculeTorsionCalculator(TorsionCalculator):
         torsions = list(next(super().calculate(mol)))
         atom_maps = get_atom_maps()
         
+        # loop over torsions, updating each to match a building block
+        # torsion if possible
         for i, torsion in enumerate(torsions):
+            # atom ids, atom infos, and building block ids of current
+            # torsion in constructed molecule
             atom_ids = list(torsion.get_atom_ids())
             atom_infos = list(mol.get_atom_infos(atom_ids))
             build_block_ids = [atom_info.get_building_block_id() for atom_info in atom_infos]
             
             # check if two central atoms of torsion are from the same building block
+            # if not, leave this torsion alone
             if build_block_ids[1] is None:
                 continue
             if atom_infos[1].get_building_block_id() != atom_infos[2].get_building_block_id():
@@ -154,6 +161,7 @@ class ConstructedMoleculeTorsionCalculator(TorsionCalculator):
                     atoms = [atom_maps[build_block_ids[1]][atom_id]
                              for atom_id in bb_torsion.get_atom_ids()]
                     torsions[i] = Torsion(*atoms)
+                    break
             
         yield tuple(torsions)
 
