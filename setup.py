@@ -2,7 +2,7 @@ import setuptools
 
 setuptools.setup(
     name="stko",
-    version="0.0.33",
+    version="0.0.34",
     author="Steven Bennett, Andrew Tarzia",
     author_email="s.bennett18@imperial.ac.uk",
     description=(
