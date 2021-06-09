@@ -1103,3 +1103,33 @@ def calculate_dihedral(pt1, pt2, pt3, pt4):
     x = np.dot(v, w)
     y = np.dot(np.cross(b1, v), w)
     return np.degrees(np.arctan2(y, x))
+
+
+def vector_angle(vector1, vector2):
+    """
+    Returns the angle between two vectors in radians.
+    Parameters
+    ----------
+    vector1 : :class:`numpy.ndarray`
+        The first vector.
+    vector2 : :class:`numpy.ndarray`
+        The second vector.
+    Returns
+    -------
+    :class:`float`
+        The angle between `vector1` and `vector2` in radians.
+    """
+
+    if np.all(np.equal(vector1, vector2)):
+        return 0.
+
+    numerator = np.dot(vector1, vector2)
+    denominator = np.linalg.norm(vector1) * np.linalg.norm(vector2)
+    # This if statement prevents returns of NaN due to floating point
+    # inaccuracy.
+    term = numerator/denominator
+    if term >= 1.:
+        return 0.0
+    if term <= -1.:
+        return np.pi
+    return np.arccos(term)
