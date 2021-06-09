@@ -303,19 +303,10 @@ class MetalOptimizer(Optimizer):
         Parameters
         ----------
         metal_binder_distance : :class:`float`
-            Distance in Angstrom [fillin]
+            Distance in Angstrom.
 
         metal_binder_forceconstant : :class:`float`
             Force constant to use for restricted metal-ligand bonds.
-            In XX.
-
-        binder_ligand_forceconstant : :class:`float`
-            Force constant to use for restricted metal-ligand bonds.
-            In XX. [Fill in]
-
-        relative_distance : :class:``
-            Set the relative distance to optimise the metal-ligand
-            bonds to.
 
         max_iterations : :class:`int`, optional
             Number of iteractions to run.
@@ -336,11 +327,11 @@ class MetalOptimizer(Optimizer):
 
         Parameters
         ----------
-        ff : :class:`rdkit.ForceField`
-            Forcefield to apply constraints to. Generally use UFF.
-
         mol : :class:`.Molecule`
             The molecule to be optimized.
+
+        ff : :class:`rdkit.ForceField`
+            Forcefield to apply constraints to. Generally use UFF.
 
         metal_bonds : :class:`.list` of :class:`stk.Bond`
             List of bonds including metal atoms.
