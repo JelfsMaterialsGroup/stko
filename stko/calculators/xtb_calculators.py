@@ -136,6 +136,7 @@ class XTBEnergy(Calculator):
         num_cores=1,
         calculate_free_energy=False,
         electronic_temperature=300,
+        solvent_model='gbsa',
         solvent=None,
         solvent_grid='normal',
         charge=0,
@@ -171,6 +172,13 @@ class XTBEnergy(Calculator):
         electronic_temperature : :class:`int`, optional
             Electronic temperature in Kelvin.
 
+        solvent_model : :class:`str`
+            Solvent model to use out of older `gbsa` and newer `alpb`.
+            `gbsa` is default for backwards compatability, but `alpb`
+            is recommended.
+            For details see
+            https://xtb-docs.readthedocs.io/en/latest/gbsa.html.
+
         solvent : :class:`str`, optional
             Solvent to use in GBSA implicit solvation method.
             For details see
@@ -197,6 +205,7 @@ class XTBEnergy(Calculator):
             clusters.
 
         """
+
         if solvent is not None:
             solvent = solvent.lower()
             if gfn_version == 0:
@@ -204,10 +213,14 @@ class XTBEnergy(Calculator):
                     'No solvent valid for version',
                     f' {gfn_version!r}.'
                 )
-            if not is_valid_xtb_solvent(gfn_version, solvent):
+            if not is_valid_xtb_solvent(
+                gfn_version=gfn_version,
+                solvent_model=solvent_model,
+                solvent=solvent,
+            ):
                 raise XTBInvalidSolventError(
-                    f'Solvent {solvent!r} is invalid for ',
-                    f'version {gfn_version!r}.'
+                    f'Solvent {solvent!r} and model {solvent_model!r}',
+                    f' is invalid for version {gfn_version!r}.'
                 )
 
         self._xtb_path = xtb_path
@@ -217,10 +230,17 @@ class XTBEnergy(Calculator):
         self._calculate_free_energy = calculate_free_energy
         self._electronic_temperature = str(electronic_temperature)
         self._solvent = solvent
+        self._solvent_model = solvent_model
         self._solvent_grid = solvent_grid
         self._charge = str(charge)
         self._num_unpaired_electrons = str(num_unpaired_electrons)
         self._unlimited_memory = unlimited_memory
+
+    def _write_detailed_control(self):
+        string = f'$gbsa\n   gbsagrid={self._solvent_grid}'
+
+        with open('det_control.in', 'w') as f:
+            f.write(string)
 
     def _run_xtb(self, xyz, out_file, init_dir, output_dir):
         """
@@ -254,9 +274,7 @@ class XTBEnergy(Calculator):
             memory = ''
 
         if self._solvent is not None:
-            solvent = (
-                f'--gbsa {self._solvent} bar1M {self._solvent_grid}'
-            )
+            solvent = f'--{self._solvent_model} {self._solvent} '
         else:
             solvent = ''
 
@@ -271,11 +289,12 @@ class XTBEnergy(Calculator):
             f'{calc_type} --parallel {self._num_cores} '
             f'--etemp {self._electronic_temperature} '
             f'{solvent} --chrg {self._charge} '
-            f'--uhf {self._num_unpaired_electrons}'
+            f'--uhf {self._num_unpaired_electrons} -I det_control.in'
         )
 
         try:
             os.chdir(output_dir)
+            self._write_detailed_control()
             with open(out_file, 'w') as f:
                 # Note that sp.call will hold the program until
                 # completion of the calculation.
