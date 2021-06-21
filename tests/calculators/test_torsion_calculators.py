@@ -5,7 +5,9 @@ from examples.torsion_example import get_torsion_info_angles
 
 
 def test_constructed_molecule():
-    """confirm torsions are appropriately mapped from constructed molecules to building blocks"""
+    """confirm torsions are appropriately mapped from constructed molecules to
+    building blocks
+    """
     
     def test_polymer(bb1: stk.BuildingBlock, bb2: stk.BuildingBlock):
         """attach bb1 to bb2 and test torsion mapping"""
