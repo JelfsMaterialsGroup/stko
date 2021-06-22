@@ -12,6 +12,7 @@ Methods to extract torsions from a molecule or constructed molecule.
 from collections import defaultdict
 import logging
 
+import stk
 from .calculators import Calculator
 from .results import TorsionResults, ConstructedMoleculeTorsionResults
 from rdkit.Chem import TorsionFingerprints
@@ -116,7 +117,35 @@ class ConstructedMoleculeTorsionCalculator(TorsionCalculator):
 
     """
     
-    def calculate(self, mol):
+    def get_results(self, mol):
+        """
+        Calculate the torsions of `mol`.
+
+        Parameters
+        ----------
+        mol : :class:`.Molecule`
+            The :class:`.Molecule` whose torsions are to be calculated.
+
+        Returns
+        -------
+        :class:`.TorsionResults`
+            The torsions of the molecule.
+
+        """
+
+        return ConstructedMoleculeTorsionResults(
+            generator=self.calculate(mol),
+            mol=mol,
+        )
+
+
+class MatchedTorsionCalculator(ConstructedMoleculeTorsionCalculator):
+    """
+    Matches rdkit generated torsions with building block torsions.
+    
+    
+    """
+    def calculate(self, mol: stk.ConstructedMolecule):
         """extract torsions with rdkit, then match to building blocks
         """
         def get_atom_maps():
@@ -169,24 +198,3 @@ class ConstructedMoleculeTorsionCalculator(TorsionCalculator):
                     break
             
         yield tuple(torsions)
-
-    def get_results(self, mol):
-        """
-        Calculate the torsions of `mol`.
-
-        Parameters
-        ----------
-        mol : :class:`.Molecule`
-            The :class:`.Molecule` whose torsions are to be calculated.
-
-        Returns
-        -------
-        :class:`.TorsionResults`
-            The torsions of the molecule.
-
-        """
-
-        return ConstructedMoleculeTorsionResults(
-            generator=self.calculate(mol),
-            mol=mol,
-        )
