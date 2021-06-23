@@ -116,7 +116,7 @@ class ConstructedMoleculeTorsionCalculator(TorsionCalculator):
             )
 
     """
-    
+
     def get_results(self, mol):
         """
         Calculate the torsions of `mol`.
@@ -140,14 +140,19 @@ class ConstructedMoleculeTorsionCalculator(TorsionCalculator):
 
 
 class MatchedTorsionCalculator(ConstructedMoleculeTorsionCalculator):
-    """
-    Matches rdkit generated torsions with building block torsions.
-    
-    
-    """
+    """Matches rdkit generated torsions with building block torsions."""
+
     def calculate(self, mol: stk.ConstructedMolecule):
         """extract torsions with rdkit, then match to building blocks
+
+        Parameters
+        ----------
+        mol : :class:`.ConstructedMolecule`
+            The :class:`.ConstructedMolecule` whose torsions are to be
+            calculated.
+
         """
+
         def get_atom_maps():
             """
             map from building block atom ids to constructed molecule atoms for
@@ -159,10 +164,10 @@ class MatchedTorsionCalculator(ConstructedMoleculeTorsionCalculator):
                 bb_atom_id = atom_info.get_building_block_atom().get_id()
                 current_atom_map[bb_atom_id] = atom_info.get_atom()
             return atom_maps
-        
+
         torsions = list(next(super().calculate(mol)))
         atom_maps = get_atom_maps()
-        
+
         # loop over torsions, updating each to match a building block
         # torsion if possible
         for i, torsion in enumerate(torsions):
@@ -172,7 +177,7 @@ class MatchedTorsionCalculator(ConstructedMoleculeTorsionCalculator):
             atom_infos = list(mol.get_atom_infos(atom_ids))
             build_block_ids = [atom_info.get_building_block_id()
                                for atom_info in atom_infos]
-            
+
             # check if two central atoms of torsion are from the same building
             # block. if not, leave this torsion alone
             if build_block_ids[1] is None:
@@ -180,11 +185,11 @@ class MatchedTorsionCalculator(ConstructedMoleculeTorsionCalculator):
             if (atom_infos[1].get_building_block_id()
                     != atom_infos[2].get_building_block_id()):
                 continue
-            
+
             central_atom_ids = set(atom_ids[1:3])
             build_block_torsions = TorsionCalculator().get_results(
                     atom_infos[1].get_building_block()).get_torsions()
-            
+
             # look for a torsion in the building block that has the same
             # central atoms
             for bb_torsion in build_block_torsions:
@@ -196,5 +201,5 @@ class MatchedTorsionCalculator(ConstructedMoleculeTorsionCalculator):
                              for atom_id in bb_torsion.get_atom_ids()]
                     torsions[i] = Torsion(*atoms)
                     break
-            
+
         yield tuple(torsions)

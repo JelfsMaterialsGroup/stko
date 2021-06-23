@@ -1127,3 +1127,62 @@ def calculate_dihedral(pt1, pt2, pt3, pt4):
     x = np.dot(v, w)
     y = np.dot(np.cross(b1, v), w)
     return np.degrees(np.arctan2(y, x))
+
+
+def get_torsion_info_angles(mol, torsion_info):
+    """gets the angles for torsion_info
+
+    First angle returned is the torsion angle in the constructed molecule
+    Second angle returned is the torsion angle in the building block
+    Both angles are in degrees
+    """
+    torsion = torsion_info.get_torsion()
+    angle = calculate_dihedral(
+        pt1=tuple(
+            mol.get_atomic_positions(
+                torsion.get_atom_ids()[0]
+            )
+        )[0],
+        pt2=tuple(
+            mol.get_atomic_positions(
+                torsion.get_atom_ids()[1]
+            )
+        )[0],
+        pt3=tuple(
+            mol.get_atomic_positions(
+                torsion.get_atom_ids()[2]
+            )
+        )[0],
+        pt4=tuple(
+            mol.get_atomic_positions(
+                torsion.get_atom_ids()[3]
+            )
+        )[0],
+    )
+    bb_torsion = torsion_info.get_building_block_torsion()
+    if bb_torsion is None:
+        bb_angle = None
+    else:
+        bb_angle = calculate_dihedral(
+            pt1=tuple(
+                torsion_info.get_building_block().get_atomic_positions(
+                    bb_torsion.get_atom_ids()[0]
+                )
+            )[0],
+            pt2=tuple(
+                torsion_info.get_building_block().get_atomic_positions(
+                    bb_torsion.get_atom_ids()[1]
+                )
+            )[0],
+            pt3=tuple(
+                torsion_info.get_building_block().get_atomic_positions(
+                    bb_torsion.get_atom_ids()[2]
+                )
+            )[0],
+            pt4=tuple(
+                torsion_info.get_building_block().get_atomic_positions(
+                    bb_torsion.get_atom_ids()[3]
+                )
+            )[0],
+        )
+    return angle, bb_angle
