@@ -19,7 +19,6 @@ from glob import iglob
 from itertools import chain
 from scipy.spatial.distance import euclidean
 import stk
-import stko
 
 
 # This dictionary gives easy access to the rdkit bond types.
@@ -1132,8 +1131,8 @@ def calculate_dihedral(pt1, pt2, pt3, pt4):
 
 
 def get_torsion_info_angles(mol: stk.ConstructedMolecule,
-                            torsion_info: stko.TorsionInfo):
-    """gets the angles for torsion_info
+                            torsion_info):
+    """gets the angles for torsion_info in mol
 
     First angle returned is torsion angle in the ConstructedMolecule
     Second angle returned is torsion angle in the BuildingBlock
