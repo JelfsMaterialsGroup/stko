@@ -4,8 +4,8 @@ import stk
 
 
 def test_constructed_molecule():
-    """confirm torsions are appropriately mapped from constructed molecules to
-    building blocks
+    """confirm torsions are appropriately mapped from constructed
+    molecules to building blocks
     """
 
     def test_polymer(bb1: stk.BuildingBlock, bb2: stk.BuildingBlock):
@@ -30,9 +30,9 @@ def test_constructed_molecule():
     bb2 = stk.BuildingBlock('O=CCCC=O', [stk.AldehydeFactory()])
     test_polymer(bb1, bb2)
 
-    # test case designed such that default rdkit torsion for constructed
-    # molecule spans over both building blocks, requiring stko to
-    # correctly clean this up
+    # test case designed such that default rdkit torsion for
+    # constructed molecule spans over both building blocks, requiring
+    # stko to correctly clean this up
     bb3 = stk.BuildingBlock('CCCC', [stk.SingleAtom(stk.C(1))])
     bb4 = stk.BuildingBlock('C', [stk.SingleAtom(stk.C(0))])
     test_polymer(bb3, bb4)

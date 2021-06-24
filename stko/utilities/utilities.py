@@ -14,10 +14,12 @@ import os
 import subprocess as sp
 import gzip
 import re
-from collections import deque
+from collections import deque, defaultdict
 from glob import iglob
 from itertools import chain
 from scipy.spatial.distance import euclidean
+import stk
+import stko
 
 
 # This dictionary gives easy access to the rdkit bond types.
@@ -1129,11 +1131,12 @@ def calculate_dihedral(pt1, pt2, pt3, pt4):
     return np.degrees(np.arctan2(y, x))
 
 
-def get_torsion_info_angles(mol, torsion_info):
+def get_torsion_info_angles(mol: stk.ConstructedMolecule,
+                            torsion_info: stko.TorsionInfo):
     """gets the angles for torsion_info
 
-    First angle returned is the torsion angle in the constructed molecule
-    Second angle returned is the torsion angle in the building block
+    First angle returned is torsion angle in the ConstructedMolecule
+    Second angle returned is torsion angle in the BuildingBlock
     Both angles are in degrees
     """
     torsion = torsion_info.get_torsion()
@@ -1186,3 +1189,16 @@ def get_torsion_info_angles(mol, torsion_info):
             )[0],
         )
     return angle, bb_angle
+
+
+def get_atom_maps(mol: stk.ConstructedMolecule):
+    """
+    map from building block atom ids to constructed molecule atoms for
+    a specified building block id
+    """
+    atom_maps = defaultdict(dict)
+    for atom_info in mol.get_atom_infos():
+        current_atom_map = atom_maps[atom_info.get_building_block_id()]
+        bb_atom_id = atom_info.get_building_block_atom().get_id()
+        current_atom_map[bb_atom_id] = atom_info.get_atom()
+    return atom_maps
