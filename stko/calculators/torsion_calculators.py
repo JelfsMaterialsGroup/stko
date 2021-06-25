@@ -146,6 +146,13 @@ class MatchedTorsionCalculator(ConstructedMoleculeTorsionCalculator):
     def calculate(self, mol: stk.ConstructedMolecule):
         """extract torsions with rdkit, then match to building blocks
 
+        This method loops through each rdkit generated torsion. For
+        each torsion, it checks if the two interior atoms of the
+        torsion come from the two interior (central) atoms of some
+        torsion in a building block. If so, it replaces the end atoms
+        of the torsion with the atoms corresponding to the end atoms
+        of the underlying building block torsion.
+
         Parameters
         ----------
         mol : :class:`.ConstructedMolecule`

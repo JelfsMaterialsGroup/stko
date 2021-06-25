@@ -3,7 +3,7 @@ import stko
 import stk
 
 
-def test_constructed_molecule():
+def test_torsion_matching():
     """confirm torsions are appropriately mapped from constructed
     molecules to building blocks
     """

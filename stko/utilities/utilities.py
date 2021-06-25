@@ -1134,9 +1134,14 @@ def get_torsion_info_angles(mol: stk.ConstructedMolecule,
                             torsion_info):
     """gets the angles for torsion_info in mol
 
-    First angle returned is torsion angle in the ConstructedMolecule
-    Second angle returned is torsion angle in the BuildingBlock
+    First angle returned is torsion angle in the
+    :class:`stk.ConstructedMolecule`
+    Second angle returned is torsion angle in the
+    :class:`stk.BuildingBlock`
     Both angles are in degrees
+
+    A :class:`stko.MatchedTorsionCalculator` should yield torsions
+    such that the two angles returned are the same.
     """
     torsion = torsion_info.get_torsion()
     angle = calculate_dihedral(
@@ -1192,8 +1197,8 @@ def get_torsion_info_angles(mol: stk.ConstructedMolecule,
 
 def get_atom_maps(mol: stk.ConstructedMolecule):
     """
-    map from building block atom ids to constructed molecule atoms for
-    a specified building block id
+    map from building block atom ids to constructed molecule atoms
+    indexed by each building block id
     """
     atom_maps = defaultdict(dict)
     for atom_info in mol.get_atom_infos():
