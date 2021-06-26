@@ -182,21 +182,25 @@ class MatchedTorsionCalculator(ConstructedMoleculeTorsionCalculator):
                     != atom_infos[2].get_building_block_id()):
                 continue
 
-            central_atom_ids = set(atom_ids[1:3])
             build_block_torsions = TorsionCalculator().get_results(
                     atom_infos[1].get_building_block()).get_torsions()
+            atom_map = atom_maps[build_block_ids[1]]
 
             # look for a torsion in the building block that has the
             # same central atoms
             for bb_torsion in build_block_torsions:
-                bb_central_atom_ids = set(
-                    list(bb_torsion.get_atom_ids())[1:3])
-                if bb_central_atom_ids == central_atom_ids:
+                try:
+                    matched_atoms = [
+                        atom_map[atom_id]
+                        for atom_id in bb_torsion.get_atom_ids()]
+                except KeyError as exc:
+                    continue
+                matched_atom_ids = [atom.get_id()
+                                    for atom in matched_atoms]
+                if set(matched_atom_ids[1:3]) == set(atom_ids[1:3]):
                     # set the constructed molecule torsion to match the
                     # building block torsion
-                    atoms = [atom_maps[build_block_ids[1]][atom_id]
-                             for atom_id in bb_torsion.get_atom_ids()]
-                    torsions[i] = Torsion(*atoms)
+                    torsions[i] = Torsion(*matched_atoms)
                     break
 
         yield tuple(torsions)
