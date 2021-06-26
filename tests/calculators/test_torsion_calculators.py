@@ -36,3 +36,12 @@ def test_torsion_matching():
     bb3 = stk.BuildingBlock('CCCC', [stk.SingleAtom(stk.C(1))])
     bb4 = stk.BuildingBlock('C', [stk.SingleAtom(stk.C(0))])
     test_polymer(bb3, bb4)
+
+    # test case for an exterior atom of a building block torsion being
+    # deleted in construction
+    functional_group = stk.GenericFunctionalGroup(
+        atoms=(stk.C(0), stk.C(1)),
+        bonders=(stk.C(1),), deleters=(stk.C(0),))
+    bb5 = stk.BuildingBlock('CCCC', [functional_group])
+    bb6 = stk.BuildingBlock('C', [stk.SingleAtom(stk.C(0))])
+    test_polymer(bb5, bb6)
