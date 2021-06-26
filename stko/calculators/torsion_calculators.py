@@ -193,7 +193,7 @@ class MatchedTorsionCalculator(ConstructedMoleculeTorsionCalculator):
                     matched_atoms = [
                         atom_map[atom_id]
                         for atom_id in bb_torsion.get_atom_ids()]
-                except KeyError as exc:
+                except KeyError:
                     continue
                 matched_atom_ids = [atom.get_id()
                                     for atom in matched_atoms]
