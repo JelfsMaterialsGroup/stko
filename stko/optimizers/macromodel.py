@@ -549,8 +549,10 @@ class MacroModelForceField(MacroModel):
 
     Optimisation of `long bonds` only within
     :class:`stk.ConstructedMolecule` is possible with
-    `restricted=True`. This fixes all other bonds. Therefore, if the
-    molecule is not a `ConstructedMolecule`, no positions will be
+    `restricted=True`.
+    Generally, this means bonds created during the construction process
+    will be fixed.
+    If the molecule is not a `ConstructedMolecule`, no positions will be
     optimized.
 
     .. code-block:: python
