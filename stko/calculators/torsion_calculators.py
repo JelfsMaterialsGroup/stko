@@ -194,6 +194,10 @@ class MatchedTorsionCalculator(ConstructedMoleculeTorsionCalculator):
                         atom_map[atom_id]
                         for atom_id in bb_torsion.get_atom_ids()]
                 except KeyError:
+                    # the atoms of the building block torsion do not
+                    # all have corresponding atoms in the constructed
+                    # molecule (e.g. atom was deleted in construction)
+                    # so skip to next building block torsion
                     continue
                 matched_atom_ids = [atom.get_id()
                                     for atom in matched_atoms]
