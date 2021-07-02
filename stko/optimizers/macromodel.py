@@ -606,7 +606,7 @@ class MacroModelForceField(MacroModel):
 
         restricted : :class:`bool`, optional
             If ``True`` then an optimization is performed only on bonds
-            created during the `.ConstructedMolecule`
+            created during the `ConstructedMolecule`
             creation.
             All building block bonds will be fixed.
             If ``False`` then all bonds are optimized.
