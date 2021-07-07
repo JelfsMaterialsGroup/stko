@@ -25,6 +25,10 @@ class TorsionCalculator(Calculator):
     """
     Uses rdkit to extract all torsions in a molecule.
 
+    Note that the rdkit [1]_ function we use only outputs
+    one torsion for each rotatable bond. We use the
+    `TorsionFingerprints.CalculateTorsionLists` method.
+
     Examples
     --------
 
@@ -43,6 +47,11 @@ class TorsionCalculator(Calculator):
         tc_results = tc.get_results(mol1)
         for t, ang in tc_results.get_torsion_angles():
             print(t, ang, t.get_atom_ids())
+
+    References
+    ----------
+    .. [1] http://rdkit.org/docs/source/
+    rdkit.Chem.TorsionFingerprints.html
 
     """
 
@@ -79,6 +88,10 @@ class ConstructedMoleculeTorsionCalculator(TorsionCalculator):
     """
     Uses rdkit to extract all torsions in a molecule.
 
+    Note that the rdkit [1]_ function we use only outputs
+    one torsion for each rotatable bond. We use the
+    `TorsionFingerprints.CalculateTorsionLists` method.
+
     Examples
     --------
 
@@ -114,6 +127,11 @@ class ConstructedMoleculeTorsionCalculator(TorsionCalculator):
                 t.get_building_block_id(),
                 t.get_building_block_torsion(),
             )
+
+    References
+    ----------
+    .. [1] http://rdkit.org/docs/source/
+    rdkit.Chem.TorsionFingerprints.html
 
     """
 
