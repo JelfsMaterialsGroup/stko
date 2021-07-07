@@ -23,8 +23,8 @@ class TorsionCalculator(Calculator):
     """
     Uses rdkit to extract all torsions in a molecule.
 
-    Note that the rdkit [1]_ function we use only outputs 
-    one torsion for each rotatable bond. We use the 
+    Note that the rdkit [1]_ function we use only outputs
+    one torsion for each rotatable bond. We use the
     `TorsionFingerprints.CalculateTorsionLists` method.
 
     Examples
@@ -86,8 +86,8 @@ class ConstructedMoleculeTorsionCalculator(TorsionCalculator):
     """
     Uses rdkit to extract all torsions in a molecule.
 
-    Note that the rdkit [1]_ function we use only outputs 
-    one torsion for each rotatable bond. We use the 
+    Note that the rdkit [1]_ function we use only outputs
+    one torsion for each rotatable bond. We use the
     `TorsionFingerprints.CalculateTorsionLists` method.
 
     Examples
