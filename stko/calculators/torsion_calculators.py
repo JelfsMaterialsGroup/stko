@@ -48,7 +48,8 @@ class TorsionCalculator(Calculator):
 
     References
     ----------
-    .. [1] http://rdkit.org/docs/source/rdkit.Chem.TorsionFingerprints.html
+    .. [1] http://rdkit.org/docs/source/
+    rdkit.Chem.TorsionFingerprints.html
 
     """
 
@@ -127,7 +128,8 @@ class ConstructedMoleculeTorsionCalculator(TorsionCalculator):
 
     References
     ----------
-    .. [1] http://rdkit.org/docs/source/rdkit.Chem.TorsionFingerprints.html
+    .. [1] http://rdkit.org/docs/source/
+    rdkit.Chem.TorsionFingerprints.html
 
     """
 
