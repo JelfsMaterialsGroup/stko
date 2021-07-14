@@ -1,0 +1,58 @@
+import stk
+import stko
+
+import os
+import shutil
+
+
+def main():
+    bb1 = stk.BuildingBlock('NCCN', [stk.PrimaryAminoFactory()])
+    bb2 = stk.BuildingBlock('O=CC=O', [stk.AldehydeFactory()])
+    polymer = stk.ConstructedMolecule(
+        stk.polymer.Linear(
+            building_blocks=(bb1, bb2),
+            repeating_unit="AB",
+            orientations=(0, 0),
+            num_repeating_units=1
+        )
+    )
+
+    examples_output = 'orca_output_directory'
+    if os.path.exists(examples_output):
+        shutil.rmtree(examples_output)
+    os.mkdir(examples_output)
+
+    # Run optimisations.
+    etkdg = stko.ETKDG()
+    polymer = etkdg.optimize(polymer)
+
+    orca_ey_1 = stko.OrcaEnergy(
+        orca_path='/home/atarzia/software/orca/orca',
+        topline='! SP B97-3c',
+        basename='example1',
+        output_dir=f'{examples_output}/orca_e1_dir',
+    )
+    print(orca_ey_1.get_energy(polymer))
+
+    uff = stko.UFF()
+    polymer = uff.optimize(polymer)
+    orca_ey_2 = stko.OrcaEnergy(
+        orca_path='/home/atarzia/software/orca/orca',
+        topline='! SP B97-3c',
+        basename='example2',
+        output_dir=f'{examples_output}/orca_e2_dir',
+    )
+    print(orca_ey_2.get_energy(polymer))
+
+    orca_ey_3 = stko.OrcaEnergy(
+        orca_path='/home/atarzia/software/orca/orca',
+        topline='! SP B97-3c',
+        basename='example3',
+        output_dir=f'{examples_output}/orca_e3_dir',
+        write_input_only=True,
+    )
+    orca_ey_3.get_results(polymer)
+
+
+if __name__ == "__main__":
+    main()

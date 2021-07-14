@@ -1,0 +1,12 @@
+! SP B97-3c
+
+%base "example2"
+%pal
+   nprocs 1
+end
+
+%scf
+   MaxIter 2000
+end
+
+* xyzfile 0 1 /home/atarzia/software/stk_optimizers/examples/orca_output_directory/orca_e2_dir/input_structure.xyz
