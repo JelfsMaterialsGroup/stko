@@ -12,7 +12,7 @@ def main():
         stk.polymer.Linear(
             building_blocks=(bb1, bb2),
             repeating_unit="AB",
-            orientations=[0, 0],
+            orientations=(0, 0),
             num_repeating_units=1
         )
     )
