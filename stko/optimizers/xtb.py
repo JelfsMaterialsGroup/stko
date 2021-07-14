@@ -182,6 +182,7 @@ class XTB(Optimizer):
         calculate_hessian=True,
         num_cores=1,
         electronic_temperature=300,
+        solvent_model='gbsa',
         solvent=None,
         solvent_grid='normal',
         charge=0,
@@ -232,6 +233,13 @@ class XTB(Optimizer):
         electronic_temperature : :class:`int`, optional
             Electronic temperature in Kelvin.
 
+        solvent_model : :class:`str`
+            Solvent model to use out of older `gbsa` and newer `alpb`.
+            `gbsa` is default for backwards compatability, but `alpb`
+            is recommended.
+            For details see
+            https://xtb-docs.readthedocs.io/en/latest/gbsa.html.
+
         solvent : :class:`str`, optional
             Solvent to use in GBSA implicit solvation method.
             For details see
@@ -266,10 +274,14 @@ class XTB(Optimizer):
                     'No solvent valid for version',
                     f' {gfn_version!r}.'
                 )
-            if not is_valid_xtb_solvent(gfn_version, solvent):
+            if not is_valid_xtb_solvent(
+                gfn_version=gfn_version,
+                solvent_model=solvent_model,
+                solvent=solvent,
+            ):
                 raise XTBInvalidSolventError(
-                    f'Solvent {solvent!r} is invalid for ',
-                    f'version {gfn_version!r}.'
+                    f'Solvent {solvent!r} and model {solvent_model!r}',
+                    f' is invalid for version {gfn_version!r}.'
                 )
 
         if not calculate_hessian and max_runs != 1:
@@ -290,6 +302,7 @@ class XTB(Optimizer):
         self._num_cores = str(num_cores)
         self._electronic_temperature = str(electronic_temperature)
         self._solvent = solvent
+        self._solvent_model = solvent_model
         self._solvent_grid = solvent_grid
         self._charge = str(charge)
         self._num_unpaired_electrons = str(num_unpaired_electrons)
@@ -391,9 +404,7 @@ class XTB(Optimizer):
             optimization = f'--opt {self._opt_level}'
 
         if self._solvent is not None:
-            solvent = (
-                f'--gbsa {self._solvent} bar1M {self._solvent_grid}'
-            )
+            solvent = f'--{self._solvent_model} {self._solvent} '
         else:
             solvent = ''
 
@@ -403,7 +414,7 @@ class XTB(Optimizer):
             f'{optimization} --parallel {self._num_cores} '
             f'--etemp {self._electronic_temperature} '
             f'{solvent} --chrg {self._charge} '
-            f'--uhf {self._num_unpaired_electrons}'
+            f'--uhf {self._num_unpaired_electrons} -I det_control.in'
         )
 
         with open(out_file, 'w') as f:
@@ -417,6 +428,12 @@ class XTB(Optimizer):
                 # Shell is required to run complex arguments.
                 shell=True
             )
+
+    def _write_detailed_control(self):
+        string = f'$gbsa\n   gbsagrid={self._solvent_grid}'
+
+        with open('det_control.in', 'w') as f:
+            f.write(string)
 
     def _run_optimizations(self, mol):
         """
@@ -442,6 +459,7 @@ class XTB(Optimizer):
             xyz = f'input_structure_{run+1}.xyz'
             out_file = f'optimization_{run+1}.output'
             mol.write(xyz)
+            self._write_detailed_control()
             self._run_xtb(xyz=xyz, out_file=out_file)
             # Check if the optimization is complete.
             coord_file = 'xtbhess.coord'
@@ -617,6 +635,7 @@ class XTBCREST(Optimizer):
         cross=True,
         charge=0,
         electronic_temperature=300,
+        solvent_model='gbsa',
         solvent=None,
         num_unpaired_electrons=0,
         unlimited_memory=False,
@@ -688,6 +707,13 @@ class XTBCREST(Optimizer):
         electronic_temperature : :class:`int`, optional
             Electronic temperature in Kelvin.
 
+        solvent_model : :class:`str`
+            Solvent model to use out of older `gbsa` and newer `alpb`.
+            `gbsa` is default for backwards compatability, but `alpb`
+            is recommended.
+            For details see
+            https://xtb-docs.readthedocs.io/en/latest/gbsa.html.
+
         solvent : :class:`str`, optional
             Solvent to use in GBSA implicit solvation method.
             For details see
@@ -714,10 +740,14 @@ class XTBCREST(Optimizer):
                     'No solvent valid for version',
                     f' {gfn_version!r}.'
                 )
-            if not is_valid_xtb_solvent(gfn_version, solvent):
+            if not is_valid_xtb_solvent(
+                gfn_version=gfn_version,
+                solvent_model=solvent_model,
+                solvent=solvent,
+            ):
                 raise XTBInvalidSolventError(
-                    f'Solvent {solvent!r} is invalid for ',
-                    f'version {gfn_version!r}.'
+                    f'Solvent {solvent!r} and model {solvent_model!r}',
+                    f' is invalid for version {gfn_version!r}.'
                 )
 
         self._crest_path = crest_path
@@ -738,6 +768,7 @@ class XTBCREST(Optimizer):
         self._keepdir = keepdir
         self._num_cores = str(num_cores)
         self._electronic_temperature = str(electronic_temperature)
+        self._solvent_model = solvent_model
         self._solvent = solvent
         self._charge = str(charge)
         self._num_unpaired_electrons = str(num_unpaired_electrons)
@@ -754,11 +785,10 @@ class XTBCREST(Optimizer):
             Name of CREST output file.
 
         output_xyzs : :class:`str`
-            Name of CREST conformer and rotamer output files.
+            Name of CREST conformer output files.
             crest_best.xyz > Best conformer, exists throughout run.
             crest_conformers.xyz > All conformers,
                 exists throughout run.
-            crest_rotamers.xyz > All rotamers, exists one run is done.
 
         Returns
         -------
@@ -810,7 +840,7 @@ class XTBCREST(Optimizer):
             memory = ''
 
         if self._solvent is not None:
-            solvent = f'-g {self._solvent}'
+            solvent = f'--{self._solvent_model} {self._solvent}'
         else:
             solvent = ''
 
@@ -878,7 +908,6 @@ class XTBCREST(Optimizer):
         output_xyzs = [
             'crest_best.xyz',
             'crest_conformers.xyz',
-            'crest_rotamers.xyz'
         ]
         opt_complete = self._is_complete(out_file, output_xyzs)
         mol = mol.with_structure_from_file(output_xyzs[0])
@@ -1393,11 +1422,10 @@ class XTBFFCREST(Optimizer):
             Name of CREST output file.
 
         output_xyzs : :class:`str`
-            Name of CREST conformer and rotamer output files.
+            Name of CREST conformer output files.
             crest_best.xyz > Best conformer, exists throughout run.
             crest_conformers.xyz > All conformers,
                 exists throughout run.
-            crest_rotamers.xyz > All rotamers, exists one run is done.
 
         Returns
         -------
@@ -1510,7 +1538,6 @@ class XTBFFCREST(Optimizer):
         output_xyzs = [
             'crest_best.xyz',
             'crest_conformers.xyz',
-            'crest_rotamers.xyz'
         ]
         opt_complete = self._is_complete(out_file, output_xyzs)
         mol = mol.with_structure_from_file(output_xyzs[0])

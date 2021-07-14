@@ -3,6 +3,8 @@
 
 Contains molecular optimizers and property calculators for use with stk, https://github.com/lukasturcani/stk.
 
+.. figure:: docs/source/figures/stko.png
+
 .. image:: https://readthedocs.org/projects/stko-docs/badge/?version=latest
     :target: https://stko-docs.readthedocs.io/en/latest/?badge=latest
     :alt: Documentation Status

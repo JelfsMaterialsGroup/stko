@@ -391,7 +391,7 @@ class XTBInvalidSolventError(Exception):
     ...
 
 
-def is_valid_xtb_solvent(gfn_version, solvent):
+def is_valid_xtb_solvent(gfn_version, solvent_model, solvent):
     """
     Check if solvent is valid for the given GFN version.
 
@@ -399,6 +399,9 @@ def is_valid_xtb_solvent(gfn_version, solvent):
     ----------
     gfn_version : :class:`int`
         GFN parameterization version. Can be: ``0``, ``1`` or ``2``.
+
+    solvent_model : class:`str`
+        Solvent model being used [1]_.
 
     solvent : :class:`str`
         Solvent being tested [1]_.
@@ -413,24 +416,45 @@ def is_valid_xtb_solvent(gfn_version, solvent):
     .. [1] https://xtb-docs.readthedocs.io/en/latest/gbsa.html
 
     """
+
     if gfn_version == 0:
         return False
-    elif gfn_version == 1:
+    elif gfn_version == 1 and solvent_model == 'gbsa':
         valid_solvents = {
             'acetone', 'acetonitrile', 'benzene',
             'CH2Cl2'.lower(), 'CHCl3'.lower(), 'CS2'.lower(),
             'DMSO'.lower(), 'ether', 'H2O'.lower(),
-            'methanol', 'THF'.lower(), 'toluene'
+            'methanol', 'THF'.lower(), 'toluene', 'water',
         }
-        return solvent in valid_solvents
-    elif gfn_version == 2:
+    elif gfn_version == 1 and solvent_model == 'alpb':
         valid_solvents = {
-            'acetone', 'acetonitrile', 'CH2Cl2'.lower(),
-            'CHCl3'.lower(), 'CS2'.lower(), 'DMF'.lower(),
-            'DMSO'.lower(), 'ether', 'H2O'.lower(), 'methanol',
-            'n-hexane'.lower(), 'THF'.lower(), 'toluene'
+            'acetone', 'acetonitrile', 'aniline', 'benzaldehyde',
+            'benzene', 'CH2Cl2'.lower(), 'CHCl3'.lower(),
+            'CS2'.lower(), 'dioxane', 'DMF'.lower(), 'DMSO'.lower(),
+            'ether', 'ethylacetate', 'furane',
+            'hexandecane', 'hexane', 'H2O'.lower(), 'nitromethane',
+            'octanol', 'octanol (wet)', 'phenol', 'THF'.lower(),
+            'toluene', 'water',
         }
-        return solvent in valid_solvents
+    elif gfn_version == 2 and solvent_model == 'gbsa':
+        valid_solvents = {
+            'acetone', 'acetonitrile',
+            'benzene', 'CH2Cl2'.lower(), 'CHCl3'.lower(),
+            'CS2'.lower(), 'DMSO'.lower(),
+            'ether', 'hexane', 'methanol', 'H2O'.lower(),
+            'THF'.lower(), 'toluene', 'water',
+        }
+    elif gfn_version == 2 and solvent_model == 'alpb':
+        valid_solvents = {
+            'acetone', 'acetonitrile', 'aniline', 'benzaldehyde',
+            'benzene', 'CH2Cl2'.lower(), 'CHCl3'.lower(),
+            'CS2'.lower(), 'dioxane', 'DMF'.lower(), 'DMSO'.lower(),
+            'ether', 'ethylacetate', 'furane',
+            'hexandecane', 'hexane', 'H2O'.lower(), 'nitromethane',
+            'octanol', 'octanol (wet)', 'phenol', 'THF'.lower(),
+            'toluene', 'water',
+        }
+    return solvent in valid_solvents
 
 
 class XTBExtractor:
@@ -1103,3 +1127,33 @@ def calculate_dihedral(pt1, pt2, pt3, pt4):
     x = np.dot(v, w)
     y = np.dot(np.cross(b1, v), w)
     return np.degrees(np.arctan2(y, x))
+
+
+def vector_angle(vector1, vector2):
+    """
+    Returns the angle between two vectors in radians.
+    Parameters
+    ----------
+    vector1 : :class:`numpy.ndarray`
+        The first vector.
+    vector2 : :class:`numpy.ndarray`
+        The second vector.
+    Returns
+    -------
+    :class:`float`
+        The angle between `vector1` and `vector2` in radians.
+    """
+
+    if np.all(np.equal(vector1, vector2)):
+        return 0.
+
+    numerator = np.dot(vector1, vector2)
+    denominator = np.linalg.norm(vector1) * np.linalg.norm(vector2)
+    # This if statement prevents returns of NaN due to floating point
+    # inaccuracy.
+    term = numerator/denominator
+    if term >= 1.:
+        return 0.0
+    if term <= -1.:
+        return np.pi
+    return np.arccos(term)
