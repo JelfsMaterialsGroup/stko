@@ -1,89 +1,180 @@
 import pytest
-import sys
+import numpy as np
 import os
-from os.path import join
-
-from stko import GulpUFFOptimizer, GulpUFFMDOptimizer
-from.utilities import compare_benzenes
+from stko import GulpUFFOptimizer, GulpUFFMDOptimizer, get_metal_atoms
+from .conftest import a_molecule
 
 
-odir = join(
-    os.path.dirname(os.path.abspath(__file__)),
-    'gulp_tests_output',
-)
-if not os.path.exists(odir):
-    os.mkdir(odir)
+class FakeGulpUFFOptimizer(GulpUFFOptimizer):
 
-gulp = pytest.mark.skipif(
-    all('gulp_path' not in x for x in sys.argv),
-    reason="Only run when explicitly asked."
-)
+    def optimize(self, mol):
+        return a_molecule().with_centroid(np.array(([1, 3, 3])))
 
 
-@gulp
-def test_optimizer1(gulp_path, benzene_build):
-    gulpuffoptimizer = GulpUFFOptimizer(
-        gulp_path=gulp_path,
+class FakeGulpUFFMDOptimizer(GulpUFFMDOptimizer):
+
+    def optimize(self, mol):
+        return a_molecule().with_centroid(np.array(([1, 3, 3])))
+
+
+@pytest.fixture
+def position_section():
+    return (
+        '\ncartesian\n'
+        'C1 core -0.74031 0.03171 0.10194\n'
+        'C1 core 0.75974 -0.01804 -0.03434\n'
+        'H1 core -1.14779 -0.63142 -0.70939\n'
+        'H1 core -1.11274 -0.39237 1.04655\n'
+        'H1 core -1.12625 1.0535 -0.10345\n'
+        'H1 core 0.97939 0.03507 -1.13219\n'
+        'H1 core 1.25573 0.87341 0.40438\n'
+        'H1 core 1.13222 -0.95187 0.4265\n'
+    )
+
+
+@pytest.fixture
+def bond_section():
+    return (
+        '\nconnect 1 2 \n'
+        'connect 1 3 \n'
+        'connect 1 4 \n'
+        'connect 1 5 \n'
+        'connect 2 6 \n'
+        'connect 2 7 \n'
+        'connect 2 8 \n'
+    )
+
+
+@pytest.fixture
+def species_section():
+    return '\nspecies\nC1 C_3\nH1 H_\n'
+
+
+def test_gulp_position_section(unoptimized_mol, position_section):
+    opt = FakeGulpUFFOptimizer(
+        gulp_path='',
         maxcyc=1000,
         metal_FF=None,
         metal_ligand_bond_order=None,
         conjugate_gradient=False,
-        periodic=False,
-        output_dir=join(odir, 'test_optimizer1'),
+        output_dir='',
     )
-    gulpuffoptimizer.assign_FF(benzene_build)
-    opt_benzene = gulpuffoptimizer.optimize(benzene_build)
-    compare_benzenes(
-        initial_molecule=benzene_build,
-        optimized_molecule=opt_benzene,
-    )
+    opt.assign_FF(unoptimized_mol)
+    type_translator = opt._type_translator()
+    test = opt._position_section(unoptimized_mol, type_translator)
+    assert position_section == test
 
 
-@gulp
-def test_optimizer2(gulp_path, benzene_build):
-    gulpuffmdoptimizer = GulpUFFMDOptimizer(
-        gulp_path=gulp_path,
-        metal_FF=None,
-        metal_ligand_bond_order=None,
-        output_dir=join(odir, 'test_optimizer2'),
-        integrator='stochastic',
-        ensemble='nvt',
-        temperature=300,
-        equilbration=1.0,
-        production=5.0,
-        timestep=0.5,
-        N_conformers=4,
-        opt_conformers=True,
-        save_conformers=False,
+def test_gulp_bond_section(unoptimized_mol, bond_section):
+    opt = FakeGulpUFFOptimizer(
+        gulp_path='',
     )
-    gulpuffmdoptimizer.assign_FF(benzene_build)
-    opt_benzene = gulpuffmdoptimizer.optimize(benzene_build)
-    compare_benzenes(
-        initial_molecule=benzene_build,
-        optimized_molecule=opt_benzene,
-    )
+    opt.assign_FF(unoptimized_mol)
+    metal_atoms = get_metal_atoms(unoptimized_mol)
+    test = opt._bond_section(unoptimized_mol, metal_atoms)
+    assert bond_section == test
 
 
-@gulp
-def test_optimizer3(gulp_path, benzene_build):
-    gulpuffmdoptimizer = GulpUFFMDOptimizer(
-        gulp_path=gulp_path,
-        metal_FF=None,
-        metal_ligand_bond_order=None,
-        output_dir=join(odir, 'test_optimizer3'),
-        integrator='stochastic',
-        ensemble='nvt',
-        temperature=150.0,
-        equilbration=1.0,
-        production=10.0,
-        timestep=0.5,
-        N_conformers=4,
-        opt_conformers=False,
-        save_conformers=False,
+def test_gulp_species_section(unoptimized_mol, species_section):
+    opt = FakeGulpUFFOptimizer(
+        gulp_path='',
     )
-    gulpuffmdoptimizer.assign_FF(benzene_build)
-    opt_benzene = gulpuffmdoptimizer.optimize(benzene_build)
-    compare_benzenes(
-        initial_molecule=benzene_build,
-        optimized_molecule=opt_benzene,
+    opt.assign_FF(unoptimized_mol)
+    type_translator = opt._type_translator()
+    test = opt._species_section(type_translator)
+    assert species_section == test
+
+
+@pytest.fixture
+def atom_types():
+    return ['C', 'C', 'H', 'H', 'H', 'H', 'H', 'H']
+
+
+@pytest.fixture
+def trajectory():
+    """
+    Defines output of the trajectory properties ignoring coords.
+
+    """
+
+    return {
+        0: {
+            'time': 2.99999999999978,
+            'KE': 0.148961461675797,
+            'E': 0.322914341829668,
+            'T': 192.069356724061,
+        },
+        1: {
+            'time': 5.0,
+            'KE': 0.207467138253947,
+            'E': 0.245970616427967,
+            'T': 267.505966560289,
+        },
+        2: {
+            'time': 7.00000000000067,
+            'KE': 0.267980085285543,
+            'E': 0.207888721719671,
+            'T': 345.530730006366,
+        },
+        3: {
+            'time': 9.00000000000045,
+            'KE': 0.203650341841703,
+            'E': 0.203495426725446,
+            'T': 262.584629031782,
+        },
+        4: {
+            'time': 10.9999999999993,
+            'KE': 0.209627546107803,
+            'E': 0.246948965763409,
+            'T': 270.291573938759,
+        },
+    }
+
+
+@pytest.fixture
+def min_energy_time_step():
+    return 3
+
+
+def test_gulp_convert_traj_to_xyz(atom_types, trajectory):
+    test_dir = os.path.dirname(os.path.abspath(__file__))
+    test_xyz = f'{test_dir}/fixtures/gulp_MD_template.xyz'
+    test_traj = f'{test_dir}/fixtures/gulp_MD.trg'
+    opt = FakeGulpUFFMDOptimizer(
+        gulp_path='',
     )
+    test_atom_types, test_trajectory_data, _ = (
+        opt._convert_traj_to_xyz(
+            output_xyz=test_xyz,
+            output_traj=test_traj,
+        )
+    )
+
+    for i, t in zip(atom_types, test_atom_types):
+        assert i == t
+
+    for ts in trajectory:
+        test_ts_dict = test_trajectory_data[ts]
+        ts_dict = trajectory[ts]
+        assert test_ts_dict['time'] == ts_dict['time']
+        assert test_ts_dict['KE'] == ts_dict['KE']
+        assert test_ts_dict['E'] == ts_dict['E']
+        assert test_ts_dict['T'] == ts_dict['T']
+
+
+def test_gulp_calculate_lowest_energy_conformer(min_energy_time_step):
+    test_dir = os.path.dirname(os.path.abspath(__file__))
+    test_xyz = f'{test_dir}/fixtures/gulp_MD_template.xyz'
+    test_traj = f'{test_dir}/fixtures/gulp_MD.trg'
+    opt = FakeGulpUFFMDOptimizer(
+        gulp_path='',
+    )
+    atom_types, trajectory_data, xyz_traj_lines = (
+        opt._convert_traj_to_xyz(
+            output_xyz=test_xyz,
+            output_traj=test_traj,
+        )
+    )
+    min_ts = opt._calculate_lowest_energy_conformer(trajectory_data)
+
+    assert min_ts == min_energy_time_step
