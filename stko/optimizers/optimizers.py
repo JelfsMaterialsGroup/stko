@@ -2,10 +2,9 @@
 Optimizers
 ==========
 
-#. :class:`.NullOptimizer`
+#. :class:`.Optimizer`
 #. :class:`.OptimizerSequence`
 #. :class:`.TryCatchOptimizer`
-#. :class:`.RaisingOptimizer`
 
 
 Optimizers are objects used to optimize molecules. Each optimizer is
