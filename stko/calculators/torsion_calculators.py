@@ -11,7 +11,6 @@ Methods to extract torsions from a molecule or constructed molecule.
 
 import logging
 
-import stk
 from .calculators import Calculator
 from .results import TorsionResults, ConstructedMoleculeTorsionResults
 from rdkit.Chem import TorsionFingerprints
@@ -160,10 +159,12 @@ class ConstructedMoleculeTorsionCalculator(TorsionCalculator):
 class MatchedTorsionCalculator(ConstructedMoleculeTorsionCalculator):
     """
     Matches rdkit generated torsions with building block torsions.
+
     """
 
-    def calculate(self, mol: stk.ConstructedMolecule):
-        """Extract torsions with rdkit, then match to building blocks.
+    def calculate(self, mol):
+        """
+        Extract torsions with rdkit, then match to building blocks.
 
         This method loops through each rdkit generated torsion. For
         each torsion, it checks if the two interior atoms of the

@@ -1160,10 +1160,7 @@ def vector_angle(vector1, vector2):
     return np.arccos(term)
 
 
-def get_torsion_info_angles(
-    mol: stk.ConstructedMolecule,
-    torsion_info
-):
+def get_torsion_info_angles(mol, torsion_info):
     """
     Get the angles for torsion_info in mol.
 
@@ -1178,8 +1175,10 @@ def get_torsion_info_angles(
 
     Parameters
     ----------
-    mol :
-        The constructed molecule for which angles are computed.
+    mol : :class:`.ConstructedMolecule`
+        The :class:`.ConstructedMolecule` for which angles are
+        computed.
+
     torsion_info : TorsionInfo
         Specifies the torsion for which angles will be computed.
 
@@ -1241,15 +1240,24 @@ def get_torsion_info_angles(
     return angle, bb_angle
 
 
-def get_atom_maps(mol: stk.ConstructedMolecule):
+def get_atom_maps(mol):
     """
+    Get atom maps from building blocks to constructude molecule.
+
     Returns a dictionary of dictionaries from atom id (in building
     block) to constructed molecule atom, indexed by building block id.
+
+    Parameters
+    ----------
+    mol : :class:`.ConstructedMolecule`
+        The :class:`.ConstructedMolecule` for which atom maps are
+        desired.
 
     """
     atom_maps = defaultdict(dict)
     for atom_info in mol.get_atom_infos():
-        current_atom_map = atom_maps[atom_info.get_building_block_id()]
         bb_atom_id = atom_info.get_building_block_atom().get_id()
-        current_atom_map[bb_atom_id] = atom_info.get_atom()
+        atom_maps[atom_info.get_building_block_id()][
+            bb_atom_id
+        ] = atom_info.get_atom()
     return atom_maps
