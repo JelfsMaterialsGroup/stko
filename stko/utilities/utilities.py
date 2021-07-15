@@ -14,7 +14,7 @@ import os
 import subprocess as sp
 import gzip
 import re
-from collections import deque
+from collections import deque, defaultdict
 from glob import iglob
 from itertools import chain
 from scipy.spatial.distance import euclidean
@@ -1157,3 +1157,106 @@ def vector_angle(vector1, vector2):
     if term <= -1.:
         return np.pi
     return np.arccos(term)
+
+
+def get_torsion_info_angles(mol, torsion_info):
+    """
+    Get the angles for torsion_info in mol.
+
+    The first angle returned is torsion angle in the
+    :class:`stk.ConstructedMolecule`.
+    The second angle returned is torsion angle in the
+    :class:`stk.BuildingBlock`.
+    Both angles are in degrees.
+
+    A :class:`stko.MatchedTorsionCalculator` should yield torsions
+    such that the two angles returned are the same.
+
+    Parameters
+    ----------
+    mol : :class:`.ConstructedMolecule`
+        The :class:`.ConstructedMolecule` for which angles are
+        computed.
+
+    torsion_info : TorsionInfo
+        Specifies the torsion for which angles will be computed.
+
+    Returns
+    -------
+    angle : :class:`float`, bb_angle : :class:`float`
+
+    """
+
+    torsion = torsion_info.get_torsion()
+    angle = calculate_dihedral(
+        pt1=tuple(
+            mol.get_atomic_positions(
+                torsion.get_atom_ids()[0]
+            )
+        )[0],
+        pt2=tuple(
+            mol.get_atomic_positions(
+                torsion.get_atom_ids()[1]
+            )
+        )[0],
+        pt3=tuple(
+            mol.get_atomic_positions(
+                torsion.get_atom_ids()[2]
+            )
+        )[0],
+        pt4=tuple(
+            mol.get_atomic_positions(
+                torsion.get_atom_ids()[3]
+            )
+        )[0],
+    )
+    bb_torsion = torsion_info.get_building_block_torsion()
+    if bb_torsion is None:
+        bb_angle = None
+    else:
+        bb_angle = calculate_dihedral(
+            pt1=tuple(
+                torsion_info.get_building_block().get_atomic_positions(
+                    bb_torsion.get_atom_ids()[0]
+                )
+            )[0],
+            pt2=tuple(
+                torsion_info.get_building_block().get_atomic_positions(
+                    bb_torsion.get_atom_ids()[1]
+                )
+            )[0],
+            pt3=tuple(
+                torsion_info.get_building_block().get_atomic_positions(
+                    bb_torsion.get_atom_ids()[2]
+                )
+            )[0],
+            pt4=tuple(
+                torsion_info.get_building_block().get_atomic_positions(
+                    bb_torsion.get_atom_ids()[3]
+                )
+            )[0],
+        )
+    return angle, bb_angle
+
+
+def get_atom_maps(mol):
+    """
+    Get atom maps from building blocks to constructude molecule.
+
+    Returns a dictionary of dictionaries from atom id (in building
+    block) to constructed molecule atom, indexed by building block id.
+
+    Parameters
+    ----------
+    mol : :class:`.ConstructedMolecule`
+        The :class:`.ConstructedMolecule` for which atom maps are
+        desired.
+
+    """
+    atom_maps = defaultdict(dict)
+    for atom_info in mol.get_atom_infos():
+        bb_atom_id = atom_info.get_building_block_atom().get_id()
+        atom_maps[atom_info.get_building_block_id()][
+            bb_atom_id
+        ] = atom_info.get_atom()
+    return atom_maps
