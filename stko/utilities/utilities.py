@@ -18,7 +18,6 @@ from collections import deque, defaultdict
 from glob import iglob
 from itertools import chain
 from scipy.spatial.distance import euclidean
-import stk
 
 
 # This dictionary gives easy access to the rdkit bond types.
