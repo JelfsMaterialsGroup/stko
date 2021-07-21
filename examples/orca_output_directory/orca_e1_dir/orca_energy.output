@@ -325,9 +325,9 @@ Integral package used                  ... LIBINT
 
 
 Timings:
- Total evaluation time                   ...   0.128 sec (  0.002 min)
- One electron matrix time                ...   0.018 sec (  0.000 min) = 14.3%
- Schwartz matrix evaluation time         ...   0.091 sec (  0.002 min) = 71.0%
+ Total evaluation time                   ...   0.110 sec (  0.002 min)
+ One electron matrix time                ...   0.014 sec (  0.000 min) = 12.5%
+ Schwartz matrix evaluation time         ...   0.080 sec (  0.001 min) = 72.9%
  Two index repulsion integral time       ...   0.001 sec (  0.000 min) =  1.0%
  Cholesky decomposition of V             ...   0.001 sec (  0.000 min) =  0.7%
  Three index repulsion integral time     ...   0.000 sec (  0.000 min) =  0.0%
@@ -451,7 +451,7 @@ Average number of large basis fcns per batch ...    85.61 (78.81%)
 Maximum spatial batch extension              ...  18.82, 19.60, 20.44 au
 Average spatial batch extension              ...   2.96,  3.25,  3.27 au
 
-Time for grid setup =    0.390 sec
+Time for grid setup =    0.425 sec
 
 --------------
 SCF ITERATIONS
@@ -503,7 +503,7 @@ Grids for H and He will be reduced by one unit
 # of grid points (after weights+screening)   ...  65273 (   0.1 sec)
 nearest neighbour list constructed           ...    0.0 sec
 Grid point re-assignment to atoms done       ...    0.0 sec
-Grid point division into batches done        ...    0.3 sec
+Grid point division into batches done        ...    0.2 sec
 Reduced shell lists constructed in    0.8 sec
 
 Total number of grid points                  ...    65273
@@ -518,7 +518,7 @@ Maximum spatial batch extension              ...  19.07, 20.61, 29.18 au
 Average spatial batch extension              ...   2.47,  2.59,  2.64 au
 
 Final grid set up in    0.9 sec
-Final integration                            ... done (   0.9 sec)
+Final integration                            ... done (   1.0 sec)
 Change in XC energy                          ...    -0.000623988
 Integrated number of electrons               ...    54.000043123
 Previous integrated no of electrons          ...    54.000510528
@@ -969,27 +969,27 @@ B( 11-C , 13-H ) :   0.9153 B( 12-C , 14-H ) :   0.9228
 TIMINGS
 -------
 
-Total SCF time: 0 days 0 hours 0 min 14 sec 
+Total SCF time: 0 days 0 hours 0 min 15 sec 
 
-Total time                  ....      14.367 sec
-Sum of individual times     ....      14.229 sec  ( 99.0%)
+Total time                  ....      15.876 sec
+Sum of individual times     ....      15.731 sec  ( 99.1%)
 
-Fock matrix formation       ....      12.829 sec  ( 89.3%)
-  Split-RI-J                ....       4.181 sec  ( 32.6% of F)
-  XC integration            ....       8.587 sec  ( 66.9% of F)
-    Basis function eval.    ....       2.661 sec  ( 31.0% of XC)
-    Density eval.           ....       1.704 sec  ( 19.8% of XC)
-    XC-Functional eval.     ....       1.808 sec  ( 21.1% of XC)
-    XC-Potential eval.      ....       2.164 sec  ( 25.2% of XC)
-Diagonalization             ....       0.034 sec  (  0.2%)
-Density matrix formation    ....       0.005 sec  (  0.0%)
+Fock matrix formation       ....      14.279 sec  ( 89.9%)
+  Split-RI-J                ....       4.301 sec  ( 30.1% of F)
+  XC integration            ....       9.922 sec  ( 69.5% of F)
+    Basis function eval.    ....       3.000 sec  ( 30.2% of XC)
+    Density eval.           ....       2.089 sec  ( 21.1% of XC)
+    XC-Functional eval.     ....       1.882 sec  ( 19.0% of XC)
+    XC-Potential eval.      ....       2.586 sec  ( 26.1% of XC)
+Diagonalization             ....       0.040 sec  (  0.3%)
+Density matrix formation    ....       0.004 sec  (  0.0%)
 Population analysis         ....       0.003 sec  (  0.0%)
-Initial guess               ....       0.010 sec  (  0.1%)
+Initial guess               ....       0.018 sec  (  0.1%)
 Orbital Transformation      ....       0.000 sec  (  0.0%)
 Orbital Orthonormalization  ....       0.000 sec  (  0.0%)
-DIIS solution               ....       0.017 sec  (  0.1%)
-SOSCF solution              ....       0.015 sec  (  0.1%)
-Grid generation             ....       1.317 sec  (  9.2%)
+DIIS solution               ....       0.020 sec  (  0.1%)
+SOSCF solution              ....       0.016 sec  (  0.1%)
+Grid generation             ....       1.352 sec  (  8.5%)
 
 
 -------------------------------------------------------------------------------
@@ -1084,8 +1084,8 @@ x,y,z [Debye]:     1.495663     0.577804    -1.211042
 
 Timings for individual modules:
 
-Sum of individual times         ...       14.530 sec (=   0.242 min)
-GTO integral calculation        ...        0.150 sec (=   0.002 min)   1.0 %
-SCF iterations                  ...       14.380 sec (=   0.240 min)  99.0 %
+Sum of individual times         ...       16.018 sec (=   0.267 min)
+GTO integral calculation        ...        0.127 sec (=   0.002 min)   0.8 %
+SCF iterations                  ...       15.891 sec (=   0.265 min)  99.2 %
                              ****ORCA TERMINATED NORMALLY****
-TOTAL RUN TIME: 0 days 0 hours 0 minutes 14 seconds 731 msec
+TOTAL RUN TIME: 0 days 0 hours 0 minutes 16 seconds 207 msec

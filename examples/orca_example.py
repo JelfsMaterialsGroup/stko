@@ -3,7 +3,6 @@ import stko
 
 import sys
 import os
-import shutil
 
 
 def main():
@@ -25,9 +24,8 @@ def main():
     )
 
     examples_output = 'orca_output_directory'
-    if os.path.exists(examples_output):
-        shutil.rmtree(examples_output)
-    os.mkdir(examples_output)
+    if not os.path.exists(examples_output):
+        os.mkdir(examples_output)
 
     # Run optimisations.
     etkdg = stko.ETKDG()
