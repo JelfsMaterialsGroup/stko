@@ -1,4 +1,5 @@
 import sys
+import os
 
 import stk
 import stko
@@ -42,7 +43,7 @@ def main():
         print('doing XTB calculation.')
         xtb = stko.XTBEnergy(
             xtb_path=xtb_path,
-            output_dir='output_directory/xtb_out',
+            output_dir=os.path.join('output_directory', 'xtb_out'),
             unlimited_memory=True,
         )
 

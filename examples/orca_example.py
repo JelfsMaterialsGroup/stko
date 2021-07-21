@@ -1,11 +1,18 @@
 import stk
 import stko
 
+import sys
 import os
 import shutil
 
 
 def main():
+    if len(sys.argv) > 1:
+        orca_path = sys.argv[1]
+    else:
+        print('usage: orca_example.py orca_path')
+        sys.exit()
+
     bb1 = stk.BuildingBlock('NCCN', [stk.PrimaryAminoFactory()])
     bb2 = stk.BuildingBlock('O=CC=O', [stk.AldehydeFactory()])
     polymer = stk.ConstructedMolecule(
@@ -27,7 +34,7 @@ def main():
     polymer = etkdg.optimize(polymer)
 
     orca_ey_1 = stko.OrcaEnergy(
-        orca_path='/home/atarzia/software/orca/orca',
+        orca_path=orca_path,
         topline='! SP B97-3c',
         basename='example1',
         output_dir=f'{examples_output}/orca_e1_dir',
@@ -37,7 +44,7 @@ def main():
     uff = stko.UFF()
     polymer = uff.optimize(polymer)
     orca_ey_2 = stko.OrcaEnergy(
-        orca_path='/home/atarzia/software/orca/orca',
+        orca_path=orca_path,
         topline='! SP B97-3c',
         basename='example2',
         output_dir=f'{examples_output}/orca_e2_dir',
@@ -45,7 +52,7 @@ def main():
     print(orca_ey_2.get_energy(polymer))
 
     orca_ey_3 = stko.OrcaEnergy(
-        orca_path='/home/atarzia/software/orca/orca',
+        orca_path=orca_path,
         topline='! SP B97-3c',
         basename='example3',
         output_dir=f'{examples_output}/orca_e3_dir',

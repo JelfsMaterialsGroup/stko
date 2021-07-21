@@ -2,7 +2,6 @@ import stk
 import stko
 
 import os
-import shutil
 
 
 def main():
@@ -18,21 +17,19 @@ def main():
     )
 
     examples_output = 'output_directory'
-    if os.path.exists(examples_output):
-        shutil.rmtree(examples_output)
-
-    os.mkdir(examples_output)
+    if not os.path.exists(examples_output):
+        os.mkdir(examples_output)
 
     # Run optimisations.
     uff = stko.UFF()
     polymer = uff.optimize(polymer)
-    polymer.write(f'{examples_output}/poly_uff.mol')
+    polymer.write(os.path.join(examples_output, 'poly_uff.mol'))
     mmff = stko.MMFF()
     polymer = mmff.optimize(polymer)
-    polymer.write(f'{examples_output}/poly_mmff.mol')
+    polymer.write(os.path.join(examples_output, 'poly_mmff.mol'))
     etkdg = stko.ETKDG()
     polymer = etkdg.optimize(polymer)
-    polymer.write(f'{examples_output}/poly_etkdg.mol')
+    polymer.write(os.path.join(examples_output, 'poly_etkdg.mol'))
 
 
 if __name__ == "__main__":
