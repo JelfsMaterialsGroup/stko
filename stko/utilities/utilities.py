@@ -522,6 +522,15 @@ class XTBExtractor:
         in the :attr:`output_file`. Vibrational frequencies are in
         units of wavenumber and calculated at 298.15K.
 
+    ionisation_potential : :class:`float`
+        The vertical ionisation potential in the :attr:`output_file` as
+        :class:`float`. Corresponds to the delta SCC IP.
+
+    electron_affinity : :class:`float`
+        The vertical electron affinity in the :attr:`output_file` as
+        :class:`float`. Corresponds to the delta SCC EA.
+
+
     """
     def __init__(self, output_file):
         """
@@ -572,6 +581,10 @@ class XTBExtractor:
                 self._extract_homo_lumo_occ(line, 'LUMO')
             elif self._check_line(line, 'total_free_energy'):
                 self._extract_total_free_energy(line)
+            elif self._check_line(line, 'ionisation_potential'):
+                self._extract_ionisation_potential(line)
+            elif self._check_line(line, 'electron_affinity'):
+                self._extract_electron_affinity(line)
 
         # Frequency formatting requires loop through full file.
         self._extract_frequencies()
@@ -593,7 +606,8 @@ class XTBExtractor:
             ``'fermi_level'``, ``'dipole_moment'``,
             ``'quadrupole_moment'``, ``'homo_lumo_occ_HOMO'``,
             ``'homo_lumo_occ_LUMO'``,
-            ``'total_free_energy'``.
+            ``'total_free_energy'``, ``ionisation_potential``,
+            ``electron_affinity``.
 
         Returns
         -------
@@ -610,6 +624,8 @@ class XTBExtractor:
             'homo_lumo_occ_HOMO': '(HOMO)',
             'homo_lumo_occ_LUMO': '(LUMO)',
             'total_free_energy': '          | TOTAL FREE ENERGY  ',
+            'ionisation_potential': 'delta SCC IP (eV)',
+            'electron_affinity': 'delta SCC EA (eV)',
         }
 
         if options[option] in line:
@@ -892,6 +908,34 @@ class XTBExtractor:
                     frequencies.append(freq)
 
         self.frequencies = [float(i) for i in frequencies]
+
+    def _extract_ionisation_potential(self, line):
+        """
+        Updates :attr:`ionisation_potential`.
+
+        Returns
+        -------
+        None : :class:`NoneType`
+
+        """
+
+        nums = re.compile(r"[+-]?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?")
+        string = nums.search(line.rstrip()).group(0)
+        self.ionisation_potential = float(string)
+
+    def _extract_electron_affinity(self, line):
+        """
+        Updates :attr:`electron_affinity`.
+
+        Returns
+        -------
+        None : :class:`NoneType`
+
+        """
+
+        nums = re.compile(r"[+-]?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?")
+        string = nums.search(line.rstrip()).group(0)
+        self.electron_affinity = float(string)
 
 
 def get_plane_normal(points):
