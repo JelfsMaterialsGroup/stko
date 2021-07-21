@@ -35,9 +35,11 @@ class OrcaEnergy(Calculator):
 
     All intermediate and output files from Orca are deleted at the end
     of the job (i.e. the `.gbw` file will be deleted) because they can
-    quickly build up to large sizes. The `write_input_only` option is
-    available for jobs where you would like more customization or to
-    run outside of the Python environment.
+    quickly build up to large sizes. The `discard_output` option allows
+    you to keep output files if desired.Additionally, the
+    `write_input_only` option is available for jobs where you would
+    like more customization or to run outside of the Python
+    environment.
 
     Notes
     -----
@@ -78,7 +80,7 @@ class OrcaEnergy(Calculator):
         opt = stko.UFF()
         polymer = opt.optimize(polymer)
 
-        # Calculate energy using GFN-xTB.
+        # Calculate energy using Orca.
         orca = stko.OrcaEnergy(
             orca_path='/opt/orca/orca',
             topline='! SP B97-3c',
@@ -90,11 +92,9 @@ class OrcaEnergy(Calculator):
         # molecule.
         total_energy = orca_results.get_total_energy()
 
-    If you plan on running calculations on a cluster, outside a python
-    environment, with very specific settings :mod:`stko` does not apply
-    or just want the input file written, you can use the
-    `write_input_only` argument to save the input file in the
-    `output_dir` as `orca_input.inp` with the input xyz file as
+    If you want the input file written (instead of the job run), you
+    can use the `write_input_only` argument to save the input file
+    in the `output_dir` as `orca_input.inp` with the input xyz file as
     `input_structure.xyz`.
 
     .. code-block:: python
@@ -104,7 +104,7 @@ class OrcaEnergy(Calculator):
         optimizer = stko.ETKDG()
         polymer = optimizer.optimize(polymer)
 
-        # Calculate energy using GFN-xTB.
+        # Calculate energy using Orca.
         orca = stko.OrcaEnergy(
             orca_path='/opt/orca/orca',
             topline='! SP B97-3c',
@@ -128,6 +128,7 @@ class OrcaEnergy(Calculator):
         charge=0,
         multiplicity=1,
         write_input_only=False,
+        discard_output=True,
     ):
         """
         Initializes a :class:`OrcaEnergy` instance.
@@ -150,7 +151,7 @@ class OrcaEnergy(Calculator):
             :func:`uuid.uuid4` is used.
 
         num_cores : :class:`int`, optional
-            The number of cores xTB should use.
+            The number of cores Orca should use.
 
         charge : :class:`int`, optional
             Formal molecular charge.
@@ -161,6 +162,10 @@ class OrcaEnergy(Calculator):
         write_input_only : :class:`bool`, optional
             `True` if you only want the input file written and to not
             have the Orca job run.
+
+        discard_output : :class:`bool`, optional
+            `True` if you want to delete auxillary Orca output files
+            such as the `.gbw` file.
 
         """
 
@@ -175,6 +180,7 @@ class OrcaEnergy(Calculator):
         self._charge = str(charge)
         self._multiplicity = multiplicity
         self._write_input_only = write_input_only
+        self._discard_output = discard_output
 
     def _write_input_file(self, path, xyz_file):
         # Write top line and base name.
@@ -240,7 +246,7 @@ class OrcaEnergy(Calculator):
             The name of input file to be written.
 
         out_file : :class:`str`
-            The name of output file with xTB results.
+            The name of output file with Orca results.
 
         init_dir : :class:`str`
             The name of the current working directory.
@@ -273,7 +279,8 @@ class OrcaEnergy(Calculator):
                         shell=True
                     )
                 self._check_outcome(out_file)
-                self._clean_up()
+                if self._discard_output:
+                    self._clean_up()
         finally:
             os.chdir(init_dir)
 
@@ -313,7 +320,7 @@ class OrcaEnergy(Calculator):
         Returns
         -------
         :class:`.OrcaResults`
-            The properties, with units, from xTB calculations.
+            The properties, with units, from Orca calculations.
 
         """
 
