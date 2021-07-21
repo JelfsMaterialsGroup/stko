@@ -123,6 +123,39 @@ class XTBEnergy(Calculator):
         total_free_energy = xtb_results.get_total_free_energy()
         total_frequencies = xtb_results.get_frequencies()
 
+    If `calculate_ip_and_ea` is ``True``, xTB performs multiple single-
+    point-energy calculations to calculate the vertical electron
+    affinity and ionisation potential. It is recommended that a
+    well optimized structure be used as input for these calculations
+
+    .. code-block:: python
+
+        # Optimize the constructed molecule so that it has a
+        # reasonable structure.
+        optimizer = stko.OptimizerSequence(
+            stko.ETKDG(),
+            stko.XTB(
+                xtb_path='/opt/gfnxtb/xtb',
+                unlimited_memory=True,
+                opt_level='verytight'
+            )
+        )
+        polymer = optimizer.optimize(polymer)
+
+        # Calculate energy using GFN-xTB.
+        xtb = stko.XTBEnergy(
+            xtb_path='/opt/gfnxtb/xtb',
+            unlimited_memory=True,
+            calculate_ip_and_ea=True,
+        )
+
+        xtb_results = xtb.get_results(polymer)
+
+        # Extract properties from the energy calculator for a given
+        # molecule.
+        ip = xtb_results.get_ionisation_potential()
+        ea = xtb_results.get_electron_affinity()
+
     References
     ----------
     .. [1] https://xtb-docs.readthedocs.io/en/latest/setup.html
@@ -135,6 +168,7 @@ class XTBEnergy(Calculator):
         output_dir=None,
         num_cores=1,
         calculate_free_energy=False,
+        calculate_ip_and_ea=False,
         electronic_temperature=300,
         solvent_model='gbsa',
         solvent=None,
@@ -168,6 +202,11 @@ class XTBEnergy(Calculator):
             Whether to calculate the total free energy and vibrational
             frequencies. Setting this to ``True`` can drastically
             increase calculation time and memory requirements.
+
+        calculate_ip_and_ea : :class:`bool`, optional
+            Whether to calculate the vertical ionisation potential and
+            vertical electron affinity. Equivalent to  `--vipea` flag
+            in command-line interface.
 
         electronic_temperature : :class:`int`, optional
             Electronic temperature in Kelvin.
@@ -228,6 +267,7 @@ class XTBEnergy(Calculator):
         self._output_dir = output_dir
         self._num_cores = str(num_cores)
         self._calculate_free_energy = calculate_free_energy
+        self._calculate_ip_and_ea = calculate_ip_and_ea
         self._electronic_temperature = str(electronic_temperature)
         self._solvent = solvent
         self._solvent_model = solvent_model
@@ -279,14 +319,19 @@ class XTBEnergy(Calculator):
             solvent = ''
 
         if self._calculate_free_energy:
-            calc_type = '--hess'
+            hess = '--hess'
         else:
-            calc_type = ''
+            hess = ''
+
+        if self._calculate_ip_and_ea:
+            vipea = '--vipea'
+        else:
+            vipea = ''
 
         cmd = (
             f'{memory} {self._xtb_path} '
             f'{xyz} --gfn {self._gfn_version} '
-            f'{calc_type} --parallel {self._num_cores} '
+            f'{hess} {vipea} --parallel {self._num_cores} '
             f'--etemp {self._electronic_temperature} '
             f'{solvent} --chrg {self._charge} '
             f'--uhf {self._num_unpaired_electrons} -I det_control.in'
