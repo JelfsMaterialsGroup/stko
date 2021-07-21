@@ -10,10 +10,14 @@ Class to extract properties from xTB output.
 
 import re
 
+from .extractor import Extractor
 
-class XTBExtractor:
+
+class XTBExtractor(Extractor):
     """
     Extracts properties from xTB output files.
+
+    All formatting based on the 190418 version of xTB.
 
     Attributes
     ----------
@@ -78,33 +82,7 @@ class XTBExtractor:
 
     """
 
-    def __init__(self, output_file):
-        """
-        Initializes :class:`XTBExtractor`
-
-        Parameters
-        ----------
-        output_file : :class:`str`
-            Output file to extract properties from.
-
-        """
-        self.output_file = output_file
-        # Explictly set encoding to UTF-8 because default encoding on
-        # Windows will fail to read the file otherwise.
-        with open(self.output_file, 'r', encoding='UTF-8') as f:
-            self.output_lines = f.readlines()
-
-        self._extract_values()
-
     def _extract_values(self):
-        """
-        Extract all properties from xTB output file.
-
-        Returns
-        -------
-        None : :class:`NoneType`
-
-        """
 
         for i, line in enumerate(self.output_lines):
             if self._check_line(line, 'total_energy'):
@@ -131,32 +109,9 @@ class XTBExtractor:
         # Frequency formatting requires loop through full file.
         self._extract_frequencies()
 
-    def _check_line(self, line, option):
-        """
-        Checks a line for a string based on option.
+    def _properties_dict(self):
 
-        All formatting based on the 190418 version of xTB.
-
-        Parameters
-        ----------
-        line : :class:`str`
-            Line of output file to check.
-
-        option : :class:`str`
-            Define which property and string being checked for.
-            Can be one of ``'total_energy'``, ``'homo_lumo_gap'``,
-            ``'fermi_level'``, ``'dipole_moment'``,
-            ``'quadrupole_moment'``, ``'homo_lumo_occ_HOMO'``,
-            ``'homo_lumo_occ_LUMO'``,
-            ``'total_free_energy'``.
-
-        Returns
-        -------
-        :class:`bool`
-            Returns ``True`` if the desired string is present.
-
-        """
-        options = {
+        return {
             'total_energy': '          | TOTAL ENERGY  ',
             'homo_lumo_gap': '          | HOMO-LUMO GAP   ',
             'fermi_level': '             Fermi-level        ',
@@ -166,9 +121,6 @@ class XTBExtractor:
             'homo_lumo_occ_LUMO': '(LUMO)',
             'total_free_energy': '          | TOTAL FREE ENERGY  ',
         }
-
-        if options[option] in line:
-            return True
 
     def _extract_total_energy(self, line):
         """
