@@ -9,15 +9,11 @@ Wrappers for calculators that use Schrödinger's MacroModel software.
 """
 
 import logging
-from rdkit.Chem import AllChem as rdkit
-
 from .calculators import Calculator
 from ..optimizers import MacroModel
 from .results import EnergyResults
 from uuid import uuid4
-from ..utilities import (
-    move_generated_macromodel_files
-)
+from ..utilities import move_generated_macromodel_files
 import re
 
 logger = logging.getLogger(__name__)
@@ -66,7 +62,8 @@ class MacroModellForceFieldEnergy(MacroModelCalculator):
         mol = stk.BuildingBlock('NCCN')
 
         # Create energy calculator
-        opls_ff = stko.MacroModellForceFieldEnergy(
+        opls_ff = stko.MacroModellForceFieldEnergy(#Insert MacroModel
+        path here)
 
         # Calculate the energy
         results = opls_ff.get_results(mol)
