@@ -2,7 +2,7 @@
 Energy Results
 ==============
 
-# :class:`.EnergyResults`
+#. :class:`.EnergyResults`
 
 Results class for :class:`.Calculator` that outputs energy.
 
