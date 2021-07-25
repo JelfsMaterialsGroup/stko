@@ -2,7 +2,7 @@
 Energy Results
 ==============
 
-#. :class:`.EnergyResults`
+# . :class:`.EnergyResults`
 
 Results class for :class:`.Calculator` that outputs energy.
 
@@ -27,3 +27,4 @@ class EnergyResults(Results):
 
     def get_unit_string(self):
         return self._unit_string
+
