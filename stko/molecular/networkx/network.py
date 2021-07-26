@@ -14,6 +14,92 @@ import networkx as nx
 logger = logging.getLogger(__name__)
 
 
+class PositionedAtom:
+    """
+    A container for stk.Atom and a position.
+
+    """
+
+    def __init__(self, atom, position):
+        """
+        Initialize a :class:`PositionedAtom`.
+
+        Parameters
+        ----------
+        atom : :class:`stk.Atom`
+            The atom.
+
+        position : : :class:`tuple` of :class:`float`
+            The position of the atom.
+
+        """
+
+        self._atom = atom
+        self._position = position
+
+    def get_atom(self):
+        return self._atom
+
+    def get_atomic_number(self):
+        return self._atom.get_atomic_number()
+
+    def get_charge(self):
+        return self._atom.get_charge()
+
+    def get_id(self):
+        return self._atom.get_id()
+
+    def get_position(self):
+        return self._position
+
+    def _with_id(self, id):
+        """
+        Modify the atom.
+
+        """
+
+        self._atom = self._atom.with_id(id)
+        return self
+
+    def with_id(self, id):
+        """
+        Get a clone but with a different id.
+
+        Returns
+        -------
+        :class:`.Atom`
+            A clone with a new id. Has the same type as the original
+            atom.
+
+        """
+
+        return self.clone()._with_id(id)
+
+    def clone(self):
+        """
+        Return a clone.
+
+        Returns
+        -------
+        :class:`.Atom`
+            The clone. It has the same type as the original atom.
+
+        """
+
+        clone = self.__class__.__new__(self.__class__)
+        clone._atom = self._atom
+        clone._position = self._position
+        return clone
+
+    def __repr__(self):
+        return (
+            f'{self._atom.__class__.__name__}({self._atom.get_id()})'
+        )
+
+    def __str__(self):
+        return repr(self)
+
+
 class Network:
     """
     Definition of a network of an stk.Molecule.
@@ -36,9 +122,28 @@ class Network:
         """
 
         g = nx.Graph()
-        # Define by adding edges.
+
+        pos_mat = molecule.get_position_matrix()
+        for atom in molecule.get_atoms():
+            pos = tuple(float(i) for i in pos_mat[atom.get_id()])
+            pa = PositionedAtom(atom, pos)
+            g.add_node(pa)
+
+        # Define edges.
         for bond in molecule.get_bonds():
-            g.add_edge(bond.get_atom1(), bond.get_atom2())
+            n1, n2 = [
+                i for i in g.nodes
+                if i.get_id() in (
+                    bond.get_atom1().get_id(),
+                    bond.get_atom2().get_id(),
+                )
+            ]
+
+            g.add_edge(
+                n1, n2,
+                order=bond.get_order(),
+                periodicity=bond.get_periodicity(),
+            )
 
         return cls(g)
 
@@ -49,6 +154,15 @@ class Network:
         """
 
         return self._graph
+
+    def get_nodes(self):
+        """
+        Yield nodes of networkx.graph.
+
+        """
+
+        for i in self._graph.nodes:
+            yield i
 
     def clone(self):
         """
@@ -95,8 +209,8 @@ class Network:
         """
 
         return [
-            sorted(subgraph, key=lambda a: a.get_id())
-            for subgraph in sorted(
+            self._graph.subgraph(c).copy()
+            for c in sorted(
                 nx.connected_components(self._graph)
             )
         ]
