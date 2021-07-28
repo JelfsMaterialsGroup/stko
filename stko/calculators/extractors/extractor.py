@@ -14,7 +14,6 @@ from abc import ABC
 class Extractor(ABC):
     """
     An abstract base class for extractors.
-    ...
 
     """
 
@@ -61,8 +60,6 @@ class Extractor(ABC):
     def _check_line(self, line, option):
         """
         Checks a line for a string based on option.
-
-        All formatting based on the 190418 version of xTB.
 
         Parameters
         ----------

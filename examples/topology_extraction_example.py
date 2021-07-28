@@ -35,8 +35,8 @@ def main():
     print(tg_info.get_vertex_positions())
     print(tg_info.get_connectivities())
     print(tg_info.get_edge_pairs())
-    cage1.write(os.path.joisn('output_directory', 'tg_cage.mol'))
-    tg_info.write(os.path.joisn('output_directory', 'tg_info.pdb'))
+    cage1.write(os.path.join('output_directory', 'tg_cage.mol'))
+    tg_info.write(os.path.join('output_directory', 'tg_info.pdb'))
 
 
 if __name__ == "__main__":
