@@ -12,6 +12,7 @@ Subpackages
 .. toctree::
    :maxdepth: 4
 
+   stko.calculators.extractors
    stko.calculators.results
 
 Submodules
@@ -21,6 +22,7 @@ Submodules
    :maxdepth: 4
 
    stko.calculators.calculators
+   stko.calculators.orca_calculators
    stko.calculators.rdkit_calculators
    stko.calculators.shape_calculators
    stko.calculators.torsion_calculators

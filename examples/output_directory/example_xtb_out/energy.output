@@ -67,20 +67,33 @@
    J. Pisarek, P. Pracht, J. Seibert, P. Shushkov, S. Spicher, M. Stahn
    T. Strunk, J. Stückrath, T. Rose, and J. Unsleber
    
+<<<<<<< HEAD:examples/output_directory/xtb_out/energy.output
  * started run on 2021/07/21 at 16:32:49.379     
+=======
+ * started run on 2021/07/28 at 16:47:51.898     
+>>>>>>> 41d15d95b8d68494bed24595cc32c8852522011f:examples/output_directory/example_xtb_out/energy.output
 
            -------------------------------------------------
           |                Calculation Setup                |
            -------------------------------------------------
 
+<<<<<<< HEAD:examples/output_directory/xtb_out/energy.output
           program call               : /home/atarzia/software/xtb-6.4.0/bin/xtb /home/atarzia/software/stk_optimizers/examples/output_directory/xtb_out/input_structure.xyz --gfn 2 --vipea --parallel 1 --etemp 300 --chrg 0 --uhf 0 -I det_control.in
           coordinate file            : /home/atarzia/software/stk_optimizers/examples/output_directory/xtb_out/input_structure.xyz
+=======
+          program call               : /home/atarzia/software/xtb-6.4.0/bin/xtb /home/atarzia/software/stk_optimizers/examples/output_directory/example_xtb_out/input_structure.xyz --gfn 2 --parallel 1 --etemp 300 --chrg 0 --uhf 0 -I det_control.in
+          coordinate file            : /home/atarzia/software/stk_optimizers/examples/output_directory/example_xtb_out/input_structure.xyz
+>>>>>>> 41d15d95b8d68494bed24595cc32c8852522011f:examples/output_directory/example_xtb_out/energy.output
           omp threads                :                     1
           number of atoms            :                    20
           number of electrons        :                    44
           charge                     :                     0
           spin                       :                   0.0
+<<<<<<< HEAD:examples/output_directory/xtb_out/energy.output
           first test random number   :      0.87706644765597
+=======
+          first test random number   :      0.30532391832794
+>>>>>>> 41d15d95b8d68494bed24595cc32c8852522011f:examples/output_directory/example_xtb_out/energy.output
 
    ID    Z sym.   atoms
     1    7 N      1, 4, 7
@@ -170,6 +183,7 @@
                   HL-Gap            0.3375487 Eh            9.1852 eV
              Fermi-level           -0.1690969 Eh           -4.6014 eV
 
+<<<<<<< HEAD:examples/output_directory/xtb_out/energy.output
  SCC (total)                   0 d,  0 h,  0 min,  0.018 sec
  SCC setup                      ...        0 min,  0.000 sec (  1.064%)
  Dispersion                     ...        0 min,  0.000 sec (  0.703%)
@@ -178,6 +192,16 @@
  iterations                     ...        0 min,  0.007 sec ( 41.609%)
  molecular gradient             ...        0 min,  0.006 sec ( 36.149%)
  printout                       ...        0 min,  0.000 sec (  1.279%)
+=======
+ SCC (total)                   0 d,  0 h,  0 min,  0.014 sec
+ SCC setup                      ...        0 min,  0.000 sec (  1.629%)
+ Dispersion                     ...        0 min,  0.000 sec (  1.236%)
+ classical contributions        ...        0 min,  0.000 sec (  0.328%)
+ integral evaluation            ...        0 min,  0.003 sec ( 18.566%)
+ iterations                     ...        0 min,  0.005 sec ( 38.504%)
+ molecular gradient             ...        0 min,  0.005 sec ( 38.533%)
+ printout                       ...        0 min,  0.000 sec (  0.858%)
+>>>>>>> 41d15d95b8d68494bed24595cc32c8852522011f:examples/output_directory/example_xtb_out/energy.output
 
          :::::::::::::::::::::::::::::::::::::::::::::::::::::
          ::                     SUMMARY                     ::
@@ -510,6 +534,7 @@ molecular quadrupole (traceless):
            -------------------------------------------------
 
 ------------------------------------------------------------------------
+<<<<<<< HEAD:examples/output_directory/xtb_out/energy.output
  * finished run on 2021/07/21 at 16:32:49.443     
 ------------------------------------------------------------------------
  total:
@@ -519,5 +544,16 @@ molecular quadrupole (traceless):
  SCF:
  * wall-time:     0 d,  0 h,  0 min,  0.051 sec
  *  cpu-time:     0 d,  0 h,  0 min,  0.051 sec
+=======
+ * finished run on 2021/07/28 at 16:47:51.927     
+------------------------------------------------------------------------
+ total:
+ * wall-time:     0 d,  0 h,  0 min,  0.028 sec
+ *  cpu-time:     0 d,  0 h,  0 min,  0.026 sec
+ * ratio c/w:     0.920 speedup
+ SCF:
+ * wall-time:     0 d,  0 h,  0 min,  0.014 sec
+ *  cpu-time:     0 d,  0 h,  0 min,  0.014 sec
+>>>>>>> 41d15d95b8d68494bed24595cc32c8852522011f:examples/output_directory/example_xtb_out/energy.output
  * ratio c/w:     1.000 speedup
 

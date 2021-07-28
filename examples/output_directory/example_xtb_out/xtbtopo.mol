@@ -1,5 +1,9 @@
 
+<<<<<<< HEAD:examples/output_directory/xtb_out/xtbtopo.mol
   xtb     07212116323D
+=======
+  xtb     07282116473D
+>>>>>>> 41d15d95b8d68494bed24595cc32c8852522011f:examples/output_directory/example_xtb_out/xtbtopo.mol
  xtb: 6.4.0 (d4b70c2)
  20 19  0     0  0            999 V2000
     2.5205    1.1082   -1.0118 N   0  0  0  0  0  0  0  0  0  0  0  0
