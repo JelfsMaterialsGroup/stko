@@ -53,30 +53,49 @@ class MoleculeSplitter:
         functional_groups,
     ):
         """
-        Initialize a :class:`MoleculeSplitter`.
+        Initialize a :class:`.MoleculeSplitter`.
 
         Parameters
         ----------
         breaker_smarts : :class:`str`
-            SMARTS string to find the substructure to break.
+            SMARTS string used to find the substructure to break.
 
         bond_deleter_ids : :class:`tuple` of :class:`int`
-            Index of atoms in `breaker_smarts` to breka bond between.
+            Index of atoms in `breaker_smarts` to break bond between.
 
         replacer_smarts : :class:`str`
             SMARTS string of atom to replace dummy atoms with. This
             must be a single atom.
 
-        functional_groups :
-        :class:`iterable` of :class:`stk.FunctionalGroupFactory`
+        functional_groups : :class:`iterable`
+        of :class:`stk.FunctionalGroupFactory`
             Functional group factories to use to define new building
             block.
+
+        Raises
+        ------
+        :class:`ValueError`
+            If `replacer_smarts` does not correspond to a single atom.
 
         """
 
         self._breaker_smarts = breaker_smarts
         self._bond_deleter_ids = bond_deleter_ids
-        self._replacer_smarts = replacer_smarts
+
+        # Add replacers bonded to * atoms.
+        _atom_list = list(
+            rdkit.MolFromSmarts(replacer_smarts).GetAtoms()
+        )
+        if len(_atom_list) != 1:
+            raise ValueError(
+                f'{replacer_smarts} corresponds {len(_atom_list)} '
+                'atoms. Should be 1.'
+            )
+
+        for i in _atom_list:
+            self._replacer_atom = rdkit.Atom(i.GetAtomicNum())
+            self._replacer_atom.SetFormalCharge(0)
+
         self._functional_groups = functional_groups
 
     def split(self, molecule):
@@ -90,13 +109,12 @@ class MoleculeSplitter:
 
         Returns
         -------
-        :class:`iterable` of :class:`stk.BuildingBlock`
+        new_building_blocks : :class:`iterable`
+        of :class:`stk.BuildingBlock`
             The resulting list of building blocks, with new functional
             groups assigned.
 
         """
-
-        new_building_blocks = []
 
         rdkit_mol = molecule.to_rdkit_mol()
         rdkit.SanitizeMol(rdkit_mol)
@@ -105,18 +123,25 @@ class MoleculeSplitter:
         for atom_ids in rdkit_mol.GetSubstructMatches(
             query=rdkit.MolFromSmarts(self._breaker_smarts)
         ):
+            # Get the atom ids of the query on either end of the broken
+            # bond, translated from query ids to molecule atom ids.
             translated_bond_atom_ids = (
                 atom_ids[self._bond_deleter_ids[0]],
                 atom_ids[self._bond_deleter_ids[1]],
             )
+            # Get tuples of the bonds to break by atom ids.
             bond_pair_ids_to_delete.extend(
                 tuple(sorted((i, j)))
                 for i, j in combinations(translated_bond_atom_ids, 2)
             )
+            # Get the atom ids of the atoms on either end of the broken
+            # bond at which reactions can occur.
             reactable_atom_ids.extend(
                 i for i in translated_bond_atom_ids
             )
 
+        # Get the rdkit molecule bond ids associated with the bonds to
+        # delete.
         bond_ids_to_delete = []
         for bond in rdkit_mol.GetBonds():
             idxs = tuple(sorted((
@@ -126,24 +151,25 @@ class MoleculeSplitter:
                 bond_ids_to_delete.append(bond.GetIdx())
 
         # Delete bonds and atoms.
-        fragments = rdkit.GetMolFrags(rdkit.FragmentOnBonds(
-            mol=rdkit_mol,
-            bondIndices=tuple(bond_ids_to_delete),
-            addDummies=True,
-        ), asMols=True)
+        fragments = rdkit.GetMolFrags(
+            rdkit.FragmentOnBonds(
+                mol=rdkit_mol,
+                bondIndices=tuple(bond_ids_to_delete),
+                addDummies=True,
+            ),
+            asMols=True,
+        )
 
-        # Add replacers bonded to * atoms.
-        for i in rdkit.MolFromSmarts(self._replacer_smarts).GetAtoms():
-            replacer_atom = rdkit.Atom(i.GetAtomicNum())
-            replacer_atom.SetFormalCharge(0)
-            break
-
+        new_building_blocks = []
         for frag in fragments:
             editable = rdkit.EditableMol(frag)
             for atom in frag.GetAtoms():
                 # 0 if dummy atom.
                 if atom.GetAtomicNum() == 0:
-                    editable.ReplaceAtom(atom.GetIdx(), replacer_atom)
+                    editable.ReplaceAtom(
+                        atom.GetIdx(),
+                        self._replacer_atom,
+                    )
 
             frag_rdkit = editable.GetMol()
             rdkit.Kekulize(frag_rdkit)
