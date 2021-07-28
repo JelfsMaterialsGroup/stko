@@ -1,11 +1,11 @@
-      -----------------------------------------------------------      
-     |                   =====================                   |     
-     |                           x T B                           |     
-     |                   =====================                   |     
-     |                         S. Grimme                         |     
-     |          Mulliken Center for Theoretical Chemistry        |     
-     |                    University of Bonn                     |     
-      -----------------------------------------------------------      
+      -----------------------------------------------------------
+     |                   =====================                   |
+     |                           x T B                           |
+     |                   =====================                   |
+     |                         S. Grimme                         |
+     |          Mulliken Center for Theoretical Chemistry        |
+     |                    University of Bonn                     |
+      -----------------------------------------------------------
 
    * xtb version 6.4.0 (d4b70c2) compiled by 'ehlert@majestix' on 2021-02-01
 
@@ -13,17 +13,17 @@
    the terms of the GNU Lesser General Public License as published by
    the Free Software Foundation, either version 3 of the License, or
    (at your option) any later version.
-   
+
    xtb is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
    GNU Lesser General Public License for more details.
-   
+
    Cite this work as:
    * C. Bannwarth, E. Caldeweyher, S. Ehlert, A. Hansen, P. Pracht,
      J. Seibert, S. Spicher, S. Grimme, WIREs Comput. Mol. Sci., 2020,
      e01493. DOI: 10.1002/wcms.1493
-   
+
    for GFN2-xTB:
    * C. Bannwarth, S. Ehlert and S. Grimme., J. Chem. Theory Comput., 2019,
      15, 1652-1671. DOI: 10.1021/acs.jctc.8b01176
@@ -36,7 +36,7 @@
    for GFN-FF:
    * S. Spicher and S. Grimme, Angew. Chem. Int. Ed., 2020, 59, 15665-15673.
      DOI: 10.1002/anie.202004239
-   
+
    for DFT-D4:
    * E. Caldeweyher, C. Bannwarth and S. Grimme, J. Chem. Phys., 2017,
      147, 034112. DOI: 10.1063/1.4993215
@@ -45,55 +45,42 @@
      DOI: 10.1063/1.5090222
    * E. Caldeweyher, J.-M. Mewes, S. Ehlert and S. Grimme, Phys. Chem. Chem. Phys.
      2020, 22, 8499-8512. DOI: 10.1039/D0CP00502A
-   
+
    for sTDA-xTB:
    * S. Grimme and C. Bannwarth, J. Chem. Phys., 2016, 145, 054103.
      DOI: 10.1063/1.4959605
-   
+
    in the mass-spec context:
    * V. Asgeirsson, C. Bauer and S. Grimme, Chem. Sci., 2017, 8, 4879.
      DOI: 10.1039/c7sc00601b
    * J. Koopman and S. Grimme, ACS Omega 2019, 4, 12, 15120-15133.
      DOI: 10.1021/acsomega.9b02011
-   
+
    for metadynamics refer to:
    * S. Grimme, J. Chem. Theory Comput., 2019, 155, 2847-2862
      DOI: 10.1021/acs.jctc.9b00143
-   
+
    with help from (in alphabetical order)
    P. Atkinson, C. Bannwarth, F. Bohle, G. Brandenburg, E. Caldeweyher
    M. Checinski, S. Dohm, S. Ehlert, S. Ehrlich, I. Gerasimov, J. Koopman
    C. Lavinge, S. Lehtola, F. März, M. Müller, F. Musil, H. Neugebauer
    J. Pisarek, P. Pracht, J. Seibert, P. Shushkov, S. Spicher, M. Stahn
    T. Strunk, J. Stückrath, T. Rose, and J. Unsleber
-   
-<<<<<<< HEAD:examples/output_directory/xtb_out/energy.output
- * started run on 2021/07/21 at 16:32:49.379     
-=======
- * started run on 2021/07/28 at 16:47:51.898     
->>>>>>> 41d15d95b8d68494bed24595cc32c8852522011f:examples/output_directory/example_xtb_out/energy.output
+
+ * started run on 2021/07/28 at 16:47:51.898
 
            -------------------------------------------------
           |                Calculation Setup                |
            -------------------------------------------------
 
-<<<<<<< HEAD:examples/output_directory/xtb_out/energy.output
-          program call               : /home/atarzia/software/xtb-6.4.0/bin/xtb /home/atarzia/software/stk_optimizers/examples/output_directory/xtb_out/input_structure.xyz --gfn 2 --vipea --parallel 1 --etemp 300 --chrg 0 --uhf 0 -I det_control.in
-          coordinate file            : /home/atarzia/software/stk_optimizers/examples/output_directory/xtb_out/input_structure.xyz
-=======
           program call               : /home/atarzia/software/xtb-6.4.0/bin/xtb /home/atarzia/software/stk_optimizers/examples/output_directory/example_xtb_out/input_structure.xyz --gfn 2 --parallel 1 --etemp 300 --chrg 0 --uhf 0 -I det_control.in
           coordinate file            : /home/atarzia/software/stk_optimizers/examples/output_directory/example_xtb_out/input_structure.xyz
->>>>>>> 41d15d95b8d68494bed24595cc32c8852522011f:examples/output_directory/example_xtb_out/energy.output
           omp threads                :                     1
           number of atoms            :                    20
           number of electrons        :                    44
           charge                     :                     0
           spin                       :                   0.0
-<<<<<<< HEAD:examples/output_directory/xtb_out/energy.output
-          first test random number   :      0.87706644765597
-=======
           first test random number   :      0.30532391832794
->>>>>>> 41d15d95b8d68494bed24595cc32c8852522011f:examples/output_directory/example_xtb_out/energy.output
 
    ID    Z sym.   atoms
     1    7 N      1, 4, 7
@@ -183,16 +170,6 @@
                   HL-Gap            0.3375487 Eh            9.1852 eV
              Fermi-level           -0.1690969 Eh           -4.6014 eV
 
-<<<<<<< HEAD:examples/output_directory/xtb_out/energy.output
- SCC (total)                   0 d,  0 h,  0 min,  0.018 sec
- SCC setup                      ...        0 min,  0.000 sec (  1.064%)
- Dispersion                     ...        0 min,  0.000 sec (  0.703%)
- classical contributions        ...        0 min,  0.000 sec (  0.188%)
- integral evaluation            ...        0 min,  0.003 sec ( 18.723%)
- iterations                     ...        0 min,  0.007 sec ( 41.609%)
- molecular gradient             ...        0 min,  0.006 sec ( 36.149%)
- printout                       ...        0 min,  0.000 sec (  1.279%)
-=======
  SCC (total)                   0 d,  0 h,  0 min,  0.014 sec
  SCC setup                      ...        0 min,  0.000 sec (  1.629%)
  Dispersion                     ...        0 min,  0.000 sec (  1.236%)
@@ -201,7 +178,6 @@
  iterations                     ...        0 min,  0.005 sec ( 38.504%)
  molecular gradient             ...        0 min,  0.005 sec ( 38.533%)
  printout                       ...        0 min,  0.000 sec (  0.858%)
->>>>>>> 41d15d95b8d68494bed24595cc32c8852522011f:examples/output_directory/example_xtb_out/energy.output
 
          :::::::::::::::::::::::::::::::::::::::::::::::::::::
          ::                     SUMMARY                     ::
@@ -220,9 +196,9 @@
          :: total charge              -0.000000000000 e     ::
          :::::::::::::::::::::::::::::::::::::::::::::::::::::
 
-           ------------------------------------------------- 
+           -------------------------------------------------
           |        vertical delta SCC IP calculation        |
-           ------------------------------------------------- 
+           -------------------------------------------------
 
           ...................................................
           :                      SETUP                      :
@@ -321,9 +297,9 @@
 empirical IP shift (eV):    4.8455
 delta SCC IP (eV):    7.3563
 ------------------------------------------------------------------------
-           ------------------------------------------------- 
+           -------------------------------------------------
           |        vertical delta SCC EA calculation        |
-           ------------------------------------------------- 
+           -------------------------------------------------
 
           ...................................................
           :                      SETUP                      :
@@ -535,7 +511,7 @@ molecular quadrupole (traceless):
 
 ------------------------------------------------------------------------
 <<<<<<< HEAD:examples/output_directory/xtb_out/energy.output
- * finished run on 2021/07/21 at 16:32:49.443     
+ * finished run on 2021/07/21 at 16:32:49.443
 ------------------------------------------------------------------------
  total:
  * wall-time:     0 d,  0 h,  0 min,  0.064 sec
@@ -545,7 +521,7 @@ molecular quadrupole (traceless):
  * wall-time:     0 d,  0 h,  0 min,  0.051 sec
  *  cpu-time:     0 d,  0 h,  0 min,  0.051 sec
 =======
- * finished run on 2021/07/28 at 16:47:51.927     
+ * finished run on 2021/07/28 at 16:47:51.927
 ------------------------------------------------------------------------
  total:
  * wall-time:     0 d,  0 h,  0 min,  0.028 sec
