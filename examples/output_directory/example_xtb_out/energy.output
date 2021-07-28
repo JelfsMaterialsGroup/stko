@@ -1,11 +1,11 @@
-      -----------------------------------------------------------
-     |                   =====================                   |
-     |                           x T B                           |
-     |                   =====================                   |
-     |                         S. Grimme                         |
-     |          Mulliken Center for Theoretical Chemistry        |
-     |                    University of Bonn                     |
-      -----------------------------------------------------------
+      -----------------------------------------------------------      
+     |                   =====================                   |     
+     |                           x T B                           |     
+     |                   =====================                   |     
+     |                         S. Grimme                         |     
+     |          Mulliken Center for Theoretical Chemistry        |     
+     |                    University of Bonn                     |     
+      -----------------------------------------------------------      
 
    * xtb version 6.4.0 (d4b70c2) compiled by 'ehlert@majestix' on 2021-02-01
 
@@ -13,17 +13,17 @@
    the terms of the GNU Lesser General Public License as published by
    the Free Software Foundation, either version 3 of the License, or
    (at your option) any later version.
-
+   
    xtb is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
    GNU Lesser General Public License for more details.
-
+   
    Cite this work as:
    * C. Bannwarth, E. Caldeweyher, S. Ehlert, A. Hansen, P. Pracht,
      J. Seibert, S. Spicher, S. Grimme, WIREs Comput. Mol. Sci., 2020,
      e01493. DOI: 10.1002/wcms.1493
-
+   
    for GFN2-xTB:
    * C. Bannwarth, S. Ehlert and S. Grimme., J. Chem. Theory Comput., 2019,
      15, 1652-1671. DOI: 10.1021/acs.jctc.8b01176
@@ -36,7 +36,7 @@
    for GFN-FF:
    * S. Spicher and S. Grimme, Angew. Chem. Int. Ed., 2020, 59, 15665-15673.
      DOI: 10.1002/anie.202004239
-
+   
    for DFT-D4:
    * E. Caldeweyher, C. Bannwarth and S. Grimme, J. Chem. Phys., 2017,
      147, 034112. DOI: 10.1063/1.4993215
@@ -45,42 +45,42 @@
      DOI: 10.1063/1.5090222
    * E. Caldeweyher, J.-M. Mewes, S. Ehlert and S. Grimme, Phys. Chem. Chem. Phys.
      2020, 22, 8499-8512. DOI: 10.1039/D0CP00502A
-
+   
    for sTDA-xTB:
    * S. Grimme and C. Bannwarth, J. Chem. Phys., 2016, 145, 054103.
      DOI: 10.1063/1.4959605
-
+   
    in the mass-spec context:
    * V. Asgeirsson, C. Bauer and S. Grimme, Chem. Sci., 2017, 8, 4879.
      DOI: 10.1039/c7sc00601b
    * J. Koopman and S. Grimme, ACS Omega 2019, 4, 12, 15120-15133.
      DOI: 10.1021/acsomega.9b02011
-
+   
    for metadynamics refer to:
    * S. Grimme, J. Chem. Theory Comput., 2019, 155, 2847-2862
      DOI: 10.1021/acs.jctc.9b00143
-
+   
    with help from (in alphabetical order)
    P. Atkinson, C. Bannwarth, F. Bohle, G. Brandenburg, E. Caldeweyher
    M. Checinski, S. Dohm, S. Ehlert, S. Ehrlich, I. Gerasimov, J. Koopman
    C. Lavinge, S. Lehtola, F. März, M. Müller, F. Musil, H. Neugebauer
    J. Pisarek, P. Pracht, J. Seibert, P. Shushkov, S. Spicher, M. Stahn
    T. Strunk, J. Stückrath, T. Rose, and J. Unsleber
-
- * started run on 2021/07/28 at 16:47:51.898
+   
+ * started run on 2021/07/28 at 17:02:22.223     
 
            -------------------------------------------------
           |                Calculation Setup                |
            -------------------------------------------------
 
-          program call               : /home/atarzia/software/xtb-6.4.0/bin/xtb /home/atarzia/software/stk_optimizers/examples/output_directory/example_xtb_out/input_structure.xyz --gfn 2 --parallel 1 --etemp 300 --chrg 0 --uhf 0 -I det_control.in
+          program call               : /home/atarzia/software/xtb-6.4.0/bin/xtb /home/atarzia/software/stk_optimizers/examples/output_directory/example_xtb_out/input_structure.xyz --gfn 2 --vipea --parallel 1 --etemp 300 --chrg 0 --uhf 0 -I det_control.in
           coordinate file            : /home/atarzia/software/stk_optimizers/examples/output_directory/example_xtb_out/input_structure.xyz
           omp threads                :                     1
           number of atoms            :                    20
           number of electrons        :                    44
           charge                     :                     0
           spin                       :                   0.0
-          first test random number   :      0.30532391832794
+          first test random number   :      0.61017901909780
 
    ID    Z sym.   atoms
     1    7 N      1, 4, 7
@@ -170,14 +170,14 @@
                   HL-Gap            0.3375487 Eh            9.1852 eV
              Fermi-level           -0.1690969 Eh           -4.6014 eV
 
- SCC (total)                   0 d,  0 h,  0 min,  0.014 sec
- SCC setup                      ...        0 min,  0.000 sec (  1.629%)
- Dispersion                     ...        0 min,  0.000 sec (  1.236%)
- classical contributions        ...        0 min,  0.000 sec (  0.328%)
- integral evaluation            ...        0 min,  0.003 sec ( 18.566%)
- iterations                     ...        0 min,  0.005 sec ( 38.504%)
- molecular gradient             ...        0 min,  0.005 sec ( 38.533%)
- printout                       ...        0 min,  0.000 sec (  0.858%)
+ SCC (total)                   0 d,  0 h,  0 min,  0.012 sec
+ SCC setup                      ...        0 min,  0.000 sec (  1.316%)
+ Dispersion                     ...        0 min,  0.000 sec (  0.970%)
+ classical contributions        ...        0 min,  0.000 sec (  0.271%)
+ integral evaluation            ...        0 min,  0.002 sec ( 20.861%)
+ iterations                     ...        0 min,  0.004 sec ( 36.077%)
+ molecular gradient             ...        0 min,  0.005 sec ( 39.388%)
+ printout                       ...        0 min,  0.000 sec (  0.852%)
 
          :::::::::::::::::::::::::::::::::::::::::::::::::::::
          ::                     SUMMARY                     ::
@@ -196,9 +196,9 @@
          :: total charge              -0.000000000000 e     ::
          :::::::::::::::::::::::::::::::::::::::::::::::::::::
 
-           -------------------------------------------------
+           ------------------------------------------------- 
           |        vertical delta SCC IP calculation        |
-           -------------------------------------------------
+           ------------------------------------------------- 
 
           ...................................................
           :                      SETUP                      :
@@ -267,14 +267,14 @@
                   HL-Gap            0.3658814 Eh            9.9561 eV
              Fermi-level           -0.4566437 Eh          -12.4259 eV
 
- SCC (total)                   0 d,  0 h,  0 min,  0.020 sec
- SCC setup                      ...        0 min,  0.000 sec (  0.678%)
- Dispersion                     ...        0 min,  0.000 sec (  0.415%)
- classical contributions        ...        0 min,  0.000 sec (  0.157%)
- integral evaluation            ...        0 min,  0.003 sec ( 16.053%)
- iterations                     ...        0 min,  0.011 sec ( 55.202%)
- molecular gradient             ...        0 min,  0.005 sec ( 26.732%)
- printout                       ...        0 min,  0.000 sec (  0.556%)
+ SCC (total)                   0 d,  0 h,  0 min,  0.016 sec
+ SCC setup                      ...        0 min,  0.000 sec (  0.570%)
+ Dispersion                     ...        0 min,  0.000 sec (  0.421%)
+ classical contributions        ...        0 min,  0.000 sec (  0.149%)
+ integral evaluation            ...        0 min,  0.002 sec ( 12.982%)
+ iterations                     ...        0 min,  0.008 sec ( 49.017%)
+ molecular gradient             ...        0 min,  0.006 sec ( 35.415%)
+ printout                       ...        0 min,  0.000 sec (  1.214%)
 
          :::::::::::::::::::::::::::::::::::::::::::::::::::::
          ::                     SUMMARY                     ::
@@ -297,9 +297,9 @@
 empirical IP shift (eV):    4.8455
 delta SCC IP (eV):    7.3563
 ------------------------------------------------------------------------
-           -------------------------------------------------
+           ------------------------------------------------- 
           |        vertical delta SCC EA calculation        |
-           -------------------------------------------------
+           ------------------------------------------------- 
 
           ...................................................
           :                      SETUP                      :
@@ -360,14 +360,14 @@ delta SCC IP (eV):    7.3563
                   HL-Gap            0.0139423 Eh            0.3794 eV
              Fermi-level            0.0952426 Eh            2.5917 eV
 
- SCC (total)                   0 d,  0 h,  0 min,  0.012 sec
- SCC setup                      ...        0 min,  0.000 sec (  0.969%)
- Dispersion                     ...        0 min,  0.000 sec (  0.660%)
- classical contributions        ...        0 min,  0.000 sec (  0.225%)
- integral evaluation            ...        0 min,  0.002 sec ( 18.693%)
- iterations                     ...        0 min,  0.005 sec ( 41.359%)
- molecular gradient             ...        0 min,  0.004 sec ( 36.972%)
- printout                       ...        0 min,  0.000 sec (  0.879%)
+ SCC (total)                   0 d,  0 h,  0 min,  0.016 sec
+ SCC setup                      ...        0 min,  0.000 sec (  1.230%)
+ Dispersion                     ...        0 min,  0.000 sec (  0.946%)
+ classical contributions        ...        0 min,  0.000 sec (  0.302%)
+ integral evaluation            ...        0 min,  0.003 sec ( 19.124%)
+ iterations                     ...        0 min,  0.006 sec ( 41.044%)
+ molecular gradient             ...        0 min,  0.006 sec ( 36.382%)
+ printout                       ...        0 min,  0.000 sec (  0.656%)
 
          :::::::::::::::::::::::::::::::::::::::::::::::::::::
          ::                     SUMMARY                     ::
@@ -510,26 +510,14 @@ molecular quadrupole (traceless):
            -------------------------------------------------
 
 ------------------------------------------------------------------------
-<<<<<<< HEAD:examples/output_directory/xtb_out/energy.output
- * finished run on 2021/07/21 at 16:32:49.443
+ * finished run on 2021/07/28 at 17:02:22.277     
 ------------------------------------------------------------------------
  total:
- * wall-time:     0 d,  0 h,  0 min,  0.064 sec
- *  cpu-time:     0 d,  0 h,  0 min,  0.062 sec
- * ratio c/w:     0.972 speedup
+ * wall-time:     0 d,  0 h,  0 min,  0.054 sec
+ *  cpu-time:     0 d,  0 h,  0 min,  0.054 sec
+ * ratio c/w:     0.998 speedup
  SCF:
- * wall-time:     0 d,  0 h,  0 min,  0.051 sec
- *  cpu-time:     0 d,  0 h,  0 min,  0.051 sec
-=======
- * finished run on 2021/07/28 at 16:47:51.927
-------------------------------------------------------------------------
- total:
- * wall-time:     0 d,  0 h,  0 min,  0.028 sec
- *  cpu-time:     0 d,  0 h,  0 min,  0.026 sec
- * ratio c/w:     0.920 speedup
- SCF:
- * wall-time:     0 d,  0 h,  0 min,  0.014 sec
- *  cpu-time:     0 d,  0 h,  0 min,  0.014 sec
->>>>>>> 41d15d95b8d68494bed24595cc32c8852522011f:examples/output_directory/example_xtb_out/energy.output
+ * wall-time:     0 d,  0 h,  0 min,  0.044 sec
+ *  cpu-time:     0 d,  0 h,  0 min,  0.044 sec
  * ratio c/w:     1.000 speedup
 
