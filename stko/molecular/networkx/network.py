@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 
 class PositionedAtom:
     """
-    A container for stk.Atom and a position.
+    A container for stk.Atom and a coordinate.
 
     """
 
@@ -30,7 +30,8 @@ class PositionedAtom:
             The atom.
 
         position : : :class:`tuple` of :class:`float`
-            The position of the atom.
+            The position (`x`, `y`, `z`) of the atom in cartesian
+            coordinates.
 
         """
 
@@ -54,7 +55,7 @@ class PositionedAtom:
 
     def _with_id(self, id):
         """
-        Modify the atom.
+        Modify the atom id.
 
         """
 
