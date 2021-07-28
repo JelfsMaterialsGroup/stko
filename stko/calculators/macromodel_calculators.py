@@ -1,5 +1,5 @@
 """
-MacorModel Calculators
+MacroModel Calculators
 =================
 
 # . :class:`.MacroModelForceFieldEnergy`
@@ -111,9 +111,14 @@ class MacroModellForceFieldEnergy(MacroModelCalculator):
             +------------+------------+
             |  14 | OPLS_2005         |
             +------------+------------+
-            |  16 | OPLS3e            |
+            |  16 | OPLS3/3e/4        |
             +------------+------------+
 
+        Notes
+        -----
+        The force field argument `16` corresponds to the either
+        the OPLS3/3e/4 force field depending on the version of
+        MacroModel used.
         """
         super().__init__(
             macromodel_path=macromodel_path, output_dir=output_dir,
