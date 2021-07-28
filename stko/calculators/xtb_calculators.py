@@ -318,8 +318,8 @@ class XTBEnergy(Calculator):
 
         if os.path.exists(output_dir):
             shutil.rmtree(output_dir)
-
         os.mkdir(output_dir)
+
         init_dir = os.getcwd()
         xyz = os.path.join(output_dir, 'input_structure.xyz')
         out_file = os.path.join(output_dir, 'energy.output')

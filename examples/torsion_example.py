@@ -1,6 +1,8 @@
 import stk
 import stko
 
+import os
+
 
 def main():
     bb1 = stk.BuildingBlock('NCCNCCN', [stk.PrimaryAminoFactory()])
@@ -15,7 +17,7 @@ def main():
     )
 
     # Run calculations for bb.
-    bb1.write('output_directory/tors_test_bb1.mol')
+    bb1.write(os.path.join('output_directory', 'tors_test_bb1.mol'))
     tors_calculator = stko.TorsionCalculator()
     tors_results = tors_calculator.get_results(bb1)
     print(tors_results.get_molecule())
@@ -23,7 +25,9 @@ def main():
         print(t, ang, t.get_atom_ids())
 
     # Run calculations for constructed molecule.
-    polymer.write('output_directory/tors_test_polymer.mol')
+    polymer.write(os.path.join(
+        'output_directory', 'tors_test_polymer.mol'
+    ))
     tors_calculator = stko.ConstructedMoleculeTorsionCalculator()
     tors_results = tors_calculator.get_results(polymer)
     print(tors_results.get_molecule())

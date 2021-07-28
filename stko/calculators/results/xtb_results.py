@@ -9,7 +9,7 @@ Results class for the output of XTB.
 """
 
 from .results import Results
-from ...utilities import XTBExtractor
+from ..extractors import XTBExtractor
 
 
 class XTBResults(Results):
