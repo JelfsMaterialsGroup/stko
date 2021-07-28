@@ -13,6 +13,7 @@ def main():
     full_mol.write(os.path.join(examples_output, 'original.mol'))
 
     splitter = stko.MoleculeSplitter(
+        # This smarts corresponds to an imine bond: `CNCC`.
         breaker_smarts='[#6X3]~[#7X2]~[#6X3H1]~[#6X3!H1]',
         bond_deleter_ids=(0, 1),
         replacer_smarts='[Br]',
