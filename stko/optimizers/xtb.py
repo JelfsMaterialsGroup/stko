@@ -18,11 +18,9 @@ import uuid
 import subprocess as sp
 
 from .optimizers import Optimizer
-from ..utilities import (
-    is_valid_xtb_solvent,
-    XTBInvalidSolventError,
-    XTBExtractor
-)
+from ..utilities import is_valid_xtb_solvent, XTBInvalidSolventError
+from ..calculators.extractors import XTBExtractor
+
 
 logger = logging.getLogger(__name__)
 

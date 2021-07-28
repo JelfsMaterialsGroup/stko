@@ -9,7 +9,7 @@ Results class for the output of XTB.
 """
 
 from .results import Results
-from ...utilities import XTBExtractor
+from ..extractors import XTBExtractor
 
 
 class XTBResults(Results):
@@ -68,3 +68,9 @@ class XTBResults(Results):
                 'Frequency, hessian and thermo calculations not '
                 'performed to extract this property.'
             )
+
+    def get_ionisation_potential(self):
+        return (self._extractor.ionisation_potential, 'eV')
+
+    def get_electron_affinity(self):
+        return (self._extractor.electron_affinity, 'eV')

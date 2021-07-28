@@ -549,9 +549,12 @@ class MacroModelForceField(MacroModel):
 
     Optimisation of `long bonds` only within
     :class:`stk.ConstructedMolecule` is possible with
-    `restricted=True`. This fixes all other bonds. Therefore, if the
-    molecule is not a `ConstructedMolecule`, no positions will be
-    optimized.
+    `restricted=True`.
+    Generally, this means only bonds created during the construction
+    process will be optimized,
+    and those belonging to building blocks will be fixed.
+    If the molecule is not a `ConstructedMolecule`, no positions will
+    be optimized.
 
     .. code-block:: python
 
@@ -603,8 +606,9 @@ class MacroModelForceField(MacroModel):
 
         restricted : :class:`bool`, optional
             If ``True`` then an optimization is performed only on bonds
-            not associated with building block IDs. These bonds may not
-            correspond to the bonds formed between bonder atoms.
+            created during the `ConstructedMolecule`
+            creation.
+            All building block bonds will be fixed.
             If ``False`` then all bonds are optimized.
 
         timeout : :class:`float`, optional

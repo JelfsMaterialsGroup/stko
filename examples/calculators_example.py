@@ -1,4 +1,5 @@
 import sys
+import os
 
 import stk
 import stko
@@ -42,8 +43,11 @@ def main():
         print('doing XTB calculation.')
         xtb = stko.XTBEnergy(
             xtb_path=xtb_path,
-            output_dir='output_directory/xtb_out',
+            output_dir=os.path.join(
+                'output_directory', 'example_xtb_out'
+            ),
             unlimited_memory=True,
+            calculate_ip_and_ea=True,
         )
 
         xtb_results = xtb.get_results(bb1)
@@ -55,9 +59,11 @@ def main():
         fermi_levels = xtb_results.get_fermi_level()
         homo_lumo_orbitals = xtb_results.get_homo_lumo_orbitals()
         full_dipole_moments = xtb_results.get_full_dipole_moments()
+        ip = xtb_results.get_ionisation_potential()
+        ea = xtb_results.get_electron_affinity()
         print(
             total_energy, homo_lumo_gap, homo_lumo_orbitals,
-            fermi_levels, full_dipole_moments,
+            fermi_levels, full_dipole_moments, ip, ea
         )
         # From results, vs from calculator.
         print(xtb.get_energy(bb1), total_energy)
