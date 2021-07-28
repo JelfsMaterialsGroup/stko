@@ -38,8 +38,8 @@ class MacroModelCalculator(MacroModel, Calculator):
             output_dir=output_dir,
             timeout=timeout,
             force_field=force_field,
-            # Below argument are unnecesary for calculators.
-            # Needed for MacroModel.__init__
+            # Below argument are unnecessary for calculators.
+            # Needed for MacroModel.__init__ function.
             maximum_iterations=2500,
             minimum_gradient=0.05
         )
@@ -79,7 +79,7 @@ class MacroModellForceFieldEnergy(MacroModelCalculator):
                  force_field=16,
                  ):
         """
-        Initilize a :class:`.MacroModellForceFieldEnergy` instance.
+        Initialize a :class:`.MacroModellForceFieldEnergy` instance.
 
         Parameters
         ----------
@@ -199,7 +199,7 @@ class MacroModellForceFieldEnergy(MacroModelCalculator):
         with open(mmo_path, 'r') as mmo:
             mmo_lines = mmo.readlines()
         # Read the energy
-        e_line = list(
+        e_line = next(
             filter(
                 lambda line: 'Total energy' in
                 line,
@@ -207,7 +207,7 @@ class MacroModellForceFieldEnergy(MacroModelCalculator):
             )
         )
 
-        return float(re.findall(r'[-+]?\d*\.\d+|\d+', e_line[0])[0])
+        return float(re.findall(r'[-+]?\d*\.\d+|\d+', e_line)[0])
 
     def _generate_com(self, mol, run_name):
         """
