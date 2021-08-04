@@ -173,7 +173,7 @@ class MacroModelForceField(MacroModelOptimizer):
         output_dir : :class:`str`, optional
             The name of the directory into which files generated during
             the optimization are written, if ``None`` then
-            : func:`uuid.uuid4` is used.
+            :func:`uuid.uuid4` is used.
 
         restricted : :class:`bool`, optional
             If ``True`` then an optimization is performed only on bonds
@@ -567,7 +567,7 @@ class MacroModelMD(MacroModelOptimizer):
         output_dir : :class:`str`, optional
             The name of the directory into which files generated during
             the optimization are written, if ``None`` then
-            : func:`uuid.uuid4` is used.
+            :func:`uuid.uuid4` is used.
 
         timeout : :class:`float`, optional
             The amount in seconds the MD is allowed to run before
@@ -624,7 +624,7 @@ class MacroModelMD(MacroModelOptimizer):
             Cannot be less than ``0.0001``.
 
         restricted_bonds : :class:`set`, optional
-            A:class:`set` of the form
+            A :class:`set` of the form
 
             .. code-block::: python
 
@@ -638,7 +638,7 @@ class MacroModelMD(MacroModelOptimizer):
             have a fixed length via the atom ids of atoms in the bond.
 
         restricted_bond_angles: :class:`set`, optional
-            A:class:`set` of the form
+            A :class:`set` of the form
 
             .. code-block::: python
 
@@ -653,7 +653,7 @@ class MacroModelMD(MacroModelOptimizer):
             bond angle.
 
         restricted_torsional_angles : :class:`set`, optional
-            A:class:`set` of the form
+            A :class:`set` of the form
 
             .. code-block::: python
 
