@@ -29,6 +29,7 @@ logger = logging.getLogger(__name__)
 class MacroModelOptimizer(Optimizer, MacroModel):
     """
     Base class for MacroModel optimizations.
+
     """
 
     def __init__(
@@ -50,17 +51,17 @@ class MacroModelOptimizer(Optimizer, MacroModel):
             machine. For example, on a Linux machine this may be
             something like ``'/opt/schrodinger2017-2'``.
 
-        output_dir : :class:`str`, optional
+        output_dir : :class:`str`
             The name of the directory into which files generated during
             the optimization are written, if ``None`` then
             :func:`uuid.uuid4` is used.
 
-        timeout : :class:`float`, optional
+        timeout : :class:`float`
             The amount in seconds the optimization is allowed to run
             before being terminated. ``None`` means there is no
             timeout.
 
-        force_field : :class:`int`, optional
+        force_field : :class:`int`
             The number of the force field to be used.
             Force field arguments can be the following:
             +------------+------------+
@@ -81,13 +82,14 @@ class MacroModelOptimizer(Optimizer, MacroModel):
             |  16 | OPLS3/3e/4        |
             +------------+------------+
 
-        minimum_gradient: : class: `float`
-            The gradient at which optimization is stopped.
-            Cannot be less than ``0.0001``.
-
         maximum_iterations: : class: `int`
             The maximum number of iterations done during the
             optimization. Cannot be more than ``999999``.
+
+        minimum_gradient : : class: `float`
+            The gradient at which optimization is stopped.
+            Cannot be less than ``0.0001``.
+
         """
         self._force_field = force_field
         self._minimum_gradient = minimum_gradient
@@ -105,10 +107,10 @@ class MacroModelForceField(MacroModelOptimizer):
 
     Examples
     --------
-    Optimisation of any: class: `stk.Molecule` is possible with
-    `restricted = False`.
+    Optimisation of any :class: `stk.Molecule` is possible with
+    `restricted=False`.
 
-    .. code-block: : python
+    .. code-block:: python
 
         import stk
         import stko
@@ -162,44 +164,44 @@ class MacroModelForceField(MacroModelOptimizer):
         minimum_gradient=0.05,
     ):
         """
-        Initialize a: class: `MacroModelForceField` object.
+        Initialize a :class: `MacroModelForceField` object.
 
         Parameters
         ----------
-        macromodel_path: : class: `str`
+        macromodel_path: :class:`str`
             The full path of the Schrodinger suite within the user's
             machine. For example, on a Linux machine this may be
             something like ``'/opt/schrodinger2017-2'``.
 
-        output_dir: : class: `str`, optional
+        output_dir: :class:`str`, optional
             The name of the directory into which files generated during
             the optimization are written, if ``None`` then
             : func: `uuid.uuid4` is used.
 
-        restricted: : class: `bool`, optional
+        restricted: :class:`bool`, optional
             If ``True`` then an optimization is performed only on bonds
             not associated with building block IDs. These bonds may not
             correspond to the bonds formed between bonder atoms.
             If ``False`` then all bonds are optimized.
 
-        timeout: : class: `float`, optional
+        timeout: :class:`float`, optional
             The amount in seconds the optimization is allowed to run
             before being terminated. ``None`` means there is no
             timeout.
 
-        force_field: : class: `int`, optional
+        force_field: :class:`int`, optional
             The number of the force field to be used.
             Force field arguments can be the following:
             +------------+------------+
-            |  1 | MM2                |
+            |  1  | MM2               |
             +------------+------------+
-            |  2 | MM3                |
+            |  2  | MM3               |
             +------------+------------+
-            |  3 | AMBER              |
+            |  3  | AMBER             |
             +------------+------------+
-            |  4 | AMBER94            |
+            |  4  | AMBER94           |
             +------------+------------+
-            |  5 | OPLSA              |
+            |  5  | OPLSA             |
             +------------+------------+
             |  10 | MMFF94 and MMFF94s|
             +------------+------------+
@@ -208,11 +210,11 @@ class MacroModelForceField(MacroModelOptimizer):
             |  16 | OPLS3/3e/4        |
             +------------+------------+
 
-        maximum_iterations: : class: `int`, optional
+        maximum_iterations: :class:`int`, optional
             The maximum number of iterations done during the
             optimization. Cannot be more than ``999999``.
 
-        minimum_gradient: : class: `float`, optional
+        minimum_gradient: :class:`float`, optional
             The gradient at which optimization is stopped.
             Cannot be less than ``0.0001``.
 
@@ -238,11 +240,11 @@ class MacroModelForceField(MacroModelOptimizer):
 
         Parameters
         ----------
-        minimum_gradient: : class: `float`
+        minimum_gradient: :class:`float`
             The gradient at which optimization is stopped.
             Cannot be less than ``0.0001``.
 
-        maximum_iterations: : class: `int`
+        maximum_iterations: :class:`int`
             The maximum number of iterations done during the
             optimization. Cannot be more than ``999999``.
 
@@ -252,7 +254,7 @@ class MacroModelForceField(MacroModelOptimizer):
 
         Raises
         ------
-        : class: `.MacroModelInputError`
+        :class:`.MacroModelInputError`
             If the parameters cannot be converted into a valid ``.com``
             file entry.
 
@@ -273,10 +275,10 @@ class MacroModelForceField(MacroModelOptimizer):
         Create a ``.com`` file for a MacroModel optimization.
 
         The created ``.com`` file fixes all bond parameters which were
-        not added by: meth: `~.Topology.construct`. This means all bond
+        not added by :meth: `~.Topology.construct`. This means all bond
         distances, bond angles and torsional angles are fixed, except
         for cases where it involves a bond added by
-        : meth: `.Topology.construct`.
+        :meth:`.Topology.construct`.
 
         This fixing is implemented by creating a ``.com`` file with
         various "FX" commands written within its body.
