@@ -130,7 +130,7 @@ class MacroModelForceField(MacroModelOptimizer):
     If the molecule is not a `ConstructedMolecule`, no positions will
     be optimized.
 
-    .. code-block::: python
+    .. code-block:: python
 
         import stk
         import stko
@@ -562,21 +562,21 @@ class MacroModelMD(MacroModelOptimizer):
 
         Parameters
         ----------
-        macromodel_path: :class:`str`
+        macromodel_path : :class:`str`
             The full path of the Schrodinger suite within the user's
             machine. For example, on a Linux machine this may be
             something like ``'/opt/schrodinger2017-2'``.
 
-        output_dir: :class:`str`, optional
+        output_dir : :class:`str`, optional
             The name of the directory into which files generated during
             the optimization are written, if ``None`` then
             : func:`uuid.uuid4` is used.
 
-        timeout: :class:`float`, optional
+        timeout : :class:`float`, optional
             The amount in seconds the MD is allowed to run before
             being terminated. ``None`` means there is no timeout.
 
-        force_field: :class:`int`, optional
+        force_field : :class:`int`, optional
             The number of the force field to be used.
             Force field arguments can be the following:
             +------------+------------+
@@ -598,35 +598,35 @@ class MacroModelMD(MacroModelOptimizer):
             +------------+------------+
 
 
-        temperature: :class:`float`, optional
+        temperature : :class:`float`, optional
             The temperature in Kelvin at which the MD is run.
             Cannot be more than ``99999.99``.
 
-        conformers': :class:`int`, optional
+        conformers : :class:`int`, optional
             The number of conformers sampled and optimized from the MD.
             Cannot be more than ``9999``.
 
-        simulation_time: :class:`float`, optional
+        simulation_time : :class:`float`, optional
             The simulation time in ``ps`` of the MD.
             Cannot be more than ``999999.99``.
 
-        time_step: :class:`float`, optional
+        time_step : :class:`float`, optional
             The time step in ``fs`` for the MD.
             Cannot be more than ``99999.99``.
 
-        eq_time: :class:`float`, optional
+        eq_time : :class:`float`, optional
             The equilibration time in ``ps`` before the MD is run.
             Cannot be more than ``999999.99``.
 
-        maximum_iterations: :class:`int`, optional
+        maximum_iterations : :class:`int`, optional
             The maximum number of iterations done during the
             optimization. Cannot be more than ``999999``.
 
-        minimum_gradient: :class:`float`, optional
+        minimum_gradient : :class:`float`, optional
             The gradient at which optimization is stopped.
             Cannot be less than ``0.0001``.
 
-        restricted_bonds: :class:`set`, optional
+        restricted_bonds : :class:`set`, optional
             A:class:`set` of the form
 
             .. code-block::: python
@@ -655,7 +655,7 @@ class MacroModelMD(MacroModelOptimizer):
             should have a fixed size via the atom ids of atoms in the
             bond angle.
 
-        restricted_torsional_angles: :class:`set`, optional
+        restricted_torsional_angles : :class:`set`, optional
             A:class:`set` of the form
 
             .. code-block::: python
@@ -734,37 +734,37 @@ class MacroModelMD(MacroModelOptimizer):
 
         Parameters
         ----------
-        temperature: :class:`float`
+        temperature : :class:`float`
             The temperature in Kelvin at which the MD is run.
             Cannot be more than ``99999.99``.
 
-        conformers': :class:`int`
+        conformers : :class:`int`
             The number of conformers sampled and optimized from the MD.
             Cannot be more than ``9999``.
 
-        simulation_time: :class:`float`
+        simulation_time : :class:`float`
             The simulation time in ``ps`` of the MD.
             Cannot be more than ``999999.99``.
 
-        time_step: :class:`float`
+        time_step : :class:`float`
             The time step in ``fs`` for the MD.
             Cannot be more than ``99999.99``.
 
-        eq_time: :class:`float`
+        eq_time : :class:`float`
             The equilibriation time in ``ps`` before the MD is run.
             Cannot be more than ``999999.99``.
 
-        minimum_gradient: :class:`float`
+        minimum_gradient : :class:`float`
             The gradient at which optimization is stopped.
             Cannot be less than ``0.0001``.
 
-        maximum_iterations: :class:`int`
+        maximum_iterations : :class:`int`
             The maximum number of iterations done during the
             optimization. Cannot be more than ``999999``.
 
         Returns
         -------
-        None: :class:`NoneType`
+        None : :class:`NoneType`
 
         Raises
         ------
@@ -824,12 +824,12 @@ class MacroModelMD(MacroModelOptimizer):
 
         Parameters
         ----------
-        mol: :class:`.Molecule`
+        mol : :class:`.Molecule`
             The molecule which is to be optimized.
 
         Returns
         -------
-        None: :class:`NoneType`
+        None : :class:`NoneType`
 
         """
 
@@ -893,12 +893,12 @@ class MacroModelMD(MacroModelOptimizer):
 
         Parameters
         ----------
-        mol: :class:`.Molecule`
+        mol : :class:`.Molecule`
             The molecule to be optimized.
 
         Returns
         -------
-        mol: :class:`.Molecule`
+        mol : :class:`.Molecule`
             The molecule to be optimized.
 
         """
