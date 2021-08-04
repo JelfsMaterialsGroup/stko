@@ -716,7 +716,7 @@ class MacroModelMD(MacroModelOptimizer):
             minimum_gradient=minimum_gradient,
         )
 
-    @ staticmethod
+    @staticmethod
     def _check_params(
         temperature,
         conformers,
