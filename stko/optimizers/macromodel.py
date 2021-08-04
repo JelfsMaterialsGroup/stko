@@ -82,7 +82,7 @@ class MacroModelOptimizer(Optimizer, MacroModel):
             |  16 | OPLS3/3e/4        |
             +------------+------------+
 
-        maximum_iterations: :class:`int`
+        maximum_iterations : :class:`int`
             The maximum number of iterations done during the
             optimization. Cannot be more than ``999999``.
 
