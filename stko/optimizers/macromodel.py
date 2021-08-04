@@ -811,7 +811,7 @@ class MacroModelMD(MacroModelOptimizer):
         Create a ``.com`` file for a MacroModel optimization.
 
         The created ``.com`` file fixes all bond parameters which were
-        not added by: meth:`~.Topology.construct`. This means all bond
+        not added by :meth:`~.Topology.construct`. This means all bond
         distances, bond angles and torsional angles are fixed, except
         for cases where it involves a bond added by
         : meth:`~.Topology.construct`.
