@@ -555,7 +555,7 @@ class MacroModelMD(MacroModelOptimizer):
         restricted_torsional_angles=None,
     ):
         """
-        Initialize a:class:`.MacroModelMD` instance.
+        Initialize a :class:`.MacroModelMD` instance.
 
         Parameters
         ----------
@@ -637,7 +637,7 @@ class MacroModelMD(MacroModelOptimizer):
             Where each :class:`frozenset` defines which bonds should
             have a fixed length via the atom ids of atoms in the bond.
 
-        restricted_bond_angles: :class:`set`, optional
+        restricted_bond_angles : :class:`set`, optional
             A :class:`set` of the form
 
             .. code-block:: python
