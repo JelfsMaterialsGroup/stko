@@ -449,7 +449,7 @@ class MacroModelForceField(MacroModelOptimizer):
 
         Parameters
         ----------
-        mol: :class:`.Molecule`
+        mol : :class:`.Molecule`
             The molecule to be optimized.
 
         fix_block : :class:`str`
@@ -1012,7 +1012,7 @@ class MacroModelMD(MacroModelOptimizer):
 
         Parameters
         ----------
-        mol: :class:`stk.ConstructedMolecule`
+        mol : :class:`stk.ConstructedMolecule`
             The molecule to be optimized.
 
         fix_block : :class:`str`
