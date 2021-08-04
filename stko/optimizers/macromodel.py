@@ -207,11 +207,11 @@ class MacroModelForceField(MacroModelOptimizer):
             |  16 | OPLS3/3e/4        |
             +------------+------------+
 
-        maximum_iterations: :class:`int`, optional
+        maximum_iterations : :class:`int`, optional
             The maximum number of iterations done during the
             optimization. Cannot be more than ``999999``.
 
-        minimum_gradient: :class:`float`, optional
+        minimum_gradient : :class:`float`, optional
             The gradient at which optimization is stopped.
             Cannot be less than ``0.0001``.
 
@@ -230,7 +230,7 @@ class MacroModelForceField(MacroModelOptimizer):
             timeout=timeout,
         )
 
-    @ staticmethod
+    @staticmethod
     def _check_params(minimum_gradient, maximum_iterations):
         """
         Check if the optimization parameters are valid for MacroModel.
@@ -247,7 +247,7 @@ class MacroModelForceField(MacroModelOptimizer):
 
         Returns
         -------
-        None: :class:`NoneType`
+        None : :class:`NoneType`
 
         Raises
         ------
@@ -291,7 +291,7 @@ class MacroModelForceField(MacroModelOptimizer):
 
         Returns
         -------
-        None: :class:`NoneType`
+        None : :class:`NoneType`
 
         """
 
