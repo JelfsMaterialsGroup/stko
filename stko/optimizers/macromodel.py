@@ -518,7 +518,7 @@ class MacroModelMD(MacroModelOptimizer):
 
     Examples
     --------
-    Molecular dynamics can be run on any:class:`stk.Molecule` using
+    Molecular dynamics can be run on any :class:`stk.Molecule` using
     this class. Restrictions can be applied, but are not by default.
     This class collects a series of conformers from the trajectory,
     optimises them, then returns the lowest energy conformer.
