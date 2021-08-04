@@ -7,10 +7,10 @@ Performs optimizations using MacroModel
 """
 
 
-import logging
-from uuid import uuid4
-
 import rdkit.Chem.AllChem as rdkit
+from uuid import uuid4
+import logging
+
 
 from ..packages.macromodel import (
     MacroModel,
