@@ -634,7 +634,7 @@ class MacroModelMD(MacroModelOptimizer):
                     frozenset((5, 6))
                 }
 
-            Where each:class:`frozenset` defines which bonds should
+            Where each :class:`frozenset` defines which bonds should
             have a fixed length via the atom ids of atoms in the bond.
 
         restricted_bond_angles: :class:`set`, optional
@@ -648,7 +648,7 @@ class MacroModelMD(MacroModelOptimizer):
                     frozenset((5, 8, 2))
                 }
 
-            Where each:class:`frozenset` defines which bond angles
+            Where each :class:`frozenset` defines which bond angles
             should have a fixed size via the atom ids of atoms in the
             bond angle.
 
@@ -663,7 +663,7 @@ class MacroModelMD(MacroModelOptimizer):
                     frozenset((5, 8, 2, 9))
                 }
 
-            Where each:class:`frozenset` defines which torsional
+            Where each :class:`frozenset` defines which torsional
             angles should have a fixed size via the atom ids of atoms
             in the torsional angle.
 
