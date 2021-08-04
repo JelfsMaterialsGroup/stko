@@ -395,7 +395,7 @@ class MacroModelForceField(MacroModelOptimizer):
         mol: :class:`stk.Molecule`
             The molecule to be optimized.
 
-        fix_block: :class:`str`
+        fix_block : :class:`str`
             A string holding fix commands in the ``.com`` file.
 
         Returns
@@ -455,7 +455,7 @@ class MacroModelForceField(MacroModelOptimizer):
         mol: :class:`.Molecule`
             The molecule to be optimized.
 
-        fix_block: :class:`str`
+        fix_block : :class:`str`
             A string holding fix commands in the ``.com`` file.
 
         Returns
@@ -490,7 +490,7 @@ class MacroModelForceField(MacroModelOptimizer):
         mol: :class:`.Molecule`
             The molecule to be optimized.
 
-        fix_block: :class:`str`
+        fix_block : :class:`str`
             A string holding fix commands in the ``.com`` file.
 
         Returns
@@ -934,10 +934,10 @@ class MacroModelMD(MacroModelOptimizer):
 
         Parameters
         ----------
-        mol: :class:`stk.ConstructedMolecule`
+        mol : :class:`stk.ConstructedMolecule`
             The molecule to be optimized.
 
-        fix_block: :class:`str`
+        fix_block : :class:`str`
             A string holding fix commands in the ``.com`` file.
 
         Returns
@@ -981,10 +981,10 @@ class MacroModelMD(MacroModelOptimizer):
 
         Parameters
         ----------
-        mol: :class:`stk.ConstructedMolecule`
+        mol : :class:`stk.ConstructedMolecule`
             The molecule to be optimized.
 
-        fix_block: :class:`str`
+        fix_block : :class:`str`
             A string holding fix commands in the ``.com`` file.
 
         Returns
@@ -1018,7 +1018,7 @@ class MacroModelMD(MacroModelOptimizer):
         mol: :class:`stk.ConstructedMolecule`
             The molecule to be optimized.
 
-        fix_block: :class:`str`
+        fix_block : :class:`str`
             A string holding fix commands in the ``.com`` file.
 
         Returns
