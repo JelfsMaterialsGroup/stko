@@ -523,7 +523,7 @@ class MacroModelMD(MacroModelOptimizer):
     This class collects a series of conformers from the trajectory,
     optimises them, then returns the lowest energy conformer.
 
-    .. code-block::: python
+    .. code-block:: python
 
         import stk
         import stko
@@ -626,7 +626,7 @@ class MacroModelMD(MacroModelOptimizer):
         restricted_bonds : :class:`set`, optional
             A :class:`set` of the form
 
-            .. code-block::: python
+            .. code-block:: python
 
                 restricted_bonds = {
                     frozenset((0, 10)),
@@ -640,7 +640,7 @@ class MacroModelMD(MacroModelOptimizer):
         restricted_bond_angles: :class:`set`, optional
             A :class:`set` of the form
 
-            .. code-block::: python
+            .. code-block:: python
 
                 restricted_bonds = {
                     frozenset((0, 10, 12)),
@@ -655,7 +655,7 @@ class MacroModelMD(MacroModelOptimizer):
         restricted_torsional_angles : :class:`set`, optional
             A :class:`set` of the form
 
-            .. code-block::: python
+            .. code-block:: python
 
                 restricted_bonds = {
                     frozenset((0, 10, 12, 3)),
