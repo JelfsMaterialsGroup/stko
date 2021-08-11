@@ -27,9 +27,9 @@ from .case_data import CaseData
             molecule=stk.BuildingBlock('BrC#CBr'),
             zmatrix=(
                 'Br\n'
-                'C 1 1.89\n'
-                'C 2 1.211 0.77\n'
-                'Br 3 1.882 179.03 1 -72.33'
+                'C 1 1.9\n'
+                'C 2 1.211 0.17\n'
+                'Br 3 1.892 179.14 1 -171.59'
             ),
         ),
     ),
