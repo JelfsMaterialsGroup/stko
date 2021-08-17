@@ -6,7 +6,6 @@ Performs optimizations using MacroModel
 
 """
 
-
 import rdkit.Chem.AllChem as rdkit
 from uuid import uuid4
 import logging
