@@ -12,6 +12,7 @@ Subpackages
 .. toctree::
    :maxdepth: 4
 
+   stko.molecular.conversion
    stko.molecular.molecule_splitter
    stko.molecular.networkx
    stko.molecular.periodic
