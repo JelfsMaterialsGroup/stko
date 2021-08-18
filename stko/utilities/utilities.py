@@ -652,10 +652,10 @@ def get_long_bond_ids(mol, reorder=False):
 
 def calculate_dihedral(pt1, pt2, pt3, pt4):
     """
-    Calculate the dihedral between four points.
+    Calculate the dihedral between four points in degrees.
 
     Uses Praxeolitic formula --> 1 sqrt, 1 cross product
-    Output in range (-pi to pi).
+    Output in range (-180 to 180).
 
     From: https://stackoverflow.com/questions/20305272/
     dihedral-torsion-angle-from-four-points-in-cartesian-
@@ -720,6 +720,17 @@ def vector_angle(vector1, vector2):
     if term <= -1.:
         return np.pi
     return np.arccos(term)
+
+
+def calculate_angle(pt1, pt2, pt3):
+    """
+    Calculate the angle between three points in degrees.
+
+    """
+
+    v1 = pt1 - pt2
+    v2 = pt3 - pt2
+    return np.degrees(vector_angle(v1, v2))
 
 
 def get_torsion_info_angles(mol, torsion_info):
