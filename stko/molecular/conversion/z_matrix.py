@@ -45,7 +45,7 @@ class ZMatrix:
 
     def get_zmatrix(self, molecule):
         """
-        Get z-matrix of a molecule.
+        Get Z-matrix of a molecule.
 
         Parameters
         ----------
@@ -56,7 +56,7 @@ class ZMatrix:
         -------
         zmatrix : :class:`str`
             The Z-matrix of the molecule.
-            Distance is in Angstrom, angles and torsions in degrees.
+            Distances in Angstrom, angles and torsions in degrees.
 
         """
 
