@@ -14,7 +14,7 @@ from itertools import combinations
 
 import stk
 
-from ..dummy_atom import DummyAtom
+from ..atoms import DummyAtom
 
 logger = logging.getLogger(__name__)
 

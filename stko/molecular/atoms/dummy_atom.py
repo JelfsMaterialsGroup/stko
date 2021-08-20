@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 
 class DummyAtom:
     """
-    Contains an stk.Atom.
+    Dummy of an stk.Atom.
 
     """
 
