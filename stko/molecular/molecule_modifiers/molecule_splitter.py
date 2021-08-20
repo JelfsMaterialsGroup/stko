@@ -14,7 +14,7 @@ from itertools import combinations
 
 import stk
 
-from ..atoms import DummyAtom
+from ..atoms import Du
 
 logger = logging.getLogger(__name__)
 
@@ -130,7 +130,7 @@ class MoleculeSplitter:
             atoms = []
             for a in frag.GetAtoms():
                 if a.GetAtomicNum() == 0:
-                    atoms.append(DummyAtom(a.GetIdx()))
+                    atoms.append(Du(a.GetIdx()))
                 else:
                     atoms.append(
                         stk.Atom(

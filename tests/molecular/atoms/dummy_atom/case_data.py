@@ -1,10 +1,10 @@
 class CaseData:
     """
-    An :class:`.DummyAtom` test case.
+    An :class:`.Du` test case.
 
     Attributes
     ----------
-    atom : :class:`.DummyAtom`
+    atom : :class:`.Du`
         The atom being tested.
 
     id : :class:`int`
@@ -18,7 +18,7 @@ class CaseData:
 
         Parameters
         ----------
-        atom : :class:`.DummyAtom`
+        atom : :class:`.Du`
             The atom being tested.
 
         id : :class:`int`

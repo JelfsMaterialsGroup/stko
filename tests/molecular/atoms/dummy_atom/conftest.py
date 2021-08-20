@@ -13,7 +13,7 @@ def case_data_1(id):
     """
 
     return CaseData(
-        atom=stko.DummyAtom(id),
+        atom=stko.Du(id),
         id=id,
     )
 
@@ -47,8 +47,8 @@ def id(request):
 @pytest.fixture
 def dummy_atom(id):
     """
-    An :class:`.DummyAtom` instance.
+    An :class:`.Du` instance.
 
     """
 
-    return stko.DummyAtom(id).clone()
+    return stko.Du(id).clone()

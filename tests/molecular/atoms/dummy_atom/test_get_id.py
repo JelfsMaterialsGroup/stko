@@ -1,6 +1,6 @@
 def test_get_id(case_data):
     """
-    Test :meth:`.DummyAtom.get_id`.
+    Test :meth:`.Du.get_id`.
 
     Parameters
     ----------

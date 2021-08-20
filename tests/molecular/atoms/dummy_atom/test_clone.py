@@ -3,7 +3,7 @@ from ..utilities import is_equivalent_atom
 
 def test_clone(dummy_atom):
     """
-    Test :meth:`.DummyAtom.clone`.
+    Test :meth:`.Du.clone`.
 
     Parameters
     ----------

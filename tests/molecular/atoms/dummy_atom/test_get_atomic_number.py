@@ -1,6 +1,6 @@
 def test_get_atomic_number(case_data):
     """
-    Test :meth:`.DummyAtom.get_atomic_number`.
+    Test :meth:`.Du.get_atomic_number`.
 
     Parameters
     ----------

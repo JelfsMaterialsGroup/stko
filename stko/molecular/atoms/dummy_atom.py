@@ -2,7 +2,7 @@
 Dummy Atom
 ==========
 
-#. :class:`.DummyAtom`
+#. :class:`.Du`
 
 A class representing a dummy stk.Atom.
 
@@ -14,7 +14,7 @@ import stk
 logger = logging.getLogger(__name__)
 
 
-class DummyAtom:
+class Du:
     """
     Dummy of an stk.Atom.
 
@@ -22,7 +22,7 @@ class DummyAtom:
 
     def __init__(self, id):
         """
-        Initialize a :class:`.DummyAtom`
+        Initialize a :class:`.Du`
 
         Parameters
         ----------

@@ -1,6 +1,6 @@
 def test_get_charge(case_data):
     """
-    Test :meth:`.DummyAtom.get_charge`.
+    Test :meth:`.Du.get_charge`.
 
     Parameters
     ----------

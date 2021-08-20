@@ -13,7 +13,7 @@ from rdkit.Chem import AllChem as rdkit
 
 import stk
 
-from ..atoms import DummyAtom
+from ..atoms import Du
 
 logger = logging.getLogger(__name__)
 
@@ -117,7 +117,7 @@ class MoleculeTransformer:
 
         atoms = []
         for a in molecule.get_atoms():
-            if isinstance(a, DummyAtom):
+            if isinstance(a, Du):
                 atoms.append(stk.Atom(
                     id=a.get_id(),
                     atomic_number=self._replacer.get_atomic_number(),
