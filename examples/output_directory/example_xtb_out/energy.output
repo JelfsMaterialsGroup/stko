@@ -67,7 +67,7 @@
    J. Pisarek, P. Pracht, J. Seibert, P. Shushkov, S. Spicher, M. Stahn
    T. Strunk, J. Stückrath, T. Rose, and J. Unsleber
    
- * started run on 2021/07/28 at 17:02:22.223     
+ * started run on 2021/08/20 at 09:55:27.865     
 
            -------------------------------------------------
           |                Calculation Setup                |
@@ -80,7 +80,7 @@
           number of electrons        :                    44
           charge                     :                     0
           spin                       :                   0.0
-          first test random number   :      0.61017901909780
+          first test random number   :      0.30636709651034
 
    ID    Z sym.   atoms
     1    7 N      1, 4, 7
@@ -170,14 +170,14 @@
                   HL-Gap            0.3375487 Eh            9.1852 eV
              Fermi-level           -0.1690969 Eh           -4.6014 eV
 
- SCC (total)                   0 d,  0 h,  0 min,  0.012 sec
- SCC setup                      ...        0 min,  0.000 sec (  1.316%)
- Dispersion                     ...        0 min,  0.000 sec (  0.970%)
- classical contributions        ...        0 min,  0.000 sec (  0.271%)
- integral evaluation            ...        0 min,  0.002 sec ( 20.861%)
- iterations                     ...        0 min,  0.004 sec ( 36.077%)
- molecular gradient             ...        0 min,  0.005 sec ( 39.388%)
- printout                       ...        0 min,  0.000 sec (  0.852%)
+ SCC (total)                   0 d,  0 h,  0 min,  0.016 sec
+ SCC setup                      ...        0 min,  0.000 sec (  1.565%)
+ Dispersion                     ...        0 min,  0.000 sec (  0.826%)
+ classical contributions        ...        0 min,  0.000 sec (  0.233%)
+ integral evaluation            ...        0 min,  0.003 sec ( 17.904%)
+ iterations                     ...        0 min,  0.006 sec ( 36.061%)
+ molecular gradient             ...        0 min,  0.007 sec ( 41.818%)
+ printout                       ...        0 min,  0.000 sec (  1.213%)
 
          :::::::::::::::::::::::::::::::::::::::::::::::::::::
          ::                     SUMMARY                     ::
@@ -267,14 +267,14 @@
                   HL-Gap            0.3658814 Eh            9.9561 eV
              Fermi-level           -0.4566437 Eh          -12.4259 eV
 
- SCC (total)                   0 d,  0 h,  0 min,  0.016 sec
- SCC setup                      ...        0 min,  0.000 sec (  0.570%)
- Dispersion                     ...        0 min,  0.000 sec (  0.421%)
- classical contributions        ...        0 min,  0.000 sec (  0.149%)
- integral evaluation            ...        0 min,  0.002 sec ( 12.982%)
- iterations                     ...        0 min,  0.008 sec ( 49.017%)
- molecular gradient             ...        0 min,  0.006 sec ( 35.415%)
- printout                       ...        0 min,  0.000 sec (  1.214%)
+ SCC (total)                   0 d,  0 h,  0 min,  0.020 sec
+ SCC setup                      ...        0 min,  0.000 sec (  0.862%)
+ Dispersion                     ...        0 min,  0.000 sec (  0.513%)
+ classical contributions        ...        0 min,  0.000 sec (  0.170%)
+ integral evaluation            ...        0 min,  0.003 sec ( 12.873%)
+ iterations                     ...        0 min,  0.012 sec ( 60.263%)
+ molecular gradient             ...        0 min,  0.005 sec ( 24.554%)
+ printout                       ...        0 min,  0.000 sec (  0.578%)
 
          :::::::::::::::::::::::::::::::::::::::::::::::::::::
          ::                     SUMMARY                     ::
@@ -360,14 +360,14 @@ delta SCC IP (eV):    7.3563
                   HL-Gap            0.0139423 Eh            0.3794 eV
              Fermi-level            0.0952426 Eh            2.5917 eV
 
- SCC (total)                   0 d,  0 h,  0 min,  0.016 sec
- SCC setup                      ...        0 min,  0.000 sec (  1.230%)
- Dispersion                     ...        0 min,  0.000 sec (  0.946%)
- classical contributions        ...        0 min,  0.000 sec (  0.302%)
- integral evaluation            ...        0 min,  0.003 sec ( 19.124%)
- iterations                     ...        0 min,  0.006 sec ( 41.044%)
- molecular gradient             ...        0 min,  0.006 sec ( 36.382%)
- printout                       ...        0 min,  0.000 sec (  0.656%)
+ SCC (total)                   0 d,  0 h,  0 min,  0.017 sec
+ SCC setup                      ...        0 min,  0.000 sec (  0.722%)
+ Dispersion                     ...        0 min,  0.000 sec (  0.450%)
+ classical contributions        ...        0 min,  0.000 sec (  0.154%)
+ integral evaluation            ...        0 min,  0.002 sec ( 13.767%)
+ iterations                     ...        0 min,  0.008 sec ( 47.196%)
+ molecular gradient             ...        0 min,  0.006 sec ( 36.303%)
+ printout                       ...        0 min,  0.000 sec (  1.154%)
 
          :::::::::::::::::::::::::::::::::::::::::::::::::::::
          ::                     SUMMARY                     ::
@@ -510,14 +510,14 @@ molecular quadrupole (traceless):
            -------------------------------------------------
 
 ------------------------------------------------------------------------
- * finished run on 2021/07/28 at 17:02:22.277     
+ * finished run on 2021/08/20 at 09:55:27.946     
 ------------------------------------------------------------------------
  total:
+ * wall-time:     0 d,  0 h,  0 min,  0.081 sec
+ *  cpu-time:     0 d,  0 h,  0 min,  0.067 sec
+ * ratio c/w:     0.828 speedup
+ SCF:
  * wall-time:     0 d,  0 h,  0 min,  0.054 sec
  *  cpu-time:     0 d,  0 h,  0 min,  0.054 sec
- * ratio c/w:     0.998 speedup
- SCF:
- * wall-time:     0 d,  0 h,  0 min,  0.044 sec
- *  cpu-time:     0 d,  0 h,  0 min,  0.044 sec
  * ratio c/w:     1.000 speedup
 
