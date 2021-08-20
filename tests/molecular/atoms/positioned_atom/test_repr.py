@@ -1,7 +1,7 @@
 import stk
 import stko
 
-from .utilities import is_equivalent_atom
+from ..utilities import is_equivalent_atom
 
 
 def test_repr(positioned_atom):

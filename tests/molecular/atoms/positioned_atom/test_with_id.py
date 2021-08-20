@@ -1,4 +1,4 @@
-from .utilities import is_equivalent_atom
+from ..utilities import is_equivalent_atom
 
 
 def test_with_id(positioned_atom, id):
@@ -50,3 +50,4 @@ def _test_with_id(positioned_atom, id):
     assert new_atom.get_charge() == positioned_atom.get_charge()
     atm_num = positioned_atom.get_atomic_number()
     assert new_atom.get_atomic_number() == atm_num
+    assert new_atom.get_position() == positioned_atom.get_position()

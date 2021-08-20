@@ -1,9 +1,9 @@
 from ..utilities import is_equivalent_atom
 
 
-def test_clone(positioned_atom):
+def test_clone(dummy_atom):
     """
-    Test :meth:`.PositionedAtom.clone`.
+    Test :meth:`.DummyAtom.clone`.
 
     Parameters
     ----------
@@ -16,5 +16,5 @@ def test_clone(positioned_atom):
 
     """
 
-    clone = positioned_atom.clone()
-    is_equivalent_atom(positioned_atom, clone)
+    clone = dummy_atom.clone()
+    is_equivalent_atom(dummy_atom, clone)
