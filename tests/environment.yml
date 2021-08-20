@@ -102,6 +102,7 @@ dependencies:
     - py==1.10.0
     - pymongo==3.11.4
     - pytest==6.2.4
+    - pytest-lazy-fixture==0.6.3
     - scipy==1.6.3
     - seaborn==0.11.1
     - stk==2021.4.27.0
