@@ -21,7 +21,7 @@ def test_zmatrix(case_data):
 
 def _test_zmatrix(molecule, zmatrix):
     """
-    Test :meth:`.Converter.get_zmatrix`.
+    Test :meth:`.ZMatrix.get_zmatrix`.
 
     Parameters
     ----------
