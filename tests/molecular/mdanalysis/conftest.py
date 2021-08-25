@@ -31,6 +31,7 @@ _complex = stk.ConstructedMolecule(
     ),
 )
 
+
 @pytest.fixture(
     params=(
         stk.BuildingBlock('NCCN'),
