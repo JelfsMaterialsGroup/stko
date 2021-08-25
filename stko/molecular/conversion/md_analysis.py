@@ -10,7 +10,6 @@ Class for converting a molecule to and back from an MDAnalysis object.
 
 import logging
 
-import stk
 import MDAnalysis as mda
 
 logger = logging.getLogger(__name__)

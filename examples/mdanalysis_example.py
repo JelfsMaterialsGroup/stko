@@ -2,6 +2,7 @@ import stk
 import numpy as np
 import stko
 
+
 def main():
 
     an_stk_molecule = stk.BuildingBlock('NCCNCCN').with_centroid(

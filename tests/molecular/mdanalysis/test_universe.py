@@ -1,4 +1,3 @@
-from tests.optimizers.utilities import is_equivalent_molecule
 import stko
 import numpy as np
 
