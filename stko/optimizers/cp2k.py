@@ -4,28 +4,32 @@ http://www.cp2k.org
 
 Author: Steven Bennett <s.bennett18@imperial.ac.uk>
 """
-from .optimizers import Optimizer
-import subprocess as sp
 import logging
-import numpy as np
-from uuid import uuid4
-import shutil
-import numpy as np
 import os
-from rdkit.Chem import AllChem as rdkit
 import re
+import shutil
+import subprocess as sp
+from uuid import uuid4
+
+import numpy as np
+
+from rdkit.Chem import AllChem as rdkit
+
+from .optimizers import Optimizer
 
 logger = logging.getLogger(__name__)
+
 
 class CP2K(Optimizer):
     """
     stko optimizer for CP2K.
 
-    CP2K is a program to perform atomistic and molecular simulations of solid
-    state, liquid, molecular, and biological systems. It provides a general
-    framework for different methods such as e.g., density functional theory
-    (DFT) using a mixed Gaussian and plane waves approach (GPW) and classical
-    pair and many-body potentials.
+    CP2K is a program to perform atomistic and molecular simulations of
+    solid state, liquid, molecular, and biological systems.
+    It provides a general
+    framework for different methods such as e.g., density functional
+    theory (DFT) using a mixed Gaussian and plane waves approach (GPW)
+    and classical pair and many-body potentials.
     """
 
     def __init__(
@@ -42,9 +46,6 @@ class CP2K(Optimizer):
         cp2k_path : :class:`str`
             Path to CP2K executable file.
 
-        basis_set : :class:`str`
-            Basis set to use.
-
         input_template : :class:`str`
             Path to a CP2K input template to read.
 
@@ -56,7 +57,6 @@ class CP2K(Optimizer):
         self._cp2k_path = cp2k_path
         self._input_template = input_template
         self._output_dir = output_dir
-
 
     def _write_input_file(self, mol, input_template, in_file):
         """
@@ -77,7 +77,8 @@ class CP2K(Optimizer):
             input_template = f.read()
         # Replace the coordinate section of input file
         coordinate_section = self._get_coord_section(mol)
-        # Replaces between the first occurrence of "&COORD" and "&END COORD"
+        # Replaces between the first occurrence of "&COORD" and
+        # "&END COORD"
         input_template = re.sub(
             r"&COORD.*&END COORD",
             coordinate_section,
@@ -89,7 +90,8 @@ class CP2K(Optimizer):
             f.write(input_template)
         # Replace the cell section of the input file
         cell_section = self._get_cell_section(mol)
-        # Replaces between the first occurrence of "&CELL" and "&END CELL"
+        # Replaces between the first occurrence of "&CELL"
+        # and "&END CELL"
         input_template = re.sub(
             r"&CELL.*&END CELL",
             cell_section,
@@ -99,14 +101,6 @@ class CP2K(Optimizer):
         # Write the modified input string
         with open(in_file, "w") as f:
             f.write(input_template)
-
-    def _make_coordinates_positive(self, mol):
-        """Translates the centroid to make all atom coordinates positive values"""
-        position_matrix = mol.get_position_matrix()
-        # Find minimum value of matrix columns
-        minimum_pos = np.min(position_matrix, axis=0)
-        # Translate centroid to make all coordinates positive
-        return mol.with_centroid([abs(coord) for coord in minimum_pos])
 
     def _get_cell_section(self, mol):
         """
@@ -122,12 +116,20 @@ class CP2K(Optimizer):
         :class:`str`
             Cell section of the CP2K input file.
         """
-        cell_section = f"&CELL\n"
-        # Find the furthest cartesian coordinate from the origin in all directions
+        cell_section = "&CELL\n"
+        # Find the furthest cartesian coordinate from the origin in all
+        # directions.
         position_matrix = mol.get_position_matrix()
-        # For a single molecule, ensure the box size is large enough so the electron density at the sides is 0.
-        furthest_coord = round(np.max(np.max(position_matrix, axis=0)) + 1, 5)
-        cell_section += f"ABC {furthest_coord} {furthest_coord} {furthest_coord}\n"
+        # For a single molecule, ensure the box size is equal to the
+        # furthest coordinate from the origin in doubled.
+        furthest_coord = round(
+            np.max(np.max(position_matrix, axis=0)),
+            5
+        )
+        cell_section += (
+            f"ABC {furthest_coord} "
+            f"{furthest_coord} {furthest_coord}\n"
+        )
         cell_section += "&END CELL"
         return cell_section
 
@@ -145,18 +147,21 @@ class CP2K(Optimizer):
         :class:`str`
             Coordinate section of the CP2K input file.
         """
-        coord_section = f"&COORD\n"
+        coord_section = "&COORD\n"
         for atom in mol.get_atoms():
-            atom_symbol = rdkit.Atom(atom.get_atomic_number()).GetSymbol()
+            atom_symbol = rdkit.Atom(
+                atom.get_atomic_number()
+            ).GetSymbol()
             position = mol.get_centroid(atom_ids=atom.get_id())
             coord_section += (
                 f"{atom_symbol}    {abs(round(position[0], 5))}    "
-                f"{abs(round(position[1], 5))}      {abs(round(position[2], 5))}\n"
+                f"{abs(round(position[1], 5))}"
+                f"      {abs(round(position[2], 5))}\n"
             )
         coord_section += "&END COORD"
         return coord_section
 
-    def optimize(self, mol):
+    def optimize(self, mol, run_name=str(uuid4().int)):
         """
         Optimize a molecule.
 
@@ -164,6 +169,9 @@ class CP2K(Optimizer):
         ----------
         mol : :class:`stko.molecule.Molecule`
             Molecule to optimise.
+
+        run_name : :class:`str`, optional
+            The name of the run files.
 
         Returns
         -------
@@ -182,19 +190,18 @@ class CP2K(Optimizer):
         init_dir = os.getcwd()
         os.chdir(output_dir)
 
-        in_file = "cp2k_input.inp"
-        out_file = "cp2k_output.log"
+        in_file = f"{run_name}.inp"
+        log_file = f"{run_name}.log"
 
         if self._input_template is not None:
             input_template = self._input_template
         else:
             raise NotImplementedError(
                 "No input template specified."
-                "Support for generating input files from scratch is not yet implemented."
+                "Support for generating input files from scratch"
+                " is not yet implemented."
             )
         try:
-            # Make all coordinates positive values
-            mol = self._make_coordinates_positive(mol)
             self._write_input_file(
                 input_template=input_template,
                 mol=mol,
@@ -202,10 +209,13 @@ class CP2K(Optimizer):
             )
             self._run_cp2k(
                 in_file,
-                out_file
+                log_file
             )
             # Update from output file.
-            mol = mol.with_structure_from_file(self._extract_positions("H2O-pos-1.xyz"))
+            # TODO: Check output xyz file name
+            mol = mol.with_structure_from_file(
+                self._extract_positions("H2O-pos-1.xyz")
+            )
 
         finally:
             os.chdir(init_dir)
@@ -229,8 +239,14 @@ class CP2K(Optimizer):
         with open(output_xyz, "r") as f:
             lines = f.readlines()
         # Find index of final line with only numbers and spaces
-        final_xyz_line = [lines.index(line, i) for i, line in enumerate(lines) if re.match(r"^[0-9\s]+$", line)][-1]
-        xyz_string = [lines[i] for i in range(final_xyz_line, len(lines))]
+        final_xyz_line = [
+            lines.index(line, i)
+            for i, line in enumerate(lines)
+            if re.match(r"^[0-9\s]+$", line)
+        ][-1]
+        xyz_string = [
+            lines[i] for i in range(final_xyz_line, len(lines))
+        ]
         final_xyz = output_xyz.replace(".xyz", "_final.xyz")
         with open(final_xyz, "w") as f:
             f.write("".join(xyz_string))
