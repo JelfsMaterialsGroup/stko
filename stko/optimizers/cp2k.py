@@ -58,7 +58,7 @@ class CP2K(Optimizer):
         self._input_template = input_template
         self._output_dir = output_dir
 
-    def _write_input_file(self, mol, input_template, in_file):
+    def _write_input_file(self, mol, in_file):
         """
         Write CP2K input file.
 
@@ -67,13 +67,10 @@ class CP2K(Optimizer):
         mol : :class:`stk.Molecule`
             Molecule to optimise.
 
-        input_template : :class:`str`
-            Path to a CP2K input template to read.
-
         in_file : :class:`str`
             Path to write the CP2K input file.
         """
-        with open(input_template, "r") as f:
+        with open(self._input_template, "r") as f:
             input_template = f.read()
         # Replace the coordinate section of input file
         coordinate_section = self._get_coord_section(mol)
@@ -124,11 +121,12 @@ class CP2K(Optimizer):
         # furthest coordinate from the origin in doubled.
         furthest_coord = round(
             np.max(np.max(position_matrix, axis=0)),
-            5
+            1
         )
+        cell_pos = (2 * furthest_coord) + 10
         cell_section += (
-            f"ABC {furthest_coord} "
-            f"{furthest_coord} {furthest_coord}\n"
+            f"ABC {cell_pos} "
+            f"{cell_pos} {cell_pos}\n"
         )
         cell_section += "&END CELL"
         return cell_section
@@ -160,6 +158,7 @@ class CP2K(Optimizer):
             )
         coord_section += "&END COORD"
         return coord_section
+
 
     def optimize(self, mol, run_name=str(uuid4().int)):
         """
