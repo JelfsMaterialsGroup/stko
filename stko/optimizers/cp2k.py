@@ -152,9 +152,9 @@ class CP2K(Optimizer):
             ).GetSymbol()
             position = mol.get_centroid(atom_ids=atom.get_id())
             coord_section += (
-                f"{atom_symbol}    {abs(round(position[0], 5))}    "
-                f"{abs(round(position[1], 5))}"
-                f"      {abs(round(position[2], 5))}\n"
+                f"{atom_symbol}    {round(position[0], 5)}    "
+                f"{round(position[1], 5)}"
+                f"      {round(position[2], 5)}\n"
             )
         coord_section += "&END COORD"
         return coord_section
