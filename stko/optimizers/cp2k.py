@@ -131,6 +131,8 @@ class CP2K(Optimizer):
         :class:`str`
             Title section of the CP2K input file.
         """
+        if self._job_name is None:
+            self._job_name = str(uuid4().int)
         title_section = "&GLOBAL\n"
         title_section += f"  PROJECT_NAME {self._job_name}\n"
         title_section += f"  RUN_TYPE {self._run_type}\n"
