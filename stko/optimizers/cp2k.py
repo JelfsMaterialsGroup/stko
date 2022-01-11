@@ -37,6 +37,8 @@ class CP2K(Optimizer):
         cp2k_path,
         input_template,
         output_dir=None,
+        job_name=None,
+        run_type="GEO_OPT"
     ):
         """
         Initialize CP2K optimizer.
@@ -53,10 +55,21 @@ class CP2K(Optimizer):
             The name of the directory into which files generated during
             the calculation are written, if ``None`` then
             :func:`uuid.uuid4` is used.
+
+        job_name : :class:`str`, optional
+            The name of the job, if ``None`` then :func:`uuid.uuid4` is
+            used.
+
+        run_type : :class:`str`, optional
+            The type of calculation to perform. `GEO_OPT` is the
+            default.
+
         """
         self._cp2k_path = cp2k_path
         self._input_template = input_template
         self._output_dir = output_dir
+        self._job_name = job_name
+        self._run_type = run_type
 
     def _write_input_file(self, mol, in_file):
         """
@@ -72,6 +85,16 @@ class CP2K(Optimizer):
         """
         with open(self._input_template, "r") as f:
             input_template = f.read()
+
+        # Replace the global section of the input file.
+        global_section = self._get_global_section()
+        input_template = re.sub(
+            r"&GLOBAL.*?&END GLOBAL",
+            global_section,
+            input_template,
+            flags=re.DOTALL
+        )
+
         # Replace the coordinate section of input file
         coordinate_section = self._get_coord_section(mol)
         # Replaces between the first occurrence of "&COORD" and
@@ -98,6 +121,21 @@ class CP2K(Optimizer):
         # Write the modified input string
         with open(in_file, "w") as f:
             f.write(input_template)
+
+    def _get_global_section(self):
+        """
+        Return the global section of the CP2K input file.
+
+        Returns
+        -------
+        :class:`str`
+            Title section of the CP2K input file.
+        """
+        title_section = "&GLOBAL\n"
+        title_section += f"  PROJECT_NAME {self._job_name}\n"
+        title_section += f"  RUN_TYPE {self._run_type}\n"
+        title_section += "&END GLOBAL"
+        return title_section
 
     def _get_cell_section(self, mol):
         """
@@ -159,7 +197,6 @@ class CP2K(Optimizer):
         coord_section += "&END COORD"
         return coord_section
 
-
     def optimize(self, mol, run_name=str(uuid4().int)):
         """
         Optimize a molecule.
@@ -213,7 +250,7 @@ class CP2K(Optimizer):
             # Update from output file.
             # TODO: Check output xyz file name
             mol = mol.with_structure_from_file(
-                self._extract_positions("H2O-pos-1.xyz")
+                self._extract_positions()  # Add input template name
             )
 
         finally:
