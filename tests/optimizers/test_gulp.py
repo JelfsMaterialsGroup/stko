@@ -136,6 +136,22 @@ def min_energy_time_step():
     return 3
 
 
+@pytest.fixture
+def xyz_string():
+    return (
+        '8\n'
+        '1,5.0,0.207467138253947,0.245970616427967,267.505966560289\n'
+        'C -0.74873 0.01254 0.08187\n'
+        'C 0.75325 -0.00453 -0.03139\n'
+        'H -1.21565 -0.9294 -0.08591\n'
+        'H -1.00574 0.41323 1.09345\n'
+        'H -1.09608 0.79503 -0.60147\n'
+        'H 1.02245 -0.86479 -0.73236\n'
+        'H 1.19827 0.93931 -0.43282\n'
+        'H 1.25464 -0.29976 0.89505\n'
+    )
+
+
 def test_gulp_convert_traj_to_xyz(atom_types, trajectory):
     test_dir = os.path.dirname(os.path.abspath(__file__))
     test_xyz = f'{test_dir}/fixtures/gulp_MD_template.xyz'
@@ -178,3 +194,34 @@ def test_gulp_calculate_lowest_energy_conformer(min_energy_time_step):
     min_ts = opt._calculate_lowest_energy_conformer(trajectory_data)
 
     assert min_ts == min_energy_time_step
+
+
+def test_gulp_write_conformer_xyz_file(xyz_string):
+    test_dir = os.path.dirname(os.path.abspath(__file__))
+    test_xyz = f'{test_dir}/fixtures/gulp_MD_template.xyz'
+    test_traj = f'{test_dir}/fixtures/gulp_MD.trg'
+    opt = FakeGulpUFFMDOptimizer(
+        gulp_path='',
+    )
+    atom_types, trajectory_data, xyz_traj_lines = (
+        opt._convert_traj_to_xyz(
+            output_xyz=test_xyz,
+            output_traj=test_traj,
+        )
+    )
+
+    test_output = f'{test_dir}/fixtures/conformer.xyz'
+    opt._write_conformer_xyz_file(
+        ts=1,
+        ts_data=trajectory_data[1],
+        filename=test_output,
+        atom_types=atom_types,
+    )
+
+    test_string = ''
+    with open(test_output, 'r') as f:
+        for line in f.readlines():
+            print(line)
+            test_string += line
+
+    assert test_string == xyz_string
