@@ -28,6 +28,10 @@ Make sure you also install rdkit, which is a dependency::
 
     $ conda install -c conda-forge rdkit
 
+Make sure you also install openbabel, which is a dependency::
+
+    $ conda install -c conda-forge openbabel
+
 Examples
 ========
 
