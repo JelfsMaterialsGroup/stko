@@ -188,7 +188,12 @@ def main():
         struct.write(
             os.path.join(examples_output, f'obabel_{name}_unopt.mol')
         )
-        opt = stko.OpenBabel('uff', steps=2000)
+        opt = stko.OpenBabel(
+            forcefield='uff',
+            repeat_steps=10,
+            sd_steps=20,
+            cg_steps=20,
+        )
         opt_struct = opt.optimize(struct)
         opt_struct.write(
             os.path.join(examples_output, f'obabel_{name}_opt.mol')

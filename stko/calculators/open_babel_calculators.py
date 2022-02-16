@@ -69,6 +69,7 @@ class OpenBabelEnergy(Calculator):
         obConversion.SetInFormat("mol")
         OBMol = openbabel.OBMol()
         obConversion.ReadFile(OBMol, temp_file)
+        OBMol.PerceiveBondOrders()
         os.system('rm temp.mol')
 
         forcefield = openbabel.OBForceField.FindForceField(

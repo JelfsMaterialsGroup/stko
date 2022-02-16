@@ -10,11 +10,20 @@ Wrappers for optimizers within the `openbabel` code.
 
 import logging
 import os
+import numpy as np
 from openbabel import openbabel
 
 from .optimizers import Optimizer
 
 logger = logging.getLogger(__name__)
+
+
+class OpenBabelError(Exception):
+    ...
+
+
+class ForceFieldSetupError(OpenBabelError):
+    ...
 
 
 class OpenBabel(Optimizer):
@@ -39,7 +48,13 @@ class OpenBabel(Optimizer):
 
     """
 
-    def __init__(self, forcefield, steps=500):
+    def __init__(
+        self,
+        forcefield,
+        repeat_steps=10,
+        sd_steps=50,
+        cg_steps=50,
+    ):
         """
         Initialize `openbabel` forcefield energy calculation.
 
@@ -49,13 +64,23 @@ class OpenBabel(Optimizer):
             Forcefield to use. Options include `uff`, `gaff`,
             `ghemical`, `mmff94`.
 
-        steps : :class:`int`
-            Number of steps in Conjugate Gradient optimisation.
+        repeat_steps : :class:`int`
+            Number of optimisation steps. Each optimisation step
+            contains `sd_steps` steepest descent and then `cg_steps`
+            conjugate gradient runs.
+
+        sd_steps : :class:`int`
+            Number of Steepest Descent steps per optimisations.
+
+        cg_steps : :class:`int`
+            Number of Conjugate Gradient steps per optimisations.
 
         """
 
         self._forcefield = forcefield
-        self._steps = steps
+        self._repeat_steps = repeat_steps
+        self._sd_steps = sd_steps
+        self._cg_steps = cg_steps
 
     def optimize(self, mol):
         """
@@ -79,18 +104,29 @@ class OpenBabel(Optimizer):
         obConversion.SetInFormat("mol")
         OBMol = openbabel.OBMol()
         obConversion.ReadFile(OBMol, temp_file)
+        OBMol.PerceiveBondOrders()
         os.system('rm temp.mol')
 
         forcefield = openbabel.OBForceField.FindForceField(
             self._forcefield
         )
-        forcefield.Setup(OBMol)
-        forcefield.ConjugateGradients(self._steps)
-        forcefield.GetCoordinates(OBMol)
+        outcome = forcefield.Setup(OBMol)
+        if not outcome:
+            raise ForceFieldSetupError(
+                f"{self._forcefield} could not be setup for {mol}"
+            )
+        for step in range(self._repeat_steps):
+            forcefield.SteepestDescent(self._sd_steps)
+            forcefield.GetCoordinates(OBMol)
+            forcefield.ConjugateGradients(self._cg_steps)
+            forcefield.GetCoordinates(OBMol)
 
-        temp_file = 'temp.mol'
-        obConversion.WriteFile(OBMol, temp_file)
-        mol = mol.with_structure_from_file(temp_file)
-        os.system('rm temp.mol')
+        position_matrix = []
+        for atom in openbabel.OBMolAtomIter(OBMol):
+            # get coordinates
+            position_matrix.append(
+                np.array([atom.GetX(), atom.GetY(), atom.GetZ()])
+            )
 
+        mol = mol.with_position_matrix(np.asarray(position_matrix))
         return mol
