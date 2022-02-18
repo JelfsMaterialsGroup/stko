@@ -3,6 +3,7 @@ from ..utilities import (
     inequivalent_position_matrices,
     is_equivalent_molecule,
 )
+import numpy as np
 
 
 def test_MMFF_opt(case_mmff_molecule):
@@ -18,8 +19,12 @@ def test_MMFF_opt(case_mmff_molecule):
     opt_energy = (
         stko.MMFFEnergy().get_energy(opt_res)
     )
-    assert energy == case_mmff_molecule.unoptimised_energy
-    assert opt_energy == case_mmff_molecule.optimised_energy
+    assert np.atol(
+        energy, case_mmff_molecule.unoptimised_energy, atol=1E-3
+    )
+    assert np.atol(
+        opt_energy, case_mmff_molecule.optimised_energy, atol=1E-3
+    )
 
 
 def test_UFF_opt(case_uff_molecule):
@@ -33,8 +38,12 @@ def test_UFF_opt(case_uff_molecule):
     opt_energy = (
         stko.UFFEnergy().get_energy(opt_res)
     )
-    assert energy == case_uff_molecule.unoptimised_energy
-    assert opt_energy == case_uff_molecule.optimised_energy
+    assert np.atol(
+        energy, case_uff_molecule.unoptimised_energy, atol=1E-3
+    )
+    assert np.atol(
+        opt_energy, case_uff_molecule.optimised_energy, atol=1E-3
+    )
 
 
 def test_ETKDG_opt(case_etkdg_molecule):

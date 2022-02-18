@@ -3,6 +3,7 @@ from ..utilities import (
     inequivalent_position_matrices,
     is_equivalent_molecule,
 )
+import numpy as np
 
 
 def test_open_babel(case_molecule):
@@ -16,5 +17,9 @@ def test_open_babel(case_molecule):
     opt_energy = (
         stko.OpenBabelEnergy('uff').get_energy(opt_res)
     )
-    assert energy == case_molecule.unoptimised_energy
-    assert opt_energy == case_molecule.optimised_energy
+    assert np.atol(
+        energy, case_molecule.unoptimised_energy, atol=1E-3
+    )
+    assert np.atol(
+        opt_energy, case_molecule.optimised_energy, atol=1E-3
+    )
