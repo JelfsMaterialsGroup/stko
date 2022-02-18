@@ -28,6 +28,10 @@ Make sure you also install rdkit, which is a dependency::
 
     $ conda install -c conda-forge rdkit
 
+MDAnalysis is an optional dependancies::
+
+    $ pip install MDAnalysis
+
 Examples
 ========
 

@@ -87,10 +87,17 @@ dependencies:
   - zstd=1.5.0=ha95c52a_0
   - pip:
     - attrs==21.2.0
+    - biopython==1.79
     - dill==0.3.4
     - dnspython==1.16.0
+    - griddataformats==0.5.0
+    - gsd==2.4.2
     - iniconfig==1.1.1
+    - joblib==1.0.1
     - mchammer==1.0.4
+    - mdanalysis==2.0.0
+    - mmtf-python==1.1.2
+    - msgpack==1.0.2
     - multiprocess==0.70.12.2
     - networkx==2.6.2
     - packaging==21.0
@@ -107,6 +114,8 @@ dependencies:
     - seaborn==0.11.2
     - spindry==0.0.3
     - stk==2021.8.2.0
+    - threadpoolctl==2.2.0
     - toml==0.10.2
+    - tqdm==4.62.2
     - vabene==0.0.5
 prefix: /home/atarzia/anaconda3/envs/stko_tests
