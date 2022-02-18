@@ -33,3 +33,13 @@ def failing_optimizer():
 @pytest.fixture
 def unoptimized_mol():
     return a_molecule()
+
+
+@pytest.fixture
+def optimized_obabel_uff():
+    return 0.5915253852361635
+
+
+@pytest.fixture
+def unoptimized_obabel_uff():
+    return 30.749185912718534
