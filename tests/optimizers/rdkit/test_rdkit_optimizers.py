@@ -12,7 +12,9 @@ def test_MMFF_opt(case_mmff_molecule):
     optimizer = stko.MMFF()
     opt_res = optimizer.optimize(case_mmff_molecule.molecule)
     is_equivalent_molecule(opt_res, case_mmff_molecule.molecule)
-    inequivalent_position_matrices(opt_res, case_mmff_molecule.molecule)
+    inequivalent_position_matrices(
+        opt_res, case_mmff_molecule.molecule
+    )
     opt_energy = (
         stko.MMFFEnergy().get_energy(opt_res)
     )
