@@ -73,10 +73,10 @@ class OpenBabel(Optimizer):
             conjugate gradient runs.
 
         sd_steps : :class:`int`
-            Number of Steepest Descent steps per optimisations.
+            Number of steepest descent steps per optimisations.
 
         cg_steps : :class:`int`
-            Number of Conjugate Gradient steps per optimisations.
+            Number of conjugate gradient steps per optimisations.
 
         """
 
