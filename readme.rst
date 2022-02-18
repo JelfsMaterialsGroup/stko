@@ -32,6 +32,10 @@ Make sure you also install openbabel, which is a dependency::
 
     $ conda install -c conda-forge openbabel
 
+MDAnalysis is an optional dependancies::
+
+    $ pip install MDAnalysis
+
 Examples
 ========
 
