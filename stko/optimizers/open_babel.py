@@ -30,6 +30,9 @@ class OpenBabel(Optimizer):
     """
     Use OpenBabel to optimize molecules with forcefields.[1]_
 
+    Warning: this optimizer seems to be machine dependant, producing
+    different energies after optimisation on Ubunut 18 vs. Ubuntu 20.
+
     Examples
     --------
     .. code-block:: python
