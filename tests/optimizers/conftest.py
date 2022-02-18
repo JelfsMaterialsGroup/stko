@@ -90,7 +90,10 @@ class CaseData:
             molecule=stk.ConstructedMolecule(
                 topology_graph=stk.polymer.Linear(
                     building_blocks=(
-                        stk.BuildingBlock('BrCCBr', [stk.BromoFactory()]),
+                        stk.BuildingBlock(
+                            smiles='BrCCBr',
+                            functional_groups=[stk.BromoFactory()],
+                        ),
                         stk.BuildingBlock(
                             smiles='BrCNCCBr',
                             functional_groups=[stk.BromoFactory()],
