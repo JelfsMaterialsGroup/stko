@@ -52,7 +52,7 @@ class MDAnalysis:
 
         Returns
         -------
-        :class:`mda.Universe`
+        :class:`MDAnalysis.Universe`
             The MDAnalysis Universe of the molecule.
 
         """
