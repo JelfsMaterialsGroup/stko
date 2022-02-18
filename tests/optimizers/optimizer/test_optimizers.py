@@ -1,6 +1,6 @@
 import stko
 from copy import deepcopy
-from .utilities import (
+from ..utilities import (
     inequivalent_position_matrices,
     is_equivalent_molecule,
 )
