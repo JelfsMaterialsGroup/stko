@@ -49,6 +49,9 @@ class MMFF(Optimizer):
     """
     Use the MMFF force field to optimize molecules.
 
+    Warning: this optimizer seems to be machine dependant, producing
+    different energies after optimisation on Ubunut 18 vs. Ubuntu 20.
+
     Examples
     --------
     .. code-block:: python
@@ -101,6 +104,9 @@ class MMFF(Optimizer):
 class UFF(Optimizer):
     """
     Use the UFF force field to optimize molecules.
+
+    Warning: this optimizer seems to be machine dependant, producing
+    different energies after optimisation on Ubunut 18 vs. Ubuntu 20.
 
     Examples
     --------
@@ -225,6 +231,9 @@ class MetalOptimizer(Optimizer):
     Restrictions are applied to the ligand with respect to its input
     structure. So if that is poorly optimised, then the output will be
     also.
+
+    Warning: this optimizer seems to be machine dependant, producing
+    different energies after optimisation on Ubunut 18 vs. Ubuntu 20.
 
     Examples
     --------

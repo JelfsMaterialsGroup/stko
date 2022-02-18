@@ -8,6 +8,11 @@ def a_molecule():
     return stk.BuildingBlock(smiles='CC')
 
 
+@pytest.fixture
+def unoptimized_mol():
+    return a_molecule()
+
+
 class PassingOptimizer(stko.Optimizer):
 
     def optimize(self, mol):
@@ -28,8 +33,3 @@ def passing_optimizer():
 @pytest.fixture
 def failing_optimizer():
     return FailingOptimizer()
-
-
-@pytest.fixture
-def unoptimized_mol():
-    return a_molecule()

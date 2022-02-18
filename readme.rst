@@ -28,7 +28,11 @@ Make sure you also install rdkit, which is a dependency::
 
     $ conda install -c conda-forge rdkit
 
-MDAnalysis is an optional dependancies::
+Make sure you also install openbabel, which is a dependency::
+
+    $ conda install -c conda-forge openbabel
+
+MDAnalysis is an optional dependancy::
 
     $ pip install MDAnalysis
 
@@ -40,7 +44,7 @@ and maintain examples in the doc strings of ``Calculator`` and
 ``Optimizer`` classes.
 
 ``examples/basic_examples.py`` highlights basic optimisation with
-``rdkit`` and ``xtb`` (if you have ``xtb`` available).
+``rdkit``, ``openbabel`` and ``xtb`` (if you have ``xtb`` available).
 
 
 How To Contribute
@@ -68,4 +72,4 @@ Acknowledgements
 
 We developed this code when working in the Jelfs group,
 http://www.jelfs-group.org/, whose members often provide very valuable
-feedback, which I gratefully acknowledge.
+feedback, which we gratefully acknowledge.
