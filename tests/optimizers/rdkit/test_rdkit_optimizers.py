@@ -22,9 +22,7 @@ def test_MMFF_opt(case_mmff_molecule):
     assert np.isclose(
         energy, case_mmff_molecule.unoptimised_energy, atol=1E-3
     )
-    assert np.isclose(
-        opt_energy, case_mmff_molecule.optimised_energy, atol=1E-3
-    )
+    assert opt_energy < case_mmff_molecule.unoptimised_energy
 
 
 def test_UFF_opt(case_uff_molecule):
@@ -41,9 +39,7 @@ def test_UFF_opt(case_uff_molecule):
     assert np.isclose(
         energy, case_uff_molecule.unoptimised_energy, atol=1E-3
     )
-    assert np.isclose(
-        opt_energy, case_uff_molecule.optimised_energy, atol=1E-3
-    )
+    assert opt_energy < case_uff_molecule.unoptimised_energy
 
 
 def test_ETKDG_opt(case_etkdg_molecule):

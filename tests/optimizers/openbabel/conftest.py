@@ -14,23 +14,14 @@ class CaseData:
         unoptimised_energy:
             The energy of the molecule from stk generation.
 
-        optimised_energy:
-            The energy of the molecule after optimisation.
-
     """
 
     position_matrix: np.ndarray
 
-    def __init__(
-        self,
-        molecule,
-        unoptimised_energy,
-        optimised_energy,
-    ):
+    def __init__(self, molecule, unoptimised_energy):
 
         self.molecule = molecule
         self.unoptimised_energy = unoptimised_energy
-        self.optimised_energy = optimised_energy
 
 
 @pytest.fixture(
@@ -39,7 +30,6 @@ class CaseData:
         CaseData(
             molecule=stk.BuildingBlock('NCCN'),
             unoptimised_energy=98.68403256936926,
-            optimised_energy=43.16966811699349,
         ),
         CaseData(
             molecule=stk.BuildingBlock(
@@ -47,17 +37,14 @@ class CaseData:
                 'cc3c2c1'
             ),
             unoptimised_energy=2032.8111567743895,
-            optimised_energy=805.7039129507456,
         ),
         CaseData(
             molecule=stk.BuildingBlock('CCCCCC'),
             unoptimised_energy=141.44622279628743,
-            optimised_energy=20.692758531646255,
         ),
         CaseData(
             molecule=stk.BuildingBlock('c1ccccc1'),
             unoptimised_energy=56.73128282588534,
-            optimised_energy=44.27000519453281,
         ),
         CaseData(
             molecule=stk.ConstructedMolecule(
@@ -78,7 +65,6 @@ class CaseData:
                 ),
             ),
             unoptimised_energy=15002.946293854524,
-            optimised_energy=110.38365695234553,
         ),
     ],
 )
