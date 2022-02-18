@@ -19,10 +19,10 @@ def test_MMFF_opt(case_mmff_molecule):
     opt_energy = (
         stko.MMFFEnergy().get_energy(opt_res)
     )
-    assert np.atol(
+    assert np.isclose(
         energy, case_mmff_molecule.unoptimised_energy, atol=1E-3
     )
-    assert np.atol(
+    assert np.isclose(
         opt_energy, case_mmff_molecule.optimised_energy, atol=1E-3
     )
 
@@ -38,10 +38,10 @@ def test_UFF_opt(case_uff_molecule):
     opt_energy = (
         stko.UFFEnergy().get_energy(opt_res)
     )
-    assert np.atol(
+    assert np.isclose(
         energy, case_uff_molecule.unoptimised_energy, atol=1E-3
     )
-    assert np.atol(
+    assert np.isclose(
         opt_energy, case_uff_molecule.optimised_energy, atol=1E-3
     )
 

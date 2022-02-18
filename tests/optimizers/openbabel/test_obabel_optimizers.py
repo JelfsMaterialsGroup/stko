@@ -17,9 +17,9 @@ def test_open_babel(case_molecule):
     opt_energy = (
         stko.OpenBabelEnergy('uff').get_energy(opt_res)
     )
-    assert np.atol(
+    assert np.isclose(
         energy, case_molecule.unoptimised_energy, atol=1E-3
     )
-    assert np.atol(
+    assert np.isclose(
         opt_energy, case_molecule.optimised_energy, atol=1E-3
     )
