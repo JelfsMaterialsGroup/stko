@@ -22,8 +22,7 @@ class MDAnalysis:
     Examples
     --------
 
-    An stk molecule can be converted into an MDAnalysis Universe,
-    opening the user up to all of their analysis.
+    An stk molecule can be converted into an MDAnalysis Universe.
 
     .. code-block:: python
 
@@ -44,7 +43,7 @@ class MDAnalysis:
 
     def get_universe(self, mol):
         """
-        Get an mdanalysis object.
+        Get an MDAnalysis object.
 
         Parameters
         ----------
@@ -54,7 +53,7 @@ class MDAnalysis:
         Returns
         -------
         :class:`mda.Universe`
-            The MD analysis Universe of the molecule.
+            The MDAnalysis Universe of the molecule.
 
         """
 
