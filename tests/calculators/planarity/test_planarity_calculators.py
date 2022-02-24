@@ -1,4 +1,3 @@
-from sqlalchemy import case
 import stko
 import numpy as np
 

@@ -162,14 +162,13 @@ class PlanarityCalculator(Calculator):
             'plane_deviation': (
                 self._plane_deviation(deviations)
             ),
-            'plane_deviation_span':(
+            'plane_deviation_span': (
                 self._plane_deviation_span(deviations)
             ),
             'planarity_parameter': (
                 self._planarity_parameter(deviations)
             ),
         }
-
 
     def get_results(
         self,
