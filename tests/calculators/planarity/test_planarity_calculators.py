@@ -1,32 +1,27 @@
+from sqlalchemy import case
 import stko
-import stk
+import numpy as np
 
 
-def test_plane_deviation(case_data):
+def test_planarity_calculation(case_data):
     calc = stko.PlanarityCalculator()
-    result = calc.get_results(
+    test = calc.get_results(
         mol=case_data.molecule,
         plane_atom_ids=case_data.plane_ids,
         deviation_atom_ids=case_data.deviation_ids,
     )
-    assert False
-
-
-def test_plane_deviation_span(case_data):
-    calc = stko.PlanarityCalculator()
-    result = calc.get_results(
-        mol=case_data.molecule,
-        plane_atom_ids=case_data.plane_ids,
-        deviation_atom_ids=case_data.deviation_ids,
+    assert np.isclose(
+        test.get_plane_deviation(),
+        case_data.plane_deviation,
+        atol=1E-4,
     )
-    assert False
-
-
-def test_planarity_parameter(case_data):
-    calc = stko.PlanarityCalculator()
-    result = calc.get_results(
-        mol=case_data.molecule,
-        plane_atom_ids=case_data.plane_ids,
-        deviation_atom_ids=case_data.deviation_ids,
+    assert np.isclose(
+        test.get_plane_deviation_span(),
+        case_data.plane_span,
+        atol=1E-4,
     )
-    assert False
+    assert np.isclose(
+        test.get_planarity_parameter(),
+        case_data.planarity_parameter,
+        atol=1E-4,
+    )
