@@ -2,7 +2,7 @@
 Planarity Calculators
 =====================
 
-#. :class:`.TorsionCalculator`
+#. :class:`.PlanarityCalculator`
 
 Methods to calculate planarity measures of a molecule.
 
@@ -11,18 +11,17 @@ Methods to calculate planarity measures of a molecule.
 import logging
 
 from ..calculators import Calculator
-from ..results import PlanrityResults
+from ..results import PlanarityResults
 
 logger = logging.getLogger(__name__)
 
 
-class TorsionCalculator(Calculator):
+class PlanarityCalculator(Calculator):
     """
-    Uses rdkit to extract all torsions in a molecule.
+    Calculates measures of planarity of a molecule.
 
-    Note that the rdkit [1]_ function we use only outputs
-    one torsion for each rotatable bond. We use the
-    `TorsionFingerprints.CalculateTorsionLists` method.
+    Measures based on plane deviation from Angew. paper [1]_ and a
+    ChemRxiv paper [2]_.
 
     Examples
     --------
@@ -33,199 +32,135 @@ class TorsionCalculator(Calculator):
         import stko
 
         # Create a molecule whose torsions we want to know.
-        mol1 = stk.BuildingBlock('CCCNCCCN')
+        mol1 = stk.BuildingBlock('c1ccccc1')
 
         # Create the calculator.
-        tc = stko.TorsionCalculator()
+        pc = stko.PlanarityCalculator()
 
-        # Extract the torsions.
-        tc_results = tc.get_results(mol1)
-        for t, ang in tc_results.get_torsion_angles():
-            print(t, ang, t.get_atom_ids())
+        # Extract the measures.
+        pc_results = pc.get_results(mol1)
+        ADDD
 
     References
     ----------
-    .. [1] http://rdkit.org/docs/source/
-    rdkit.Chem.TorsionFingerprints.html
+    .. [1] https://onlinelibrary.wiley.com/doi/10.1002/anie.202106721
+
+    .. [2] https://chemrxiv.org/engage/chemrxiv/article-details/
+    60c73cbf9abda2e0c5f8b5c6
 
     """
 
-    def calculate(self, mol):
-        yield tuple(
-            Torsion(*mol.get_atoms(atoms[0]))
-            for atoms, _ in (
-                TorsionFingerprints.CalculateTorsionLists(
-                    mol.to_rdkit_mol()
-                )[0]
-            )
-        )
+    def _get_plane_of_best_fit(self, mol, plane_atom_ids):
+        raise NotImplementedError()
 
-    def get_results(self, mol):
+    def _plane_deviation(
+        self,
+        mol,
+        plane_atom_ids=None,
+        deviation_atom_ids=None,
+    ):
+        raise NotImplementedError()
+
+    def _plane_deviation_span(
+        self,
+        mol,
+        plane_atom_ids=None,
+        deviation_atom_ids=None,
+    ):
+        raise NotImplementedError()
+
+    def _planarity_parameter(
+        self,
+        mol,
+        plane_atom_ids=None,
+        deviation_atom_ids=None,
+    ):
+        raise NotImplementedError()
+
+    def calculate(
+        self,
+        mol,
+        plane_atom_ids=None,
+        deviation_atom_ids=None,
+    ):
         """
-        Calculate the torsions of `mol`.
+        Perform calculation on `mol`.
 
         Parameters
         ----------
         mol : :class:`.Molecule`
-            The :class:`.Molecule` whose torsions are to be calculated.
+            The :class:`.Molecule` whose planarity is to be calculated.
 
-        Returns
-        -------
-        :class:`.TorsionResults`
-            The torsions of the molecule.
+        plane_atom_ids : iterable of :class:`int`, optional
+            The atom ids to use to define the plane of best fit.
+
+        deviation_atom_ids : iterable of :class:`int`, optional
+            The atom ids to use to calculate planarity.
+
+        Yields
+        ------
+        :class:`function`
+            The function to perform the calculation.
 
         """
 
-        return TorsionResults(self.calculate(mol), mol)
+        if plane_atom_ids is None:
+            plane_atom_ids = list(range(len(list(mol.get_atoms()))))
+        else:
+            plane_atom_ids = list(plane_atom_ids)
 
-
-class ConstructedMoleculeTorsionCalculator(TorsionCalculator):
-    """
-    Uses rdkit to extract all torsions in a molecule.
-
-    Note that the rdkit [1]_ function we use only outputs
-    one torsion for each rotatable bond. We use the
-    `TorsionFingerprints.CalculateTorsionLists` method.
-
-    Examples
-    --------
-
-    .. code-block:: python
-
-        import stk
-        import stko
-
-        # Create a molecule whose energy we want to know.
-        bb1 = stk.BuildingBlock('NCCNCCN', [stk.PrimaryAminoFactory()])
-        bb2 = stk.BuildingBlock('O=CCCC=O', [stk.AldehydeFactory()])
-        polymer = stk.ConstructedMolecule(
-            stk.polymer.Linear(
-                building_blocks=(bb1, bb2),
-                repeating_unit="AB",
-                orientations=[0, 0],
-                num_repeating_units=1
+        if deviation_atom_ids is None:
+            deviation_atom_ids = list(
+                range(len(list(mol.get_atoms())))
             )
-        )
+        else:
+            deviation_atom_ids = list(deviation_atom_ids)
 
-        # Create the calculator.
-        tc = stko.ConstructedMoleculeTorsionCalculator()
-
-        # Extract the torsions.
-        tc_results = tc.get_results(polymer)
-
-        # Get information about torsions in building blocks and in the
-        # ConstructedMolecule.
-        for t in tc_results.get_torsion_infos():
-            print(
-                'c', t.get_torsion(),
-                t.get_building_block(),
-                t.get_building_block_id(),
-                t.get_building_block_torsion(),
-            )
-
-    References
-    ----------
-    .. [1] http://rdkit.org/docs/source/
-    rdkit.Chem.TorsionFingerprints.html
-
-    """
-
-    def get_results(self, mol):
-        """
-        Calculate the torsions of `mol`.
-
-        Parameters
-        ----------
-        mol : :class:`.Molecule`
-            The :class:`.Molecule` whose torsions are to be calculated.
-
-        Returns
-        -------
-        :class:`.TorsionResults`
-            The torsions of the molecule.
-
-        """
-
-        return ConstructedMoleculeTorsionResults(
-            generator=self.calculate(mol),
+        yield self._plane_deviation(
             mol=mol,
+            plane_atom_ids=plane_atom_ids,
+            deviation_atom_ids=deviation_atom_ids,
+        )
+        yield self._plane_deviation_span(
+            mol=mol,
+            plane_atom_ids=plane_atom_ids,
+            deviation_atom_ids=deviation_atom_ids,
+        )
+        yield self._planarity_parameter(
+            mol=mol,
+            plane_atom_ids=plane_atom_ids,
+            deviation_atom_ids=deviation_atom_ids,
         )
 
-
-class MatchedTorsionCalculator(ConstructedMoleculeTorsionCalculator):
-    """
-    Matches rdkit generated torsions with building block torsions.
-
-    """
-
-    def calculate(self, mol):
+    def get_results(
+        self,
+        mol,
+        plane_atom_ids=None,
+        deviation_atom_ids=None,
+    ):
         """
-        Extract torsions with rdkit, then match to building blocks.
-
-        This method loops through each rdkit generated torsion. For
-        each torsion, it checks if the two interior atoms of the
-        torsion come from the two interior (central) atoms of some
-        torsion in a building block. If so, it replaces the end atoms
-        of the torsion with the atoms corresponding to the end atoms
-        of the underlying building block torsion.
+        Calculate the planarity of `mol`.
 
         Parameters
         ----------
-        mol : :class:`.ConstructedMolecule`
-            The :class:`.ConstructedMolecule` whose torsions are to be
-            calculated.
+        mol : :class:`.Molecule`
+            The :class:`.Molecule` whose planarity is to be calculated.
+
+        plane_atom_ids : iterable of :class:`int`, optional
+            The atom ids to use to define the plane of best fit.
+
+        deviation_atom_ids : iterable of :class:`int`, optional
+            The atom ids to use to calculate planarity.
+
+        Returns
+        -------
+        :class:`.PlanarityResults`
+            The planarity measures of the molecule.
 
         """
 
-        torsions = list(next(super().calculate(mol)))
-        atom_maps = get_atom_maps(mol)
-
-        # Loop over torsions, updating each to match a building block
-        # torsion if possible.
-        for i, torsion in enumerate(torsions):
-            # Atom ids, atom infos, and building block ids of current
-            # torsion in constructed molecule.
-            atom_ids = list(torsion.get_atom_ids())
-            atom_infos = list(mol.get_atom_infos(atom_ids))
-            build_block_ids = [
-                atom_info.get_building_block_id()
-                for atom_info in atom_infos
-            ]
-
-            if build_block_ids[1] is None:
-                continue
-            # Check if two central atoms of torsion are from the same
-            # building block. If not, leave this torsion alone.
-            if (build_block_ids[1] != build_block_ids[2]):
-                continue
-
-            build_block_torsions = TorsionCalculator().get_results(
-                atom_infos[1].get_building_block()
-            ).get_torsions()
-            atom_map = atom_maps[build_block_ids[1]]
-
-            # Look for a torsion in the building block that has the
-            # same central atoms.
-            for bb_torsion in build_block_torsions:
-                try:
-                    matched_atoms = [
-                        atom_map[atom_id]
-                        for atom_id in bb_torsion.get_atom_ids()
-                    ]
-                except KeyError:
-                    # The atoms of the building block torsion do not
-                    # all have corresponding atoms in the constructed
-                    # molecule (e.g. atom was deleted in construction)
-                    # so skip to next building block torsion.
-                    continue
-                matched_atom_ids = [
-                    atom.get_id()
-                    for atom in matched_atoms
-                ]
-                if set(matched_atom_ids[1:3]) == set(atom_ids[1:3]):
-                    # Set the constructed molecule torsion to match the
-                    # building block torsion.
-                    torsions[i] = Torsion(*matched_atoms)
-                    break
-
-        yield tuple(torsions)
+        return PlanarityResults(self.calculate(
+            mol=mol,
+            plane_atom_ids=plane_atom_ids,
+            deviation_atom_ids=deviation_atom_ids,
+        ))
