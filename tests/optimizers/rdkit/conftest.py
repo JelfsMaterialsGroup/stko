@@ -69,11 +69,6 @@ class CaseData:
     ],
 )
 def case_uff_molecule(request):
-    """
-    A :class:`.Molecule` instance.
-
-    """
-
     return request.param
 
 
@@ -122,11 +117,6 @@ def case_uff_molecule(request):
     ],
 )
 def case_mmff_molecule(request):
-    """
-    A :class:`.Molecule` instance.
-
-    """
-
     return request.param
 
 
@@ -143,9 +133,4 @@ def case_mmff_molecule(request):
     ],
 )
 def case_etkdg_molecule(request):
-    """
-    A :class:`.Molecule` instance.
-
-    """
-
     return request.param

@@ -1,5 +1,4 @@
 import pytest
-import numpy as np
 import stk
 
 
@@ -29,22 +28,22 @@ class CaseData:
     params=[
         CaseData(
             molecule=stk.BuildingBlock('NCCN'),
-            unoptimised_energy=98.68403256936926,
+            unoptimised_energy=18.706050515892986,
         ),
         CaseData(
             molecule=stk.BuildingBlock(
                 'C(#Cc1cccc2ccncc21)c1ccc2[nH]c3ccc(C#Cc4cccc5cnccc54)'
                 'cc3c2c1'
             ),
-            unoptimised_energy=2032.8111567743895,
+            unoptimised_energy=276.0206611549808,
         ),
         CaseData(
             molecule=stk.BuildingBlock('CCCCCC'),
-            unoptimised_energy=141.44622279628743,
+            unoptimised_energy=20.722743438967758,
         ),
         CaseData(
             molecule=stk.BuildingBlock('c1ccccc1'),
-            unoptimised_energy=56.73128282588534,
+            unoptimised_energy=13.516838919531384,
         ),
         CaseData(
             molecule=stk.ConstructedMolecule(
@@ -64,9 +63,10 @@ class CaseData:
                     optimizer=stk.MCHammer(),
                 ),
             ),
-            unoptimised_energy=15002.946293854524,
+            unoptimised_energy=3533.7741683439153,
         ),
     ],
 )
-def case_molecule(request):
+def case_data(request):
+
     return request.param
