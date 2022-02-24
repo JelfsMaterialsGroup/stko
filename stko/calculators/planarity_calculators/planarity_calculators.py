@@ -9,6 +9,7 @@ Methods to calculate planarity measures of a molecule.
 """
 
 import logging
+import numpy as np
 
 from ..calculators import Calculator
 from ..results import PlanarityResults
@@ -22,6 +23,14 @@ class PlanarityCalculator(Calculator):
 
     Measures based on plane deviation from Angew. paper [1]_ and a
     ChemRxiv paper [2]_.
+
+    Plane deviation: sum of the shortest distance to the plane of best
+    fit of all deviation atoms (sum abs(d_i)).
+
+    Plane deviation span: d_max - d_min (SDP in [2]_)
+
+    Planarity parameter: defined as
+    sqrt((1/num_atoms) * (sum d_i ** 2)) (MPP in [2]_)
 
     Examples
     --------
@@ -39,7 +48,9 @@ class PlanarityCalculator(Calculator):
 
         # Extract the measures.
         pc_results = pc.get_results(mol1)
-        ADDD
+        plane_deviation = pc_results.get_plane_deviation()
+        plane_deviation_span = pc_results.get_plane_deviation_span()
+        planarity_parameter = pc_results.get_planarity_parameter()
 
     References
     ----------
@@ -51,31 +62,56 @@ class PlanarityCalculator(Calculator):
     """
 
     def _get_plane_of_best_fit(self, mol, plane_atom_ids):
-        raise NotImplementedError()
+        centroid = mol.get_centroid(atom_ids=plane_atom_ids)
+        normal = mol.get_plane_normal(atom_ids=plane_atom_ids)
+        # Plane of equation ax + by + cz = d.
+        atom_plane = np.append(normal, np.sum(normal*centroid))
+        return atom_plane
 
-    def _plane_deviation(
+    def _shortest_distance_to_plane(self, plane, point):
+        """
+        Calculate the perpendicular distance from a point and a plane.
+
+        """
+
+        top = (
+            plane[0]*point[0] + plane[1]*point[1] +
+            plane[2]*point[2] - plane[3]
+        )
+        bottom = np.sqrt(plane[0]**2 + plane[1]**2 + plane[2]**2)
+        distance = top / bottom
+        return distance
+
+    def _calculate_deviations(
         self,
         mol,
-        plane_atom_ids=None,
-        deviation_atom_ids=None,
+        atom_plane,
+        deviation_atom_ids,
     ):
-        raise NotImplementedError()
+        return [
+            self._shortest_distance_to_plane(
+                plane=atom_plane,
+                point=tuple(
+                    mol.get_atomic_positions(atom_ids=i.get_id()),
+                )[0],
+            )
+            for i in mol.get_atoms()
+            if i.get_id() in deviation_atom_ids
+        ]
 
-    def _plane_deviation_span(
-        self,
-        mol,
-        plane_atom_ids=None,
-        deviation_atom_ids=None,
-    ):
-        raise NotImplementedError()
+    def _plane_deviation(self, deviations):
+        deviations = [abs(i) for i in deviations]
+        return sum(deviations)
 
-    def _planarity_parameter(
-        self,
-        mol,
-        plane_atom_ids=None,
-        deviation_atom_ids=None,
-    ):
-        raise NotImplementedError()
+    def _plane_deviation_span(self, deviations):
+        return max(deviations) - min(deviations)
+
+    def _planarity_parameter(self, deviations):
+        deviations = [abs(i) for i in deviations]
+        num_atoms = len(deviations)
+        inv_num_atoms = 1/num_atoms
+        sum_squared = sum(i**2 for i in deviations)
+        return np.sqrt(inv_num_atoms * sum_squared)
 
     def calculate(
         self,
@@ -116,21 +152,24 @@ class PlanarityCalculator(Calculator):
         else:
             deviation_atom_ids = list(deviation_atom_ids)
 
-        yield self._plane_deviation(
+        atom_plane = self._get_plane_of_best_fit(mol, plane_atom_ids)
+        deviations = self._calculate_deviations(
             mol=mol,
-            plane_atom_ids=plane_atom_ids,
+            atom_plane=atom_plane,
             deviation_atom_ids=deviation_atom_ids,
         )
-        yield self._plane_deviation_span(
-            mol=mol,
-            plane_atom_ids=plane_atom_ids,
-            deviation_atom_ids=deviation_atom_ids,
-        )
-        yield self._planarity_parameter(
-            mol=mol,
-            plane_atom_ids=plane_atom_ids,
-            deviation_atom_ids=deviation_atom_ids,
-        )
+        yield {
+            'plane_deviation': (
+                self._plane_deviation(deviations)
+            ),
+            'plane_deviation_span':(
+                self._plane_deviation_span(deviations)
+            ),
+            'planarity_parameter': (
+                self._planarity_parameter(deviations)
+            ),
+        }
+
 
     def get_results(
         self,
