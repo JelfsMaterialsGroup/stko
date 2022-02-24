@@ -10,17 +10,28 @@ class CaseData:
         molecule:
             The molecule to be tested.
 
-        unoptimised_energy:
-            The energy of the molecule from stk generation.
+        plane_deviation:
+            The plane deviation of the molecule.
+
+        planarity_parameter:
+            The planarity parameter of the molecule.
+
+        plane_deviation_span:
+            The plane deviation span of the molecule.
 
     """
 
-    position_matrix: np.ndarray
-
-    def __init__(self, molecule, unoptimised_energy):
-
+    def __init__(
+        self,
+        molecule,
+        plane_deviation,
+        planarity_parameter,
+        plane_deviation_span,
+    ):
         self.molecule = molecule
-        self.unoptimised_energy = unoptimised_energy
+        self.plane_deviation = plane_deviation
+        self.planarity_parameter = planarity_parameter
+        self.plane_deviation_span = plane_deviation_span
 
 
 @pytest.fixture(
@@ -28,22 +39,30 @@ class CaseData:
     params=[
         CaseData(
             molecule=stk.BuildingBlock('NCCN'),
-            unoptimised_energy=18.706050515892986,
+            plane_deviation = 0.0,
+            planarity_parameter = 0.0,
+            plane_deviation_span = 0.0,
         ),
         CaseData(
             molecule=stk.BuildingBlock(
                 'C(#Cc1cccc2ccncc21)c1ccc2[nH]c3ccc(C#Cc4cccc5cnccc54)'
                 'cc3c2c1'
             ),
-            unoptimised_energy=276.0206611549808,
+            plane_deviation = 0.0,
+            planarity_parameter = 0.0,
+            plane_deviation_span = 0.0,
         ),
         CaseData(
             molecule=stk.BuildingBlock('CCCCCC'),
-            unoptimised_energy=20.722743438967758,
+            plane_deviation = 0.0,
+            planarity_parameter = 0.0,
+            plane_deviation_span = 0.0,
         ),
         CaseData(
             molecule=stk.BuildingBlock('c1ccccc1'),
-            unoptimised_energy=13.516838919531384,
+            plane_deviation = 0.0,
+            planarity_parameter = 0.0,
+            plane_deviation_span = 0.0,
         ),
         CaseData(
             molecule=stk.ConstructedMolecule(
@@ -60,10 +79,32 @@ class CaseData:
                     ),
                     repeating_unit='AB',
                     num_repeating_units=2,
-                    optimizer=stk.MCHammer(),
                 ),
             ),
-            unoptimised_energy=3533.7741683439153,
+            plane_deviation = 0.0,
+            planarity_parameter = 0.0,
+            plane_deviation_span = 0.0,
+        ),
+        CaseData(
+            molecule=stk.ConstructedMolecule(
+                topology_graph=stk.macrocycle.Macrocycle(
+                    building_blocks=(
+                        stk.BuildingBlock(
+                            smiles='BrCCBr',
+                            functional_groups=[stk.BromoFactory()],
+                        ),
+                        stk.BuildingBlock(
+                            smiles='BrCNCCBr',
+                            functional_groups=[stk.BromoFactory()],
+                        ),
+                    ),
+                    repeating_unit='AB',
+                    num_repeating_units=2,
+                ),
+            ),
+            plane_deviation = 0.0,
+            planarity_parameter = 0.0,
+            plane_deviation_span = 0.0,
         ),
     ],
 )
