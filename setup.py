@@ -15,7 +15,6 @@ setuptools.setup(
         'scipy',
         'numpy',
         'networkx',
-        'mdanalysis',
         'stk',
     ),
     classifiers=[

@@ -32,11 +32,11 @@ Make sure you also install rdkit, which is a dependency::
 
     $ conda install -c conda-forge rdkit
 
-Make sure you also install openbabel, which is a dependency::
+You can also install openbabel, which is an optional dependency::
 
     $ conda install -c conda-forge openbabel
 
-Make sure you also install MDAnalysis, which is a dependency::
+You can also install MDAnalysis, which is an optional dependency::
 
     $ pip install MDAnalysis
 
