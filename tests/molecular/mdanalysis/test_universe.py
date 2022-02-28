@@ -24,7 +24,7 @@ def test_universe(molecule):
     """
 
     if mda is None:
-        with pytest.raises(stko.WrapperNotInstalledException) as e:
+        with pytest.raises(stko.WrapperNotInstalledException):
             result = stko.MDAnalysis().get_universe(molecule)
     else:
         result = stko.MDAnalysis().get_universe(molecule)

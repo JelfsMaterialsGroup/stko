@@ -16,7 +16,7 @@ except ImportError:
 def test_open_babel(case_molecule):
 
     if openbabel is None:
-        with pytest.raises(stko.WrapperNotInstalledException) as e:
+        with pytest.raises(stko.WrapperNotInstalledException):
             energy = (
                 stko.OpenBabelEnergy('uff').get_energy(
                     mol=case_molecule.molecule,
