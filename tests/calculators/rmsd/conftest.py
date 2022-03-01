@@ -48,6 +48,7 @@ _polymer = stk.ConstructedMolecule(
     ),
 )
 
+
 @pytest.fixture(
     scope='session',
     params=[
