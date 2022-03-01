@@ -4,3 +4,4 @@ from .xtb_results import *  # noqa
 from .torsion_results import *  # noqa
 from .shape_results import *  # noqa
 from .orca_results import *  # noqa
+from .rmsd_results import *  # noqa
