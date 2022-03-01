@@ -14,7 +14,7 @@ def test_rmsd_ignore_hydrogens(ignore_h_case_data):
     calculator = stko.RmsdCalculator(ignore_h_case_data.mol1, True)
     results = calculator.get_results(ignore_h_case_data.mol2)
     test_rmsd = results.get_rmsd()
-    assert test_rmsd == ignore_h_case_data.rmsd
+    assert np.isclose(test_rmsd, ignore_h_case_data.rmsd, atol=1E-4)
 
 
 def test_rmsd_different_molecule(different_case_data):
