@@ -36,7 +36,7 @@ class CaseData:
             initial_molecule=(
                 stk.BuildingBlock('NCCN').with_rotation_about_axis(
                     1.34, np.array((0, 0, 1)), np.array((0, 0, 0)),
-                ),
+                )
             ),
             rmsd=0.0,
         ),
@@ -51,7 +51,7 @@ class CaseData:
                     'c54)cc3c2c1'
                 ).with_rotation_about_axis(
                     1.34, np.array((0, 0, 1)), np.array((0, 0, 0)),
-                ),
+                )
             ),
             rmsd=0.0,
         ),
@@ -60,7 +60,7 @@ class CaseData:
             initial_molecule=(
                 stk.BuildingBlock('CCCCCC').with_rotation_about_axis(
                     1.34, np.array((0, 0, 1)), np.array((0, 0, 0)),
-                ),
+                )
             ),
             rmsd=0.0,
         ),
@@ -69,7 +69,7 @@ class CaseData:
             initial_molecule=(
                 stk.BuildingBlock('c1ccccc1').with_rotation_about_axis(
                     1.34, np.array((0, 0, 1)), np.array((0, 0, 0)),
-                ),
+                )
             ),
             rmsd=0.0,
         ),

@@ -211,8 +211,14 @@ def ordering_case_data(request):
     return request.param
 
 
-_aligner1 = stko.Aligner(stk.BuildingBlock('NCCN'))
-_aligner2 = stko.Aligner(stk.BuildingBlock('CCCCCC'))
+_aligner1 = stko.Aligner(
+    initial_molecule=stk.BuildingBlock('NCCN'),
+    matching_pairs=(('C', 'C'), ('N', 'N')),
+)
+_aligner2 = stko.Aligner(
+    initial_molecule=stk.BuildingBlock('CCCCCC'),
+    matching_pairs=(('C', 'C'), ('N', 'N')),
+)
 
 @pytest.fixture(
     scope='session',
