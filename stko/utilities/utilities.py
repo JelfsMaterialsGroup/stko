@@ -20,6 +20,10 @@ from itertools import chain
 from scipy.spatial.distance import euclidean
 
 
+class WrapperNotInstalledException(Exception):
+    ...
+
+
 # This dictionary gives easy access to the rdkit bond types.
 bond_dict = {'1': rdkit.rdchem.BondType.SINGLE,
              'am': rdkit.rdchem.BondType.SINGLE,
