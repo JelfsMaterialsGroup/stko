@@ -49,9 +49,26 @@ _polymer = stk.ConstructedMolecule(
 )
 
 
+_cc_molecule = stk.BuildingBlock('CC')
+
 @pytest.fixture(
     scope='session',
     params=[
+        CaseData(
+            mol1=_cc_molecule,
+            mol2=_cc_molecule.with_centroid(np.array(1, 0, 0)),
+            rmsd=1.0,
+        ),
+        CaseData(
+            mol1=_cc_molecule,
+            mol2=_cc_molecule.with_centroid(np.array(2, 0, 0)),
+            rmsd=2.0,
+        ),
+        CaseData(
+            mol1=_cc_molecule,
+            mol2=_cc_molecule.with_centroid(np.array(4, 0, 0)),
+            rmsd=4.0,
+        ),
         CaseData(
             mol1=stk.BuildingBlock('NCCN'),
             mol2=_optimizer.optimize(stk.BuildingBlock('NCCN')),
