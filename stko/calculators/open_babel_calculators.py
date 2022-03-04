@@ -10,13 +10,25 @@ Wrappers for calculators within the `openbabel` code.
 
 import logging
 import os
-from openbabel import openbabel
+try:
+    from openbabel import openbabel
+except ImportError:
+    openbabel = None
 
 from .calculators import Calculator
 from .results import EnergyResults
+from ..utilities import WrapperNotInstalledException
 
 
 logger = logging.getLogger(__name__)
+
+
+class OpenBabelError(Exception):
+    ...
+
+
+class ForceFieldSetupError(OpenBabelError):
+    ...
 
 
 class OpenBabelEnergy(Calculator):
@@ -60,22 +72,34 @@ class OpenBabelEnergy(Calculator):
 
         """
 
+        if openbabel is None:
+            raise WrapperNotInstalledException(
+                'openbabel is not installed; see README for '
+                'installation.'
+            )
+
         self._forcefield = forcefield
 
     def calculate(self, mol):
         temp_file = 'temp.mol'
         mol.write(temp_file)
-        obConversion = openbabel.OBConversion()
-        obConversion.SetInFormat("mol")
-        OBMol = openbabel.OBMol()
-        obConversion.ReadFile(OBMol, temp_file)
-        OBMol.PerceiveBondOrders()
-        os.system('rm temp.mol')
+        try:
+            obConversion = openbabel.OBConversion()
+            obConversion.SetInFormat("mol")
+            OBMol = openbabel.OBMol()
+            obConversion.ReadFile(OBMol, temp_file)
+            OBMol.PerceiveBondOrders()
+        finally:
+            os.system('rm temp.mol')
 
         forcefield = openbabel.OBForceField.FindForceField(
             self._forcefield
         )
-        forcefield.Setup(OBMol)
+        outcome = forcefield.Setup(OBMol)
+        if not outcome:
+            raise ForceFieldSetupError(
+                f"{self._forcefield} could not be setup for {mol}"
+            )
 
         yield forcefield.Energy()
 

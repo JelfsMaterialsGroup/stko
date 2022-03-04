@@ -10,7 +10,12 @@ Class for converting a molecule to and back from an MDAnalysis object.
 
 import logging
 
-import MDAnalysis as mda
+from ...utilities import WrapperNotInstalledException
+
+try:
+    import MDAnalysis as mda
+except ModuleNotFoundError:
+    mda = None
 
 logger = logging.getLogger(__name__)
 
@@ -40,6 +45,13 @@ class MDAnalysis:
         print('stk centroid:', stkmol.get_centroid())
 
     """
+
+    def __init__(self):
+        if mda is None:
+            raise WrapperNotInstalledException(
+                'MDAnalysis is not installed; see README for '
+                'installation.'
+            )
 
     def get_universe(self, mol):
         """
