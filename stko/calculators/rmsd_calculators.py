@@ -3,6 +3,7 @@ RMSD Calculators
 =================
 
 #. :class:`.RmsdCalculator`
+#. :class:`.RmsdMappedCalculator`
 
 Calculator of Root Mean Square Distance between two molecules.
 
@@ -11,6 +12,7 @@ Calculator of Root Mean Square Distance between two molecules.
 import logging
 import stk
 import numpy as np
+from scipy.spatial.distance import cdist
 
 from .calculators import Calculator
 from .results import RmsdResults
@@ -156,3 +158,93 @@ class RmsdCalculator(Calculator):
         """
 
         return RmsdResults(self.calculate(mol))
+
+
+class RmsdMappedCalculator(RmsdCalculator):
+    """
+    Calculates the root mean square distance between molecules.
+
+    This calculator allows for different molecules but they should be
+    aligned, see the example below. It will calculate the RMSD based on
+    the nearest atom of the same class (element). Both molecules are
+    moved to a centroid position of (0, 0, 0). The number of atoms is
+    based on the `mol` input into `calculate`.
+
+    Examples
+    --------
+    .. code-block:: python
+
+        import stk
+        import stko
+
+        bb1 = stk.BuildingBlock('C1CCCCC1')
+        # Fake rotation and displacement.
+        bb2 = bb1.with_rotation_about_axis(
+            1.34, np.array((0, 0, 1)), np.array((0, 0, 0)),
+        ).with_displacement(np.array((2, 0, 1)))
+
+        # Get RMSD without alignment.
+        calculator = stko.RmsdMappedCalculator(bb1)
+        results = calculator.get_results(bb2)
+        rmsd  = results.get_rmsd()
+
+        # Align the molecules.
+        optimizer = stko.Aligner(bb1)
+        aligned_bb2 = optimizer.optimize(bb2)
+
+        calculator = stko.RmsdMappedCalculator(bb1)
+        results = calculator.get_results(aligned_bb2)
+        rmsd  = results.get_rmsd()
+
+    """
+
+    def _calculate_rmsd(self, mol):
+        if self._ignore_hydrogens:
+            initial_atom_ids = (
+                i.get_id() for i in self._initial_molecule.get_atoms()
+                if i.get_atomic_number() != 1
+            )
+            mol_atom_ids = (
+                i.get_id() for i in mol.get_atoms()
+                if i.get_atomic_number() != 1
+            )
+        else:
+            initial_atom_ids = None
+            mol_atom_ids = None
+
+        initial_atom_positions = (
+            self._initial_molecule.get_atomic_positions(
+                atom_ids=initial_atom_ids,
+            )
+        )
+        initial_atoms = tuple(self._initial_molecule.get_atoms(
+            atom_ids=initial_atom_ids
+        ))
+        mol_atoms = tuple(mol.get_atoms(atom_ids=mol_atom_ids))
+        atom_matrix = np.zeros((len(initial_atoms), len(mol_atoms)))
+        for i in range(len(mol_atoms)):
+            a1_num = mol_atoms[i].get_atomic_number()
+            for j in range(len(initial_atoms)):
+                a2_num = initial_atoms[j].get_atomic_number()
+                atom_matrix[j][i] = a1_num == a2_num
+
+        mol_atom_positions = (
+            mol.get_atomic_positions(
+                atom_ids=mol_atom_ids,
+            )
+        )
+        pos_mat1 = np.array(list(initial_atom_positions))
+        pos_mat2 = np.array(list(mol_atom_positions))
+
+        N = len(pos_mat2)
+        distances = cdist(pos_mat1, pos_mat2)
+        new_array = np.where(atom_matrix, distances, 1E24)
+        deviations = np.amin(new_array, axis=1)
+        return np.sqrt(np.sum(deviations * deviations) / N)
+
+    def calculate(self, mol):
+        self._initial_molecule = self._initial_molecule.with_centroid(
+            position=(0, 0, 0),
+        )
+        mol = mol.with_centroid((0, 0, 0))
+        yield self._calculate_rmsd(mol)
