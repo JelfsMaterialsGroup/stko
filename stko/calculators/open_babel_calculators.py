@@ -23,6 +23,14 @@ from ..utilities import WrapperNotInstalledException
 logger = logging.getLogger(__name__)
 
 
+class OpenBabelError(Exception):
+    ...
+
+
+class ForceFieldSetupError(OpenBabelError):
+    ...
+
+
 class OpenBabelEnergy(Calculator):
     """
     Uses OpenBabel to calculate forcefield energies.[1]_
@@ -87,7 +95,11 @@ class OpenBabelEnergy(Calculator):
         forcefield = openbabel.OBForceField.FindForceField(
             self._forcefield
         )
-        forcefield.Setup(OBMol)
+        outcome = forcefield.Setup(OBMol)
+        if not outcome:
+            raise ForceFieldSetupError(
+                f"{self._forcefield} could not be setup for {mol}"
+            )
 
         yield forcefield.Energy()
 
