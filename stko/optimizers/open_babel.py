@@ -11,9 +11,13 @@ Wrappers for optimizers within the `openbabel` code.
 import logging
 import os
 import numpy as np
-from openbabel import openbabel
+try:
+    from openbabel import openbabel
+except ImportError:
+    openbabel = None
 
 from .optimizers import Optimizer
+from ..utilities import WrapperNotInstalledException
 
 logger = logging.getLogger(__name__)
 
@@ -80,6 +84,12 @@ class OpenBabel(Optimizer):
 
         """
 
+        if openbabel is None:
+            raise WrapperNotInstalledException(
+                'openbabel is not installed; see README for '
+                'installation.'
+            )
+
         self._forcefield = forcefield
         self._repeat_steps = repeat_steps
         self._sd_steps = sd_steps
@@ -103,12 +113,14 @@ class OpenBabel(Optimizer):
 
         temp_file = 'temp.mol'
         mol.write(temp_file)
-        obConversion = openbabel.OBConversion()
-        obConversion.SetInFormat("mol")
-        OBMol = openbabel.OBMol()
-        obConversion.ReadFile(OBMol, temp_file)
-        OBMol.PerceiveBondOrders()
-        os.system('rm temp.mol')
+        try:
+            obConversion = openbabel.OBConversion()
+            obConversion.SetInFormat("mol")
+            OBMol = openbabel.OBMol()
+            obConversion.ReadFile(OBMol, temp_file)
+            OBMol.PerceiveBondOrders()
+        finally:
+            os.system('rm temp.mol')
 
         forcefield = openbabel.OBForceField.FindForceField(
             self._forcefield
