@@ -1,6 +1,6 @@
 """
 OpenBabel Optimizers
-================
+====================
 
 #. :class:`.OpenBabel`
 
