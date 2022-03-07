@@ -838,3 +838,14 @@ def get_atom_maps(mol):
             bb_atom_id
         ] = atom_info.get_atom()
     return atom_maps
+
+
+def is_inequivalent_atom(atom1, atom2):
+    if atom1.__class__ is not atom2.__class__:
+        return True
+    if atom1.get_id() != atom2.get_id():
+        return True
+    if atom1.get_charge() != atom2.get_charge():
+        return True
+    if atom1.get_atomic_number() != atom2.get_atomic_number():
+        return True
