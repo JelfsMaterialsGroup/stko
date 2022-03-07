@@ -176,12 +176,13 @@ class RmsdMappedCalculator(RmsdCalculator):
 
         import stk
         import stko
+        import numpy as np
 
         bb1 = stk.BuildingBlock('C1CCCCC1')
-        # Fake rotation and displacement.
-        bb2 = bb1.with_rotation_about_axis(
+        # Fake rotation of new molecule.
+        bb2 = stk.BuildingBlock('C1CCCCC1').with_rotation_about_axis(
             1.34, np.array((0, 0, 1)), np.array((0, 0, 0)),
-        ).with_displacement(np.array((2, 0, 1)))
+        )
 
         # Get RMSD without alignment.
         calculator = stko.RmsdMappedCalculator(bb1)
@@ -189,7 +190,7 @@ class RmsdMappedCalculator(RmsdCalculator):
         rmsd  = results.get_rmsd()
 
         # Align the molecules.
-        optimizer = stko.Aligner(bb1)
+        optimizer = stko.Aligner(bb1, (('C', 'C'), ))
         aligned_bb2 = optimizer.optimize(bb2)
 
         calculator = stko.RmsdMappedCalculator(bb1)
