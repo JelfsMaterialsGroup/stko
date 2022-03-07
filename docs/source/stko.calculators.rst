@@ -26,6 +26,7 @@ Submodules
    stko.calculators.open_babel_calculators
    stko.calculators.orca_calculators
    stko.calculators.rdkit_calculators
+   stko.calculators.rmsd_calculators
    stko.calculators.shape_calculators
    stko.calculators.torsion_calculators
    stko.calculators.xtb_calculators
