@@ -211,15 +211,6 @@ def ordering_case_data(request):
     return request.param
 
 
-_aligner1 = stko.Aligner(
-    initial_molecule=stk.BuildingBlock('NCCN'),
-    matching_pairs=(('C', 'C'), ('N', 'N')),
-)
-_aligner2 = stko.Aligner(
-    initial_molecule=stk.BuildingBlock('CCCCCC'),
-    matching_pairs=(('C', 'C'), ('N', 'N')),
-)
-
 @pytest.fixture(
     scope='session',
     params=[
@@ -254,15 +245,6 @@ _aligner2 = stko.Aligner(
             rmsd=1.1309858484314543,
         ),
         CaseData(
-            mol1=stk.BuildingBlock('NCCN'),
-            mol2=_aligner1.optimize(
-                stk.BuildingBlock('NCCN').with_rotation_about_axis(
-                    1.34, np.array((0, 0, 1)), np.array((0, 0, 0)),
-                )
-            ).with_displacement(np.array((2, 0, 1))),
-            rmsd=1.1309858484314543,
-        ),
-        CaseData(
             mol1=stk.BuildingBlock('CCCCCC'),
             mol2=stk.BuildingBlock('CCCCCC').with_rotation_about_axis(
                 0.24, np.array((1, 0, 1)), np.array((0, 0, 0)),
@@ -270,17 +252,8 @@ _aligner2 = stko.Aligner(
             rmsd=0.5943193981905652,
         ),
         CaseData(
-            mol1=stk.BuildingBlock('CCCCCC'),
-            mol2=_aligner2.optimize(
-                stk.BuildingBlock('CCCCCC').with_rotation_about_axis(
-                    0.24, np.array((1, 0, 1)), np.array((0, 0, 0)),
-                )
-            ).with_displacement(np.array((0, 0, 1))),
-            rmsd=0.5943193981905652,
-        ),
-        CaseData(
             mol1=stk.BuildingBlock('NCCN'),
-            mol2=_aligner1.optimize(stk.BuildingBlock('NCCCN')),
+            mol2=stk.BuildingBlock('NCCCN'),
             rmsd=0.8832914099448816,
         ),
     ],
