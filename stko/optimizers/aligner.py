@@ -23,13 +23,12 @@ logger = logging.getLogger(__name__)
 
 class AlignmentPotential(spd.Potential):
 
-    def __init__(self, matching_pairs, epsilon):
+    def __init__(self, matching_pairs, width):
         self._matching_pairs = matching_pairs
-        self._epsilon = epsilon
-        super().__init__()
+        self._width = width
 
-    def _potential(self, distance, sigmas):
-        return (sigmas * distance) ** 2 - 0.1
+    def _potential(self, distance):
+        return  self._width * (distance ** 2)
 
     def _combine_atoms(self, atoms1, atoms2):
 
@@ -41,10 +40,10 @@ class AlignmentPotential(spd.Potential):
             for j in range(len2):
                 a1e = atoms1[i].get_element_string()
                 a2e = atoms2[j].get_element_string()
-                if sorted((a1e, a2e)) in self._matching_pairs:
-                    mixed[i, j] = self._epsilon
+                if tuple(sorted((a1e, a2e))) in self._matching_pairs:
+                    mixed[i, j] = True
                 else:
-                    mixed[i, j] = 0
+                    mixed[i, j] = False
 
         return mixed
 
@@ -65,15 +64,11 @@ class AlignmentPotential(spd.Potential):
             component_atoms[0], component_atoms[1]
         )
 
-        _cut = 4
-        cut_dists = pair_dists.flatten()[pair_dists.flatten() < _cut]
-        cut_sigs = sigmas.flatten()[pair_dists.flatten() < _cut]
-        return np.sum(
-            self._potential(
-                distance=cut_dists,
-                sigmas=cut_sigs,
-            )
-        )
+        new_array = np.where(sigmas, pair_dists, 1E24)
+        distances = np.array([
+            i for i in np.amin(new_array, axis=1) if i != 1E24
+        ])
+        return np.sum(self._potential(distance=distances))
 
 
 class Aligner(Optimizer):
