@@ -82,3 +82,56 @@ def case_molecule(request):
     """
 
     return request.param
+
+
+class CasePotential:
+    """
+    A test case.
+
+    Attributes:
+        molecule:
+            The molecule to be tested.
+
+        initial_molecule:
+            The initial molecule to be tested.
+
+        potential:
+            The calculated potential.
+
+        pairs:
+            The atom pair types to calculate potential between.
+
+    """
+
+    position_matrix: np.ndarray
+
+    def __init__(self, molecule, initial_molecule, potential, pairs):
+
+        self.molecule = molecule
+        self.initial_molecule = initial_molecule
+        self.potential = potential
+        self.pairs = pairs
+
+
+@pytest.fixture(
+    scope='session',
+    params=[
+        CasePotential(
+            molecule=stk.BuildingBlock('NCCN'),
+            initial_molecule=(
+                stk.BuildingBlock('NCCN').with_rotation_about_axis(
+                    1.34, np.array((0, 0, 1)), np.array((0, 0, 0)),
+                )
+            ),
+            potential=0.0,
+            pairs=(('C', 'C'), ('N', 'N')),
+        ),
+    ],
+)
+def case_potential(request):
+    """
+    A :class:`.Molecule` instance.
+
+    """
+
+    return request.param

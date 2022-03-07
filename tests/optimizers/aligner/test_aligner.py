@@ -1,3 +1,4 @@
+from turtle import width
 import stko
 from ..utilities import (
     inequivalent_position_matrices,
@@ -11,14 +12,11 @@ def test_aligner(case_molecule):
     test_rmsd_unopt = calculator.get_results(
         case_molecule.molecule
     ).get_rmsd()
-    case_molecule.molecule.write('in1.mol')
-    case_molecule.initial_molecule.write('in2.mol')
     optimizer = stko.Aligner(
         initial_molecule=case_molecule.initial_molecule,
         matching_pairs=(('C', 'C'), ('N', 'N')),
     )
     opt_res = optimizer.optimize(case_molecule.molecule)
-    opt_res.write('out.mol')
     is_equivalent_molecule(opt_res, case_molecule.molecule)
     inequivalent_position_matrices(opt_res, case_molecule.molecule)
 
@@ -28,3 +26,18 @@ def test_aligner(case_molecule):
         test_rmsd, case_molecule.rmsd, atol=1E-6
     )
     assert test_rmsd < test_rmsd_unopt
+
+
+def test_alignment_potential(case_potential):
+    aligner = stko.Aligner(
+        initial_molecule=case_potential.initial_molecule,
+        matching_pairs=case_potential.pairs,
+    )
+    potential = stko.AlignmentPotential(
+        matching_pairs=case_potential.pairs,
+        width=2,
+    )
+    supramolecule = aligner._get_supramolecule(case_potential.molecule)
+    assert case_potential.potential == potential.compute_potential(
+        supramolecule,
+    )
