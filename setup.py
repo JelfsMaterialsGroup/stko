@@ -2,7 +2,7 @@ import setuptools
 
 setuptools.setup(
     name="stko",
-    version="0.0.39",
+    version="0.0.40",
     author="Steven Bennett, Andrew Tarzia",
     author_email="s.bennett18@imperial.ac.uk",
     description=(
@@ -15,7 +15,6 @@ setuptools.setup(
         'scipy',
         'numpy',
         'networkx',
-        'mdanalysis',
         'stk',
     ),
     classifiers=[

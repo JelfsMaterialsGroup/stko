@@ -1,5 +1,4 @@
 import pytest
-import numpy as np
 import stk
 
 
@@ -15,8 +14,6 @@ class CaseData:
             The energy of the molecule from stk generation.
 
     """
-
-    position_matrix: np.ndarray
 
     def __init__(self, molecule, unoptimised_energy):
 
@@ -69,9 +66,4 @@ class CaseData:
     ],
 )
 def case_molecule(request):
-    """
-    A :class:`.Molecule` instance.
-
-    """
-
     return request.param
