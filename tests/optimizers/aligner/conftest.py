@@ -38,7 +38,7 @@ class CaseData:
                     1.34, np.array((0, 0, 1)), np.array((0, 0, 0)),
                 )
             ),
-            rmsd=0.0,
+            rmsd=0.2440040878642247,
         ),
         CaseData(
             molecule=stk.BuildingBlock(
@@ -53,7 +53,7 @@ class CaseData:
                     1.34, np.array((0, 0, 1)), np.array((0, 0, 0)),
                 )
             ),
-            rmsd=0.0,
+            rmsd=0.06634296595541135,
         ),
         CaseData(
             molecule=stk.BuildingBlock('CCCCCC'),
@@ -62,7 +62,7 @@ class CaseData:
                     1.34, np.array((0, 0, 1)), np.array((0, 0, 0)),
                 )
             ),
-            rmsd=0.0,
+            rmsd=0.21668989505225564,
         ),
         CaseData(
             molecule=stk.BuildingBlock('c1ccccc1'),
@@ -71,7 +71,7 @@ class CaseData:
                     1.34, np.array((0, 0, 1)), np.array((0, 0, 0)),
                 )
             ),
-            rmsd=0.0,
+            rmsd=0.10509500676442843,
         ),
     ],
 )
@@ -123,8 +123,38 @@ class CasePotential:
                     1.34, np.array((0, 0, 1)), np.array((0, 0, 0)),
                 )
             ),
-            potential=0.0,
+            potential=16.33559420081716,
             pairs=(('C', 'C'), ('N', 'N')),
+        ),
+        CasePotential(
+            molecule=stk.BuildingBlock('NCCN'),
+            initial_molecule=(
+                stk.BuildingBlock('NCCN').with_rotation_about_axis(
+                    1.34, np.array((0, 0, 1)), np.array((0, 0, 0)),
+                )
+            ),
+            potential=4.037489677500126,
+            pairs=(('C', 'C'), ),
+        ),
+        CasePotential(
+            molecule=stk.BuildingBlock('NCCN'),
+            initial_molecule=(
+                stk.BuildingBlock('NCCN').with_rotation_about_axis(
+                    1.34, np.array((0, 0, 1)), np.array((0, 0, 0)),
+                )
+            ),
+            potential=12.298104523317033,
+            pairs=(('N', 'N'), ),
+        ),
+        CasePotential(
+            molecule=stk.BuildingBlock('NCCN'),
+            initial_molecule=(
+                stk.BuildingBlock('NCCN').with_rotation_about_axis(
+                    1.34, np.array((0, 0, 1)), np.array((0, 0, 0)),
+                )
+            ),
+            potential=0.0,
+            pairs=(),
         ),
     ],
 )
