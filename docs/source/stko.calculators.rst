@@ -13,6 +13,7 @@ Subpackages
    :maxdepth: 4
 
    stko.calculators.extractors
+   stko.calculators.planarity_calculators
    stko.calculators.results
 
 Submodules
