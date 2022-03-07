@@ -82,13 +82,15 @@ class Aligner(Optimizer):
 
         import stk
         import stko
+        import numpy as np
+
 
         # For this example, we have produced rotated molecules.
         mol = stk.BuildingBlock('NCCNCCN')
         mol2 = mol.with_rotation_about_axis(
-            1.34, (0, 0, 1), (0, 0, 0)
+            1.34, np.array((0, 0, 1)), np.array((0, 0, 0)),
         )
-        aligner = stko.Aligner(mol2, 8)
+        aligner = stko.Aligner(mol2, (('N', 'N'), ))
         mol = aligner.optimize(mol)
 
     References
@@ -120,8 +122,7 @@ class Aligner(Optimizer):
         )
         self._matching_pairs = matching_pairs
 
-    def _align_molecules(self, mol):
-
+    def _get_supramolecule(self, mol):
         host_molecule = spd.Molecule(
             atoms=(
                 spd.Atom(
@@ -147,7 +148,7 @@ class Aligner(Optimizer):
         guest_molecule = spd.Molecule(
             atoms=(
                 spd.Atom(
-                    id=atom.get_id()+host_molecule.get_num_atoms(),
+                    id=atom.get_id(),
                     element_string=atom.__class__.__name__,
                 ) for atom in mol.get_atoms()
             ),
@@ -155,43 +156,42 @@ class Aligner(Optimizer):
                 spd.Bond(
                     id=i,
                     atom_ids=(
-                        (
-                            bond.get_atom1().get_id()
-                            +host_molecule.get_num_atoms()
-                        ),
-                        (
-                            bond.get_atom2().get_id()
-                            +host_molecule.get_num_atoms()
-                        ),
+                        bond.get_atom1().get_id(),
+                        bond.get_atom2().get_id(),
                     )
                 ) for i, bond in enumerate(mol.get_bonds())
             ),
             position_matrix=mol.get_position_matrix(),
         )
 
-        supramolecule = spd.SupraMolecule.init_from_components(
+        return spd.SupraMolecule.init_from_components(
             components=(host_molecule, guest_molecule),
         )
 
+    def _align_molecules(self, mol):
+
+        supramolecule = self._get_supramolecule(mol)
+        for comp in supramolecule.get_components():
+            pass
+        mol = mol.with_position_matrix(comp.get_position_matrix())
         cg = spd.Spinner(
             step_size=0.2,
             rotation_step_size=0.2,
-            num_conformers=20,
-            max_attempts=50,
+            num_conformers=50,
+            max_attempts=250,
             potential_function=AlignmentPotential(
                 matching_pairs=self._matching_pairs,
-                epsilon=0.1,
+                width=2,
             ),
         )
-        for conformer in cg.get_conformers(supramolecule):
-            pass
-
-        comps = list(conformer.get_components())
-        in_ = self._initial_molecule.with_position_matrix(
-            comps[0].get_position_matrix()
+        conformer = cg.get_final_conformer(
+            supramolecule=supramolecule,
+            movable_components=(1, ),
         )
-        in_.write('innn.mol')
-        mol = mol.with_position_matrix(comps[1].get_position_matrix())
+
+        for comp in conformer.get_components():
+            pass
+        mol = mol.with_position_matrix(comp.get_position_matrix())
 
         return mol
 
@@ -220,14 +220,9 @@ class Aligner(Optimizer):
             np.radians(180), np.radians(240), np.radians(270)
         )
 
-        rmsd_calculator = RmsdMappedCalculator(self._initial_molecule)
         min_rmsd = 1E10
-        final_mol = mol.clone()
-        aligned_mol = mol.clone()
         for r, rot in enumerate(product(rotation_axes, angles)):
-            aligned_mol = aligned_mol.with_centroid(
-                np.array((0, 0, 0)),
-            )
+            aligned_mol = mol.with_centroid(np.array((0, 0, 0)))
             if rot[0] is not None:
                 aligned_mol = aligned_mol.with_rotation_about_axis(
                     angle=rot[1],
@@ -237,11 +232,18 @@ class Aligner(Optimizer):
             elif r != 0:
                 continue
 
+            aligned_mol = aligned_mol.with_centroid(
+                np.array((0, 0, 0))
+            )
             aligned_mol = self._align_molecules(aligned_mol)
+            rmsd_calculator = RmsdMappedCalculator(
+                self._initial_molecule
+            )
             rmsd = rmsd_calculator.get_results(aligned_mol).get_rmsd()
             if rmsd < min_rmsd:
-                print(rmsd, min_rmsd)
                 min_rmsd = rmsd
-                final_mol = aligned_mol.clone()
+                final_mol = aligned_mol.with_centroid(
+                    np.array((0, 0, 0))
+                )
 
         return final_mol
