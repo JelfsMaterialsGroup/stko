@@ -256,6 +256,16 @@ def ordering_case_data(request):
             mol2=stk.BuildingBlock('NCCCN'),
             rmsd=0.8832914099448816,
         ),
+        CaseData(
+            mol1=stk.BuildingBlock('NCOCN'),
+            mol2=stk.BuildingBlock('NCCN'),
+            rmsd=1.2678595995702466,
+        ),
+        CaseData(
+            mol1=stk.BuildingBlock('NCCN'),
+            mol2=stk.BuildingBlock('NCOCN'),
+            rmsd=1.3921770318522637,
+        ),
     ],
 )
 def aligned_case_data(request):

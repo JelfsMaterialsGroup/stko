@@ -170,6 +170,9 @@ class RmsdMappedCalculator(RmsdCalculator):
     moved to a centroid position of (0, 0, 0). The number of atoms is
     based on the `mol` input into `calculate`.
 
+    Warning: the RMSD depends on the order, i.e. it is not guaranteed
+    to be the same when you switch the initial and test molecule.
+
     Examples
     --------
     .. code-block:: python
@@ -240,7 +243,12 @@ class RmsdMappedCalculator(RmsdCalculator):
         N = len(pos_mat2)
         distances = cdist(pos_mat1, pos_mat2)
         new_array = np.where(atom_matrix, distances, 1E24)
-        deviations = np.amin(new_array, axis=1)
+        # Handle situation where one molecule does not have an atom
+        # type that the other does.
+        deviations = np.array([
+            i for i in np.amin(new_array, axis=1)
+            if i != 1E24
+        ])
         return np.sqrt(np.sum(deviations * deviations) / N)
 
     def calculate(self, mol):
