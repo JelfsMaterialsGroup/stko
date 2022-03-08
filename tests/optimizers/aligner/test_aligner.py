@@ -1,4 +1,3 @@
-from turtle import width
 import stko
 from ..utilities import (
     inequivalent_position_matrices,

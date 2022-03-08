@@ -28,7 +28,7 @@ class AlignmentPotential(spd.Potential):
         self._width = width
 
     def _potential(self, distance):
-        return  self._width * (distance ** 2)
+        return self._width * (distance ** 2)
 
     def _combine_atoms(self, atoms1, atoms2):
 
