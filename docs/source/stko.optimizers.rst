@@ -12,6 +12,7 @@ Submodules
 .. toctree::
    :maxdepth: 4
 
+   stko.optimizers.aligner
    stko.optimizers.collapser
    stko.optimizers.gulp
    stko.optimizers.macromodel
