@@ -1,3 +1,4 @@
+from .aligner import *  # noqa
 from .optimizers import *  # noqa
 from .rdkit import *  # noqa
 from .gulp import *  # noqa

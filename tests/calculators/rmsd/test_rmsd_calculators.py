@@ -17,6 +17,13 @@ def test_rmsd_ignore_hydrogens(ignore_h_case_data):
     assert np.isclose(test_rmsd, ignore_h_case_data.rmsd, atol=1E-4)
 
 
+def test_rmsd_aligned(aligned_case_data):
+    calculator = stko.RmsdMappedCalculator(aligned_case_data.mol1)
+    results = calculator.get_results(aligned_case_data.mol2)
+    test_rmsd = results.get_rmsd()
+    assert np.isclose(test_rmsd, aligned_case_data.rmsd, atol=1E-4)
+
+
 def test_rmsd_different_molecule(different_case_data):
     calculator = stko.RmsdCalculator(different_case_data.mol1)
     with pytest.raises(stko.DifferentMoleculeException):

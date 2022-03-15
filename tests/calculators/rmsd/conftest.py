@@ -49,9 +49,35 @@ _polymer = stk.ConstructedMolecule(
 )
 
 
+_cc_molecule = stk.BuildingBlock('[C][C]')
+
+
 @pytest.fixture(
     scope='session',
     params=[
+        CaseData(
+            mol1=_cc_molecule,
+            mol2=_cc_molecule.with_centroid(np.array((4, 0, 0))),
+            rmsd=0.0,
+        ),
+        CaseData(
+            mol1=_cc_molecule,
+            mol2=_cc_molecule.with_position_matrix(
+                np.array(
+                    [[0.7520009,  0., 0.], [-0.7520009,  0., 0.]],
+                )
+            ),
+            rmsd=0.0,
+        ),
+        CaseData(
+            mol1=_cc_molecule,
+            mol2=_cc_molecule.with_position_matrix(
+                np.array(
+                    [[1.7520009,  0., 0.], [-1.7520009,  0., 0.]],
+                )
+            ),
+            rmsd=1.0,
+        ),
         CaseData(
             mol1=stk.BuildingBlock('NCCN'),
             mol2=_optimizer.optimize(stk.BuildingBlock('NCCN')),
@@ -177,6 +203,72 @@ def different_case_data(request):
     ],
 )
 def ordering_case_data(request):
+    """
+    A pair of :class:`.Molecule` instances and an RMSD.
+
+    """
+
+    return request.param
+
+
+@pytest.fixture(
+    scope='session',
+    params=[
+        CaseData(
+            mol1=_cc_molecule,
+            mol2=_cc_molecule.with_centroid(np.array((4, 0, 0))),
+            rmsd=0.0,
+        ),
+        CaseData(
+            mol1=_cc_molecule,
+            mol2=_cc_molecule.with_position_matrix(
+                np.array(
+                    [[0.7520009,  0., 0.], [-0.7520009,  0., 0.]],
+                )
+            ),
+            rmsd=0.0,
+        ),
+        CaseData(
+            mol1=_cc_molecule,
+            mol2=_cc_molecule.with_position_matrix(
+                np.array(
+                    [[1.7520009,  0., 0.], [-1.7520009,  0., 0.]],
+                )
+            ),
+            rmsd=1.0,
+        ),
+        CaseData(
+            mol1=stk.BuildingBlock('NCCN'),
+            mol2=stk.BuildingBlock('NCCN').with_rotation_about_axis(
+                1.34, np.array((0, 0, 1)), np.array((0, 0, 0)),
+            ).with_displacement(np.array((2, 0, 1))),
+            rmsd=1.1309858484314543,
+        ),
+        CaseData(
+            mol1=stk.BuildingBlock('CCCCCC'),
+            mol2=stk.BuildingBlock('CCCCCC').with_rotation_about_axis(
+                0.24, np.array((1, 0, 1)), np.array((0, 0, 0)),
+            ).with_displacement(np.array((0, 0, 1))),
+            rmsd=0.5943193981905652,
+        ),
+        CaseData(
+            mol1=stk.BuildingBlock('NCCN'),
+            mol2=stk.BuildingBlock('NCCCN'),
+            rmsd=0.8832914099448816,
+        ),
+        CaseData(
+            mol1=stk.BuildingBlock('NCOCN'),
+            mol2=stk.BuildingBlock('NCCN'),
+            rmsd=1.2678595995702466,
+        ),
+        CaseData(
+            mol1=stk.BuildingBlock('NCCN'),
+            mol2=stk.BuildingBlock('NCOCN'),
+            rmsd=1.3921770318522637,
+        ),
+    ],
+)
+def aligned_case_data(request):
     """
     A pair of :class:`.Molecule` instances and an RMSD.
 
