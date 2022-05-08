@@ -12,12 +12,20 @@ jobs:
             - name: Git checkout
               uses: actions/checkout@v2
 
+            - name: Add conda to system path
+              run: |
+                # $CONDA is an environment variable pointing to the
+                # root of the miniconda directory
+                echo $CONDA/bin >> $GITHUB_PATH
+
             - name: Install dependencies
-              run:
-                pip install -r docs/requirements.txt .
+              run: |
+                conda env update \
+                    --name base \
+                    --file tests/environment.yml
 
             - name: Remake rst files
-              run: docs/remake_modules.bash
+              run: conda run -n base docs/remake_modules.bash
 
             - name: Commit changes
               uses: EndBug/add-and-commit@v7
