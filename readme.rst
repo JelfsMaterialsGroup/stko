@@ -24,21 +24,13 @@ To get ``stko``, you can install it with pip::
 
     $ pip install stko
 
-Make sure you also install stk, which is a dependency::
-
-    $ pip install stk
-
-Make sure you also install rdkit, which is a dependency::
-
-    $ conda install -c conda-forge rdkit
-
 You can also install openbabel, which is an optional dependency::
 
     $ conda install -c conda-forge openbabel
 
 You can also install MDAnalysis, which is an optional dependency::
 
-    $ pip install MDAnalysis
+    $ conda install -c mdanalysis
 
 Examples
 ========

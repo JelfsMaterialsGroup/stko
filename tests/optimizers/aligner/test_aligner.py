@@ -37,6 +37,10 @@ def test_alignment_potential(case_potential):
         width=2,
     )
     supramolecule = aligner._get_supramolecule(case_potential.molecule)
-    assert case_potential.potential == potential.compute_potential(
-        supramolecule,
+    assert np.isclose(
+        case_potential.potential,
+        potential.compute_potential(
+            supramolecule,
+        ),
+        atol=1E-6,
     )
