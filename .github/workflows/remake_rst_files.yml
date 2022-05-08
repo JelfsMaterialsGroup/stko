@@ -25,7 +25,7 @@ jobs:
                     --file tests/environment.yml
 
             - name: Remake rst files
-              run: docs/remake_modules.bash
+              run: conda run -n base docs/remake_modules.bash
 
             - name: Commit changes
               uses: EndBug/add-and-commit@v7
