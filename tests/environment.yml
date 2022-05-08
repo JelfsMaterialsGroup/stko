@@ -54,7 +54,6 @@ dependencies:
   - libxml2=2.9.12=h74e7548_1
   - libzip=1.8.0=h4de3113_1
   - lz4-c=1.9.3=h9c3ff4c_1
-  - matplotlib-base=3.4.3=py39h2fa2bec_2
   - mdanalysis=2.1.0=py39h5a03fae_2
   - mmtf-python=1.1.2=py_0
   - mrcfile=1.3.0=pyh44b312d_0
@@ -65,8 +64,10 @@ dependencies:
   - numpy=1.22.3=py39hc58783e_2
   - olefile=0.46=pyh9f0ad1d_1
   - openbabel=3.1.1=py39hee2736e_2
+  - openjpeg=2.4.0=hb52868f_1
   - openssl=1.1.1o=h166bdaf_0
   - packaging=21.3=pyhd8ed1ab_0
+  - pandas=1.4.2=py39h1832856_1
   - patsy=0.5.2=pyhd8ed1ab_0
   - pcre=8.45=h9c3ff4c_0
   - pip=21.2.4=py39h06a4308_0
@@ -107,26 +108,47 @@ dependencies:
   - zlib=1.2.12=h7f8727e_2
   - zstd=1.4.9=ha95c52a_0
   - pip:
+    - alabaster==0.7.12
     - attrs==21.4.0
+    - babel==2.10.1
+    - charset-normalizer==2.0.12
     - dill==0.3.4
     - dnspython==2.2.1
+    - docutils==0.17.1
     - fonttools==4.33.3
+    - idna==3.3
+    - imagesize==1.3.0
+    - importlib-metadata==4.11.3
     - iniconfig==1.1.1
+    - jinja2==3.1.2
+    - markupsafe==2.1.1
     - matplotlib==3.5.2
     - mchammer==1.0.4
     - multiprocess==0.70.12.2
-    - pandas==1.4.2
     - pathos==0.2.8
     - pillow==9.1.0
     - pluggy==1.0.0
     - pox==0.3.0
     - ppft==1.6.6.4
     - py==1.11.0
+    - pygments==2.12.0
     - pymongo==4.1.1
     - pytest==7.1.2
     - pytest-lazy-fixture==0.6.3
     - rdkit-pypi==2022.3.2.1
+    - requests==2.27.1
+    - snowballstemmer==2.2.0
+    - sphinx==4.5.0
+    - sphinx-rtd-theme==1.0.0
+    - sphinxcontrib-applehelp==1.0.2
+    - sphinxcontrib-devhelp==1.0.2
+    - sphinxcontrib-htmlhelp==2.0.0
+    - sphinxcontrib-jsmath==1.0.1
+    - sphinxcontrib-qthelp==1.0.3
+    - sphinxcontrib-serializinghtml==1.1.5
     - spindry==0.0.91
     - stk==2022.5.2.1
     - tomli==2.0.1
+    - urllib3==1.26.9
     - vabene==0.0.5
+    - zipp==3.8.0
