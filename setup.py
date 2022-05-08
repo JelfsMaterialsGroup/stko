@@ -16,6 +16,7 @@ setuptools.setup(
         'numpy',
         'networkx',
         'stk',
+        'rdkit-pypi',
     ),
     classifiers=[
         "Programming Language :: Python :: 3",
