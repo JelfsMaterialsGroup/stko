@@ -14,6 +14,7 @@ Submodules
 
    stko.optimizers.aligner
    stko.optimizers.collapser
+   stko.optimizers.cp2k
    stko.optimizers.gulp
    stko.optimizers.macromodel
    stko.optimizers.open_babel
