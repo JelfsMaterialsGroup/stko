@@ -162,6 +162,7 @@ class CP2K(Optimizer):
         furthest_coord = round(np.max(np.max(position_matrix, axis=0)), 1)
         cell_pos = int(furthest_coord + 8)
         cell_section += f"ABC {cell_pos} " f"{cell_pos} {cell_pos}\n"
+        cell_section += "PERIODIC NONE\n"
         cell_section += "&END CELL"
         return cell_section
 
