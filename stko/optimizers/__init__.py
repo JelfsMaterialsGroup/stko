@@ -6,3 +6,4 @@ from .collapser import *  # noqa
 from .xtb import *  # noqa
 from .macromodel import *  # noqa
 from .open_babel import *  # noqa
+from .cp2k import *  # noqa
