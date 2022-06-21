@@ -38,7 +38,7 @@ class CP2K(Optimizer):
         input_template,
         output_dir=None,
         job_name=None,
-        run_type="GEO_OPT"
+        run_type="GEO_OPT",
     ):
         """
         Initialize CP2K optimizer.
@@ -92,7 +92,7 @@ class CP2K(Optimizer):
             r"&GLOBAL.*?&END GLOBAL",
             global_section,
             input_template,
-            flags=re.DOTALL
+            flags=re.DOTALL,
         )
 
         # Replace the coordinate section of input file
@@ -159,15 +159,10 @@ class CP2K(Optimizer):
         position_matrix = mol.get_position_matrix()
         # For a single molecule, ensure the box size is equal to the
         # furthest coordinate from the origin in doubled.
-        furthest_coord = round(
-            np.max(np.max(position_matrix, axis=0)),
-            1
-        )
-        cell_pos = (2 * furthest_coord) + 10
-        cell_section += (
-            f"ABC {cell_pos} "
-            f"{cell_pos} {cell_pos}\n"
-        )
+        furthest_coord = round(np.max(np.max(position_matrix, axis=0)), 1)
+        cell_pos = int(furthest_coord + 8)
+        cell_section += f"ABC {cell_pos} " f"{cell_pos} {cell_pos}\n"
+        cell_section += "PERIODIC NONE\n"
         cell_section += "&END CELL"
         return cell_section
 
@@ -187,9 +182,7 @@ class CP2K(Optimizer):
         """
         coord_section = "&COORD\n"
         for atom in mol.get_atoms():
-            atom_symbol = rdkit.Atom(
-                atom.get_atomic_number()
-            ).GetSymbol()
+            atom_symbol = rdkit.Atom(atom.get_atomic_number()).GetSymbol()
             position = mol.get_centroid(atom_ids=atom.get_id())
             coord_section += (
                 f"{atom_symbol}    {round(position[0], 5)}    "
@@ -241,14 +234,9 @@ class CP2K(Optimizer):
             )
         try:
             self._write_input_file(
-                input_template=input_template,
-                mol=mol,
-                in_file=in_file
+                input_template=input_template, mol=mol, in_file=in_file
             )
-            self._run_cp2k(
-                in_file,
-                log_file
-            )
+            self._run_cp2k(in_file, log_file)
             # Update from output file.
             # TODO: Check output xyz file name
             mol = mol.with_structure_from_file(
@@ -282,9 +270,7 @@ class CP2K(Optimizer):
             for i, line in enumerate(lines)
             if re.match(r"^[0-9\s]+$", line)
         ][-1]
-        xyz_string = [
-            lines[i] for i in range(final_xyz_line, len(lines))
-        ]
+        xyz_string = [lines[i] for i in range(final_xyz_line, len(lines))]
         final_xyz = output_xyz.replace(".xyz", "_final.xyz")
         with open(final_xyz, "w") as f:
             f.write("".join(xyz_string))
