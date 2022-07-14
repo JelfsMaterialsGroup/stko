@@ -1,16 +1,26 @@
-import setuptools
+import re
+from os.path import join
 
-setuptools.setup(
+from setuptools import find_packages, setup
+
+
+def get_version():
+    with open(join('stko', '__init__.py'), 'r') as f:
+        content = f.read()
+    p = re.compile(r'^__version__ = [\'"]([^\'\"]*)[\'"]', re.M)
+    return p.search(content).group(1)
+
+
+setup(
     name="stko",
     version="0.0.40",
     author="Steven Bennett, Andrew Tarzia",
-    author_email="s.bennett18@imperial.ac.uk",
     description=(
         "Contains molecular optimizers and property calculators for "
         "use with stk."
     ),
     url="https://github.com/JelfsMaterialsGroup/stko",
-    packages=setuptools.find_packages(),
+    packages=find_packages(where='stko'),
     install_requires=(
         'scipy',
         'numpy',
