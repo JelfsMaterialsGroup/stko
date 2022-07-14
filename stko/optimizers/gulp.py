@@ -923,12 +923,28 @@ class GulpUFFMDOptimizer(GulpUFFOptimizer):
         mol,
         metal_atoms,
         in_file,
-        output_traj
+        output_traj,
+        unit_cell=None,
     ):
 
         type_translator = self._type_translator()
 
-        top_line = 'md conv noautobond fix molmec cartesian\n'
+        top_line = 'md '
+
+        if unit_cell is not None:
+            # Constant pressure.
+            top_line += 'conp '
+            cell_section = self._cell_section(unit_cell)
+            # Output CIF.
+            output_cif = output_traj.replace('xyz', 'cif')
+            periodic_output = f'output cif {output_cif}\n'
+        else:
+            # Constant volume.
+            top_line += 'conv '
+            cell_section = ''
+            periodic_output = ''
+
+        top_line += 'noautobond fix molmec cartesian\n'
 
         position_section = self._position_section(mol, type_translator)
         bond_section = self._bond_section(mol, metal_atoms)
@@ -957,10 +973,12 @@ class GulpUFFMDOptimizer(GulpUFFOptimizer):
             'terse in structure\n'
             'terse inout derivatives\n'
             f'output trajectory ascii {output_traj}\n'
+            f'{periodic_output}'
         )
 
         with open(in_file, 'w') as f:
             f.write(top_line)
+            f.write(cell_section)
             f.write(position_section)
             f.write(bond_section)
             f.write(species_section)
@@ -1257,6 +1275,84 @@ class GulpUFFMDOptimizer(GulpUFFOptimizer):
 
             # Update from output.
             mol = mol.with_structure_from_file(low_conf_xyz)
+
+        finally:
+            os.chdir(init_dir)
+
+        return mol
+
+    def p_optimize(self, mol, unit_cell):
+        """
+        Optimize `mol` and `unit_cell`.
+
+        Parameters
+        ----------
+        mol : :class:`stk.Molecule`
+            The molecule to be optimized.
+
+        unit_cell : :class:`.UnitCell`
+            The unit_cell to be optimized if optimization is periodic.
+
+        Returns
+        -------
+        mol : :class:`.Molecule`
+            The optimized molecule.
+
+        unit_cell : :class:`.UnitCell`
+            The optimized cell.
+
+        """
+
+        if self._output_dir is None:
+            output_dir = str(uuid.uuid4().int)
+        else:
+            output_dir = self._output_dir
+        output_dir = os.path.abspath(output_dir)
+
+        if os.path.exists(output_dir):
+            shutil.rmtree(output_dir)
+
+        os.mkdir(output_dir)
+        init_dir = os.getcwd()
+        os.chdir(output_dir)
+
+        in_file = 'gulp_MD.gin'
+        out_file = 'gulp_MD.ginout'
+        output_xyz = 'gulp_MD_template.xyz'
+        output_traj = 'gulp_MD.trg'
+        xyz_traj = 'gulp_MD_traj.xyz'
+        low_conf_xyz = 'low_energy_conf.xyz'
+        low_conf_cif = low_conf_xyz.replace('xyz', 'cif')
+
+        metal_atoms = get_metal_atoms(mol)
+
+        try:
+            mol.write(output_xyz)
+            # Write GULP file.
+            self._write_gulp_file(
+                mol=mol,
+                metal_atoms=metal_atoms,
+                in_file=in_file,
+                output_traj=output_traj,
+                unit_cell=unit_cell,
+            )
+
+            # Run.
+            self._run_gulp(in_file, out_file)
+
+            # Get lowest energy conformer from trajectory.
+            self._save_lowest_energy_conf(
+                mol=mol,
+                output_xyz=output_xyz,
+                output_traj=output_traj,
+                xyz_traj=xyz_traj,
+                low_conf_xyz=low_conf_xyz,
+                low_conf_cif=low_conf_cif,
+            )
+
+            # Update from output.
+            mol = mol.with_structure_from_file(low_conf_xyz)
+            unit_cell = unit_cell.with_cell_from_cif(low_conf_cif)
 
         finally:
             os.chdir(init_dir)
