@@ -10,11 +10,9 @@ Dependencies
 ------------
 
 
-* `Python <https://www.python.org/>`_ > v. 3.7
+* `Python <https://www.python.org/>`_ > v. 3.9
 * `stk <https://github.com/lukasturcani/stk>`_
-* `RDKit <https://www.rdkit.org>`_ is also a dependency, which can be installed using conda::
-
-        $ conda install -c conda-forge rdkit
+* `RDKit <https://www.rdkit.org>`_
 * The software packages we offer optimizers are also depencies depending on the desired functions used. These are:
 
   * `MacroModel <https://sites.google.com/site/orcainputlibrary/home/>`_
