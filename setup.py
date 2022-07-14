@@ -11,7 +11,7 @@ def get_version():
     return p.search(content).group(1)
 
 
-setuptools.setup(
+setup(
     name="stko",
     version="0.0.40",
     author="Steven Bennett, Andrew Tarzia",
