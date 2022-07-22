@@ -20,7 +20,7 @@ setup(
         "use with stk."
     ),
     url="https://github.com/JelfsMaterialsGroup/stko",
-    packages=find_packages(where='stko'),
+    packages=find_packages(),
     install_requires=(
         'scipy',
         'numpy',
