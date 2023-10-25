@@ -1,13 +1,13 @@
+import os
+
 import stk
 import stko
 
-import os
-
 
 def main():
-    bb1 = stk.BuildingBlock('NCCN', [stk.PrimaryAminoFactory()])
+    bb1 = stk.BuildingBlock("NCCN", [stk.PrimaryAminoFactory()])
     bb2 = stk.BuildingBlock(
-        smiles='O=CC(C=O)C=O',
+        smiles="O=CC(C=O)C=O",
         functional_groups=[stk.AldehydeFactory()],
     )
     cage1 = stk.ConstructedMolecule(
@@ -25,7 +25,7 @@ def main():
 
     print(broken_bonds_by_id)
     print(disconnectors)
-    print('--')
+    print("--")
     new_topology_graph = stko.TopologyExtractor()
     tg_info = new_topology_graph.extract_topology(
         molecule=cage1,
@@ -35,8 +35,8 @@ def main():
     print(tg_info.get_vertex_positions())
     print(tg_info.get_connectivities())
     print(tg_info.get_edge_pairs())
-    cage1.write(os.path.join('output_directory', 'tg_cage.mol'))
-    tg_info.write(os.path.join('output_directory', 'tg_info.pdb'))
+    cage1.write(os.path.join("output_directory", "tg_cage.mol"))
+    tg_info.write(os.path.join("output_directory", "tg_info.pdb"))
 
 
 if __name__ == "__main__":

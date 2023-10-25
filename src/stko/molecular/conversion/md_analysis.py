@@ -49,8 +49,7 @@ class MDAnalysis:
     def __init__(self):
         if mda is None:
             raise WrapperNotInstalledException(
-                'MDAnalysis is not installed; see README for '
-                'installation.'
+                "MDAnalysis is not installed; see README for " "installation."
             )
 
     def get_universe(self, mol):

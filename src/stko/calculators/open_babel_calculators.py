@@ -10,15 +10,15 @@ Wrappers for calculators within the `openbabel` code.
 
 import logging
 import os
+
 try:
     from openbabel import openbabel
 except ImportError:
     openbabel = None
 
+from ..utilities import WrapperNotInstalledException
 from .calculators import Calculator
 from .results import EnergyResults
-from ..utilities import WrapperNotInstalledException
-
 
 logger = logging.getLogger(__name__)
 
@@ -74,14 +74,13 @@ class OpenBabelEnergy(Calculator):
 
         if openbabel is None:
             raise WrapperNotInstalledException(
-                'openbabel is not installed; see README for '
-                'installation.'
+                "openbabel is not installed; see README for " "installation."
             )
 
         self._forcefield = forcefield
 
     def calculate(self, mol):
-        temp_file = 'temp.mol'
+        temp_file = "temp.mol"
         mol.write(temp_file)
         try:
             obConversion = openbabel.OBConversion()
@@ -90,11 +89,9 @@ class OpenBabelEnergy(Calculator):
             obConversion.ReadFile(OBMol, temp_file)
             OBMol.PerceiveBondOrders()
         finally:
-            os.system('rm temp.mol')
+            os.system("rm temp.mol")
 
-        forcefield = openbabel.OBForceField.FindForceField(
-            self._forcefield
-        )
+        forcefield = openbabel.OBForceField.FindForceField(self._forcefield)
         outcome = forcefield.Setup(OBMol)
         if not outcome:
             raise ForceFieldSetupError(
@@ -121,7 +118,7 @@ class OpenBabelEnergy(Calculator):
 
         return EnergyResults(
             generator=self.calculate(mol),
-            unit_string='kJ mol-1',
+            unit_string="kJ mol-1",
         )
 
     def get_energy(self, mol):

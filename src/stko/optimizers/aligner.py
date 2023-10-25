@@ -9,29 +9,27 @@ Wrappers for optimizers within the `openbabel` code.
 """
 
 import logging
-import numpy as np
 from itertools import product
+
+import numpy as np
 import spindry as spd
 from scipy.spatial.distance import cdist
 
-from .optimizers import Optimizer
 from ..calculators import RmsdMappedCalculator
-
+from .optimizers import Optimizer
 
 logger = logging.getLogger(__name__)
 
 
 class AlignmentPotential(spd.Potential):
-
     def __init__(self, matching_pairs, width):
         self._matching_pairs = matching_pairs
         self._width = width
 
     def _potential(self, distance):
-        return self._width * (distance ** 2)
+        return self._width * (distance**2)
 
     def _combine_atoms(self, atoms1, atoms2):
-
         len1 = len(atoms1)
         len2 = len(atoms2)
 
@@ -49,8 +47,7 @@ class AlignmentPotential(spd.Potential):
 
     def compute_potential(self, supramolecule):
         component_position_matrices = list(
-            i.get_position_matrix()
-            for i in supramolecule.get_components()
+            i.get_position_matrix() for i in supramolecule.get_components()
         )
         component_atoms = list(
             tuple(j for j in i.get_atoms())
@@ -60,14 +57,12 @@ class AlignmentPotential(spd.Potential):
             component_position_matrices[0],
             component_position_matrices[1],
         )
-        sigmas = self._combine_atoms(
-            component_atoms[0], component_atoms[1]
-        )
+        sigmas = self._combine_atoms(component_atoms[0], component_atoms[1])
 
-        new_array = np.where(sigmas, pair_dists, 1E24)
-        distances = np.array([
-            i for i in np.amin(new_array, axis=1) if i != 1E24
-        ])
+        new_array = np.where(sigmas, pair_dists, 1e24)
+        distances = np.array(
+            [i for i in np.amin(new_array, axis=1) if i != 1e24]
+        )
         return np.sum(self._potential(distance=distances))
 
 
@@ -128,7 +123,8 @@ class Aligner(Optimizer):
                 spd.Atom(
                     id=atom.get_id(),
                     element_string=atom.__class__.__name__,
-                ) for atom in self._initial_molecule.get_atoms()
+                )
+                for atom in self._initial_molecule.get_atoms()
             ),
             bonds=(
                 spd.Bond(
@@ -136,21 +132,19 @@ class Aligner(Optimizer):
                     atom_ids=(
                         bond.get_atom1().get_id(),
                         bond.get_atom2().get_id(),
-                    )
-                ) for i, bond in enumerate(
-                    self._initial_molecule.get_bonds()
+                    ),
                 )
+                for i, bond in enumerate(self._initial_molecule.get_bonds())
             ),
-            position_matrix=(
-                self._initial_molecule.get_position_matrix()
-            ),
+            position_matrix=(self._initial_molecule.get_position_matrix()),
         )
         guest_molecule = spd.Molecule(
             atoms=(
                 spd.Atom(
                     id=atom.get_id(),
                     element_string=atom.__class__.__name__,
-                ) for atom in mol.get_atoms()
+                )
+                for atom in mol.get_atoms()
             ),
             bonds=(
                 spd.Bond(
@@ -158,8 +152,9 @@ class Aligner(Optimizer):
                     atom_ids=(
                         bond.get_atom1().get_id(),
                         bond.get_atom2().get_id(),
-                    )
-                ) for i, bond in enumerate(mol.get_bonds())
+                    ),
+                )
+                for i, bond in enumerate(mol.get_bonds())
             ),
             position_matrix=mol.get_position_matrix(),
         )
@@ -169,7 +164,6 @@ class Aligner(Optimizer):
         )
 
     def _align_molecules(self, mol):
-
         supramolecule = self._get_supramolecule(mol)
         for comp in supramolecule.get_components():
             pass
@@ -186,7 +180,7 @@ class Aligner(Optimizer):
         )
         conformer = cg.get_final_conformer(
             supramolecule=supramolecule,
-            movable_components=(1, ),
+            movable_components=(1,),
         )
 
         for comp in conformer.get_components():
@@ -212,15 +206,24 @@ class Aligner(Optimizer):
         """
 
         rotation_axes = (
-            None, (1, 0, 0), (0, 1, 0), (0, 0, 1),
-            (1, 0, 1), (1, 1, 0), (0, 1, 1)
+            None,
+            (1, 0, 0),
+            (0, 1, 0),
+            (0, 0, 1),
+            (1, 0, 1),
+            (1, 1, 0),
+            (0, 1, 1),
         )
         angles = (
-            np.radians(60), np.radians(90), np.radians(120),
-            np.radians(180), np.radians(240), np.radians(270)
+            np.radians(60),
+            np.radians(90),
+            np.radians(120),
+            np.radians(180),
+            np.radians(240),
+            np.radians(270),
         )
 
-        min_rmsd = 1E10
+        min_rmsd = 1e10
         for r, rot in enumerate(product(rotation_axes, angles)):
             aligned_mol = mol.with_centroid(np.array((0, 0, 0)))
             if rot[0] is not None:
@@ -232,18 +235,12 @@ class Aligner(Optimizer):
             elif r != 0:
                 continue
 
-            aligned_mol = aligned_mol.with_centroid(
-                np.array((0, 0, 0))
-            )
+            aligned_mol = aligned_mol.with_centroid(np.array((0, 0, 0)))
             aligned_mol = self._align_molecules(aligned_mol)
-            rmsd_calculator = RmsdMappedCalculator(
-                self._initial_molecule
-            )
+            rmsd_calculator = RmsdMappedCalculator(self._initial_molecule)
             rmsd = rmsd_calculator.get_results(aligned_mol).get_rmsd()
             if rmsd < min_rmsd:
                 min_rmsd = rmsd
-                final_mol = aligned_mol.with_centroid(
-                    np.array((0, 0, 0))
-                )
+                final_mol = aligned_mol.with_centroid(np.array((0, 0, 0)))
 
         return final_mol

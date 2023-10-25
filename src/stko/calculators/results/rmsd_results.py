@@ -18,7 +18,6 @@ class RmsdResults(Results):
     """
 
     def __init__(self, generator):
-
         self._value = next(generator)
 
     def get_rmsd(self):

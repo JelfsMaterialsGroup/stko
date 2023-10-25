@@ -11,11 +11,12 @@ Methods to extract torsions from a molecule or constructed molecule.
 
 import logging
 
-from .calculators import Calculator
-from .results import TorsionResults, ConstructedMoleculeTorsionResults
 from rdkit.Chem import TorsionFingerprints
+
 from ..molecular.torsion import Torsion
 from ..utilities.utilities import get_atom_maps
+from .calculators import Calculator
+from .results import ConstructedMoleculeTorsionResults, TorsionResults
 
 logger = logging.getLogger(__name__)
 
@@ -58,9 +59,9 @@ class TorsionCalculator(Calculator):
         yield tuple(
             Torsion(*mol.get_atoms(atoms[0]))
             for atoms, _ in (
-                TorsionFingerprints.CalculateTorsionLists(
-                    mol.to_rdkit_mol()
-                )[0]
+                TorsionFingerprints.CalculateTorsionLists(mol.to_rdkit_mol())[
+                    0
+                ]
             )
         )
 
@@ -192,20 +193,21 @@ class MatchedTorsionCalculator(ConstructedMoleculeTorsionCalculator):
             atom_ids = list(torsion.get_atom_ids())
             atom_infos = list(mol.get_atom_infos(atom_ids))
             build_block_ids = [
-                atom_info.get_building_block_id()
-                for atom_info in atom_infos
+                atom_info.get_building_block_id() for atom_info in atom_infos
             ]
 
             if build_block_ids[1] is None:
                 continue
             # Check if two central atoms of torsion are from the same
             # building block. If not, leave this torsion alone.
-            if (build_block_ids[1] != build_block_ids[2]):
+            if build_block_ids[1] != build_block_ids[2]:
                 continue
 
-            build_block_torsions = TorsionCalculator().get_results(
-                atom_infos[1].get_building_block()
-            ).get_torsions()
+            build_block_torsions = (
+                TorsionCalculator()
+                .get_results(atom_infos[1].get_building_block())
+                .get_torsions()
+            )
             atom_map = atom_maps[build_block_ids[1]]
 
             # Look for a torsion in the building block that has the
@@ -222,10 +224,7 @@ class MatchedTorsionCalculator(ConstructedMoleculeTorsionCalculator):
                     # molecule (e.g. atom was deleted in construction)
                     # so skip to next building block torsion.
                     continue
-                matched_atom_ids = [
-                    atom.get_id()
-                    for atom in matched_atoms
-                ]
+                matched_atom_ids = [atom.get_id() for atom in matched_atoms]
                 if set(matched_atom_ids[1:3]) == set(atom_ids[1:3]):
                     # Set the constructed molecule torsion to match the
                     # building block torsion.

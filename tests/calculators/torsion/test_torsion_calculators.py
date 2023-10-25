@@ -1,6 +1,6 @@
-from pytest import approx
-import stko
 import stk
+import stko
+from pytest import approx
 
 
 def _polymer_angles_match(bb1, bb2, torsion_index=0):
@@ -13,7 +13,7 @@ def _polymer_angles_match(bb1, bb2, torsion_index=0):
             building_blocks=(bb1, bb2),
             repeating_unit="AB",
             orientations=(0, 0),
-            num_repeating_units=1
+            num_repeating_units=1,
         )
     )
 
@@ -21,8 +21,7 @@ def _polymer_angles_match(bb1, bb2, torsion_index=0):
     tors_results = tors_calculator.get_results(polymer)
 
     angles = stko.get_torsion_info_angles(
-        polymer,
-        list(tors_results.get_torsion_infos())[torsion_index]
+        polymer, list(tors_results.get_torsion_infos())[torsion_index]
     )
     return angles[0] == approx(angles[1])
 
@@ -37,8 +36,8 @@ def test_torsion_matching():
 
     """
 
-    bb1 = stk.BuildingBlock('NCCNCCN', [stk.PrimaryAminoFactory()])
-    bb2 = stk.BuildingBlock('O=CCCC=O', [stk.AldehydeFactory()])
+    bb1 = stk.BuildingBlock("NCCNCCN", [stk.PrimaryAminoFactory()])
+    bb2 = stk.BuildingBlock("O=CCCC=O", [stk.AldehydeFactory()])
     assert _polymer_angles_match(bb1, bb2)
 
     # Test case designed such that default rdkit torsion for
@@ -47,19 +46,15 @@ def test_torsion_matching():
     bonders3 = (stk.C(1),)
     deleters3 = (stk.H(7),)
     functional_group3 = stk.GenericFunctionalGroup(
-        atoms=bonders3+deleters3,
-        bonders=bonders3,
-        deleters=deleters3
+        atoms=bonders3 + deleters3, bonders=bonders3, deleters=deleters3
     )
-    bb3 = stk.BuildingBlock('CCCC', [functional_group3])
+    bb3 = stk.BuildingBlock("CCCC", [functional_group3])
     bonders4 = (stk.C(0),)
     deleters4 = (stk.H(1),)
     functional_group4 = stk.GenericFunctionalGroup(
-        atoms=bonders4+deleters4,
-        bonders=bonders4,
-        deleters=deleters4
+        atoms=bonders4 + deleters4, bonders=bonders4, deleters=deleters4
     )
-    bb4 = stk.BuildingBlock('C', [functional_group4])
+    bb4 = stk.BuildingBlock("C", [functional_group4])
     assert _polymer_angles_match(bb3, bb4)
 
     # Test case for an exterior atom of a building block torsion being
@@ -67,10 +62,8 @@ def test_torsion_matching():
     bonders5 = (stk.C(1),)
     deleters5 = (stk.C(0), stk.H(4), stk.H(5), stk.H(6))
     functional_group5 = stk.GenericFunctionalGroup(
-        atoms=bonders5+deleters5,
-        bonders=bonders5,
-        deleters=deleters5
+        atoms=bonders5 + deleters5, bonders=bonders5, deleters=deleters5
     )
-    bb5 = stk.BuildingBlock('CCCC', [functional_group5])
+    bb5 = stk.BuildingBlock("CCCC", [functional_group5])
     bb6 = bb4
     assert not _polymer_angles_match(bb5, bb6)

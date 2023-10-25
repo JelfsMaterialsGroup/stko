@@ -10,11 +10,11 @@ Wrappers for calculators within the :mod:`rdkit` code.
 """
 
 import logging
+
 from rdkit.Chem import AllChem as rdkit
 
 from .calculators import Calculator
 from .results import EnergyResults
-
 
 logger = logging.getLogger(__name__)
 
@@ -45,10 +45,7 @@ class MMFFEnergy(Calculator):
     """
 
     def __init__(self, ignore_inter_interactions=True):
-
-        self._ignore_inter_interactions = (
-            ignore_inter_interactions
-        )
+        self._ignore_inter_interactions = ignore_inter_interactions
 
     def calculate(self, mol):
         rdkit_mol = mol.to_rdkit_mol()
@@ -57,7 +54,7 @@ class MMFFEnergy(Calculator):
         ff = rdkit.MMFFGetMoleculeForceField(
             rdkit_mol,
             rdkit.MMFFGetMoleculeProperties(rdkit_mol),
-            ignoreInterfragInteractions=self._ignore_inter_interactions
+            ignoreInterfragInteractions=self._ignore_inter_interactions,
         )
         yield ff.CalcEnergy()
 
@@ -79,7 +76,7 @@ class MMFFEnergy(Calculator):
 
         return EnergyResults(
             generator=self.calculate(mol),
-            unit_string='kcal mol-1',
+            unit_string="kcal mol-1",
         )
 
     def get_energy(self, mol):
@@ -127,10 +124,7 @@ class UFFEnergy(Calculator):
     """
 
     def __init__(self, ignore_inter_interactions=True):
-
-        self._ignore_inter_interactions = (
-            ignore_inter_interactions
-        )
+        self._ignore_inter_interactions = ignore_inter_interactions
 
     def calculate(self, mol):
         rdkit_mol = mol.to_rdkit_mol()
@@ -140,7 +134,7 @@ class UFFEnergy(Calculator):
         rdkit.GetSSSR(rdkit_mol)
         ff = rdkit.UFFGetMoleculeForceField(
             mol=rdkit_mol,
-            ignoreInterfragInteractions=self._ignore_inter_interactions
+            ignoreInterfragInteractions=self._ignore_inter_interactions,
         )
         yield ff.CalcEnergy()
 
@@ -162,7 +156,7 @@ class UFFEnergy(Calculator):
 
         return EnergyResults(
             generator=self.calculate(mol),
-            unit_string='kcal mol-1',
+            unit_string="kcal mol-1",
         )
 
     def get_energy(self, mol):

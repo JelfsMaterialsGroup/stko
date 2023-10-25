@@ -14,13 +14,12 @@ Wrappers for optimizers within the :mod:`xtb` code.
 import logging
 import os
 import shutil
-import uuid
 import subprocess as sp
+import uuid
 
-from .optimizers import Optimizer
-from ..utilities import is_valid_xtb_solvent, XTBInvalidSolventError
 from ..calculators.extractors import XTBExtractor
-
+from ..utilities import XTBInvalidSolventError, is_valid_xtb_solvent
+from .optimizers import Optimizer
 
 logger = logging.getLogger(__name__)
 
@@ -175,14 +174,14 @@ class XTB(Optimizer):
         xtb_path,
         gfn_version=2,
         output_dir=None,
-        opt_level='normal',
+        opt_level="normal",
         max_runs=2,
         calculate_hessian=True,
         num_cores=1,
         electronic_temperature=300,
-        solvent_model='gbsa',
+        solvent_model="gbsa",
         solvent=None,
-        solvent_grid='normal',
+        solvent_grid="normal",
         charge=0,
         num_unpaired_electrons=0,
         unlimited_memory=False,
@@ -269,8 +268,7 @@ class XTB(Optimizer):
             solvent = solvent.lower()
             if gfn_version == 0:
                 raise XTBInvalidSolventError(
-                    'No solvent valid for version',
-                    f' {gfn_version!r}.'
+                    "No solvent valid for version", f" {gfn_version!r}."
                 )
             if not is_valid_xtb_solvent(
                 gfn_version=gfn_version,
@@ -278,17 +276,17 @@ class XTB(Optimizer):
                 solvent=solvent,
             ):
                 raise XTBInvalidSolventError(
-                    f'Solvent {solvent!r} and model {solvent_model!r}',
-                    f' is invalid for version {gfn_version!r}.'
+                    f"Solvent {solvent!r} and model {solvent_model!r}",
+                    f" is invalid for version {gfn_version!r}.",
                 )
 
         if not calculate_hessian and max_runs != 1:
             max_runs = 1
             logger.warning(
-                'Requested that hessian calculation was skipped '
-                'but the number of optimizations requested was '
-                'greater than 1. The number of optimizations has been '
-                'set to 1.'
+                "Requested that hessian calculation was skipped "
+                "but the number of optimizations requested was "
+                "greater than 1. The number of optimizations has been "
+                "set to 1."
             )
 
         self._xtb_path = xtb_path
@@ -352,10 +350,10 @@ class XTB(Optimizer):
         """
         if not os.path.exists(output_file):
             # No simulation has been run.
-            raise XTBOptimizerError('Optimization failed to start')
+            raise XTBOptimizerError("Optimization failed to start")
 
         # If convergence is achieved, then .xtboptok should exist.
-        if os.path.exists('.xtboptok'):
+        if os.path.exists(".xtboptok"):
             # Check for negative frequencies in output file if the
             # hessian was calculated.
             # Return True if there exists at least one.
@@ -364,10 +362,10 @@ class XTB(Optimizer):
             else:
                 return True
 
-        elif os.path.exists('NOT_CONVERGED'):
-            raise XTBConvergenceError('Optimization not converged.')
+        elif os.path.exists("NOT_CONVERGED"):
+            raise XTBConvergenceError("Optimization not converged.")
         else:
-            raise XTBOptimizerError('Optimization failed to complete')
+            raise XTBOptimizerError("Optimization failed to complete")
 
     def _run_xtb(self, xyz, out_file):
         """
@@ -389,33 +387,33 @@ class XTB(Optimizer):
 
         # Modify the memory limit.
         if self._unlimited_memory:
-            memory = 'ulimit -s unlimited ;'
+            memory = "ulimit -s unlimited ;"
         else:
-            memory = ''
+            memory = ""
 
         # Set optimization level and type.
         if self._calculate_hessian:
             # Do optimization and check hessian.
-            optimization = f'--ohess {self._opt_level}'
+            optimization = f"--ohess {self._opt_level}"
         else:
             # Do optimization.
-            optimization = f'--opt {self._opt_level}'
+            optimization = f"--opt {self._opt_level}"
 
         if self._solvent is not None:
-            solvent = f'--{self._solvent_model} {self._solvent} '
+            solvent = f"--{self._solvent_model} {self._solvent} "
         else:
-            solvent = ''
+            solvent = ""
 
         cmd = (
-            f'{memory} {self._xtb_path} {xyz} '
-            f'--gfn {self._gfn_version} '
-            f'{optimization} --parallel {self._num_cores} '
-            f'--etemp {self._electronic_temperature} '
-            f'{solvent} --chrg {self._charge} '
-            f'--uhf {self._num_unpaired_electrons} -I det_control.in'
+            f"{memory} {self._xtb_path} {xyz} "
+            f"--gfn {self._gfn_version} "
+            f"{optimization} --parallel {self._num_cores} "
+            f"--etemp {self._electronic_temperature} "
+            f"{solvent} --chrg {self._charge} "
+            f"--uhf {self._num_unpaired_electrons} -I det_control.in"
         )
 
-        with open(out_file, 'w') as f:
+        with open(out_file, "w") as f:
             # Note that sp.call will hold the program until completion
             # of the calculation.
             sp.call(
@@ -424,13 +422,13 @@ class XTB(Optimizer):
                 stdout=f,
                 stderr=sp.PIPE,
                 # Shell is required to run complex arguments.
-                shell=True
+                shell=True,
             )
 
     def _write_detailed_control(self):
-        string = f'$gbsa\n   gbsagrid={self._solvent_grid}'
+        string = f"$gbsa\n   gbsagrid={self._solvent_grid}"
 
-        with open('det_control.in', 'w') as f:
+        with open("det_control.in", "w") as f:
             f.write(string)
 
     def _run_optimizations(self, mol):
@@ -454,14 +452,14 @@ class XTB(Optimizer):
         """
 
         for run in range(self._max_runs):
-            xyz = f'input_structure_{run+1}.xyz'
-            out_file = f'optimization_{run+1}.output'
+            xyz = f"input_structure_{run+1}.xyz"
+            out_file = f"optimization_{run+1}.output"
             mol.write(xyz)
             self._write_detailed_control()
             self._run_xtb(xyz=xyz, out_file=out_file)
             # Check if the optimization is complete.
-            coord_file = 'xtbhess.coord'
-            output_xyz = 'xtbopt.xyz'
+            coord_file = "xtbhess.coord"
+            output_xyz = "xtbopt.xyz"
             opt_complete = self._is_complete(out_file)
             if not opt_complete:
                 if os.path.exists(coord_file):
@@ -476,7 +474,7 @@ class XTB(Optimizer):
                     # case, exit optimization loop and warn.
                     self.incomplete.add(mol)
                     logging.warning(
-                        f'Small negative frequencies present in {mol}.'
+                        f"Small negative frequencies present in {mol}."
                     )
                     return mol, opt_complete
             else:
@@ -527,7 +525,7 @@ class XTB(Optimizer):
 
         if not complete:
             self.incomplete.add(mol)
-            logging.warning(f'Optimization is incomplete for {mol}.')
+            logging.warning(f"Optimization is incomplete for {mol}.")
 
         return mol
 
@@ -624,7 +622,7 @@ class XTBCREST(Optimizer):
         xtb_path,
         gfn_version=2,
         output_dir=None,
-        opt_level='normal',
+        opt_level="normal",
         md_len=None,
         ewin=5,
         speed_setting=None,
@@ -633,7 +631,7 @@ class XTBCREST(Optimizer):
         cross=True,
         charge=0,
         electronic_temperature=300,
-        solvent_model='gbsa',
+        solvent_model="gbsa",
         solvent=None,
         num_unpaired_electrons=0,
         unlimited_memory=False,
@@ -735,8 +733,7 @@ class XTBCREST(Optimizer):
             solvent = solvent.lower()
             if gfn_version == 0:
                 raise XTBInvalidSolventError(
-                    'No solvent valid for version',
-                    f' {gfn_version!r}.'
+                    "No solvent valid for version", f" {gfn_version!r}."
                 )
             if not is_valid_xtb_solvent(
                 gfn_version=gfn_version,
@@ -744,8 +741,8 @@ class XTBCREST(Optimizer):
                 solvent=solvent,
             ):
                 raise XTBInvalidSolventError(
-                    f'Solvent {solvent!r} and model {solvent_model!r}',
-                    f' is invalid for version {gfn_version!r}.'
+                    f"Solvent {solvent!r} and model {solvent_model!r}",
+                    f" is invalid for version {gfn_version!r}.",
                 )
 
         self._crest_path = crest_path
@@ -757,8 +754,8 @@ class XTBCREST(Optimizer):
 
         if speed_setting is not None and ewin != 5:
             raise CRESTSettingConflictError(
-                f'The chosen speed setting {speed_setting} will ',
-                f'override the chosen energy window {ewin}.'
+                f"The chosen speed setting {speed_setting} will ",
+                f"override the chosen energy window {ewin}.",
             )
 
         self._ewin = ewin
@@ -805,11 +802,11 @@ class XTBCREST(Optimizer):
 
         if not os.path.exists(output_file):
             # No simulation has been run.
-            raise CRESTNotStartedError('CREST run did not start')
+            raise CRESTNotStartedError("CREST run did not start")
 
         elif any(not os.path.exists(i) for i in output_xyzs):
             # Best conformer was not output.
-            raise CRESTNotCompletedError('CREST run did not complete')
+            raise CRESTNotCompletedError("CREST run did not complete")
 
         return True
 
@@ -833,39 +830,39 @@ class XTBCREST(Optimizer):
 
         # Modify the memory limit.
         if self._unlimited_memory:
-            memory = 'ulimit -s unlimited ;'
+            memory = "ulimit -s unlimited ;"
         else:
-            memory = ''
+            memory = ""
 
         if self._solvent is not None:
-            solvent = f'--{self._solvent_model} {self._solvent}'
+            solvent = f"--{self._solvent_model} {self._solvent}"
         else:
-            solvent = ''
+            solvent = ""
 
         # Set optimization level and type.
-        optimization = f'-opt {self._opt_level}'
-        mdlen = '' if self._mdlen is None else f'-mdlen {self._mdlen} '
-        keepdirs = '-keepdir' if self._keepdir is True else ''
+        optimization = f"-opt {self._opt_level}"
+        mdlen = "" if self._mdlen is None else f"-mdlen {self._mdlen} "
+        keepdirs = "-keepdir" if self._keepdir is True else ""
         if self._speed_setting is not None:
-            speed_settings = f'-{self._speed_setting}'
-            ewin = ''
+            speed_settings = f"-{self._speed_setting}"
+            ewin = ""
         else:
-            speed_settings = ''
-            ewin = f'-ewin {self._ewin} '
-        cross = ('-nocross' if self._cross is False else '')
+            speed_settings = ""
+            ewin = f"-ewin {self._ewin} "
+        cross = "-nocross" if self._cross is False else ""
 
         cmd = (
-            f'{memory} {self._crest_path} {xyz} '
-            f'-xnam {self._xtb_path} -nozs {cross} '
-            f'{ewin} {mdlen}'
-            f'{solvent} -chrg {self._charge} '
-            f'-uhf {self._num_unpaired_electrons} '
-            f'-gfn{self._gfn_version} '
-            f'{speed_settings} '
-            f'{optimization} -T {self._num_cores} {keepdirs}'
+            f"{memory} {self._crest_path} {xyz} "
+            f"-xnam {self._xtb_path} -nozs {cross} "
+            f"{ewin} {mdlen}"
+            f"{solvent} -chrg {self._charge} "
+            f"-uhf {self._num_unpaired_electrons} "
+            f"-gfn{self._gfn_version} "
+            f"{speed_settings} "
+            f"{optimization} -T {self._num_cores} {keepdirs}"
         )
 
-        with open(out_file, 'w') as f:
+        with open(out_file, "w") as f:
             # Note that sp.call will hold the program until completion
             # of the calculation.
             sp.call(
@@ -874,7 +871,7 @@ class XTBCREST(Optimizer):
                 stdout=f,
                 stderr=sp.PIPE,
                 # Shell is required to run complex arguments.
-                shell=True
+                shell=True,
             )
 
     def _run_optimization(self, mol):
@@ -897,15 +894,15 @@ class XTBCREST(Optimizer):
 
         """
 
-        xyz = 'input_structure.xyz'
-        out_file = 'crest.output'
+        xyz = "input_structure.xyz"
+        out_file = "crest.output"
         mol.write(xyz)
         self._run_crest(xyz=xyz, out_file=out_file)
 
         # Check if the optimization is complete.
         output_xyzs = [
-            'crest_best.xyz',
-            'crest_conformers.xyz',
+            "crest_best.xyz",
+            "crest_conformers.xyz",
         ]
         opt_complete = self._is_complete(out_file, output_xyzs)
         mol = mol.with_structure_from_file(output_xyzs[0])
@@ -947,7 +944,7 @@ class XTBCREST(Optimizer):
             os.chdir(init_dir)
 
         if not complete:
-            logging.warning(f'CREST run is incomplete for {mol}.')
+            logging.warning(f"CREST run is incomplete for {mol}.")
 
         return mol
 
@@ -1014,7 +1011,7 @@ class XTBFF(Optimizer):
         self,
         xtb_path,
         output_dir=None,
-        opt_level='normal',
+        opt_level="normal",
         num_cores=1,
         charge=0,
         unlimited_memory=False,
@@ -1087,14 +1084,14 @@ class XTBFF(Optimizer):
         """
         if not os.path.exists(output_file):
             # No simulation has been run.
-            raise XTBOptimizerError('Optimization failed to start')
+            raise XTBOptimizerError("Optimization failed to start")
         # If convergence is achieved, then .xtboptok should exist.
-        if os.path.exists('.xtboptok'):
+        if os.path.exists(".xtboptok"):
             return True
-        elif os.path.exists('NOT_CONVERGED'):
-            raise XTBConvergenceError('Optimization not converged.')
+        elif os.path.exists("NOT_CONVERGED"):
+            raise XTBConvergenceError("Optimization not converged.")
         else:
-            raise XTBOptimizerError('Optimization failed to complete')
+            raise XTBOptimizerError("Optimization failed to complete")
 
     def _run_xtb(self, xyz, out_file):
         """
@@ -1116,21 +1113,21 @@ class XTBFF(Optimizer):
 
         # Modify the memory limit.
         if self._unlimited_memory:
-            memory = 'ulimit -s unlimited ;'
+            memory = "ulimit -s unlimited ;"
         else:
-            memory = ''
+            memory = ""
 
         # Set optimization level and type.
-        optimization = f'--opt {self._opt_level}'
+        optimization = f"--opt {self._opt_level}"
 
         cmd = (
-            f'{memory} {self._xtb_path} {xyz} '
-            f'--gfnff '
-            f'{optimization} --parallel {self._num_cores} '
-            f'--chrg {self._charge} '
+            f"{memory} {self._xtb_path} {xyz} "
+            f"--gfnff "
+            f"{optimization} --parallel {self._num_cores} "
+            f"--chrg {self._charge} "
         )
 
-        with open(out_file, 'w') as f:
+        with open(out_file, "w") as f:
             # Note that sp.call will hold the program until completion
             # of the calculation.
             sp.call(
@@ -1139,7 +1136,7 @@ class XTBFF(Optimizer):
                 stdout=f,
                 stderr=sp.PIPE,
                 # Shell is required to run complex arguments.
-                shell=True
+                shell=True,
             )
 
     def _run_optimization(self, mol):
@@ -1162,13 +1159,13 @@ class XTBFF(Optimizer):
 
         """
 
-        xyz = 'input_structure_ff.xyz'
-        out_file = 'optimization_ff.output'
+        xyz = "input_structure_ff.xyz"
+        out_file = "optimization_ff.output"
         mol.write(xyz)
         self._run_xtb(xyz=xyz, out_file=out_file)
 
         # Check if the optimization is complete.
-        output_xyz = 'xtbopt.xyz'
+        output_xyz = "xtbopt.xyz"
         opt_complete = self._is_complete(out_file)
         mol = mol.with_structure_from_file(output_xyz)
 
@@ -1209,7 +1206,7 @@ class XTBFF(Optimizer):
             os.chdir(init_dir)
 
         if not complete:
-            logging.warning(f'Optimization is incomplete for {mol}.')
+            logging.warning(f"Optimization is incomplete for {mol}.")
 
         return mol
 
@@ -1310,7 +1307,7 @@ class XTBFFCREST(Optimizer):
         crest_path,
         xtb_path,
         output_dir=None,
-        opt_level='normal',
+        opt_level="normal",
         md_len=None,
         ewin=5,
         speed_setting=None,
@@ -1398,8 +1395,8 @@ class XTBFFCREST(Optimizer):
 
         if speed_setting is not None and ewin != 5:
             raise CRESTSettingConflictError(
-                f'The chosen speed setting {speed_setting} will ',
-                f'override the chosen energy window {ewin}.'
+                f"The chosen speed setting {speed_setting} will ",
+                f"override the chosen energy window {ewin}.",
             )
 
         self._ewin = ewin
@@ -1442,11 +1439,11 @@ class XTBFFCREST(Optimizer):
 
         if not os.path.exists(output_file):
             # No simulation has been run.
-            raise CRESTNotStartedError('CREST run did not start')
+            raise CRESTNotStartedError("CREST run did not start")
 
         elif any(not os.path.exists(i) for i in output_xyzs):
             # Best conformer was not output.
-            raise CRESTNotCompletedError('CREST run did not complete')
+            raise CRESTNotCompletedError("CREST run did not complete")
 
         return True
 
@@ -1470,32 +1467,32 @@ class XTBFFCREST(Optimizer):
 
         # Modify the memory limit.
         if self._unlimited_memory:
-            memory = 'ulimit -s unlimited ;'
+            memory = "ulimit -s unlimited ;"
         else:
-            memory = ''
+            memory = ""
 
         # Set optimization level and type.
-        optimization = f'-opt {self._opt_level}'
-        mdlen = '' if self._mdlen is None else f'-mdlen {self._mdlen} '
-        keepdirs = '-keepdir' if self._keepdir is True else ''
+        optimization = f"-opt {self._opt_level}"
+        mdlen = "" if self._mdlen is None else f"-mdlen {self._mdlen} "
+        keepdirs = "-keepdir" if self._keepdir is True else ""
         if self._speed_setting is not None:
-            speed_settings = f'-{self._speed_setting}'
-            ewin = ''
+            speed_settings = f"-{self._speed_setting}"
+            ewin = ""
         else:
-            speed_settings = ''
-            ewin = f'-ewin {self._ewin} '
-        cross = ('-nocross' if self._cross is False else '')
+            speed_settings = ""
+            ewin = f"-ewin {self._ewin} "
+        cross = "-nocross" if self._cross is False else ""
 
         cmd = (
-            f'{memory} {self._crest_path} {xyz} '
-            f'-xnam {self._xtb_path} -nozs {cross} '
-            f'{ewin} {mdlen}'
-            f'-chrg {self._charge} '
-            f'-gff {speed_settings} '
-            f'{optimization} -T {self._num_cores} {keepdirs}'
+            f"{memory} {self._crest_path} {xyz} "
+            f"-xnam {self._xtb_path} -nozs {cross} "
+            f"{ewin} {mdlen}"
+            f"-chrg {self._charge} "
+            f"-gff {speed_settings} "
+            f"{optimization} -T {self._num_cores} {keepdirs}"
         )
 
-        with open(out_file, 'w') as f:
+        with open(out_file, "w") as f:
             # Note that sp.call will hold the program until completion
             # of the calculation.
             sp.call(
@@ -1504,7 +1501,7 @@ class XTBFFCREST(Optimizer):
                 stdout=f,
                 stderr=sp.PIPE,
                 # Shell is required to run complex arguments.
-                shell=True
+                shell=True,
             )
 
     def _run_optimization(self, mol):
@@ -1527,15 +1524,15 @@ class XTBFFCREST(Optimizer):
 
         """
 
-        xyz = 'input_structure_ff.xyz'
-        out_file = 'crest_ff.output'
+        xyz = "input_structure_ff.xyz"
+        out_file = "crest_ff.output"
         mol.write(xyz)
         self._run_crest(xyz=xyz, out_file=out_file)
 
         # Check if the optimization is complete.
         output_xyzs = [
-            'crest_best.xyz',
-            'crest_conformers.xyz',
+            "crest_best.xyz",
+            "crest_conformers.xyz",
         ]
         opt_complete = self._is_complete(out_file, output_xyzs)
         mol = mol.with_structure_from_file(output_xyzs[0])
@@ -1577,6 +1574,6 @@ class XTBFFCREST(Optimizer):
             os.chdir(init_dir)
 
         if not complete:
-            logging.warning(f'CREST run is incomplete for {mol}.')
+            logging.warning(f"CREST run is incomplete for {mol}.")
 
         return mol

@@ -9,9 +9,9 @@ Class for splitting a molecule into many with new connectors.
 """
 
 import logging
-from rdkit.Chem import AllChem as rdkit
 
 import stk
+from rdkit.Chem import AllChem as rdkit
 
 from ..atoms import Du
 
@@ -78,13 +78,11 @@ class MoleculeTransformer:
         """
 
         # Add replacers bonded to * atoms.
-        _atom_list = list(
-            rdkit.MolFromSmarts(replacer_smarts).GetAtoms()
-        )
+        _atom_list = list(rdkit.MolFromSmarts(replacer_smarts).GetAtoms())
         if len(_atom_list) != 1:
             raise ValueError(
-                f'{replacer_smarts} corresponds {len(_atom_list)} '
-                'atoms. Should be 1.'
+                f"{replacer_smarts} corresponds {len(_atom_list)} "
+                "atoms. Should be 1."
             )
 
         for i in _atom_list:
@@ -118,11 +116,13 @@ class MoleculeTransformer:
         atoms = []
         for a in molecule.get_atoms():
             if isinstance(a, Du):
-                atoms.append(stk.Atom(
-                    id=a.get_id(),
-                    atomic_number=self._replacer.get_atomic_number(),
-                    charge=self._replacer.get_charge(),
-                ))
+                atoms.append(
+                    stk.Atom(
+                        id=a.get_id(),
+                        atomic_number=self._replacer.get_atomic_number(),
+                        charge=self._replacer.get_charge(),
+                    )
+                )
             else:
                 atoms.append(a)
         atoms = tuple(atoms)

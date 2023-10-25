@@ -10,20 +10,20 @@ Optimizer for collapsing enlarged topologies.
 """
 
 import logging
-from itertools import combinations
-import numpy as np
-from collections import defaultdict
-from scipy.spatial.distance import pdist
-import random
-import matplotlib.pyplot as plt
-import uuid
 import os
+import random
 import shutil
+import uuid
+from collections import defaultdict
+from itertools import combinations
+
+import matplotlib.pyplot as plt
+import numpy as np
+from scipy.spatial.distance import pdist
 from stk import PdbWriter
 
-from .optimizers import Optimizer
 from ..utilities import get_atom_distance
-
+from .optimizers import Optimizer
 
 logger = logging.getLogger(__name__)
 
@@ -115,22 +115,19 @@ class Collapser(Optimizer):
         position_matrix = mol.get_position_matrix()
 
         for atom1, atom2 in combinations(mol.get_atom_infos(), 2):
-            chk1 = (
-                atom1.get_atom().get_id() != atom2.get_atom().get_id()
-            )
+            chk1 = atom1.get_atom().get_id() != atom2.get_atom().get_id()
             chk2 = (
                 atom1.get_atom().get_atomic_number() != 1
                 and atom2.get_atom().get_atomic_number() != 1
             )
             chk3 = (
-                atom1.get_building_block_id() !=
-                atom2.get_building_block_id()
+                atom1.get_building_block_id() != atom2.get_building_block_id()
             )
             if chk1 and chk2 and chk3:
                 dist = get_atom_distance(
                     position_matrix=position_matrix,
                     atom1_id=atom1.get_atom().get_id(),
-                    atom2_id=atom2.get_atom().get_id()
+                    atom2_id=atom2.get_atom().get_id(),
                 )
                 yield dist
 
@@ -157,7 +154,7 @@ class Collapser(Optimizer):
             _id = atom.get_atom().get_id()
             pos = mol.get_position_matrix()[_id]
             new_position_matrix[_id] = (
-                pos - step*vectors[bb_id]*scales[bb_id]
+                pos - step * vectors[bb_id] * scales[bb_id]
             )
 
         return new_position_matrix
@@ -174,9 +171,9 @@ class Collapser(Optimizer):
 
         max_scale = max(list(scales.values()))
 
-        vector_1 = vector_1 - vector_1*step*max_scale
-        vector_2 = vector_2 - vector_2*step*max_scale
-        vector_3 = vector_3 - vector_3*step*max_scale
+        vector_1 = vector_1 - vector_1 * step * max_scale
+        vector_2 = vector_2 - vector_2 * step * max_scale
+        vector_3 = vector_3 - vector_3 * step * max_scale
 
         return vector_1, vector_2, vector_3
 
@@ -214,7 +211,7 @@ class Collapser(Optimizer):
 
         # Get bb COM vector to molecule COM.
         bb_cent_vectors = {
-            i: mol.get_centroid(atom_ids=bb_atom_ids[i])-cent
+            i: mol.get_centroid(atom_ids=bb_atom_ids[i]) - cent
             for i in bb_atom_ids
         }
 
@@ -222,19 +219,12 @@ class Collapser(Optimizer):
         # bbs from the COM. Impacts anisotropic topologies.
         if self._scale_steps:
             norms = {
-                i: np.linalg.norm(bb_cent_vectors[i])
-                for i in bb_cent_vectors
+                i: np.linalg.norm(bb_cent_vectors[i]) for i in bb_cent_vectors
             }
             max_distance = max(list(norms.values()))
-            bb_cent_scales = {
-                i: norms[i]/max_distance
-                for i in norms
-            }
+            bb_cent_scales = {i: norms[i] / max_distance for i in norms}
         else:
-            bb_cent_scales = {
-                i: 1
-                for i in bb_cent_vectors
-            }
+            bb_cent_scales = {i: 1 for i in bb_cent_vectors}
 
         return bb_cent_vectors, bb_cent_scales
 
@@ -279,48 +269,40 @@ class Collapser(Optimizer):
         while not self._has_short_contacts(mol):
             # Update each step the building block vectors and distance.
             bb_cent_vectors, bb_cent_scales = self._get_bb_vectors(
-                mol=mol,
-                bb_atom_ids=bb_atom_ids
+                mol=mol, bb_atom_ids=bb_atom_ids
             )
 
             new_pos = self._get_new_position_matrix(
                 mol=mol,
                 step=step,
                 vectors=bb_cent_vectors,
-                scales=bb_cent_scales
+                scales=bb_cent_scales,
             )
             step_no += 1
             mol = mol.with_position_matrix(new_pos)
-            mol.write(
-                os.path.join(output_dir, f'collapsed_{step_no}.mol')
-            )
+            mol.write(os.path.join(output_dir, f"collapsed_{step_no}.mol"))
 
         bb_cent_vectors, bb_cent_scales = self._get_bb_vectors(
-            mol=mol,
-            bb_atom_ids=bb_atom_ids
+            mol=mol, bb_atom_ids=bb_atom_ids
         )
 
         # Check that we have not gone too far.
-        min_dist = min(
-            dist for dist in self._get_inter_bb_distance(mol)
-        )
+        min_dist = min(dist for dist in self._get_inter_bb_distance(mol))
         if min_dist < self._distance_cut / 2:
             # Revert to half the previous step if we have.
-            step = -(self._step_size/2)
+            step = -(self._step_size / 2)
             new_pos = self._get_new_position_matrix(
                 mol=mol,
                 step=step,
                 vectors=bb_cent_vectors,
-                scales=bb_cent_scales
+                scales=bb_cent_scales,
             )
             step_no += 1
             mol = mol.with_position_matrix(new_pos)
-            mol.write(
-                os.path.join(output_dir, 'collapsed_rev.mol')
-            )
+            mol.write(os.path.join(output_dir, "collapsed_rev.mol"))
 
-        out_file = os.path.join(output_dir, 'collapser.out')
-        with open(out_file, 'w') as f:
+        out_file = os.path.join(output_dir, "collapser.out")
+        with open(out_file, "w") as f:
             f.write(
                 "Collapser algorithm.\n"
                 "====================\n"
@@ -381,8 +363,7 @@ class Collapser(Optimizer):
         while not self._has_short_contacts(mol):
             # Update each step the building block vectors and distance.
             bb_cent_vectors, bb_cent_scales = self._get_bb_vectors(
-                mol=mol,
-                bb_atom_ids=bb_atom_ids
+                mol=mol, bb_atom_ids=bb_atom_ids
             )
 
             new_pos = self._get_new_position_matrix(
@@ -393,12 +374,14 @@ class Collapser(Optimizer):
             )
             step_no += 1
             mol = mol.with_position_matrix(new_pos)
-            new_vector_1, new_vector_2, new_vector_3 = (
-                self._get_new_cell_vectors(
-                    unit_cell=unit_cell,
-                    step=step,
-                    scales=bb_cent_scales,
-                )
+            (
+                new_vector_1,
+                new_vector_2,
+                new_vector_3,
+            ) = self._get_new_cell_vectors(
+                unit_cell=unit_cell,
+                step=step,
+                scales=bb_cent_scales,
             )
             unit_cell = unit_cell.with_cell_from_vectors(
                 vector_1=new_vector_1,
@@ -407,38 +390,35 @@ class Collapser(Optimizer):
             )
             PdbWriter().write(
                 molecule=mol,
-                path=os.path.join(
-                    output_dir, f'collapsed_{step_no}.pdb'
-                ),
+                path=os.path.join(output_dir, f"collapsed_{step_no}.pdb"),
                 periodic_info=unit_cell,
             )
 
         bb_cent_vectors, bb_cent_scales = self._get_bb_vectors(
-            mol=mol,
-            bb_atom_ids=bb_atom_ids
+            mol=mol, bb_atom_ids=bb_atom_ids
         )
 
         # Check that we have not gone too far.
-        min_dist = min(
-            dist for dist in self._get_inter_bb_distance(mol)
-        )
+        min_dist = min(dist for dist in self._get_inter_bb_distance(mol))
         if min_dist < self._distance_cut / 2:
             # Revert to half the previous step if we have.
-            step = -(self._step_size/2)
+            step = -(self._step_size / 2)
             new_pos = self._get_new_position_matrix(
                 mol=mol,
                 step=step,
                 vectors=bb_cent_vectors,
-                scales=bb_cent_scales
+                scales=bb_cent_scales,
             )
             step_no += 1
             mol = mol.with_position_matrix(new_pos)
-            new_vector_1, new_vector_2, new_vector_3 = (
-                self._get_new_cell_vectors(
-                    unit_cell=unit_cell,
-                    step=step,
-                    scales=bb_cent_scales,
-                )
+            (
+                new_vector_1,
+                new_vector_2,
+                new_vector_3,
+            ) = self._get_new_cell_vectors(
+                unit_cell=unit_cell,
+                step=step,
+                scales=bb_cent_scales,
             )
             unit_cell = unit_cell.with_cell_from_vectors(
                 vector_1=new_vector_1,
@@ -447,14 +427,12 @@ class Collapser(Optimizer):
             )
             PdbWriter().write(
                 molecule=mol,
-                path=os.path.join(
-                    output_dir, 'collapsed_rev.pdb'
-                ),
+                path=os.path.join(output_dir, "collapsed_rev.pdb"),
                 periodic_info=unit_cell,
             )
 
-        out_file = os.path.join(output_dir, 'collapser.out')
-        with open(out_file, 'w') as f:
+        out_file = os.path.join(output_dir, "collapser.out")
+        with open(out_file, "w") as f:
             f.write(
                 "Collapser algorithm.\n"
                 "====================\n"
@@ -566,7 +544,6 @@ class CollapserMC(Collapser):
             random.seed(random_seed)
 
     def _get_bb_atom_ids(self, mol):
-
         bb_atom_ids = defaultdict(list)
         for i in mol.get_atom_infos():
             bb_atom_ids[i.get_building_block_id()].append(
@@ -576,16 +553,14 @@ class CollapserMC(Collapser):
         return bb_atom_ids
 
     def _get_bond_length(self, mol, bond):
-
         position_matrix = mol.get_position_matrix()
         return get_atom_distance(
             position_matrix=position_matrix,
             atom1_id=bond.get_atom1().get_id(),
-            atom2_id=bond.get_atom2().get_id()
+            atom2_id=bond.get_atom2().get_id(),
         )
 
     def _get_bond_vector(self, mol, bond):
-
         position_matrix = mol.get_position_matrix()
         atom1_pos = position_matrix[bond.get_atom1().get_id()]
         atom2_pos = position_matrix[bond.get_atom2().get_id()]
@@ -615,18 +590,12 @@ class CollapserMC(Collapser):
         """
 
         bb_centroids = {
-            i: mol.get_centroid(atom_ids=bb_atom_ids[i])
-            for i in bb_atom_ids
+            i: mol.get_centroid(atom_ids=bb_atom_ids[i]) for i in bb_atom_ids
         }
 
         return bb_centroids
 
-    def _get_cent_to_lb_vector(
-        self,
-        mol,
-        bb_centroids,
-        long_bond_infos
-    ):
+    def _get_cent_to_lb_vector(self, mol, bb_centroids, long_bond_infos):
         """
         Returns dict of long bond atom to bb centroid vectors.
 
@@ -638,7 +607,7 @@ class CollapserMC(Collapser):
             cent = bb_centroids[bb]
             for b_atom_ids, bond_info in long_bond_infos.items():
                 for atom_id in b_atom_ids:
-                    atom_info, = mol.get_atom_infos(atom_ids=atom_id)
+                    (atom_info,) = mol.get_atom_infos(atom_ids=atom_id)
                     atom_pos = position_matrix[atom_id]
                     if atom_info.get_building_block_id() == bb:
                         centroid_to_lb_vectors[(bb, atom_id)] = (
@@ -667,39 +636,31 @@ class CollapserMC(Collapser):
         This potential has no relation to an empircal forcefield.
         """
 
-        return (
-            self._nonbond_epsilon * (
-                (self._nonbond_sigma/distance) ** self._nonbond_mu
-            )
+        return self._nonbond_epsilon * (
+            (self._nonbond_sigma / distance) ** self._nonbond_mu
         )
 
     def _compute_non_bonded_potential(self, mol):
-
         # Get all pairwise distances.
         pair_dists = pdist(mol.get_position_matrix())
-        nonbonded_potential = np.sum(
-            self._non_bond_potential(pair_dists)
-        )
+        nonbonded_potential = np.sum(self._non_bond_potential(pair_dists))
 
         return nonbonded_potential
 
     def _compute_potential(self, mol, long_bond_infos):
-
         system_potential = self._compute_non_bonded_potential(mol)
         for long_bond_ids in long_bond_infos:
             long_bond = long_bond_infos[long_bond_ids]
 
             system_potential += self._bond_potential(
                 distance=self._get_bond_length(
-                    mol=mol,
-                    bond=long_bond.get_bond()
+                    mol=mol, bond=long_bond.get_bond()
                 )
             )
 
         return system_potential
 
     def _translate_atoms_along_vector(self, mol, atom_ids, vector):
-
         new_position_matrix = mol.get_position_matrix()
         for atom in mol.get_atom_infos(atom_ids=atom_ids):
             _id = atom.get_atom().get_id()
@@ -709,11 +670,10 @@ class CollapserMC(Collapser):
         return mol.with_position_matrix(new_position_matrix)
 
     def _test_move(self, curr_pot, new_pot):
-
         if new_pot < curr_pot:
             return True
         else:
-            exp_term = np.exp(-self._beta*(new_pot-curr_pot))
+            exp_term = np.exp(-self._beta * (new_pot - curr_pot))
             rand_number = random.random()
 
             if exp_term > rand_number:
@@ -722,55 +682,53 @@ class CollapserMC(Collapser):
                 return False
 
     def _output_top_lines(self):
-
         string = (
-            '====================================================\n'
-            '                Collapser optimisation              \n'
-            '                ----------------------              \n'
-            '                                                    \n'
-            f' step size = {self._step_size} \n'
-            f' target bond length = {self._target_bond_length} \n'
-            f' num. steps = {self._num_steps} \n'
-            f' bond epsilon = {self._bond_epsilon} \n'
-            f' nonbond epsilon = {self._nonbond_epsilon} \n'
-            f' nonbond sigma = {self._nonbond_sigma} \n'
-            f' nonbond mu = {self._nonbond_mu} \n'
-            f' beta = {self._beta} \n'
-            '====================================================\n\n'
+            "====================================================\n"
+            "                Collapser optimisation              \n"
+            "                ----------------------              \n"
+            "                                                    \n"
+            f" step size = {self._step_size} \n"
+            f" target bond length = {self._target_bond_length} \n"
+            f" num. steps = {self._num_steps} \n"
+            f" bond epsilon = {self._bond_epsilon} \n"
+            f" nonbond epsilon = {self._nonbond_epsilon} \n"
+            f" nonbond sigma = {self._nonbond_sigma} \n"
+            f" nonbond mu = {self._nonbond_mu} \n"
+            f" beta = {self._beta} \n"
+            "====================================================\n\n"
         )
 
         return string
 
     def _plot_progess(self, steps, maxds, spots, npots, output_dir):
-
         fig, ax = plt.subplots(figsize=(8, 5))
-        ax.plot(steps, maxds, c='k', lw=2)
+        ax.plot(steps, maxds, c="k", lw=2)
         # Set number of ticks for x-axis
-        ax.tick_params(axis='both', which='major', labelsize=16)
-        ax.set_xlabel('step', fontsize=16)
-        ax.set_ylabel('max long bond length [angstrom]', fontsize=16)
-        ax.axhline(y=self._target_bond_length, c='r')
+        ax.tick_params(axis="both", which="major", labelsize=16)
+        ax.set_xlabel("step", fontsize=16)
+        ax.set_ylabel("max long bond length [angstrom]", fontsize=16)
+        ax.axhline(y=self._target_bond_length, c="r")
         fig.tight_layout()
         fig.savefig(
-            os.path.join(output_dir, 'maxd_vs_step.pdf'),
+            os.path.join(output_dir, "maxd_vs_step.pdf"),
             dpi=360,
-            bbox_inches='tight'
+            bbox_inches="tight",
         )
         plt.close()
         # Plot energy vs timestep.
         fig, ax = plt.subplots(figsize=(8, 5))
-        ax.plot(steps, spots, c='k', lw=2, label='total')
-        ax.plot(steps, npots, c='r', lw=2, label='non bonded')
+        ax.plot(steps, spots, c="k", lw=2, label="total")
+        ax.plot(steps, npots, c="r", lw=2, label="non bonded")
         # Set number of ticks for x-axis
-        ax.tick_params(axis='both', which='major', labelsize=16)
-        ax.set_xlabel('step', fontsize=16)
-        ax.set_ylabel('potential', fontsize=16)
+        ax.tick_params(axis="both", which="major", labelsize=16)
+        ax.set_xlabel("step", fontsize=16)
+        ax.set_ylabel("potential", fontsize=16)
         ax.legend(fontsize=16)
         fig.tight_layout()
         fig.savefig(
-            os.path.join(output_dir, 'pot_vs_step.pdf'),
+            os.path.join(output_dir, "pot_vs_step.pdf"),
             dpi=360,
-            bbox_inches='tight'
+            bbox_inches="tight",
         )
         plt.close()
 
@@ -813,45 +771,45 @@ class CollapserMC(Collapser):
         # centroid_to_lb_vectors = self._get_cent_to_lb_vector(
         #     mol, bb_centroids, long_bond_infos
         # )
-        print('###################################################')
-        print('WARNING: centroid_to_lb_vectors not maintained yet.')
-        print('###################################################')
+        print("###################################################")
+        print("WARNING: centroid_to_lb_vectors not maintained yet.")
+        print("###################################################")
 
         system_potential = self._compute_potential(
-            mol=mol,
-            long_bond_infos=long_bond_infos
+            mol=mol, long_bond_infos=long_bond_infos
         )
 
-        with open(os.path.join(output_dir, 'coll.out'), 'w') as f:
+        with open(os.path.join(output_dir, "coll.out"), "w") as f:
             f.write(self._output_top_lines())
-            mol.write(os.path.join(output_dir, 'coll_0.mol'))
+            mol.write(os.path.join(output_dir, "coll_0.mol"))
             steps = [0]
             passed = []
             spots = [system_potential]
             npots = [self._compute_non_bonded_potential(mol=mol)]
-            maxds = [max([
-                self._get_bond_length(
-                    mol, long_bond_infos[i].get_bond()
+            maxds = [
+                max(
+                    [
+                        self._get_bond_length(
+                            mol, long_bond_infos[i].get_bond()
+                        )
+                        for i in long_bond_infos
+                    ]
                 )
-                for i in long_bond_infos
-            ])]
+            ]
             f.write(
-                'Step system_potential nonbond_potential max_dist '
-                'opt_bbs updated?\n'
+                "Step system_potential nonbond_potential max_dist "
+                "opt_bbs updated?\n"
             )
             f.write(
-                f'{steps[-1]} {spots[-1]} {npots[-1]} {maxds[-1]} '
-                '-- --\n'
+                f"{steps[-1]} {spots[-1]} {npots[-1]} {maxds[-1]} " "-- --\n"
             )
             for step in range(1, self._num_steps):
-
                 # Randomly select a long bond.
                 lb_ids = random.choice(list(long_bond_infos.keys()))
                 lb_info = long_bond_infos[lb_ids]
 
                 lb_vector = self._get_bond_vector(
-                    mol=mol,
-                    bond=lb_info.get_bond()
+                    mol=mol, bond=lb_info.get_bond()
                 )
 
                 bb_id_1, bb_id_2 = (
@@ -875,23 +833,21 @@ class CollapserMC(Collapser):
                 # Define translation along long bond vector where
                 # direction is from force, magnitude is randomly
                 # scaled.
-                long_bond_translation = (
-                    -lb_vector * self._step_size * rand
-                )
+                long_bond_translation = -lb_vector * self._step_size * rand
 
                 # Get bb COM vector to molecule COM.
                 cent = mol.get_centroid()
                 bb_cent_vector = (
-                    mol.get_centroid(atom_ids=moving_bb_atom_ids)-cent
+                    mol.get_centroid(atom_ids=moving_bb_atom_ids) - cent
                 )
-                com_translation = (
-                    bb_cent_vector * self._step_size * rand
-                )
+                com_translation = bb_cent_vector * self._step_size * rand
 
-                translation_vector = random.choice([
-                    long_bond_translation,
-                    com_translation,
-                ])
+                translation_vector = random.choice(
+                    [
+                        long_bond_translation,
+                        com_translation,
+                    ]
+                )
 
                 # Translate building block.
                 # Update atom position of building block.
@@ -913,19 +869,15 @@ class CollapserMC(Collapser):
                 ###################################################
 
                 new_system_potential = self._compute_potential(
-                    mol=mol,
-                    long_bond_infos=long_bond_infos
+                    mol=mol, long_bond_infos=long_bond_infos
                 )
 
-                if self._test_move(
-                    system_potential,
-                    new_system_potential
-                ):
-                    updated = 'T'
+                if self._test_move(system_potential, new_system_potential):
+                    updated = "T"
                     system_potential = new_system_potential
                     passed.append(step)
                 else:
-                    updated = 'F'
+                    updated = "F"
                     # Reverse move.
                     mol = self._translate_atoms_along_vector(
                         mol=mol,
@@ -933,29 +885,31 @@ class CollapserMC(Collapser):
                         vector=-translation_vector,
                     )
 
-                mol.write(os.path.join(output_dir, f'coll_{step}.xyz'))
+                mol.write(os.path.join(output_dir, f"coll_{step}.xyz"))
                 steps.append(step)
                 spots.append(system_potential)
-                npots.append(
-                    self._compute_non_bonded_potential(mol=mol)
-                )
-                maxds.append(max([
-                    self._get_bond_length(
-                        mol, long_bond_infos[i].get_bond()
+                npots.append(self._compute_non_bonded_potential(mol=mol))
+                maxds.append(
+                    max(
+                        [
+                            self._get_bond_length(
+                                mol, long_bond_infos[i].get_bond()
+                            )
+                            for i in long_bond_infos
+                        ]
                     )
-                    for i in long_bond_infos
-                ]))
+                )
                 f.write(
-                    f'{steps[-1]} {spots[-1]} '
-                    f'{npots[-1]} {maxds[-1]} {lb_ids} {updated}\n'
+                    f"{steps[-1]} {spots[-1]} "
+                    f"{npots[-1]} {maxds[-1]} {lb_ids} {updated}\n"
                 )
                 step += 1
 
-            f.write('\n============================================\n')
+            f.write("\n============================================\n")
             f.write(
-                'Optimisation done:\n'
-                f'{len(passed)} steps passed: '
-                f'{len(passed)/self._num_steps}'
+                "Optimisation done:\n"
+                f"{len(passed)} steps passed: "
+                f"{len(passed)/self._num_steps}"
             )
 
         self._plot_progess(steps, maxds, spots, npots, output_dir)

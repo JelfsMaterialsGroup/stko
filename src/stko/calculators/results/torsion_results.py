@@ -10,9 +10,10 @@ Results classes for extracting molecular torsions.
 """
 
 from collections import defaultdict
-from .results import Results
-from ...molecular.torsion import TorsionInfo, Torsion
+
+from ...molecular.torsion import Torsion, TorsionInfo
 from ...utilities import calculate_dihedral
+from .results import Results
 
 
 class TorsionResults(Results):
@@ -33,9 +34,10 @@ class TorsionResults(Results):
 
     def get_torsion_angles(self):
         for torsion in self._torsions:
-            print('a', torsion)
+            print("a", torsion)
             yield (
-                torsion, calculate_dihedral(
+                torsion,
+                calculate_dihedral(
                     pt1=tuple(
                         self._mol.get_atomic_positions(
                             torsion.get_atom_ids()[0]
@@ -56,7 +58,7 @@ class TorsionResults(Results):
                             torsion.get_atom_ids()[3]
                         )
                     )[0],
-                )
+                ),
             )
 
 
@@ -92,9 +94,9 @@ class ConstructedMoleculeTorsionResults(TorsionResults):
                 )
             )
             # Get atom info and check they are all the same.
-            building_block_ids = set((
-                i.get_building_block_id() for i in atom_infos
-            ))
+            building_block_ids = set(
+                (i.get_building_block_id() for i in atom_infos)
+            )
             if len(building_block_ids) > 1:
                 same_building_block = False
             else:
@@ -103,12 +105,11 @@ class ConstructedMoleculeTorsionResults(TorsionResults):
             if same_building_block:
                 building_block_id = next(iter(building_block_ids))
 
-                building_block = tuple((
-                   i.get_building_block() for i in atom_infos
-                ))[0]
+                building_block = tuple(
+                    (i.get_building_block() for i in atom_infos)
+                )[0]
                 bb_atoms = tuple(
-                    i.get_building_block_atom()
-                    for i in atom_infos
+                    i.get_building_block_atom() for i in atom_infos
                 )
                 building_block_torsion = Torsion(*bb_atoms)
                 yield TorsionInfo(

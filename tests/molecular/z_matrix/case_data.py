@@ -1,4 +1,3 @@
-
 class CaseData:
     """
     A test case.

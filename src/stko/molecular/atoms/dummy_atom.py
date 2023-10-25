@@ -9,6 +9,7 @@ A class representing a dummy stk.Atom.
 """
 
 import logging
+
 import stk
 
 logger = logging.getLogger(__name__)
@@ -90,7 +91,7 @@ class Du:
         return type(self)(self._stk_atom.get_id())
 
     def __repr__(self) -> str:
-        return f'{self.__class__.__name__}({self._stk_atom.get_id()})'
+        return f"{self.__class__.__name__}({self._stk_atom.get_id()})"
 
     def __str__(self) -> str:
         return repr(self)

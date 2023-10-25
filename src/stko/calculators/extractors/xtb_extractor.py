@@ -91,49 +91,47 @@ class XTBExtractor(Extractor):
     """
 
     def _extract_values(self):
-
         for i, line in enumerate(self.output_lines):
-            if self._check_line(line, 'total_energy'):
+            if self._check_line(line, "total_energy"):
                 self._extract_total_energy(line)
-            elif self._check_line(line, 'homo_lumo_gap'):
+            elif self._check_line(line, "homo_lumo_gap"):
                 self._extract_homo_lumo_gap(line)
-            elif self._check_line(line, 'fermi_level'):
+            elif self._check_line(line, "fermi_level"):
                 self._extract_fermi_level(line)
-            elif self._check_line(line, 'dipole_moment'):
+            elif self._check_line(line, "dipole_moment"):
                 self._extract_qonly_dipole_moment(i)
                 self._extract_full_dipole_moment(i)
-            elif self._check_line(line, 'quadrupole_moment'):
+            elif self._check_line(line, "quadrupole_moment"):
                 self._extract_qonly_quadrupole_moment(i)
                 self._extract_qdip_quadrupole_moment(i)
                 self._extract_full_quadrupole_moment(i)
-            elif self._check_line(line, 'homo_lumo_occ_HOMO'):
+            elif self._check_line(line, "homo_lumo_occ_HOMO"):
                 self.homo_lumo_occ = {}
-                self._extract_homo_lumo_occ(line, 'HOMO')
-            elif self._check_line(line, 'homo_lumo_occ_LUMO'):
-                self._extract_homo_lumo_occ(line, 'LUMO')
-            elif self._check_line(line, 'total_free_energy'):
+                self._extract_homo_lumo_occ(line, "HOMO")
+            elif self._check_line(line, "homo_lumo_occ_LUMO"):
+                self._extract_homo_lumo_occ(line, "LUMO")
+            elif self._check_line(line, "total_free_energy"):
                 self._extract_total_free_energy(line)
-            elif self._check_line(line, 'ionisation_potential'):
+            elif self._check_line(line, "ionisation_potential"):
                 self._extract_ionisation_potential(line)
-            elif self._check_line(line, 'electron_affinity'):
+            elif self._check_line(line, "electron_affinity"):
                 self._extract_electron_affinity(line)
 
         # Frequency formatting requires loop through full file.
         self._extract_frequencies()
 
     def _properties_dict(self):
-
         return {
-            'total_energy': '          | TOTAL ENERGY  ',
-            'homo_lumo_gap': '          | HOMO-LUMO GAP   ',
-            'fermi_level': '             Fermi-level        ',
-            'dipole_moment': 'molecular dipole:',
-            'quadrupole_moment': 'molecular quadrupole (traceless):',
-            'homo_lumo_occ_HOMO': '(HOMO)',
-            'homo_lumo_occ_LUMO': '(LUMO)',
-            'total_free_energy': '          | TOTAL FREE ENERGY  ',
-            'ionisation_potential': 'delta SCC IP (eV)',
-            'electron_affinity': 'delta SCC EA (eV)',
+            "total_energy": "          | TOTAL ENERGY  ",
+            "homo_lumo_gap": "          | HOMO-LUMO GAP   ",
+            "fermi_level": "             Fermi-level        ",
+            "dipole_moment": "molecular dipole:",
+            "quadrupole_moment": "molecular quadrupole (traceless):",
+            "homo_lumo_occ_HOMO": "(HOMO)",
+            "homo_lumo_occ_LUMO": "(LUMO)",
+            "total_free_energy": "          | TOTAL FREE ENERGY  ",
+            "ionisation_potential": "delta SCC IP (eV)",
+            "electron_affinity": "delta SCC EA (eV)",
         }
 
     def _extract_total_energy(self, line):
@@ -190,7 +188,7 @@ class XTBExtractor(Extractor):
         """
 
         nums = re.compile(r"[+-]?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?")
-        part2 = line.split('Eh')
+        part2 = line.split("Eh")
         string = nums.search(part2[1].rstrip()).group(0)
         self.fermi_level = float(string)
 
@@ -212,12 +210,11 @@ class XTBExtractor(Extractor):
 
         """
 
-        sample_set = self.output_lines[index+2].rstrip()
+        sample_set = self.output_lines[index + 2].rstrip()
 
-        if 'q only:' in sample_set:
+        if "q only:" in sample_set:
             self.qonly_dipole_moment = [
-                float(i)
-                for i in sample_set.split(':')[1].split(' ') if i
+                float(i) for i in sample_set.split(":")[1].split(" ") if i
             ]
 
     def _extract_full_dipole_moment(self, index):
@@ -238,12 +235,11 @@ class XTBExtractor(Extractor):
 
         """
 
-        sample_set = self.output_lines[index+3].rstrip()
+        sample_set = self.output_lines[index + 3].rstrip()
 
-        if 'full:' in sample_set:
+        if "full:" in sample_set:
             self.full_dipole_moment = [
-                float(i)
-                for i in sample_set.split(':')[1].split(' ') if i
+                float(i) for i in sample_set.split(":")[1].split(" ") if i
             ]
 
     def _extract_qonly_quadrupole_moment(self, index):
@@ -264,12 +260,11 @@ class XTBExtractor(Extractor):
 
         """
 
-        sample_set = self.output_lines[index+2].rstrip()
+        sample_set = self.output_lines[index + 2].rstrip()
 
-        if 'q only:' in sample_set:
+        if "q only:" in sample_set:
             self.qonly_quadrupole_moment = [
-                float(i)
-                for i in sample_set.split(':')[1].split(' ') if i
+                float(i) for i in sample_set.split(":")[1].split(" ") if i
             ]
 
     def _extract_qdip_quadrupole_moment(self, index):
@@ -290,12 +285,11 @@ class XTBExtractor(Extractor):
 
         """
 
-        sample_set = self.output_lines[index+3].rstrip()
+        sample_set = self.output_lines[index + 3].rstrip()
 
-        if 'q+dip:' in sample_set:
+        if "q+dip:" in sample_set:
             self.qdip_quadrupole_moment = [
-                float(i)
-                for i in sample_set.split(':')[1].split(' ') if i
+                float(i) for i in sample_set.split(":")[1].split(" ") if i
             ]
 
     def _extract_full_quadrupole_moment(self, index):
@@ -316,12 +310,11 @@ class XTBExtractor(Extractor):
 
         """
 
-        sample_set = self.output_lines[index+4].rstrip()
+        sample_set = self.output_lines[index + 4].rstrip()
 
-        if 'full:' in sample_set:
+        if "full:" in sample_set:
             self.full_quadrupole_moment = [
-                float(i)
-                for i in sample_set.split(':')[1].split(' ') if i
+                float(i) for i in sample_set.split(":")[1].split(" ") if i
             ]
 
     def _extract_homo_lumo_occ(self, line, orbital):
@@ -342,8 +335,8 @@ class XTBExtractor(Extractor):
 
         """
 
-        if orbital == 'HOMO':
-            split_line = [i for i in line.rstrip().split(' ') if i]
+        if orbital == "HOMO":
+            split_line = [i for i in line.rstrip().split(" ") if i]
             # The line is:
             #   Number, occupation, energy (Ha), energy (ev), label
             # Extract:
@@ -351,19 +344,15 @@ class XTBExtractor(Extractor):
             orbital_val = [
                 int(split_line[0]),
                 float(split_line[1]),
-                float(split_line[3])
+                float(split_line[3]),
             ]
-        elif orbital == 'LUMO':
-            split_line = [i for i in line.rstrip().split(' ') if i]
+        elif orbital == "LUMO":
+            split_line = [i for i in line.rstrip().split(" ") if i]
             # The line is:
             #   Number, energy (Ha), energy (ev), label
             # Extract:
             #   Number, occupation (zero), energy (eV)
-            orbital_val = [
-                int(split_line[0]),
-                0,
-                float(split_line[2])
-            ]
+            orbital_val = [int(split_line[0]), 0, float(split_line[2])]
 
         self.homo_lumo_occ[orbital] = orbital_val
 
@@ -391,7 +380,7 @@ class XTBExtractor(Extractor):
 
         """
 
-        test = '|               Frequency Printout                |'
+        test = "|               Frequency Printout                |"
 
         # Use a switch to make sure we are extracting values after the
         # final property readout.
@@ -403,11 +392,11 @@ class XTBExtractor(Extractor):
                 # Turn on reading as final frequency printout has
                 # begun.
                 switch = True
-            if ' reduced masses (amu)' in line:
+            if " reduced masses (amu)" in line:
                 # Turn off reading as frequency section is done.
                 switch = False
-            if 'eigval :' in line and switch is True:
-                samp = line.rstrip().split(':')[1].split(' ')
+            if "eigval :" in line and switch is True:
+                samp = line.rstrip().split(":")[1].split(" ")
                 split_line = [i for i in samp if i]
                 for freq in split_line:
                     frequencies.append(freq)

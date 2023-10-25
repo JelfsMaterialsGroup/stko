@@ -9,10 +9,10 @@ Class for splitting a molecule into many with new connectors.
 """
 
 import logging
-from rdkit.Chem import AllChem as rdkit
 from itertools import combinations
 
 import stk
+from rdkit.Chem import AllChem as rdkit
 
 from ..atoms import Du
 
@@ -101,17 +101,15 @@ class MoleculeSplitter:
             )
             # Get the atom ids of the atoms on either end of the broken
             # bond at which reactions can occur.
-            reactable_atom_ids.extend(
-                i for i in translated_bond_atom_ids
-            )
+            reactable_atom_ids.extend(i for i in translated_bond_atom_ids)
 
         # Get the rdkit molecule bond ids associated with the bonds to
         # delete.
         bond_ids_to_delete = []
         for bond in rdkit_mol.GetBonds():
-            idxs = tuple(sorted((
-                bond.GetBeginAtomIdx(), bond.GetEndAtomIdx()
-            )))
+            idxs = tuple(
+                sorted((bond.GetBeginAtomIdx(), bond.GetEndAtomIdx()))
+            )
             if idxs in bond_pair_ids_to_delete:
                 bond_ids_to_delete.append(bond.GetIdx())
 
@@ -146,9 +144,10 @@ class MoleculeSplitter:
                     atom1=atoms[b.GetBeginAtomIdx()],
                     atom2=atoms[b.GetEndAtomIdx()],
                     order=(
-                        9 if b.GetBondType() == rdkit.BondType.DATIVE
+                        9
+                        if b.GetBondType() == rdkit.BondType.DATIVE
                         else b.GetBondTypeAsDouble()
-                    )
+                    ),
                 )
                 for b in frag.GetBonds()
             )

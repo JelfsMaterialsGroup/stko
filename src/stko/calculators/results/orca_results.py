@@ -8,8 +8,8 @@ Results class for the output of Orca.
 
 """
 
-from .results import Results
 from ..extractors import OrcaExtractor
+from .results import Results
 
 
 class OrcaResults(Results):
@@ -24,10 +24,9 @@ class OrcaResults(Results):
         output_file,
         extractor=OrcaExtractor,
     ):
-
         # Run calculation.
         next(generator)
         self._extractor = extractor(output_file=output_file)
 
     def get_total_energy(self):
-        return (self._extractor.total_energy, 'a.u.')
+        return (self._extractor.total_energy, "a.u.")

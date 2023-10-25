@@ -93,12 +93,13 @@ class PositionedAtom:
 
     def __repr__(self):
         charge = (
-            f', charge={self._atom.get_charge()}'
-            if self._atom.get_charge() != 0 else ''
+            f", charge={self._atom.get_charge()}"
+            if self._atom.get_charge() != 0
+            else ""
         )
         return (
-            f'{self._atom.__class__.__name__}({self._atom.get_id()}'
-            f'{charge})'
+            f"{self._atom.__class__.__name__}({self._atom.get_id()}"
+            f"{charge})"
         )
 
     def __str__(self):

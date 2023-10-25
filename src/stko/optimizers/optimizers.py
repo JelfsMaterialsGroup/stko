@@ -62,7 +62,6 @@ there are no requirements. New optimizers can be added into the
 
 import logging
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -126,7 +125,6 @@ class OptimizerSequence(Optimizer):
         self._optimizers = optimizers
 
     def optimize(self, mol):
-
         for optimizer in self._optimizers:
             cls_name = optimizer.__class__.__name__
             logger.info(f'Using {cls_name} on "{mol}".')
@@ -213,7 +211,6 @@ class TryCatchOptimizer(Optimizer):
             try_name = self._try_optimizer.__class__.__name__
             catch_name = self._catch_optimizer.__class__.__name__
             logger.error(
-                f'{try_name} failed, trying {catch_name}.',
-                exc_info=True
+                f"{try_name} failed, trying {catch_name}.", exc_info=True
             )
             return self._catch_optimizer.optimize(mol)

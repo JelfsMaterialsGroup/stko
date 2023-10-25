@@ -8,12 +8,12 @@ Wrappers for calculators within the :mod:`orca` code.
 
 """
 
+import glob
 import logging
 import os
 import shutil
-import glob
-import uuid
 import subprocess as sp
+import uuid
 
 from .calculators import Calculator
 from .results import OrcaResults
@@ -118,6 +118,7 @@ class OrcaEnergy(Calculator):
     .. [1] https://orcaforum.kofo.mpg.de/app.php/portal
 
     """
+
     def __init__(
         self,
         orca_path,
@@ -171,7 +172,7 @@ class OrcaEnergy(Calculator):
 
         self._orca_path = orca_path
         if basename is None:
-            self._basename = f'_{str(uuid.uuid4().int)}'
+            self._basename = f"_{str(uuid.uuid4().int)}"
         else:
             self._basename = basename
         self._output_dir = output_dir
@@ -188,42 +189,40 @@ class OrcaEnergy(Calculator):
 
         # Add multiprocessing section.
         string += (
-            f'%pal\n   nprocs {self._num_cores}\nend\n\n'
-            f'%scf\n   MaxIter 2000\nend\n\n'
+            f"%pal\n   nprocs {self._num_cores}\nend\n\n"
+            f"%scf\n   MaxIter 2000\nend\n\n"
         )
         # Add geometry section.
         string += (
-            f'* xyzfile {self._charge} {self._multiplicity} '
-            f'{xyz_file}\n'
+            f"* xyzfile {self._charge} {self._multiplicity} " f"{xyz_file}\n"
         )
 
-        with open(path, 'w') as f:
+        with open(path, "w") as f:
             f.write(string)
 
     def _check_outcome(self, out_file):
-
         if not os.path.exists(out_file):
             raise OrcaOptimizerError(
-                f'{out_file} does not exist, suggesting the job did '
-                'not run.'
+                f"{out_file} does not exist, suggesting the job did "
+                "not run."
             )
 
-        with open(out_file, 'r') as f:
+        with open(out_file, "r") as f:
             lines = f.readlines()
-            if '****ORCA TERMINATED NORMALLY****' not in lines[-2]:
+            if "****ORCA TERMINATED NORMALLY****" not in lines[-2]:
                 raise OrcaOptimizerError(
-                    'Orca job did not terminate normally.'
+                    "Orca job did not terminate normally."
                 )
 
-        tmp_files = glob.glob(f'{self._basename}*tmp')
+        tmp_files = glob.glob(f"{self._basename}*tmp")
         if len(tmp_files) > 0:
             raise OrcaOptimizerError(
-                'tmp files exist, suggesting the job did not complete '
-                'or did not converge.'
+                "tmp files exist, suggesting the job did not complete "
+                "or did not converge."
             )
 
     def _clean_up(self):
-        for to_del in glob.glob(f'{self._basename}*'):
+        for to_del in glob.glob(f"{self._basename}*"):
             os.remove(to_del)
 
     def _run_orca(
@@ -261,13 +260,13 @@ class OrcaEnergy(Calculator):
 
         """
 
-        cmd = f'{self._orca_path} {input_file}'
+        cmd = f"{self._orca_path} {input_file}"
 
         try:
             os.chdir(output_dir)
             self._write_input_file(input_file, xyz_file)
             if not self._write_input_only:
-                with open(out_file, 'w') as f:
+                with open(out_file, "w") as f:
                     # Note that sp.call will hold the program until
                     # completion of the calculation.
                     sp.call(
@@ -276,7 +275,7 @@ class OrcaEnergy(Calculator):
                         stdout=f,
                         stderr=sp.PIPE,
                         # Shell is required to run complex arguments.
-                        shell=True
+                        shell=True,
                     )
                 self._check_outcome(out_file)
                 if self._discard_output:
@@ -296,9 +295,9 @@ class OrcaEnergy(Calculator):
         os.mkdir(output_dir)
 
         init_dir = os.getcwd()
-        xyz_file = os.path.join(output_dir, 'input_structure.xyz')
-        input_file = os.path.join(output_dir, 'orca_input.inp')
-        out_file = os.path.join(output_dir, 'orca_energy.output')
+        xyz_file = os.path.join(output_dir, "input_structure.xyz")
+        input_file = os.path.join(output_dir, "orca_input.inp")
+        out_file = os.path.join(output_dir, "orca_energy.output")
         mol.write(xyz_file)
         yield self._run_orca(
             xyz_file=xyz_file,
@@ -330,7 +329,7 @@ class OrcaEnergy(Calculator):
             output_dir = self._output_dir
         output_dir = os.path.abspath(output_dir)
 
-        out_file = os.path.join(output_dir, 'orca_energy.output')
+        out_file = os.path.join(output_dir, "orca_energy.output")
 
         if self._write_input_only:
             next(self.calculate(mol))

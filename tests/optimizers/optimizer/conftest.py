@@ -1,11 +1,11 @@
-import pytest
 import numpy as np
-import stko
+import pytest
 import stk
+import stko
 
 
 def a_molecule():
-    return stk.BuildingBlock(smiles='CC')
+    return stk.BuildingBlock(smiles="CC")
 
 
 @pytest.fixture
@@ -14,13 +14,11 @@ def unoptimized_mol():
 
 
 class PassingOptimizer(stko.Optimizer):
-
     def optimize(self, mol):
         return a_molecule().with_centroid(np.array(([1, 3, 3])))
 
 
 class FailingOptimizer(stko.Optimizer):
-
     def optimize(self, mol):
         raise Exception()
 

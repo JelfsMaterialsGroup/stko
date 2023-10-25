@@ -9,6 +9,7 @@ Class to extract properties from Orca output.
 """
 
 import re
+
 from .extractor import Extractor
 
 
@@ -44,12 +45,11 @@ class OrcaExtractor(Extractor):
         """
 
         for i, line in enumerate(self.output_lines):
-            if self._check_line(line, 'total_energy'):
+            if self._check_line(line, "total_energy"):
                 self._extract_total_energy(line)
 
     def _properties_dict(self):
-
-        return {'total_energy': 'FINAL SINGLE POINT ENERGY'}
+        return {"total_energy": "FINAL SINGLE POINT ENERGY"}
 
     def _extract_total_energy(self, line):
         """

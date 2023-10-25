@@ -6,18 +6,20 @@ Performs optimizations using MacroModel
 
 """
 
+import gzip
+import logging
 import os
+import re
 import subprocess as sp
 import time
-import rdkit.Chem.AllChem as rdkit
-import re
 from uuid import uuid4
-import logging
-import gzip
+
+import rdkit.Chem.AllChem as rdkit
+
 from ..utilities import (
     MAEExtractor,
+    mol_from_mae_file,
     move_generated_macromodel_files,
-    mol_from_mae_file
 )
 from .optimizers import Optimizer
 
@@ -162,12 +164,12 @@ class MacroModel(Optimizer):
         # ``subprocess.Popen``. The command is the full path of the
         # ``bmin`` program. ``bmin`` is located in the Schrodinger
         # installation folder.
-        log_file = f'{run_name}.log'
-        opt_app = os.path.join(self._macromodel_path, 'bmin')
+        log_file = f"{run_name}.log"
+        opt_app = os.path.join(self._macromodel_path, "bmin")
         # The first member of the list is the command, the following
         # ones are any additional arguments.
 
-        opt_cmd = [opt_app, run_name, '-WAIT', '-LOCAL']
+        opt_cmd = [opt_app, run_name, "-WAIT", "-LOCAL"]
 
         incomplete = True
         while incomplete:
@@ -175,62 +177,60 @@ class MacroModel(Optimizer):
                 opt_cmd,
                 stdout=sp.PIPE,
                 stderr=sp.STDOUT,
-                universal_newlines=True
+                universal_newlines=True,
             )
             try:
                 output, _ = process.communicate(timeout=self._timeout)
 
             except sp.TimeoutExpired:
                 logger.warning(
-                    'Minimization took too long and was terminated '
+                    "Minimization took too long and was terminated "
                     f'by force on "{mol}".'
                 )
                 self._kill_bmin(mol)
-                output = ''
+                output = ""
 
-            logger.debug(
-                f'Output of bmin on "{mol}" was: {output}.'
-            )
+            logger.debug(f'Output of bmin on "{mol}" was: {output}.')
 
-            with open(log_file, 'r') as log:
+            with open(log_file, "r") as log:
                 log_content = log.read()
 
             # Check the log for error reports.
-            error1 = 'termination due to error condition           21-'
+            error1 = "termination due to error condition           21-"
             if error1 in log_content:
                 raise MacroModelOptimizationError(
-                    'bmin crashed. See log file.'
+                    "bmin crashed. See log file."
                 )
 
-            error2 = 'FATAL do_nosort_typing: NO MATCH found for atom '
+            error2 = "FATAL do_nosort_typing: NO MATCH found for atom "
             if error2 in log_content:
                 raise MacroModelForceFieldError(
-                    'The log implies the force field failed.'
+                    "The log implies the force field failed."
                 )
 
             error3 = (
-                'FATAL gen_lewis_structure(): '
-                'could not find best Lewis structure'
+                "FATAL gen_lewis_structure(): "
+                "could not find best Lewis structure"
             )
             error4 = (
-                'skipping input structure  '
-                'due to forcefield interaction errors'
+                "skipping input structure  "
+                "due to forcefield interaction errors"
             )
             if error3 in log_content and error4 in log_content:
                 raise MacroModelLewisStructureError(
-                    'bmin failed due to poor Lewis structure.'
+                    "bmin failed due to poor Lewis structure."
                 )
 
-            if 'MDYN error encountered' in log_content:
+            if "MDYN error encountered" in log_content:
                 raise MacroModelOptimizationError(
-                    'MD error during optimization.'
+                    "MD error during optimization."
                 )
 
             # If optimization fails because a wrong Schrodinger path
             # was given, raise.
-            if 'The system cannot find the path specified' in output:
+            if "The system cannot find the path specified" in output:
                 raise MacroModelPathError(
-                    'Invalid Schrodinger path given to bmin.'
+                    "Invalid Schrodinger path given to bmin."
                 )
 
             # If optimization fails because the license is not found,
@@ -240,16 +240,15 @@ class MacroModel(Optimizer):
 
         # Make sure the .maegz file created by the optimization is
         # present.
-        maegz = f'{run_name}-out.maegz'
+        maegz = f"{run_name}-out.maegz"
         self._wait_for_file(maegz)
         if (
-            not os.path.exists(log_file) or
-            not os.path.exists(maegz) or
-            log_content == ''
+            not os.path.exists(log_file)
+            or not os.path.exists(maegz)
+            or log_content == ""
         ):
             raise MacroModelOptimizationError(
-                'The .log and/or .maegz files were not created'
-                ' correctly.'
+                "The .log and/or .maegz files were not created" " correctly."
             )
 
     def _kill_bmin(self, mol, run_name):
@@ -271,17 +270,14 @@ class MacroModel(Optimizer):
 
         """
 
-        name = re.split(r'\\|/', run_name)[-1]
-        app = os.path.join(self._macromodel_path, 'jobcontrol')
-        cmd = [app, '-stop', name]
+        name = re.split(r"\\|/", run_name)[-1]
+        app = os.path.join(self._macromodel_path, "jobcontrol")
+        cmd = [app, "-stop", name]
 
         incomplete = True
         while incomplete:
             out = sp.run(
-                cmd,
-                stdout=sp.PIPE,
-                stderr=sp.STDOUT,
-                universal_newlines=True
+                cmd, stdout=sp.PIPE, stderr=sp.STDOUT, universal_newlines=True
             )
 
             # Keep re-running the function until license is found.
@@ -293,15 +289,12 @@ class MacroModel(Optimizer):
         # been written by the time the function exits. Essentially the
         # loop continues until the job is no longer found by
         # "./jobcontrol -list"
-        cmd = [app, '-list']
+        cmd = [app, "-list"]
         output = name
         start = time.time()
         while name in output:
             output = sp.run(
-                cmd,
-                stdout=sp.PIPE,
-                stderr=sp.STDOUT,
-                universal_newlines=True
+                cmd, stdout=sp.PIPE, stderr=sp.STDOUT, universal_newlines=True
             ).stdout
             if time.time() - start > 600:
                 break
@@ -338,7 +331,7 @@ class MacroModel(Optimizer):
 
         """
 
-        if 'Could not check out a license for mmlibs' in output:
+        if "Could not check out a license for mmlibs" in output:
             return False
         if mol is None:
             return True
@@ -348,22 +341,20 @@ class MacroModel(Optimizer):
 
         # Check if the file exists first. If not, this is often means
         # the calculation must be redone so return False anyway.
-        with open(f'{run_name}.log', 'r') as log_file:
+        with open(f"{run_name}.log", "r") as log_file:
             log_file = log_file.read()
 
-        if 'Could not check out a license for mmlibs' in log_file:
+        if "Could not check out a license for mmlibs" in log_file:
             return False
 
         return True
 
     @staticmethod
-    def _get_com_line(
-        arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9
-    ):
+    def _get_com_line(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9):
         return (
-            f' {arg1:<5}{arg2:>7}{arg3:>7}'
-            f'{arg4:>7}{arg5:>7}{arg6:>11.4f}'
-            f'{arg7:>11.4f}{arg8:>11.4f}{arg9:>11.4f}'
+            f" {arg1:<5}{arg2:>7}{arg3:>7}"
+            f"{arg4:>7}{arg5:>7}{arg6:>11.4f}"
+            f"{arg7:>11.4f}{arg8:>11.4f}{arg9:>11.4f}"
         )
 
     def _run_structconvert(self, input_path, output_path):
@@ -385,34 +376,33 @@ class MacroModel(Optimizer):
         """
 
         convrt_app = os.path.join(
-            self._macromodel_path, 'utilities', 'structconvert'
+            self._macromodel_path, "utilities", "structconvert"
         )
         convrt_cmd = [convrt_app, input_path, output_path]
 
         incomplete = True
         while incomplete:
-
             # Execute the file conversion.
             try:
                 convrt_return = sp.run(
                     convrt_cmd,
                     stdout=sp.PIPE,
                     stderr=sp.STDOUT,
-                    universal_newlines=True
+                    universal_newlines=True,
                 )
 
             # If conversion fails because a wrong Schrodinger path was
             # given, raise.
             except FileNotFoundError:
                 raise MacroModelPathError(
-                    'Wrong Schrodinger path supplied to structconvert.'
+                    "Wrong Schrodinger path supplied to structconvert."
                 )
 
-            if 'File does not exist' in convrt_return.stdout:
+            if "File does not exist" in convrt_return.stdout:
                 raise MacroModelConversionError(
-                    f'structconvert input file, {input_path}, '
-                    f'missing. Console output was '
-                    f'{convrt_return.stdout}'
+                    f"structconvert input file, {input_path}, "
+                    f"missing. Console output was "
+                    f"{convrt_return.stdout}"
                 )
 
             # Keep re-running the function until license is found.
@@ -421,14 +411,14 @@ class MacroModel(Optimizer):
                 incomplete = False
 
         # If force field failed, raise.
-        if 'number 1' in convrt_return.stdout:
+        if "number 1" in convrt_return.stdout:
             raise MacroModelForceFieldError(convrt_return.stdout)
 
         self._wait_for_file(output_path)
         if not os.path.exists(output_path):
             raise MacroModelConversionError(
-                f'Conversion output file {output_path} was not found.'
-                f' Console output was {convrt_return.stdout}.'
+                f"Conversion output file {output_path} was not found."
+                f" Console output was {convrt_return.stdout}."
             )
 
         return convrt_return
@@ -479,8 +469,8 @@ class MacroModel(Optimizer):
 
         """
 
-        gz_file = gzip.open(f'{run_name}-out.maegz')
-        with open(f'{run_name}.mae', 'wb') as f:
+        gz_file = gzip.open(f"{run_name}-out.maegz")
+        with open(f"{run_name}.mae", "wb") as f:
             f.write(gz_file.read())
         gz_file.close()
 
@@ -513,7 +503,7 @@ class MacroModel(Optimizer):
 
         """
 
-        fix_block = ''
+        fix_block = ""
         # Add lines that fix the bond distance.
         fix_block = self._fix_distances(mol, fix_block)
         # Add lines that fix the bond angles.
@@ -522,8 +512,7 @@ class MacroModel(Optimizer):
         fix_block = self._fix_torsional_angles(mol, fix_block)
 
         return com.replace(
-            '!!!BLOCK_OF_FIXED_PARAMETERS_COMES_HERE!!!\n',
-            fix_block
+            "!!!BLOCK_OF_FIXED_PARAMETERS_COMES_HERE!!!\n", fix_block
         )
 
 
@@ -648,7 +637,7 @@ class MacroModelForceField(MacroModel):
         """
         self._check_params(
             minimum_gradient=minimum_gradient,
-            maximum_iterations=maximum_iterations
+            maximum_iterations=maximum_iterations,
         )
         self._restricted = restricted
         super().__init__(
@@ -689,12 +678,12 @@ class MacroModelForceField(MacroModel):
 
         if minimum_gradient < 0.0001:
             raise MacroModelInputError(
-                'Convergence gradient (< 0.0001) is too small.'
+                "Convergence gradient (< 0.0001) is too small."
             )
 
         if maximum_iterations > 999999:
             raise MacroModelInputError(
-                'Number of iterations (> 999999) is too high.'
+                "Number of iterations (> 999999) is too high."
             )
 
     def _generate_com(self, mol, run_name):
@@ -730,28 +719,29 @@ class MacroModelForceField(MacroModel):
         # This is the body of the ``.com`` file. The line that begins
         # and ends with exclamation lines is replaced with the various
         # commands that fix bond distances and angles.
-        line1 = ('FFLD', self._force_field, 1, 0, 0, 1, 0, 0, 0)
-        line2 = ('BGIN', 0, 0, 0, 0, 0, 0, 0, 0)
-        line3 = ('READ', 0, 0, 0, 0, 0, 0, 0, 0)
-        line4 = ('CONV', 2, 0, 0, 0, self._minimum_gradient, 0, 0, 0)
-        line5 = ('MINI', 1, 0, self._maximum_iterations, 0, 0, 0, 0, 0)
-        line6 = ('END', 0, 1, 0, 0, 0, 0, 0, 0)
+        line1 = ("FFLD", self._force_field, 1, 0, 0, 1, 0, 0, 0)
+        line2 = ("BGIN", 0, 0, 0, 0, 0, 0, 0, 0)
+        line3 = ("READ", 0, 0, 0, 0, 0, 0, 0, 0)
+        line4 = ("CONV", 2, 0, 0, 0, self._minimum_gradient, 0, 0, 0)
+        line5 = ("MINI", 1, 0, self._maximum_iterations, 0, 0, 0, 0, 0)
+        line6 = ("END", 0, 1, 0, 0, 0, 0, 0, 0)
 
-        com_block = "\n".join([
-            self._get_com_line(*line1),
-            self._get_com_line(*line2),
-            self._get_com_line(*line3),
-            '!!!BLOCK_OF_FIXED_PARAMETERS_COMES_HERE!!!',
-            self._get_com_line(*line4),
-            self._get_com_line(*line5),
-            self._get_com_line(*line6)
-        ])
+        com_block = "\n".join(
+            [
+                self._get_com_line(*line1),
+                self._get_com_line(*line2),
+                self._get_com_line(*line3),
+                "!!!BLOCK_OF_FIXED_PARAMETERS_COMES_HERE!!!",
+                self._get_com_line(*line4),
+                self._get_com_line(*line5),
+                self._get_com_line(*line6),
+            ]
+        )
 
         # If `restricted` is ``False`` do not add a fix block.
         if not self._restricted:
             com_block = com_block.replace(
-                "!!!BLOCK_OF_FIXED_PARAMETERS_COMES_HERE!!!\n",
-                ''
+                "!!!BLOCK_OF_FIXED_PARAMETERS_COMES_HERE!!!\n", ""
             )
         else:
             # This function adds all the lines which fix bond distances
@@ -759,13 +749,13 @@ class MacroModelForceField(MacroModel):
             com_block = self._fix_params(mol, com_block)
 
         # Writes the .com file.
-        with open(f'{run_name}.com', 'w') as com:
+        with open(f"{run_name}.com", "w") as com:
             # The first line holds the .mae file containing the
             # molecule to be optimized.
-            com.write(f'{run_name}.mae\n')
+            com.write(f"{run_name}.mae\n")
             # The second line holds the name of the output file of the
             # optimization.
-            com.write(f'{run_name}-out.maegz\n')
+            com.write(f"{run_name}-out.maegz\n")
             # Next is the body of the .com file.
             com.write(com_block)
 
@@ -791,8 +781,8 @@ class MacroModelForceField(MacroModel):
         else:
             output_dir = self._output_dir
 
-        mol_path = f'{run_name}.mol'
-        mae_path = f'{run_name}.mae'
+        mol_path = f"{run_name}.mol"
+        mae_path = f"{run_name}.mae"
         # First write a .mol file of the molecule.
         mol.write(mol_path)
         # MacroModel requires a ``.mae`` file as input.
@@ -839,7 +829,7 @@ class MacroModelForceField(MacroModel):
             if bond_info.get_building_block() is None
             for atom_id in (
                 bond_info.get_bond().get_atom1().get_id(),
-                bond_info.get_bond().get_atom2().get_id()
+                bond_info.get_bond().get_atom2().get_id(),
             )
         )
 
@@ -854,8 +844,7 @@ class MacroModelForceField(MacroModel):
         for bond in mol.get_bonds():
             if (
                 bond.get_atom1().get_id() in bonder_ids
-                and
-                bond.get_atom2().get_id() in bonder_ids
+                and bond.get_atom2().get_id() in bonder_ids
             ):
                 continue
 
@@ -865,9 +854,9 @@ class MacroModelForceField(MacroModel):
             # file.
             atom1_id += 1
             atom2_id += 1
-            args = ('FXDI', atom1_id, atom2_id, 0, 0, 99999, 0, 0, 0)
+            args = ("FXDI", atom1_id, atom2_id, 0, 0, 99999, 0, 0, 0)
             fix_block += self._get_com_line(*args)
-            fix_block += '\n'
+            fix_block += "\n"
 
         return fix_block
 
@@ -893,16 +882,13 @@ class MacroModelForceField(MacroModel):
         """
 
         paths = rdkit.FindAllPathsOfLengthN(
-            mol=mol.to_rdkit_mol(),
-            length=3,
-            useBonds=False,
-            useHs=True
+            mol=mol.to_rdkit_mol(), length=3, useBonds=False, useHs=True
         )
         for atom_ids in paths:
-            atom_ids = [i+1 for i in atom_ids]
-            args = ('FXBA', *atom_ids, 99999, 0, 0, 0, 0)
+            atom_ids = [i + 1 for i in atom_ids]
+            args = ("FXBA", *atom_ids, 99999, 0, 0, 0, 0)
             fix_block += self._get_com_line(*args)
-            fix_block += '\n'
+            fix_block += "\n"
 
         return fix_block
 
@@ -928,16 +914,13 @@ class MacroModelForceField(MacroModel):
         """
 
         paths = rdkit.FindAllPathsOfLengthN(
-            mol=mol.to_rdkit_mol(),
-            length=4,
-            useBonds=False,
-            useHs=True
+            mol=mol.to_rdkit_mol(), length=4, useBonds=False, useHs=True
         )
         for atom_ids in paths:
-            atom_ids = [i+1 for i in atom_ids]
-            args = ('FXTA', *atom_ids, 99999, 361, 0, 0)
+            atom_ids = [i + 1 for i in atom_ids]
+            args = ("FXTA", *atom_ids, 99999, 361, 0, 0)
             fix_block += self._get_com_line(*args)
-            fix_block += '\n'
+            fix_block += "\n"
 
         return fix_block
 
@@ -1094,7 +1077,7 @@ class MacroModelMD(MacroModel):
             time_step=time_step,
             eq_time=eq_time,
             minimum_gradient=minimum_gradient,
-            maximum_iterations=maximum_iterations
+            maximum_iterations=maximum_iterations,
         )
 
         self._temperature = temperature
@@ -1108,13 +1091,13 @@ class MacroModelMD(MacroModel):
 
         # Negative simulation time is interpreted as times 100 ps.
         if simulation_time > 99999.99:
-            self._sim_time = -simulation_time/100
+            self._sim_time = -simulation_time / 100
         else:
             self._sim_time = simulation_time
 
         # Negative equilibration time is interpreted as times 100 ps.
         if eq_time > 99999.99:
-            self._eq_time = -eq_time/100
+            self._eq_time = -eq_time / 100
         else:
             self._eq_time = eq_time
 
@@ -1135,7 +1118,7 @@ class MacroModelMD(MacroModel):
         time_step,
         eq_time,
         minimum_gradient,
-        maximum_iterations
+        maximum_iterations,
     ):
         """
         Check if the optimization parameters are valid for MacroModel.
@@ -1184,37 +1167,37 @@ class MacroModelMD(MacroModel):
 
         if temperature > 99999.99:
             raise MacroModelInputError(
-                'Supplied temperature (> 99999 K) is too high.'
+                "Supplied temperature (> 99999 K) is too high."
             )
 
         if conformers > 9999:
             raise MacroModelInputError(
-                'Supplied number of conformers (> 9999) is too high.'
+                "Supplied number of conformers (> 9999) is too high."
             )
 
         if simulation_time > 999999.99:
             raise MacroModelInputError(
-                'Supplied simulation time (> 999999 ps) is too long.'
+                "Supplied simulation time (> 999999 ps) is too long."
             )
 
         if time_step > 99999.99:
             raise MacroModelInputError(
-                'Supplied time step (> 99999 fs) is too high.'
+                "Supplied time step (> 99999 fs) is too high."
             )
 
         if eq_time > 999999.99:
             raise MacroModelInputError(
-                'Supplied eq time (> 999999 ps) is too long.'
+                "Supplied eq time (> 999999 ps) is too long."
             )
 
         if minimum_gradient < 0.0001:
             raise MacroModelInputError(
-                'Convergence gradient (< 0.0001) is too small.'
+                "Convergence gradient (< 0.0001) is too small."
             )
 
         if maximum_iterations > 999999:
             raise MacroModelInputError(
-                'Number of iterations (> 999999) is too high.'
+                "Number of iterations (> 999999) is too high."
             )
 
     def _generate_com(self, mol, run_name):
@@ -1249,49 +1232,58 @@ class MacroModelMD(MacroModel):
         tstep = self._time_step
         eq_time = self._eq_time
 
-        line1 = ('FFLD', self._force_field, 1, 0, 0, 1, 0, 0, 0)
-        line2 = ('READ', 0, 0, 0, 0, 0, 0, 0, 0)
-        line3 = ('MDIT', 0, 0, 0, 0, temp, 0, 0, 0)
-        line4 = ('MDYN', 0, 0, 0, 0, tstep, eq_time, temp, 0)
-        line5 = ('MDSA', self._conformers, 0, 0, 0, 0, 0, 1, 0)
-        line6 = ('MDYN', 1, 0, 0, 0, tstep, sim_time, temp, 0)
-        line7 = ('WRIT', 0, 0, 0, 0, 0, 0, 0, 0)
-        line8 = ('RWND', 0, 1, 0, 0, 0, 0, 0, 0)
-        line9 = ('BGIN', 0, 0, 0, 0, 0, 0, 0, 0)
-        line10 = ('READ', -2, 0, 0, 0, 0, 0, 0, 0)
-        line11 = ('CONV', 2, 0, 0, 0, self._minimum_gradient, 0, 0, 0)
+        line1 = ("FFLD", self._force_field, 1, 0, 0, 1, 0, 0, 0)
+        line2 = ("READ", 0, 0, 0, 0, 0, 0, 0, 0)
+        line3 = ("MDIT", 0, 0, 0, 0, temp, 0, 0, 0)
+        line4 = ("MDYN", 0, 0, 0, 0, tstep, eq_time, temp, 0)
+        line5 = ("MDSA", self._conformers, 0, 0, 0, 0, 0, 1, 0)
+        line6 = ("MDYN", 1, 0, 0, 0, tstep, sim_time, temp, 0)
+        line7 = ("WRIT", 0, 0, 0, 0, 0, 0, 0, 0)
+        line8 = ("RWND", 0, 1, 0, 0, 0, 0, 0, 0)
+        line9 = ("BGIN", 0, 0, 0, 0, 0, 0, 0, 0)
+        line10 = ("READ", -2, 0, 0, 0, 0, 0, 0, 0)
+        line11 = ("CONV", 2, 0, 0, 0, self._minimum_gradient, 0, 0, 0)
         line12 = (
-            'MINI', 1, 0, self._maximum_iterations,
-            0, 0, 0, 0, 0,
+            "MINI",
+            1,
+            0,
+            self._maximum_iterations,
+            0,
+            0,
+            0,
+            0,
+            0,
         )
-        line13 = ('END', 0, 1, 0, 0, 0, 0, 0, 0)
+        line13 = ("END", 0, 1, 0, 0, 0, 0, 0, 0)
 
-        com_block = "\n".join([
-            self._get_com_line(*line1),
-            self._get_com_line(*line2),
-            '!!!BLOCK_OF_FIXED_PARAMETERS_COMES_HERE!!!',
-            self._get_com_line(*line3),
-            self._get_com_line(*line4),
-            self._get_com_line(*line5),
-            self._get_com_line(*line6),
-            self._get_com_line(*line7),
-            self._get_com_line(*line8),
-            self._get_com_line(*line9),
-            self._get_com_line(*line10),
-            '!!!BLOCK_OF_FIXED_PARAMETERS_COMES_HERE!!!',
-            self._get_com_line(*line11),
-            self._get_com_line(*line12),
-            self._get_com_line(*line13),
-        ])
+        com_block = "\n".join(
+            [
+                self._get_com_line(*line1),
+                self._get_com_line(*line2),
+                "!!!BLOCK_OF_FIXED_PARAMETERS_COMES_HERE!!!",
+                self._get_com_line(*line3),
+                self._get_com_line(*line4),
+                self._get_com_line(*line5),
+                self._get_com_line(*line6),
+                self._get_com_line(*line7),
+                self._get_com_line(*line8),
+                self._get_com_line(*line9),
+                self._get_com_line(*line10),
+                "!!!BLOCK_OF_FIXED_PARAMETERS_COMES_HERE!!!",
+                self._get_com_line(*line11),
+                self._get_com_line(*line12),
+                self._get_com_line(*line13),
+            ]
+        )
 
         com_block = self._fix_params(mol, com_block)
 
         # Generate the com file containing the info for the run
-        with open(f'{run_name}.com', 'w') as com:
+        with open(f"{run_name}.com", "w") as com:
             # name of the macromodel file
-            com.write(f'{run_name}.mae\n')
+            com.write(f"{run_name}.mae\n")
             # name of the output file
-            com.write(f'{run_name}-out.maegz\n')
+            com.write(f"{run_name}-out.maegz\n")
             # details of the macromodel run
             com.write(com_block)
 
@@ -1317,12 +1309,12 @@ class MacroModelMD(MacroModel):
         else:
             output_dir = self._output_dir
 
-        mol_path = f'{run_name}.mol'
+        mol_path = f"{run_name}.mol"
 
         # First write a .mol file of the molecule.
         mol.write(mol_path)
         # MacroModel requires a ``.mae`` file as input.
-        self._run_structconvert(mol_path, f'{run_name}.mae')
+        self._run_structconvert(mol_path, f"{run_name}.mae")
         # Generate the ``.com`` file for the MacroModel MD run.
         self._generate_com(mol, run_name)
         # Run the optimization.
@@ -1363,23 +1355,20 @@ class MacroModelMD(MacroModel):
         # be fixed.
         for bond in mol.get_bonds():
             bond_key = frozenset(
-                (
-                    bond.get_atom1().get_id(),
-                    bond.get_atom2().get_id()
-                )
+                (bond.get_atom1().get_id(), bond.get_atom2().get_id())
             )
             atom1_id = bond.get_atom1().get_id()
             atom2_id = bond.get_atom2().get_id()
-            if (bond_key not in self._restricted_bonds):
+            if bond_key not in self._restricted_bonds:
                 continue
 
             # Make sure that the indices are increased by 1 in the .mae
             # file.
             atom1_id += 1
             atom2_id += 1
-            args = ('FXDI', atom1_id, atom2_id, 0, 0, 99999, 0, 0, 0)
+            args = ("FXDI", atom1_id, atom2_id, 0, 0, 99999, 0, 0, 0)
             fix_block += self._get_com_line(*args)
-            fix_block += '\n'
+            fix_block += "\n"
 
         return fix_block
 
@@ -1403,17 +1392,14 @@ class MacroModelMD(MacroModel):
         """
 
         paths = rdkit.FindAllPathsOfLengthN(
-            mol=mol.to_rdkit_mol(),
-            length=3,
-            useBonds=False,
-            useHs=True
+            mol=mol.to_rdkit_mol(), length=3, useBonds=False, useHs=True
         )
         for atom_ids in paths:
             if frozenset(atom_ids) in self._restricted_bond_angles:
-                atom_ids = [i+1 for i in atom_ids]
-                args = ('FXBA', *atom_ids, 99999, 0, 0, 0, 0)
+                atom_ids = [i + 1 for i in atom_ids]
+                args = ("FXBA", *atom_ids, 99999, 0, 0, 0, 0)
                 fix_block += self._get_com_line(*args)
-                fix_block += '\n'
+                fix_block += "\n"
 
         return fix_block
 
@@ -1437,19 +1423,14 @@ class MacroModelMD(MacroModel):
         """
 
         paths = rdkit.FindAllPathsOfLengthN(
-            mol=mol.to_rdkit_mol(),
-            length=4,
-            useBonds=False,
-            useHs=True
+            mol=mol.to_rdkit_mol(), length=4, useBonds=False, useHs=True
         )
         # Apply the fix.
         for atom_ids in paths:
-            if frozenset(atom_ids) in (
-                self._restricted_torsional_angles
-            ):
-                atom_ids = [i+1 for i in atom_ids]
-                args = ('FXTA', *atom_ids, 99999, 361, 0, 0)
+            if frozenset(atom_ids) in (self._restricted_torsional_angles):
+                atom_ids = [i + 1 for i in atom_ids]
+                args = ("FXTA", *atom_ids, 99999, 361, 0, 0)
                 fix_block += self._get_com_line(*args)
-                fix_block += '\n'
+                fix_block += "\n"
 
         return fix_block

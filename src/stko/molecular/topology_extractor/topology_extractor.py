@@ -116,7 +116,8 @@ class TopologyExtractor:
 
         for pair in broken_bonds_by_id:
             a1_g, a2_g = (
-                i for i, cg in enumerate(connected_graphs)
+                i
+                for i, cg in enumerate(connected_graphs)
                 if pair[0] in set(atom.get_id() for atom in cg)
                 or pair[1] in set(atom.get_id() for atom in cg)
             )
@@ -124,11 +125,7 @@ class TopologyExtractor:
 
         return TopologyInfo(centroids, connectivities, edge_pairs)
 
-    def get_connected_graphs(
-        self,
-        molecule,
-        atom_ids_to_disconnect
-    ):
+    def get_connected_graphs(self, molecule, atom_ids_to_disconnect):
         graph = Network.init_from_molecule(molecule)
         graph = graph.with_deleted_bonds(atom_ids_to_disconnect)
         connected_graphs = graph.get_connected_components()
@@ -138,4 +135,4 @@ class TopologyExtractor:
         return repr(self)
 
     def __repr__(self):
-        return f'<{self.__class__.__name__} at {id(self)}>'
+        return f"<{self.__class__.__name__} at {id(self)}>"

@@ -2,20 +2,19 @@ import pytest
 import stk
 import stko
 
-
 _macrocycle = stk.ConstructedMolecule(
     topology_graph=stk.macrocycle.Macrocycle(
         building_blocks=(
             stk.BuildingBlock(
-                smiles='BrCCBr',
+                smiles="BrCCBr",
                 functional_groups=[stk.BromoFactory()],
             ),
             stk.BuildingBlock(
-                smiles='BrCNCCBr',
+                smiles="BrCNCCBr",
                 functional_groups=[stk.BromoFactory()],
             ),
         ),
-        repeating_unit='AB',
+        repeating_unit="AB",
         num_repeating_units=2,
     ),
 )
@@ -23,35 +22,33 @@ _macrocycle = stk.ConstructedMolecule(
 _square_planar = stk.ConstructedMolecule(
     topology_graph=stk.metal_complex.SquarePlanar(
         metals=stk.BuildingBlock(
-            smiles='[Pd+2]',
+            smiles="[Pd+2]",
             functional_groups=(
-                stk.SingleAtom(stk.Fe(0, charge=2))
-                for i in range(4)
+                stk.SingleAtom(stk.Fe(0, charge=2)) for i in range(4)
             ),
             position_matrix=[[0, 0, 0]],
         ),
         ligands=stk.BuildingBlock(
-            smiles='NBr',
-            functional_groups=(stk.PrimaryAminoFactory(), ),
+            smiles="NBr",
+            functional_groups=(stk.PrimaryAminoFactory(),),
         ),
         optimizer=stk.MCHammer(),
     )
 )
-uff = stko.OpenBabel('uff')
+uff = stko.OpenBabel("uff")
 _square_planar_uff = uff.optimize(_square_planar)
 _octahedral = stk.ConstructedMolecule(
     topology_graph=stk.metal_complex.Octahedral(
         metals=stk.BuildingBlock(
-            smiles='[Fe+2]',
+            smiles="[Fe+2]",
             functional_groups=(
-                stk.SingleAtom(stk.Fe(0, charge=2))
-                for i in range(6)
+                stk.SingleAtom(stk.Fe(0, charge=2)) for i in range(6)
             ),
             position_matrix=[[0, 0, 0]],
         ),
         ligands=stk.BuildingBlock(
-            smiles='NBr',
-            functional_groups=(stk.PrimaryAminoFactory(), ),
+            smiles="NBr",
+            functional_groups=(stk.PrimaryAminoFactory(),),
         ),
         optimizer=stk.MCHammer(),
     )
@@ -101,10 +98,10 @@ class CaseData:
 
 
 @pytest.fixture(
-    scope='session',
+    scope="session",
     params=[
         CaseData(
-            molecule=stk.BuildingBlock('NCCN'),
+            molecule=stk.BuildingBlock("NCCN"),
             plane_ids=None,
             deviation_ids=None,
             plane_deviation=7.011539016627999,
@@ -113,8 +110,8 @@ class CaseData:
         ),
         CaseData(
             molecule=stk.BuildingBlock(
-                'C(#Cc1cccc2ccncc21)c1ccc2[nH]c3ccc(C#Cc4cccc5cnccc54)'
-                'cc3c2c1'
+                "C(#Cc1cccc2ccncc21)c1ccc2[nH]c3ccc(C#Cc4cccc5cnccc54)"
+                "cc3c2c1"
             ),
             plane_ids=None,
             deviation_ids=None,
@@ -123,7 +120,7 @@ class CaseData:
             planarity_parameter=0.7871978841119759,
         ),
         CaseData(
-            molecule=stk.BuildingBlock('CCCCCC'),
+            molecule=stk.BuildingBlock("CCCCCC"),
             plane_ids=None,
             deviation_ids=None,
             plane_deviation=11.582698264496539,
@@ -131,7 +128,7 @@ class CaseData:
             planarity_parameter=0.7572794957405952,
         ),
         CaseData(
-            molecule=stk.BuildingBlock('c1ccccc1'),
+            molecule=stk.BuildingBlock("c1ccccc1"),
             plane_ids=None,
             deviation_ids=None,
             plane_deviation=0.0,
@@ -143,15 +140,15 @@ class CaseData:
                 topology_graph=stk.polymer.Linear(
                     building_blocks=(
                         stk.BuildingBlock(
-                            smiles='BrCCBr',
+                            smiles="BrCCBr",
                             functional_groups=[stk.BromoFactory()],
                         ),
                         stk.BuildingBlock(
-                            smiles='BrCNCCBr',
+                            smiles="BrCNCCBr",
                             functional_groups=[stk.BromoFactory()],
                         ),
                     ),
-                    repeating_unit='AB',
+                    repeating_unit="AB",
                     num_repeating_units=2,
                 ),
             ),
@@ -172,11 +169,13 @@ class CaseData:
         CaseData(
             molecule=_macrocycle,
             plane_ids=(
-                i.get_id() for i in _macrocycle.get_atoms()
+                i.get_id()
+                for i in _macrocycle.get_atoms()
                 if i.get_atomic_number() == 6
             ),
             deviation_ids=(
-                i.get_id() for i in _macrocycle.get_atoms()
+                i.get_id()
+                for i in _macrocycle.get_atoms()
                 if i.get_atomic_number() == 6
             ),
             plane_deviation=1.7532095738358657,
@@ -186,7 +185,8 @@ class CaseData:
         CaseData(
             molecule=_macrocycle,
             plane_ids=(
-                i.get_id() for i in _macrocycle.get_atoms()
+                i.get_id()
+                for i in _macrocycle.get_atoms()
                 if i.get_atomic_number() == 6
             ),
             deviation_ids=None,
@@ -198,7 +198,8 @@ class CaseData:
             molecule=_macrocycle,
             plane_ids=None,
             deviation_ids=(
-                i.get_id() for i in _macrocycle.get_atoms()
+                i.get_id()
+                for i in _macrocycle.get_atoms()
                 if i.get_atomic_number() == 6
             ),
             plane_deviation=1.8020628003297954,

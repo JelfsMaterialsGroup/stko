@@ -30,17 +30,18 @@ Wrappers for optimizers within the :mod:`rdkit` code.
 """
 
 import logging
-import numpy as np
-import rdkit.Chem.AllChem as rdkit
 from itertools import combinations
 
-from .optimizers import Optimizer
+import numpy as np
+import rdkit.Chem.AllChem as rdkit
+
 from ..utilities import (
     get_metal_atoms,
     get_metal_bonds,
     to_rdkit_mol_without_metals,
     vector_angle,
 )
+from .optimizers import Optimizer
 
 logger = logging.getLogger(__name__)
 
@@ -66,10 +67,7 @@ class MMFF(Optimizer):
     """
 
     def __init__(self, ignore_inter_interactions=True):
-
-        self._ignore_inter_interactions = (
-            ignore_inter_interactions
-        )
+        self._ignore_inter_interactions = ignore_inter_interactions
 
     def optimize(self, mol):
         """
@@ -92,7 +90,7 @@ class MMFF(Optimizer):
         rdkit.SanitizeMol(rdkit_mol)
         rdkit.MMFFOptimizeMolecule(
             rdkit_mol,
-            ignoreInterfragInteractions=self._ignore_inter_interactions
+            ignoreInterfragInteractions=self._ignore_inter_interactions,
         )
         mol = mol.with_position_matrix(
             position_matrix=rdkit_mol.GetConformer().GetPositions()
@@ -122,7 +120,6 @@ class UFF(Optimizer):
     """
 
     def __init__(self, ignore_inter_interactions=True):
-
         self._ignore_inter_interactions = ignore_inter_interactions
 
     def optimize(self, mol):
@@ -146,7 +143,7 @@ class UFF(Optimizer):
         rdkit.SanitizeMol(rdkit_mol)
         rdkit.UFFOptimizeMolecule(
             rdkit_mol,
-            ignoreInterfragInteractions=self._ignore_inter_interactions
+            ignoreInterfragInteractions=self._ignore_inter_interactions,
         )
         mol = mol.with_position_matrix(
             position_matrix=rdkit_mol.GetConformer().GetPositions()
@@ -363,7 +360,7 @@ class MetalOptimizer(Optimizer):
                 relative=False,
                 minLen=self._metal_binder_distance,
                 maxLen=self._metal_binder_distance,
-                forceConstant=self._metal_binder_forceconstant
+                forceConstant=self._metal_binder_forceconstant,
             )
 
         # Also implement angular constraints to all atoms in the
@@ -384,15 +381,9 @@ class MetalOptimizer(Optimizer):
                     idx1 = atom.get_id()
                 elif atom in bond2_atoms:
                     idx3 = atom.get_id()
-            pos1 = [
-                i for i in mol.get_atomic_positions(atom_ids=[idx1])
-            ][0]
-            pos2 = [
-                i for i in mol.get_atomic_positions(atom_ids=[idx2])
-            ][0]
-            pos3 = [
-                i for i in mol.get_atomic_positions(atom_ids=[idx3])
-            ][0]
+            pos1 = [i for i in mol.get_atomic_positions(atom_ids=[idx1])][0]
+            pos2 = [i for i in mol.get_atomic_positions(atom_ids=[idx2])][0]
+            pos3 = [i for i in mol.get_atomic_positions(atom_ids=[idx3])][0]
             v1 = pos1 - pos2
             v2 = pos3 - pos2
             angle = vector_angle(v1, v2)
@@ -403,7 +394,7 @@ class MetalOptimizer(Optimizer):
                 relative=False,
                 minAngleDeg=np.degrees(angle),
                 maxAngleDeg=np.degrees(angle),
-                forceConstant=1.0e5
+                forceConstant=1.0e5,
             )
 
     def optimize(self, mol):
@@ -424,8 +415,7 @@ class MetalOptimizer(Optimizer):
         # Find all metal atoms and atoms they are bonded to.
         metal_atoms = get_metal_atoms(mol)
         metal_bonds, ids_to_metals = get_metal_bonds(
-            mol=mol,
-            metal_atoms=metal_atoms
+            mol=mol, metal_atoms=metal_atoms
         )
 
         # Perform a forcefield optimisation that
@@ -434,9 +424,7 @@ class MetalOptimizer(Optimizer):
 
         # Write rdkit molecule with metal atoms and bonds deleted.
         edit_mol = to_rdkit_mol_without_metals(
-            mol=mol,
-            metal_atoms=metal_atoms,
-            metal_bonds=metal_bonds
+            mol=mol, metal_atoms=metal_atoms, metal_bonds=metal_bonds
         )
 
         # Non-bonded interactions need to be explicitly turned on (if

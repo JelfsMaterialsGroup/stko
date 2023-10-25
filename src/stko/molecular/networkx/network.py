@@ -9,6 +9,7 @@ Class for defining a :mod:`networkx` graph from a molecule.
 """
 
 import logging
+
 import networkx as nx
 
 from ..atoms import PositionedAtom
@@ -48,15 +49,18 @@ class Network:
         # Define edges.
         for bond in molecule.get_bonds():
             n1, n2 = [
-                i for i in g.nodes
-                if i.get_id() in (
+                i
+                for i in g.nodes
+                if i.get_id()
+                in (
                     bond.get_atom1().get_id(),
                     bond.get_atom2().get_id(),
                 )
             ]
 
             g.add_edge(
-                n1, n2,
+                n1,
+                n2,
                 order=bond.get_order(),
                 periodicity=bond.get_periodicity(),
             )
@@ -126,9 +130,7 @@ class Network:
 
         return [
             self._graph.subgraph(c).copy()
-            for c in sorted(
-                nx.connected_components(self._graph)
-            )
+            for c in sorted(nx.connected_components(self._graph))
         ]
 
     def __str__(self):
@@ -136,7 +138,7 @@ class Network:
 
     def __repr__(self):
         return (
-            f'{self.__class__.__name__}('
-            f'n={self._graph.number_of_nodes()}, '
-            f'e={self._graph.number_of_edges()})'
+            f"{self.__class__.__name__}("
+            f"n={self._graph.number_of_nodes()}, "
+            f"e={self._graph.number_of_edges()})"
         )

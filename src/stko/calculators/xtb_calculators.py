@@ -11,12 +11,12 @@ Wrappers for calculators within the :mod:`xtb` code.
 import logging
 import os
 import shutil
-import uuid
 import subprocess as sp
+import uuid
 
+from ..utilities import XTBInvalidSolventError, is_valid_xtb_solvent
 from .calculators import Calculator
 from .results import XTBResults
-from ..utilities import is_valid_xtb_solvent, XTBInvalidSolventError
 
 logger = logging.getLogger(__name__)
 
@@ -161,6 +161,7 @@ class XTBEnergy(Calculator):
     .. [1] https://xtb-docs.readthedocs.io/en/latest/setup.html
 
     """
+
     def __init__(
         self,
         xtb_path,
@@ -170,9 +171,9 @@ class XTBEnergy(Calculator):
         calculate_free_energy=False,
         calculate_ip_and_ea=False,
         electronic_temperature=300,
-        solvent_model='gbsa',
+        solvent_model="gbsa",
         solvent=None,
-        solvent_grid='normal',
+        solvent_grid="normal",
         charge=0,
         num_unpaired_electrons=0,
         unlimited_memory=False,
@@ -249,8 +250,7 @@ class XTBEnergy(Calculator):
             solvent = solvent.lower()
             if gfn_version == 0:
                 raise XTBInvalidSolventError(
-                    'No solvent valid for version',
-                    f' {gfn_version!r}.'
+                    "No solvent valid for version", f" {gfn_version!r}."
                 )
             if not is_valid_xtb_solvent(
                 gfn_version=gfn_version,
@@ -258,8 +258,8 @@ class XTBEnergy(Calculator):
                 solvent=solvent,
             ):
                 raise XTBInvalidSolventError(
-                    f'Solvent {solvent!r} and model {solvent_model!r}',
-                    f' is invalid for version {gfn_version!r}.'
+                    f"Solvent {solvent!r} and model {solvent_model!r}",
+                    f" is invalid for version {gfn_version!r}.",
                 )
 
         self._xtb_path = xtb_path
@@ -277,9 +277,9 @@ class XTBEnergy(Calculator):
         self._unlimited_memory = unlimited_memory
 
     def _write_detailed_control(self):
-        string = f'$gbsa\n   gbsagrid={self._solvent_grid}'
+        string = f"$gbsa\n   gbsagrid={self._solvent_grid}"
 
-        with open('det_control.in', 'w') as f:
+        with open("det_control.in", "w") as f:
             f.write(string)
 
     def _run_xtb(self, xyz, out_file, init_dir, output_dir):
@@ -309,38 +309,38 @@ class XTBEnergy(Calculator):
 
         # Modify the memory limit.
         if self._unlimited_memory:
-            memory = 'ulimit -s unlimited ;'
+            memory = "ulimit -s unlimited ;"
         else:
-            memory = ''
+            memory = ""
 
         if self._solvent is not None:
-            solvent = f'--{self._solvent_model} {self._solvent} '
+            solvent = f"--{self._solvent_model} {self._solvent} "
         else:
-            solvent = ''
+            solvent = ""
 
         if self._calculate_free_energy:
-            hess = '--hess'
+            hess = "--hess"
         else:
-            hess = ''
+            hess = ""
 
         if self._calculate_ip_and_ea:
-            vipea = '--vipea'
+            vipea = "--vipea"
         else:
-            vipea = ''
+            vipea = ""
 
         cmd = (
-            f'{memory} {self._xtb_path} '
-            f'{xyz} --gfn {self._gfn_version} '
-            f'{hess} {vipea} --parallel {self._num_cores} '
-            f'--etemp {self._electronic_temperature} '
-            f'{solvent} --chrg {self._charge} '
-            f'--uhf {self._num_unpaired_electrons} -I det_control.in'
+            f"{memory} {self._xtb_path} "
+            f"{xyz} --gfn {self._gfn_version} "
+            f"{hess} {vipea} --parallel {self._num_cores} "
+            f"--etemp {self._electronic_temperature} "
+            f"{solvent} --chrg {self._charge} "
+            f"--uhf {self._num_unpaired_electrons} -I det_control.in"
         )
 
         try:
             os.chdir(output_dir)
             self._write_detailed_control()
-            with open(out_file, 'w') as f:
+            with open(out_file, "w") as f:
                 # Note that sp.call will hold the program until
                 # completion of the calculation.
                 sp.call(
@@ -349,7 +349,7 @@ class XTBEnergy(Calculator):
                     stdout=f,
                     stderr=sp.PIPE,
                     # Shell is required to run complex arguments.
-                    shell=True
+                    shell=True,
                 )
         finally:
             os.chdir(init_dir)
@@ -366,8 +366,8 @@ class XTBEnergy(Calculator):
         os.mkdir(output_dir)
 
         init_dir = os.getcwd()
-        xyz = os.path.join(output_dir, 'input_structure.xyz')
-        out_file = os.path.join(output_dir, 'energy.output')
+        xyz = os.path.join(output_dir, "input_structure.xyz")
+        out_file = os.path.join(output_dir, "energy.output")
         mol.write(xyz)
         yield self._run_xtb(
             xyz=xyz,
@@ -398,7 +398,7 @@ class XTBEnergy(Calculator):
             output_dir = self._output_dir
         output_dir = os.path.abspath(output_dir)
 
-        out_file = os.path.join(output_dir, 'energy.output')
+        out_file = os.path.join(output_dir, "energy.output")
 
         return XTBResults(
             generator=self.calculate(mol),

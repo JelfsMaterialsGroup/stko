@@ -43,12 +43,14 @@ class Torsion:
         self._atom4 = atom4
 
     def get_atoms(self):
-        return tuple((
-            self._atom1,
-            self._atom2,
-            self._atom3,
-            self._atom4,
-        ))
+        return tuple(
+            (
+                self._atom1,
+                self._atom2,
+                self._atom3,
+                self._atom4,
+            )
+        )
 
     def get_atom_ids(self):
         return tuple(atom.get_id() for atom in self.get_atoms())
@@ -58,8 +60,8 @@ class Torsion:
 
     def __str__(self):
         return (
-            f'{self.__class__.__name__}({self._atom1}, '
-            f'{self._atom2}, {self._atom3}, {self._atom4})'
+            f"{self.__class__.__name__}({self._atom1}, "
+            f"{self._atom2}, {self._atom3}, {self._atom4})"
         )
 
     def __repr__(self):

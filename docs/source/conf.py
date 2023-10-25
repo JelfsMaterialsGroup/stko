@@ -15,6 +15,7 @@
 # shown here.
 
 import sys
+
 # For mocking external dependencies when building.
 from unittest.mock import MagicMock
 
@@ -26,38 +27,37 @@ class Mock(MagicMock):
 
 
 MOCK_MODULES = [
-    'rdkit',
-    'rdkit.Chem',
-    'rdkit.Chem.AllChem',
-    'rdkit.Geometry',
-    'rdkit.Geometry.Point3D'
-    'numpy',
-    'numpy.linalg',
-    'scipy',
-    'scipy.spatial',
-    'scipy.spatial.transform',
-    'scipy.spatial.distance',
-    'scipy.constants',
-    'scipy.optimize',
-    'matplotlib',
-    'matplotlib.pyplot',
-    'pandas',
-    'pathos',
-    'seaborn',
-    'stk',
+    "rdkit",
+    "rdkit.Chem",
+    "rdkit.Chem.AllChem",
+    "rdkit.Geometry",
+    "rdkit.Geometry.Point3D" "numpy",
+    "numpy.linalg",
+    "scipy",
+    "scipy.spatial",
+    "scipy.spatial.transform",
+    "scipy.spatial.distance",
+    "scipy.constants",
+    "scipy.optimize",
+    "matplotlib",
+    "matplotlib.pyplot",
+    "pandas",
+    "pathos",
+    "seaborn",
+    "stk",
 ]
 sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
 
 
 # -- Project information ----------------------------------------------
 
-project = 'stko'
-copyright = '2020, Steven Bennett, Andrew Tarzia'
-author = 'Steven Bennett, Andrew Tarzia'
+project = "stko"
+copyright = "2020, Steven Bennett, Andrew Tarzia"
+author = "Steven Bennett, Andrew Tarzia"
 
 # The full version, including alpha/beta/rc tags
-version = ''
-release = ''
+version = ""
+release = ""
 
 
 # -- General configuration --------------------------------------------
@@ -66,17 +66,17 @@ release = ''
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-    'sphinx.ext.autodoc',
-    'sphinx_rtd_theme',
-    'sphinx.ext.napoleon',
-    'sphinx.ext.autosummary',
+    "sphinx.ext.autodoc",
+    "sphinx_rtd_theme",
+    "sphinx.ext.napoleon",
+    "sphinx.ext.autosummary",
 ]
 
 autodoc_default_options = {
-    'special-members': '__init__',
-    'inherited-members': True,
-    'show-inheritance': True,
-    'ignore-module-all': True,
+    "special-members": "__init__",
+    "inherited-members": True,
+    "show-inheritance": True,
+    "ignore-module-all": True,
 }
 
 
@@ -85,18 +85,18 @@ autodoc_default_options = {
 
 # Add any paths that contain templates here, relative to this
 # directory.
-templates_path = ['_templates']
+templates_path = ["_templates"]
 
 # The suffix(es) of source filenames.
 # You can specify multiple suffix as a list of string:
 #
-source_suffix = '.rst'
+source_suffix = ".rst"
 
 # The master toctree document.
-master_doc = 'index'
+master_doc = "index"
 
 # The name of the Pygments (syntax highlighting) style to use.
-pygments_style = 'sphinx'
+pygments_style = "sphinx"
 
 # If true, `todo` and `todoList` produce output, else they produce
 # nothing.
@@ -111,7 +111,7 @@ todo_include_todos = True
 html_theme = "sphinx_rtd_theme"
 
 html_theme_options = {
-    'collapse_navigation': False,
+    "collapse_navigation": False,
 }
 
 # Theme options are theme-specific and customize the look and feel of

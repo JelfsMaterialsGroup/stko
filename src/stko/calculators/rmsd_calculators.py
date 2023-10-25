@@ -10,14 +10,14 @@ Calculator of Root Mean Square Distance between two molecules.
 """
 
 import logging
-import stk
+
 import numpy as np
+import stk
 from scipy.spatial.distance import cdist
 
+from ..utilities import is_inequivalent_atom
 from .calculators import Calculator
 from .results import RmsdResults
-from ..utilities import is_inequivalent_atom
-
 
 logger = logging.getLogger(__name__)
 
@@ -76,21 +76,18 @@ class RmsdCalculator(Calculator):
         self._ignore_hydrogens = ignore_hydrogens
 
     def _check_valid_comparison(self, mol):
-
-        if mol.get_num_atoms() != (
-            self._initial_molecule.get_num_atoms()
-        ):
+        if mol.get_num_atoms() != (self._initial_molecule.get_num_atoms()):
             raise DifferentMoleculeException(
-                f'{self._initial_molecule} and {mol} are not '
-                'equivalent with different numbers of atoms.'
+                f"{self._initial_molecule} and {mol} are not "
+                "equivalent with different numbers of atoms."
             )
 
         smiles1 = stk.Smiles().get_key(self._initial_molecule)
         smiles2 = stk.Smiles().get_key(mol)
         if smiles1 != smiles2:
             raise DifferentMoleculeException(
-                f'{self._initial_molecule} and {mol} are not '
-                'equivalent with different smiles strings.'
+                f"{self._initial_molecule} and {mol} are not "
+                "equivalent with different smiles strings."
             )
 
         atoms1 = self._initial_molecule.get_atoms()
@@ -98,32 +95,30 @@ class RmsdCalculator(Calculator):
         for atom1, atom2 in zip(atoms1, atoms2):
             if is_inequivalent_atom(atom1, atom2):
                 raise DifferentAtomException(
-                    f'{atom1} and {atom2} are not equivalent.'
+                    f"{atom1} and {atom2} are not equivalent."
                 )
 
     def _calculate_rmsd(self, mol):
         if self._ignore_hydrogens:
             initial_atom_ids = (
-                i.get_id() for i in self._initial_molecule.get_atoms()
+                i.get_id()
+                for i in self._initial_molecule.get_atoms()
                 if i.get_atomic_number() != 1
             )
             mol_atom_ids = (
-                i.get_id() for i in mol.get_atoms()
+                i.get_id()
+                for i in mol.get_atoms()
                 if i.get_atomic_number() != 1
             )
         else:
             initial_atom_ids = None
             mol_atom_ids = None
 
-        initial_atom_positions = (
-            self._initial_molecule.get_atomic_positions(
-                atom_ids=initial_atom_ids,
-            )
+        initial_atom_positions = self._initial_molecule.get_atomic_positions(
+            atom_ids=initial_atom_ids,
         )
-        mol_atom_positions = (
-            mol.get_atomic_positions(
-                atom_ids=mol_atom_ids,
-            )
+        mol_atom_positions = mol.get_atomic_positions(
+            atom_ids=mol_atom_ids,
         )
 
         pos_mat1 = np.array(list(initial_atom_positions))
@@ -205,25 +200,25 @@ class RmsdMappedCalculator(RmsdCalculator):
     def _calculate_rmsd(self, mol):
         if self._ignore_hydrogens:
             initial_atom_ids = (
-                i.get_id() for i in self._initial_molecule.get_atoms()
+                i.get_id()
+                for i in self._initial_molecule.get_atoms()
                 if i.get_atomic_number() != 1
             )
             mol_atom_ids = (
-                i.get_id() for i in mol.get_atoms()
+                i.get_id()
+                for i in mol.get_atoms()
                 if i.get_atomic_number() != 1
             )
         else:
             initial_atom_ids = None
             mol_atom_ids = None
 
-        initial_atom_positions = (
-            self._initial_molecule.get_atomic_positions(
-                atom_ids=initial_atom_ids,
-            )
+        initial_atom_positions = self._initial_molecule.get_atomic_positions(
+            atom_ids=initial_atom_ids,
         )
-        initial_atoms = tuple(self._initial_molecule.get_atoms(
-            atom_ids=initial_atom_ids
-        ))
+        initial_atoms = tuple(
+            self._initial_molecule.get_atoms(atom_ids=initial_atom_ids)
+        )
         mol_atoms = tuple(mol.get_atoms(atom_ids=mol_atom_ids))
         atom_matrix = np.zeros((len(initial_atoms), len(mol_atoms)))
         for i in range(len(mol_atoms)):
@@ -232,23 +227,20 @@ class RmsdMappedCalculator(RmsdCalculator):
                 a2_num = initial_atoms[j].get_atomic_number()
                 atom_matrix[j][i] = a1_num == a2_num
 
-        mol_atom_positions = (
-            mol.get_atomic_positions(
-                atom_ids=mol_atom_ids,
-            )
+        mol_atom_positions = mol.get_atomic_positions(
+            atom_ids=mol_atom_ids,
         )
         pos_mat1 = np.array(list(initial_atom_positions))
         pos_mat2 = np.array(list(mol_atom_positions))
 
         N = len(pos_mat2)
         distances = cdist(pos_mat1, pos_mat2)
-        new_array = np.where(atom_matrix, distances, 1E24)
+        new_array = np.where(atom_matrix, distances, 1e24)
         # Handle situation where one molecule does not have an atom
         # type that the other does.
-        deviations = np.array([
-            i for i in np.amin(new_array, axis=1)
-            if i != 1E24
-        ])
+        deviations = np.array(
+            [i for i in np.amin(new_array, axis=1) if i != 1e24]
+        )
         return np.sqrt(np.sum(deviations * deviations) / N)
 
     def calculate(self, mol):

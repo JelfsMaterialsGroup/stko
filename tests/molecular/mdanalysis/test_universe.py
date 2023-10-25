@@ -1,6 +1,6 @@
-import stko
 import numpy as np
 import pytest
+import stko
 
 try:
     import MDAnalysis as mda
