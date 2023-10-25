@@ -1,7 +1,9 @@
-:author: Steven Bennett, Andrew Tarzia, Lukas Turcani
-:Documentation: https://stko-docs.readthedocs.io
-
-Contains molecular optimizers and property calculators for use with stk, https://github.com/lukasturcani/stk.
+:maintainers:
+    `stevenkbennett <https://github.com/stevenkbennett>`_,
+    `lukasturcani <https://github.com/lukasturcani/>`_,
+    `andrewtarzia <https://github.com/andrewtarzia/>`_
+:documentation: https://stko-docs.readthedocs.io
+:discord: https://discord.gg/zbCUzuxe2B
 
 .. figure:: docs/source/figures/stko.png
 
@@ -14,7 +16,8 @@ Overview
 
 ``stko`` is a Python library which allows for the optimisation and
 property calculation of molecules constructed using the library
-``stk`` https://github.com/lukasturcani/stk.
+``stk`` https://github.com/lukasturcani/stk. There is a Discord server
+for ``stk``, which can be joined through https://discord.gg/zbCUzuxe2B.
 
 
 Installation

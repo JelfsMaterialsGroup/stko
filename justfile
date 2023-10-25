@@ -1,0 +1,33 @@
+# List all recipes.
+default:
+  @just --list
+
+# Install development environment.
+dev:
+  pip install -e '.[dev]'
+
+# Run code checks.
+check:
+  #!/usr/bin/env bash
+
+  error=0
+  trap error=1 ERR
+
+  echo
+  (set -x; ruff . )
+
+  echo
+  ( set -x; black --check . )
+
+  echo
+  ( set -x; mypy src )
+
+  echo
+  ( set -x; pytest --cov=bbprep --cov-report term-missing )
+
+  test $error = 0
+
+# Auto-fix code issues.
+fix:
+  black .
+  ruff --fix .
