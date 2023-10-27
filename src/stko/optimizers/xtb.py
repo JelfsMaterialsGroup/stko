@@ -25,6 +25,7 @@ from stko.utilities.exceptions import (
     NotCompletedError,
     NotStartedError,
     OptimizerError,
+    PathError,
     SettingConflictError,
 )
 from stko.utilities.utilities import is_valid_xtb_solvent
@@ -273,6 +274,8 @@ class XTB(Optimizer):
                 "set to 1."
             )
 
+        if not os.path.exists(xtb_path):
+            raise PathError(f"XTB not found at {xtb_path}")
         self._xtb_path = xtb_path
         self._gfn_version = str(gfn_version)
         self._output_dir = output_dir
@@ -729,7 +732,11 @@ class XTBCREST(Optimizer):
                     f" is invalid for version {gfn_version!r}.",
                 )
 
+        if not os.path.exists(crest_path):
+            raise PathError(f"CREST not found at {crest_path}")
         self._crest_path = crest_path
+        if not os.path.exists(xtb_path):
+            raise PathError(f"XTB not found at {xtb_path}")
         self._xtb_path = xtb_path
         self._gfn_version = str(gfn_version)
         self._output_dir = output_dir
@@ -1036,6 +1043,8 @@ class XTBFF(Optimizer):
 
         """
 
+        if not os.path.exists(xtb_path):
+            raise PathError(f"XTB not found at {xtb_path}")
         self._xtb_path = xtb_path
         self._output_dir = output_dir
         self._opt_level = opt_level
@@ -1371,7 +1380,11 @@ class XTBFFCREST(Optimizer):
 
         """
 
+        if not os.path.exists(crest_path):
+            raise PathError(f"CREST not found at {crest_path}")
         self._crest_path = crest_path
+        if not os.path.exists(xtb_path):
+            raise PathError(f"XTB not found at {xtb_path}")
         self._xtb_path = xtb_path
         self._output_dir = output_dir
         self._opt_level = opt_level

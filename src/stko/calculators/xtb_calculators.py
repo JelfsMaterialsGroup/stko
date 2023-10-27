@@ -16,7 +16,7 @@ import uuid
 
 from stko.calculators.calculators import Calculator
 from stko.calculators.results.xtb_results import XTBResults
-from stko.utilities.exceptions import InvalidSolventError
+from stko.utilities.exceptions import InvalidSolventError, PathError
 from stko.utilities.utilities import is_valid_xtb_solvent
 
 logger = logging.getLogger(__name__)
@@ -263,6 +263,8 @@ class XTBEnergy(Calculator):
                     f" is invalid for version {gfn_version!r}.",
                 )
 
+        if not os.path.exists(xtb_path):
+            raise PathError(f"XTB not found at {xtb_path}")
         self._xtb_path = xtb_path
         self._gfn_version = str(gfn_version)
         self._output_dir = output_dir

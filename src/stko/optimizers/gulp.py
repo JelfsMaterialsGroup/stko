@@ -2,105 +2,7 @@
 GULP Metal Optimizer
 ====================
 
-#. :class:`.GulpOptimizer`
-#. :class:`.GulpMDOpimizer`
-
 Wrappers for calculators within the :mod:`gulp` code.
-
-Examples
---------
-
-While metal atoms are not required, UFF4MOF is useful because it
-encompasses almost all chemical environments commonly found in
-metal-organic structures. Better forcefields exist for purely
-organic molecules! An interface with GULP is provided, which takes
-the forcefield types assigned by RDKit for non-metal atoms and
-user defined forcefield types for metal atoms to perform geometry
-optimisations.
-
-.. code-block:: python
-
-    import stk
-    import stko
-    from rdkit.Chem import AllChem as rdkit
-
-    # Produce a Pd+2 atom with 4 functional groups.
-    atom = rdkit.MolFromSmiles('[Pd+2]')
-    atom.AddConformer(rdkit.Conformer(atom.GetNumAtoms()))
-    palladium_atom = stk.BuildingBlock.init_from_rdkit_mol(atom)
-    atom_0, = palladium_atom.get_atoms(0)
-    palladium_atom = palladium_atom.with_functional_groups(
-        (stk.SingleAtom(atom_0) for i in range(4))
-    )
-
-    # Build a building block with two functional groups using
-    # the SmartsFunctionalGroupFactory.
-    bb1 = stk.BuildingBlock(
-        smiles=('C1=CC(=CC(=C1)C2=CN=CC=C2)C3=CN=CC=C3'),
-        functional_groups=[
-            stk.SmartsFunctionalGroupFactory(
-                smarts='[#6]~[#7X2]~[#6]',
-                bonders=(1, ),
-                deleters=(),
-            ),
-        ],
-    )
-
-    # Build a metal-organic cage with dative bonds between
-    # GenericFunctionalGroup and SingleAtom functional groups.
-    cage = stk.ConstructedMolecule(
-        stk.cage.M2L4Lantern(
-            building_blocks={
-                palladium_atom: (0, 1),
-                bb1: (2, 3, 4, 5)
-            },
-            reaction_factory=stk.DativeReactionFactory(
-                stk.GenericReactionFactory(
-                    bond_orders={
-                        frozenset({
-                            stk.GenericFunctionalGroup,
-                            stk.SingleAtom
-                        }): 9
-                    }
-                )
-            )
-        )
-    )
-
-    # Perform Gulp optimisation with UFF4MOF.
-    # Use conjugate gradient method for a slower, but more stable
-    # optimisation.
-
-    gulp_opt = stko.GulpUFFOptimizer(
-        gulp_path='path/to/gulp',
-        metal_FF={46: 'Pd4+2'},
-        conjugate_gradient=True
-    )
-
-    # Assign the force field.
-    gulp_opt.assign_FF(cage)
-    # Run optimization.
-    cage = gulp_opt.optimize(mol=cage)
-
-Conformer searching is often useful, so we have provided an interface
-to MD simulations using GULP and UFF4MOF. A conformer search can be
-run at high temperature, where N conformers are extracted at constant
-intervals throughtout the simulation and optimized using UFF4MOF. The
-lowest energy conformer is returned. After these MD steps, it is
-crucial to reoptimize the resultant structure using a better forcefield
-or a more robust method!
-
-.. code-block:: python
-
-    gulp_MD = stko.GulpUFFMDOptimizer(
-        gulp_path='path/to/gulp',
-        metal_FF={46: 'Pd4+2'},
-        temperature=300,
-        N_conformers=10,
-        opt_conformers=True,
-    )
-    gulp_MD.assign_FF(cage)
-    cage = gulp_MD.optimize(cage)
 
 """
 
@@ -121,7 +23,11 @@ from stko.optimizers.utilities import (
     has_metal_atom,
     to_rdkit_mol_without_metals,
 )
-from stko.utilities.exceptions import ExpectedMetalError, ForceFieldSetupError
+from stko.utilities.exceptions import (
+    ExpectedMetalError,
+    ForceFieldSetupError,
+    PathError,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -135,6 +41,85 @@ class GulpUFFOptimizer(Optimizer):
     By default, :meth:`optimize` will run an optimisation using the
     UFF4MOF. This forcefield requires some explicit metal atom
     definitions, which are determined by the user.
+
+    This code was originally written for use with Gulp 5.1 on Linux and has
+    not been officially tested on other versions and operating systems.
+    Make sure to sanity check the output.
+
+    Examples
+    --------
+
+    While metal atoms are not required, UFF4MOF is useful because it
+    encompasses almost all chemical environments commonly found in
+    metal-organic structures. Better forcefields exist for purely
+    organic molecules! An interface with GULP is provided, which takes
+    the forcefield types assigned by RDKit for non-metal atoms and
+    user defined forcefield types for metal atoms to perform geometry
+    optimisations.
+
+    .. code-block:: python
+
+        import stk
+        import stko
+        from rdkit.Chem import AllChem as rdkit
+
+        # Produce a Pd+2 atom with 4 functional groups.
+        atom = rdkit.MolFromSmiles('[Pd+2]')
+        atom.AddConformer(rdkit.Conformer(atom.GetNumAtoms()))
+        palladium_atom = stk.BuildingBlock.init_from_rdkit_mol(atom)
+        atom_0, = palladium_atom.get_atoms(0)
+        palladium_atom = palladium_atom.with_functional_groups(
+            (stk.SingleAtom(atom_0) for i in range(4))
+        )
+
+        # Build a building block with two functional groups using
+        # the SmartsFunctionalGroupFactory.
+        bb1 = stk.BuildingBlock(
+            smiles=('C1=CC(=CC(=C1)C2=CN=CC=C2)C3=CN=CC=C3'),
+            functional_groups=[
+                stk.SmartsFunctionalGroupFactory(
+                    smarts='[#6]~[#7X2]~[#6]',
+                    bonders=(1, ),
+                    deleters=(),
+                ),
+            ],
+        )
+
+        # Build a metal-organic cage with dative bonds between
+        # GenericFunctionalGroup and SingleAtom functional groups.
+        cage = stk.ConstructedMolecule(
+            stk.cage.M2L4Lantern(
+                building_blocks={
+                    palladium_atom: (0, 1),
+                    bb1: (2, 3, 4, 5)
+                },
+                reaction_factory=stk.DativeReactionFactory(
+                    stk.GenericReactionFactory(
+                        bond_orders={
+                            frozenset({
+                                stk.GenericFunctionalGroup,
+                                stk.SingleAtom
+                            }): 9
+                        }
+                    )
+                )
+            )
+        )
+
+        # Perform Gulp optimisation with UFF4MOF.
+        # Use conjugate gradient method for a slower, but more stable
+        # optimisation.
+
+        gulp_opt = stko.GulpUFFOptimizer(
+            gulp_path='path/to/gulp',
+            metal_FF={46: 'Pd4+2'},
+            conjugate_gradient=True
+        )
+
+        # Assign the force field.
+        gulp_opt.assign_FF(cage)
+        # Run optimization.
+        cage = gulp_opt.optimize(mol=cage)
 
     """
 
@@ -805,6 +790,34 @@ class GulpUFFMDOptimizer(GulpUFFOptimizer):
     This forcefield requires some explicit metal atom definitions,
     which are determined by the user.
 
+    This code was originally written for use with Gulp 5.1 on Linux and has
+    not been officially tested on other versions and operating systems. Make
+    sure to sanity check the output.
+
+
+    Examples
+    --------
+
+    Conformer searching is often useful, so we have provided an interface
+    to MD simulations using GULP and UFF4MOF. A conformer search can be
+    run at high temperature, where N conformers are extracted at constant
+    intervals throughtout the simulation and optimized using UFF4MOF. The
+    lowest energy conformer is returned. After these MD steps, it is
+    crucial to reoptimize the resultant structure using a better forcefield
+    or a more robust method!
+
+    .. code-block:: python
+
+        gulp_MD = stko.GulpUFFMDOptimizer(
+            gulp_path='path/to/gulp',
+            metal_FF={46: 'Pd4+2'},
+            temperature=300,
+            N_conformers=10,
+            opt_conformers=True,
+        )
+        gulp_MD.assign_FF(cage)
+        cage = gulp_MD.optimize(cage)
+
     """
 
     def __init__(
@@ -883,6 +896,8 @@ class GulpUFFMDOptimizer(GulpUFFOptimizer):
             Defaults to ``False``.
 
         """
+        if not os.path.exists(gulp_path):
+            raise PathError(f"GULP not found at {gulp_path}")
         self._gulp_path = gulp_path
         self._metal_FF = metal_FF
         self._metal_ligand_bond_order = (
@@ -943,7 +958,7 @@ class GulpUFFMDOptimizer(GulpUFFOptimizer):
             f"integrator {self._integrator}\n"
             f"ensemble {self._ensemble}\n"
             f"temperature {self._temperature}\n"
-            f"equilbration {self._equilbration} ps\n"
+            f"equilibration {self._equilbration} ps\n"
             f"production {self._production} ps\n"
             f"timestep {self._timestep} fs\n"
             f"sample {self._sample} ps\n"

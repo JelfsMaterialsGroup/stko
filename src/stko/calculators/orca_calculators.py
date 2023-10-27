@@ -17,7 +17,7 @@ import uuid
 
 from stko.calculators.calculators import Calculator
 from stko.calculators.results.orca_results import OrcaResults
-from stko.utilities.exceptions import OptimizerError
+from stko.utilities.exceptions import OptimizerError, PathError
 
 logger = logging.getLogger(__name__)
 
@@ -167,6 +167,8 @@ class OrcaEnergy(Calculator):
 
         """
 
+        if not os.path.exists(orca_path):
+            raise PathError(f"Orca not found at {orca_path}")
         self._orca_path = orca_path
         if basename is None:
             self._basename = f"_{str(uuid.uuid4().int)}"
