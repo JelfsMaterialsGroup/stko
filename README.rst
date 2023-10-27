@@ -27,6 +27,10 @@ To get ``stko``, you can install it with pip::
 
     $ pip install stko
 
+You can also install xtb, which is an optional dependency::
+
+    $ conda install -c conda-forge xtb
+
 You can also install openbabel, which is an optional dependency::
 
     $ conda install -c conda-forge openbabel
