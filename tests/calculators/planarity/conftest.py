@@ -35,7 +35,7 @@ _square_planar = stk.ConstructedMolecule(
         optimizer=stk.MCHammer(),
     )
 )
-uff = stko.OpenBabel("uff")
+uff = stko.UFF()
 _square_planar_uff = uff.optimize(_square_planar)
 _octahedral = stk.ConstructedMolecule(
     topology_graph=stk.metal_complex.Octahedral(

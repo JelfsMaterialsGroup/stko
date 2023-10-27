@@ -5,7 +5,7 @@
 :documentation: https://stko-docs.readthedocs.io
 :discord: https://discord.gg/zbCUzuxe2B
 
-.. figure:: docs/source/figures/stko.png
+.. figure:: docs/source/_static/stko.png
 
 .. image:: https://readthedocs.org/projects/stko-docs/badge/?version=latest
     :target: https://stko-docs.readthedocs.io/en/latest/?badge=latest

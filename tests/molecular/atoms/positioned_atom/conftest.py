@@ -90,8 +90,8 @@ def position(request):
         cls
         for cls in stk.__dict__.values()
         if isinstance(cls, type)
-        and issubclass(cls, stk.AtomImpl)
-        and cls is not stk.AtomImpl
+        and issubclass(cls, stk._internal.elements.AtomImpl)
+        and cls is not stk._internal.elements.AtomImpl
     ],
 )
 def cls(request):

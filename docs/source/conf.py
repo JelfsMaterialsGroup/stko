@@ -1,122 +1,53 @@
 # Configuration file for the Sphinx documentation builder.
 #
-# This file only contains a selection of the most common options. For a
-# full
-# list see the documentation:
+# For the full list of built-in configuration values, see the documentation:
 # https://www.sphinx-doc.org/en/master/usage/configuration.html
 
-# -- Path setup -------------------------------------------------------
-
-# If extensions (or modules to document with autodoc) are in another
-# directory,
-# add these directories to sys.path here. If the directory is relative
-# to the
-# documentation root, use os.path.abspath to make it absolute, like
-# shown here.
-
-import sys
-
-# For mocking external dependencies when building.
-from unittest.mock import MagicMock
-
-
-class Mock(MagicMock):
-    @classmethod
-    def __getattr__(cls, name):
-        return MagicMock()
-
-
-MOCK_MODULES = [
-    "rdkit",
-    "rdkit.Chem",
-    "rdkit.Chem.AllChem",
-    "rdkit.Geometry",
-    "rdkit.Geometry.Point3D" "numpy",
-    "numpy.linalg",
-    "scipy",
-    "scipy.spatial",
-    "scipy.spatial.transform",
-    "scipy.spatial.distance",
-    "scipy.constants",
-    "scipy.optimize",
-    "matplotlib",
-    "matplotlib.pyplot",
-    "pandas",
-    "pathos",
-    "seaborn",
-    "stk",
-]
-sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
-
+# -- Project information -----------------------------------------------------
+# https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
 # -- Project information ----------------------------------------------
 
 project = "stko"
-copyright = "2020, Steven Bennett, Andrew Tarzia"
-author = "Steven Bennett, Andrew Tarzia"
+copyright = "2023, Steven Bennett, Andrew Tarzia, Lukas Turcani"
+author = "Steven Bennett, Andrew Tarzia, Lukas Turcani"
 
-# The full version, including alpha/beta/rc tags
-version = ""
-release = ""
+# -- General configuration ---------------------------------------------------
+# https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
-
-# -- General configuration --------------------------------------------
-
-# Add any Sphinx extension module names here, as strings. They can be
-# extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
-# ones.
 extensions = [
-    "sphinx.ext.autodoc",
-    "sphinx_rtd_theme",
+    "sphinx.ext.doctest",
     "sphinx.ext.napoleon",
     "sphinx.ext.autosummary",
+    "sphinx.ext.intersphinx",
+    "sphinx.ext.viewcode",
+    "sphinx_copybutton",
+    "moldoc",
 ]
 
-autodoc_default_options = {
-    "special-members": "__init__",
-    "inherited-members": True,
-    "show-inheritance": True,
-    "ignore-module-all": True,
+autosummary_imported_members = True
+
+autodoc_typehints = "description"
+autodoc_member_order = "groupwise"
+autodoc_type_aliases = {
+    "NumBuildingBlocks": "dict[Molecule, int]",
+    "IncludedBatches": "set[BatchKey] | None",
+    "ExcludedBatches": "set[BatchKey] | None",
+}
+autoclass_content = "both"
+
+intersphinx_mapping = {
+    "python": ("https://docs.python.org/3", None),
+    "numpy": ("https://numpy.org/doc/stable/", None),
+    "pandas": ("https://pandas.pydata.org/docs/", None),
 }
 
-
-# add_module_names = False
-
-
-# Add any paths that contain templates here, relative to this
-# directory.
 templates_path = ["_templates"]
-
-# The suffix(es) of source filenames.
-# You can specify multiple suffix as a list of string:
-#
-source_suffix = ".rst"
-
-# The master toctree document.
-master_doc = "index"
-
-# The name of the Pygments (syntax highlighting) style to use.
-pygments_style = "sphinx"
-
-# If true, `todo` and `todoList` produce output, else they produce
-# nothing.
-todo_include_todos = True
+exclude_patterns: list[str] = []
 
 
-# -- Options for HTML output ------------------------------------------
+# -- Options for HTML output -------------------------------------------------
+# https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
-# The theme to use for HTML and HTML Help pages.  See the documentation
-# for a list of builtin themes.
-#
 html_theme = "sphinx_rtd_theme"
-
-html_theme_options = {
-    "collapse_navigation": False,
-}
-
-# Theme options are theme-specific and customize the look and feel of
-# a theme further.  For a list of options available for each theme,
-# see the documentation.
-# html_theme_options = {
-#     'collapse_navigation': False,
-# }
+html_static_path = ["_static"]

@@ -1,81 +1,57 @@
+.. toctree::
+   :hidden:
+   :caption: stko
+   :maxdepth: 2
+
+   Molecular <molecular>
+   Calculators <calculators>
+   Optimizers <optimizers>
+   Results <results>
+   Extractors <extractors>
+
+
+.. toctree::
+   :hidden:
+   :caption: Modules
+   :maxdepth: 1
+
+   Modules <modules.rst>
+
 Welcome to stko's documentation!
 ================================
 
 GitHub: https://github.com/JelfsMaterialsGroup/stko
 
 
+Install
+=======
+
+:mod:`.stko` can be installed directly with pip::
+
+   $ pip install stko
+
+
+Dependencies
+------------
+
+The software packages we offer optimizers are also depencies depending
+on the desired functions used. These are:
+
+* `MacroModel <https://sites.google.com/site/orcainputlibrary/home/>`_
+* `GULP <http://gulp.curtin.edu.au/gulp/>`_
+* `XTB <https://xtb-docs.readthedocs.io/en/latest/>`_
+* `OpenBabel <https://github.com/openbabel/openbabel>`_
+
+
 Overview
 ========
 
-`stko <https://github.com/lukasturcani/stk>`_ is a Python library which performs optimizations and calculations on
-complex molecules built using `stk <https://github.com/JelfsMaterialsGroup/stko>`_.
-In the case of optimizations, a clone of :class:`stk.Molecule` is returned.
-For calculators, a :class:`.Calculator` and a :class:`.Results` are used to calculate and extract properties of an :class:`stk.Molecule`.
-
-
-Documentation
-=============
-
-.. glossary::
-
-   Version
-      |version|
-
-
-.. toctree::
-   :hidden:
-   :caption: Installation
-   :maxdepth: 1
-
-   Install <install>
-
-
-.. toctree::
-   :hidden:
-   :caption: Optimizers
-   :maxdepth: 2
-
-   Optimizers <stko.optimizers.optimizers>
-   XTB <stko.optimizers.xtb>
-   RDKit <stko.optimizers.rdkit>
-   GULP <stko.optimizers.gulp>
-   Collapser <stko.optimizers.collapser>
-   MacroModel <stko.optimizers.macromodel>
-
-
-.. toctree::
-   :hidden:
-   :caption: Calculators
-   :maxdepth: 2
-
-   Calculators <stko.calculators.calculators>
-   RDKit <stko.calculators.rdkit_calculators>
-   XTB <stko.calculators.xtb_calculators>
-   Shape <stko.calculators.shape_calculators>
-   Torsion <stko.calculators.torsion_calculators>
-
-
-.. toctree::
-   :hidden:
-   :caption: Results
-   :maxdepth: 2
-
-   Results <stko.calculators.results.results>
-   Energy Results <stko.calculators.results.energy_results>
-   XTB Results <stko.calculators.results.xtb_results>
-   Shape Results <stko.calculators.results.shape_results>
-   Torsion Results <stko.calculators.results.torsion_results>
-
-
-.. toctree::
-   :hidden:
-   :caption: Molecular Systems
-   :maxdepth: 2
-
-   Topology Extraction <stko.molecular.topology_extractor>
-   Unit Cell <stko.molecular.periodic.unitcell>
-   NetworkX <stko.molecular.networkx>
-   Torsions <stko.molecular.torsion>
+`stko <https://github.com/lukasturcani/stk>`_ is a Python library which
+performs optimizations and calculations on complex molecules built using
+`stk <https://github.com/JelfsMaterialsGroup/stko>`_. In the case of
+optimizations, a clone of :class:`stk.Molecule` is returned. For
+calculators, a :class:`.Calculator` and a :class:`.Results` are used to
+calculate and extract properties of an :class:`stk.Molecule`.
 
 
 Indices and Tables
