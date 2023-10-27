@@ -160,10 +160,10 @@ class MAEExtractor:
 
             .. code-block:: python
 
-                returned = [(23, 123.3), (1, 143.89), (12, 150.6), ...]
+                returned = [(123.3, 23), (143.89, 1), (150.6, 12), ...]
 
-            Where each :class:`tuple` holds the id and energy of the
-            `n` lowest energy conformers, respectively.
+            Where each :class:`tuple` holds the energy of the
+            `n` lowest energy conformers and the id, respectively.
 
         """
 
