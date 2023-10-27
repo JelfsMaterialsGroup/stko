@@ -36,12 +36,12 @@ import numpy as np
 import rdkit.Chem.AllChem as rdkit
 
 from stko.optimizers.optimizers import Optimizer
-from stko.utilities.utilities import (
+from stko.optimizers.utilities import (
     get_metal_atoms,
     get_metal_bonds,
     to_rdkit_mol_without_metals,
-    vector_angle,
 )
+from stko.utilities.utilities import vector_angle
 
 logger = logging.getLogger(__name__)
 

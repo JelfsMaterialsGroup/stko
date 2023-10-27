@@ -4,9 +4,7 @@ from stko.calculators.extractors.orca_extractor import OrcaExtractor
 from stko.calculators.extractors.xtb_extractor import XTBExtractor
 from stko.calculators.open_babel_calculators import OpenBabelEnergy
 from stko.calculators.orca_calculators import OrcaEnergy
-from stko.calculators.planarity_calculators.planarity_calculators import (
-    PlanarityCalculator,
-)
+from stko.calculators.planarity_calculators import PlanarityCalculator
 from stko.calculators.rdkit_calculators import MMFFEnergy, UFFEnergy
 from stko.calculators.results.energy_results import EnergyResults
 from stko.calculators.results.orca_results import OrcaResults
@@ -96,27 +94,6 @@ from stko.utilities.exceptions import (
     PathError,
     SettingConflictError,
     WrapperNotInstalledError,
-)
-from stko.utilities.utilities import (
-    MAEExtractor,
-    calculate_angle,
-    calculate_dihedral,
-    get_atom_distance,
-    get_atom_maps,
-    get_long_bond_ids,
-    get_metal_atoms,
-    get_metal_bonds,
-    get_plane_normal,
-    get_torsion_info_angles,
-    has_h_atom,
-    has_metal_atom,
-    is_inequivalent_atom,
-    is_valid_xtb_solvent,
-    metal_atomic_numbers,
-    mol_from_mae_file,
-    move_generated_macromodel_files,
-    to_rdkit_mol_without_metals,
-    vector_angle,
 )
 
 __all__ = [

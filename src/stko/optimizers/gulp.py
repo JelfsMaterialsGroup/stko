@@ -115,7 +115,7 @@ from rdkit.Chem import AllChem as rdkit
 
 from stko.optimizers.optimizers import Optimizer
 from stko.utilities.exceptions import ExpectedMetalError, ForceFieldSetupError
-from stko.utilities.utilities import (
+from stko.optimizers.utilities import (
     get_metal_atoms,
     get_metal_bonds,
     has_h_atom,

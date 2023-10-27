@@ -2,7 +2,8 @@ import os
 
 import numpy as np
 import pytest
-from stko import GulpUFFMDOptimizer, GulpUFFOptimizer, get_metal_atoms
+from stko import GulpUFFMDOptimizer, GulpUFFOptimizer
+from stko.optimizers.utilities import get_metal_atoms
 
 from .conftest import a_molecule
 

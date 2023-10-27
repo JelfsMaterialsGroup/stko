@@ -25,7 +25,7 @@ from stko.utilities.exceptions import (
     OptimizerError,
     PathError,
 )
-from stko.utilities.utilities import (
+from stko.optimizers.utilities import (
     MAEExtractor,
     mol_from_mae_file,
     move_generated_macromodel_files,

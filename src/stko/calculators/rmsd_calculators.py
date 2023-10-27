@@ -21,7 +21,7 @@ from stko.utilities.exceptions import (
     DifferentAtomError,
     DifferentMoleculeError,
 )
-from stko.utilities.utilities import is_inequivalent_atom
+from stko.calculators.utilities import is_inequivalent_atom
 
 logger = logging.getLogger(__name__)
 
