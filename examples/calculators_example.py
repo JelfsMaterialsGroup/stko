@@ -81,9 +81,7 @@ def main():
     # Run through yield statements using the `.calculate` method
     # all in once.
     for i in calculations:
-        print(
-            f"{i}: xtb will not output anything as you need a new " "Results."
-        )
+        print(f"{i}: xtb will not output anything as you need a new Results.")
         ey = stko.EnergyResults(i, "kcal mol-1")
         print(ey.get_energy(), ey.get_unit_string())
 
