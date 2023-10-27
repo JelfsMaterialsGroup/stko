@@ -6,8 +6,6 @@
    Molecular <molecular>
    Calculators <calculators>
    Optimizers <optimizers>
-   Results <results>
-   Extractors <extractors>
 
 
 .. toctree::

@@ -4,7 +4,7 @@
 # You can set these variables from the command line.
 SPHINXOPTS    = -W --keep-going
 SPHINXBUILD   = python -msphinx
-SPHINXPROJ    = stk
+SPHINXPROJ    = stko
 SOURCEDIR     = source
 BUILDDIR      = build
 
