@@ -17,21 +17,13 @@ from scipy.spatial.distance import cdist
 
 from stko.calculators.calculators import Calculator
 from stko.calculators.results.rmsd_results import RmsdResults
+from stko.utilities.exceptions import (
+    DifferentAtomError,
+    DifferentMoleculeError,
+)
 from stko.utilities.utilities import is_inequivalent_atom
 
 logger = logging.getLogger(__name__)
-
-
-class RmsdCalculatorError(Exception):
-    ...
-
-
-class DifferentAtomException(RmsdCalculatorError):
-    ...
-
-
-class DifferentMoleculeException(RmsdCalculatorError):
-    ...
 
 
 class RmsdCalculator(Calculator):
@@ -77,7 +69,7 @@ class RmsdCalculator(Calculator):
 
     def _check_valid_comparison(self, mol):
         if mol.get_num_atoms() != (self._initial_molecule.get_num_atoms()):
-            raise DifferentMoleculeException(
+            raise DifferentMoleculeError(
                 f"{self._initial_molecule} and {mol} are not "
                 "equivalent with different numbers of atoms."
             )
@@ -85,7 +77,7 @@ class RmsdCalculator(Calculator):
         smiles1 = stk.Smiles().get_key(self._initial_molecule)
         smiles2 = stk.Smiles().get_key(mol)
         if smiles1 != smiles2:
-            raise DifferentMoleculeException(
+            raise DifferentMoleculeError(
                 f"{self._initial_molecule} and {mol} are not "
                 "equivalent with different smiles strings."
             )
@@ -94,7 +86,7 @@ class RmsdCalculator(Calculator):
         atoms2 = mol.get_atoms()
         for atom1, atom2 in zip(atoms1, atoms2):
             if is_inequivalent_atom(atom1, atom2):
-                raise DifferentAtomException(
+                raise DifferentAtomError(
                     f"{atom1} and {atom2} are not equivalent."
                 )
 

@@ -17,6 +17,14 @@ from uuid import uuid4
 import rdkit.Chem.AllChem as rdkit
 
 from stko.optimizers.optimizers import Optimizer
+from stko.utilities.exceptions import (
+    ConversionError,
+    ForceFieldError,
+    InputError,
+    LewisStructureError,
+    OptimizerError,
+    PathError,
+)
 from stko.utilities.utilities import (
     MAEExtractor,
     mol_from_mae_file,
@@ -24,30 +32,6 @@ from stko.utilities.utilities import (
 )
 
 logger = logging.getLogger(__name__)
-
-
-class MacroModelConversionError(Exception):
-    ...
-
-
-class MacroModelPathError(Exception):
-    ...
-
-
-class MacroModelForceFieldError(Exception):
-    ...
-
-
-class MacroModelOptimizationError(Exception):
-    ...
-
-
-class MacroModelLewisStructureError(Exception):
-    ...
-
-
-class MacroModelInputError(Exception):
-    ...
 
 
 class MacroModel(Optimizer):
@@ -144,16 +128,16 @@ class MacroModel(Optimizer):
 
         Raises
         ------
-        :class:`MacroModelOptimizationError`
+        :class:`OptimizationError`
             If the optimization failed for some unspecified.
 
-        :class:`MacroModelForceFieldError`
+        :class:`ForceFieldError`
             If the force field could not be used with the molecule.
 
-        :class:`MacroModelLewisStructureError`
+        :class:`LewisStructureError`
             If Lewis structure of the molecule had issues.
 
-        :class:`MacroModelPathError`
+        :class:`PathError`
             If an invalid MacroModel path is being used.
 
         """
@@ -198,14 +182,12 @@ class MacroModel(Optimizer):
             # Check the log for error reports.
             error1 = "termination due to error condition           21-"
             if error1 in log_content:
-                raise MacroModelOptimizationError(
-                    "bmin crashed. See log file."
-                )
+                raise OptimizerError("Macromodel: bmin crashed. See log file.")
 
             error2 = "FATAL do_nosort_typing: NO MATCH found for atom "
             if error2 in log_content:
-                raise MacroModelForceFieldError(
-                    "The log implies the force field failed."
+                raise ForceFieldError(
+                    "Macromodel: The log implies the force field failed."
                 )
 
             error3 = (
@@ -217,20 +199,20 @@ class MacroModel(Optimizer):
                 "due to forcefield interaction errors"
             )
             if error3 in log_content and error4 in log_content:
-                raise MacroModelLewisStructureError(
-                    "bmin failed due to poor Lewis structure."
+                raise LewisStructureError(
+                    "Macromodel: bmin failed due to poor Lewis structure."
                 )
 
             if "MDYN error encountered" in log_content:
-                raise MacroModelOptimizationError(
-                    "MD error during optimization."
+                raise OptimizerError(
+                    "Macromodel: MD error during optimization."
                 )
 
             # If optimization fails because a wrong Schrodinger path
             # was given, raise.
             if "The system cannot find the path specified" in output:
-                raise MacroModelPathError(
-                    "Invalid Schrodinger path given to bmin."
+                raise PathError(
+                    "Macromodel: Invalid Schrodinger path given to bmin."
                 )
 
             # If optimization fails because the license is not found,
@@ -247,8 +229,9 @@ class MacroModel(Optimizer):
             or not os.path.exists(maegz)
             or log_content == ""
         ):
-            raise MacroModelOptimizationError(
-                "The .log and/or .maegz files were not created" " correctly."
+            raise OptimizerError(
+                "Macromodel: The .log and/or .maegz files were not created"
+                " correctly."
             )
 
     def _kill_bmin(self, mol, run_name):
@@ -394,13 +377,14 @@ class MacroModel(Optimizer):
             # If conversion fails because a wrong Schrodinger path was
             # given, raise.
             except FileNotFoundError:
-                raise MacroModelPathError(
-                    "Wrong Schrodinger path supplied to structconvert."
+                raise PathError(
+                    "Macromodel: Wrong Schrodinger path supplied to "
+                    "structconvert."
                 )
 
             if "File does not exist" in convrt_return.stdout:
-                raise MacroModelConversionError(
-                    f"structconvert input file, {input_path}, "
+                raise ConversionError(
+                    f"Macromodel: structconvert input file, {input_path}, "
                     f"missing. Console output was "
                     f"{convrt_return.stdout}"
                 )
@@ -412,12 +396,13 @@ class MacroModel(Optimizer):
 
         # If force field failed, raise.
         if "number 1" in convrt_return.stdout:
-            raise MacroModelForceFieldError(convrt_return.stdout)
+            raise ForceFieldError(f"Macromodel: {convrt_return.stdout}")
 
         self._wait_for_file(output_path)
         if not os.path.exists(output_path):
-            raise MacroModelConversionError(
-                f"Conversion output file {output_path} was not found."
+            raise ConversionError(
+                f"Macromodel: Conversion output file {output_path} was "
+                "not found."
                 f" Console output was {convrt_return.stdout}."
             )
 
@@ -677,13 +662,13 @@ class MacroModelForceField(MacroModel):
         """
 
         if minimum_gradient < 0.0001:
-            raise MacroModelInputError(
-                "Convergence gradient (< 0.0001) is too small."
+            raise InputError(
+                "Macromodel: Convergence gradient (< 0.0001) is too small."
             )
 
         if maximum_iterations > 999999:
-            raise MacroModelInputError(
-                "Number of iterations (> 999999) is too high."
+            raise InputError(
+                "Macromodel: Number of iterations (> 999999) is too high."
             )
 
     def _generate_com(self, mol, run_name):
@@ -1166,38 +1151,40 @@ class MacroModelMD(MacroModel):
         """
 
         if temperature > 99999.99:
-            raise MacroModelInputError(
-                "Supplied temperature (> 99999 K) is too high."
+            raise InputError(
+                "Macromodel: Supplied temperature (> 99999 K) is too high."
             )
 
         if conformers > 9999:
-            raise MacroModelInputError(
-                "Supplied number of conformers (> 9999) is too high."
+            raise InputError(
+                "Macromodel: Supplied number of conformers (> 9999) is "
+                "too high."
             )
 
         if simulation_time > 999999.99:
-            raise MacroModelInputError(
-                "Supplied simulation time (> 999999 ps) is too long."
+            raise InputError(
+                "Macromodel: Supplied simulation time (> 999999 ps) is "
+                "too long."
             )
 
         if time_step > 99999.99:
-            raise MacroModelInputError(
-                "Supplied time step (> 99999 fs) is too high."
+            raise InputError(
+                "Macromodel: Supplied time step (> 99999 fs) is too high."
             )
 
         if eq_time > 999999.99:
-            raise MacroModelInputError(
-                "Supplied eq time (> 999999 ps) is too long."
+            raise InputError(
+                "Macromodel: Supplied eq time (> 999999 ps) is too long."
             )
 
         if minimum_gradient < 0.0001:
-            raise MacroModelInputError(
-                "Convergence gradient (< 0.0001) is too small."
+            raise InputError(
+                "Macromodel: Convergence gradient (< 0.0001) is too small."
             )
 
         if maximum_iterations > 999999:
-            raise MacroModelInputError(
-                "Number of iterations (> 999999) is too high."
+            raise InputError(
+                "Macromodel: Number of iterations (> 999999) is too high."
             )
 
     def _generate_com(self, mol, run_name):

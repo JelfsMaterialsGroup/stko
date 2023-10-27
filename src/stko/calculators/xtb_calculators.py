@@ -16,10 +16,8 @@ import uuid
 
 from stko.calculators.calculators import Calculator
 from stko.calculators.results.xtb_results import XTBResults
-from stko.utilities.utilities import (
-    XTBInvalidSolventError,
-    is_valid_xtb_solvent,
-)
+from stko.utilities.exceptions import InvalidSolventError
+from stko.utilities.utilities import is_valid_xtb_solvent
 
 logger = logging.getLogger(__name__)
 
@@ -252,16 +250,16 @@ class XTBEnergy(Calculator):
         if solvent is not None:
             solvent = solvent.lower()
             if gfn_version == 0:
-                raise XTBInvalidSolventError(
-                    "No solvent valid for version", f" {gfn_version!r}."
+                raise InvalidSolventError(
+                    "XTB: No solvent valid for version", f" {gfn_version!r}."
                 )
             if not is_valid_xtb_solvent(
                 gfn_version=gfn_version,
                 solvent_model=solvent_model,
                 solvent=solvent,
             ):
-                raise XTBInvalidSolventError(
-                    f"Solvent {solvent!r} and model {solvent_model!r}",
+                raise InvalidSolventError(
+                    f"XTB: Solvent {solvent!r} and model {solvent_model!r}",
                     f" is invalid for version {gfn_version!r}.",
                 )
 

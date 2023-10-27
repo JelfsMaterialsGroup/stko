@@ -18,17 +18,12 @@ except ImportError:
 
 from stko.calculators.calculators import Calculator
 from stko.calculators.results.energy_results import EnergyResults
-from stko.utilities.utilities import WrapperNotInstalledException
+from stko.utilities.exceptions import (
+    ForceFieldSetupError,
+    WrapperNotInstalledError,
+)
 
 logger = logging.getLogger(__name__)
-
-
-class OpenBabelError(Exception):
-    ...
-
-
-class ForceFieldSetupError(OpenBabelError):
-    ...
 
 
 class OpenBabelEnergy(Calculator):
@@ -73,7 +68,7 @@ class OpenBabelEnergy(Calculator):
         """
 
         if openbabel is None:
-            raise WrapperNotInstalledException(
+            raise WrapperNotInstalledError(
                 "openbabel is not installed; see README for " "installation."
             )
 
@@ -95,7 +90,7 @@ class OpenBabelEnergy(Calculator):
         outcome = forcefield.Setup(OBMol)
         if not outcome:
             raise ForceFieldSetupError(
-                f"{self._forcefield} could not be setup for {mol}"
+                f"Openbabel: {self._forcefield} could not be setup for {mol}"
             )
 
         yield forcefield.Energy()

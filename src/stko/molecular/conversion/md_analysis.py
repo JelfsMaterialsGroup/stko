@@ -10,7 +10,7 @@ Class for converting a molecule to and back from an MDAnalysis object.
 
 import logging
 
-from stko.utilities.utilities import WrapperNotInstalledException
+from stko.utilities.exceptions import WrapperNotInstalledError
 
 try:
     import MDAnalysis as mda
@@ -48,7 +48,7 @@ class MDAnalysis:
 
     def __init__(self):
         if mda is None:
-            raise WrapperNotInstalledException(
+            raise WrapperNotInstalledError(
                 "MDAnalysis is not installed; see README for " "installation."
             )
 

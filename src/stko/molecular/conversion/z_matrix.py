@@ -10,6 +10,7 @@ Class for converting a molecule to a Z-matrix.
 
 import logging
 
+from stko.utilities.exceptions import ConversionError
 from stko.utilities.utilities import (
     calculate_angle,
     calculate_dihedral,
@@ -17,10 +18,6 @@ from stko.utilities.utilities import (
 )
 
 logger = logging.getLogger(__name__)
-
-
-class ConversionError(Exception):
-    ...
 
 
 class ZMatrix:
@@ -162,7 +159,7 @@ class ZMatrix:
 
         if 3 * len(zmatrix) - 6 != coords:
             raise ConversionError(
-                f"There are {coords}, not {3*len(zmatrix)-6} as "
+                f"zmatrix: There are {coords}, not {3*len(zmatrix)-6} as "
                 "expected. Therefore, the conversion has failed."
             )
 

@@ -2,12 +2,8 @@ from stko.calculators.calculators import Calculator
 from stko.calculators.extractors.extractor import Extractor
 from stko.calculators.extractors.orca_extractor import OrcaExtractor
 from stko.calculators.extractors.xtb_extractor import XTBExtractor
-from stko.calculators.open_babel_calculators import (
-    ForceFieldSetupError,
-    OpenBabelEnergy,
-    OpenBabelError,
-)
-from stko.calculators.orca_calculators import OrcaEnergy, OrcaOptimizerError
+from stko.calculators.open_babel_calculators import OpenBabelEnergy
+from stko.calculators.orca_calculators import OrcaEnergy
 from stko.calculators.planarity_calculators.planarity_calculators import (
     PlanarityCalculator,
 )
@@ -24,10 +20,7 @@ from stko.calculators.results.torsion_results import (
 )
 from stko.calculators.results.xtb_results import XTBResults
 from stko.calculators.rmsd_calculators import (
-    DifferentAtomException,
-    DifferentMoleculeException,
     RmsdCalculator,
-    RmsdCalculatorError,
     RmsdMappedCalculator,
 )
 from stko.calculators.shape_calculators import ShapeCalculator
@@ -40,7 +33,7 @@ from stko.calculators.xtb_calculators import XTBEnergy
 from stko.molecular.atoms.dummy_atom import Du
 from stko.molecular.atoms.positioned_atom import PositionedAtom
 from stko.molecular.conversion.md_analysis import MDAnalysis
-from stko.molecular.conversion.z_matrix import ConversionError, ZMatrix
+from stko.molecular.conversion.z_matrix import ZMatrix
 from stko.molecular.molecule_modifiers.molecule_splitter import (
     MoleculeSplitter,
 )
@@ -69,21 +62,13 @@ from stko.optimizers.collapser import (
     CollapserMC,
 )
 from stko.optimizers.gulp import (
-    ExpectedMetal,
     GulpUFFMDOptimizer,
     GulpUFFOptimizer,
-    UFFTyperError,
 )
 from stko.optimizers.macromodel import (
     MacroModel,
-    MacroModelConversionError,
     MacroModelForceField,
-    MacroModelForceFieldError,
-    MacroModelInputError,
-    MacroModelLewisStructureError,
     MacroModelMD,
-    MacroModelOptimizationError,
-    MacroModelPathError,
 )
 from stko.optimizers.open_babel import OpenBabel
 from stko.optimizers.optimizers import (
@@ -92,22 +77,28 @@ from stko.optimizers.optimizers import (
     TryCatchOptimizer,
 )
 from stko.optimizers.rdkit import ETKDG, MMFF, UFF, MetalOptimizer
-from stko.optimizers.xtb import (
-    XTB,
-    XTBCREST,
-    XTBFF,
-    XTBFFCREST,
-    CRESTNotCompletedError,
-    CRESTNotStartedError,
-    CRESTOptimizerError,
-    CRESTSettingConflictError,
-    XTBConvergenceError,
-    XTBOptimizerError,
+from stko.optimizers.xtb import XTB, XTBCREST, XTBFF, XTBFFCREST
+from stko.utilities.exceptions import (
+    CalculatorError,
+    ConvergenceError,
+    ConversionError,
+    DifferentAtomError,
+    DifferentMoleculeError,
+    ExpectedMetalError,
+    ForceFieldError,
+    ForceFieldSetupError,
+    InputError,
+    InvalidSolventError,
+    LewisStructureError,
+    NotCompletedError,
+    NotStartedError,
+    OptimizerError,
+    PathError,
+    SettingConflictError,
+    WrapperNotInstalledError,
 )
 from stko.utilities.utilities import (
     MAEExtractor,
-    WrapperNotInstalledException,
-    XTBInvalidSolventError,
     calculate_angle,
     calculate_dihedral,
     get_atom_distance,
@@ -129,11 +120,9 @@ from stko.utilities.utilities import (
 )
 
 __all__ = [
-    "WrapperNotInstalledException",
     "MAEExtractor",
     "mol_from_mae_file",
     "move_generated_macromodel_files",
-    "XTBInvalidSolventError",
     "is_valid_xtb_solvent",
     "is_inequivalent_atom",
     "get_plane_normal",
@@ -155,18 +144,11 @@ __all__ = [
     "Collapser",
     "CollapserMC",
     "ExpectedMetal",
-    "UFFTyperError",
     "GulpUFFMDOptimizer",
     "GulpUFFOptimizer",
     "MacroModel",
-    "MacroModelConversionError",
     "MacroModelForceField",
-    "MacroModelForceFieldError",
-    "MacroModelInputError",
-    "MacroModelLewisStructureError",
     "MacroModelMD",
-    "MacroModelOptimizationError",
-    "MacroModelPathError",
     "OpenBabel",
     "Optimizer",
     "OptimizerSequence",
@@ -176,20 +158,13 @@ __all__ = [
     "ETKDG",
     "MetalOptimizer",
     "XTB",
-    "XTBConvergenceError",
-    "CRESTNotCompletedError",
-    "CRESTNotStartedError",
-    "CRESTOptimizerError",
-    "CRESTSettingConflictError",
     "XTBCREST",
     "XTBFF",
     "XTBFFCREST",
-    "XTBOptimizerError",
     "PositionedAtom",
     "Du",
     "MDAnalysis",
     "ZMatrix",
-    "ConversionError",
     "MoleculeSplitter",
     "MoleculeTransformer",
     "Network",
@@ -209,16 +184,10 @@ __all__ = [
     "ShapeCalculator",
     "RmsdCalculator",
     "RmsdMappedCalculator",
-    "RmsdCalculatorError",
-    "DifferentAtomException",
-    "DifferentMoleculeException",
     "MMFFEnergy",
     "UFFEnergy",
-    "OrcaOptimizerError",
     "OrcaEnergy",
     "OpenBabelEnergy",
-    "OpenBabelError",
-    "ForceFieldSetupError",
     "PlanarityCalculator",
     "XTBResults",
     "TorsionResults",
@@ -232,4 +201,21 @@ __all__ = [
     "XTBExtractor",
     "OrcaExtractor",
     "Extractor",
+    "WrapperNotInstalledError",
+    "OptimizerError",
+    "ForceFieldError",
+    "ForceFieldSetupError",
+    "CalculatorError",
+    "DifferentAtomError",
+    "DifferentMoleculeError",
+    "ConvergenceError",
+    "ConversionError",
+    "ExpectedMetalError",
+    "PathError",
+    "LewisStructureError",
+    "InputError",
+    "InvalidSolventError",
+    "NotCompletedError",
+    "NotStartedError",
+    "SettingConflictError",
 ]

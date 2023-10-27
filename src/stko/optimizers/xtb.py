@@ -19,36 +19,17 @@ import uuid
 
 from stko.calculators.extractors.xtb_extractor import XTBExtractor
 from stko.optimizers.optimizers import Optimizer
-from stko.utilities.utilities import (
-    XTBInvalidSolventError,
-    is_valid_xtb_solvent,
+from stko.utilities.exceptions import (
+    ConvergenceError,
+    InvalidSolventError,
+    NotCompletedError,
+    NotStartedError,
+    OptimizerError,
+    SettingConflictError,
 )
+from stko.utilities.utilities import is_valid_xtb_solvent
 
 logger = logging.getLogger(__name__)
-
-
-class XTBOptimizerError(Exception):
-    ...
-
-
-class XTBConvergenceError(XTBOptimizerError):
-    ...
-
-
-class CRESTOptimizerError(Exception):
-    ...
-
-
-class CRESTNotStartedError(CRESTOptimizerError):
-    ...
-
-
-class CRESTNotCompletedError(CRESTOptimizerError):
-    ...
-
-
-class CRESTSettingConflictError(CRESTOptimizerError):
-    ...
 
 
 class XTB(Optimizer):
@@ -270,16 +251,16 @@ class XTB(Optimizer):
         if solvent is not None:
             solvent = solvent.lower()
             if gfn_version == 0:
-                raise XTBInvalidSolventError(
-                    "No solvent valid for version", f" {gfn_version!r}."
+                raise InvalidSolventError(
+                    "XTB: No solvent valid for version", f" {gfn_version!r}."
                 )
             if not is_valid_xtb_solvent(
                 gfn_version=gfn_version,
                 solvent_model=solvent_model,
                 solvent=solvent,
             ):
-                raise XTBInvalidSolventError(
-                    f"Solvent {solvent!r} and model {solvent_model!r}",
+                raise InvalidSolventError(
+                    f"XTB: Solvent {solvent!r} and model {solvent_model!r}",
                     f" is invalid for version {gfn_version!r}.",
                 )
 
@@ -353,7 +334,7 @@ class XTB(Optimizer):
         """
         if not os.path.exists(output_file):
             # No simulation has been run.
-            raise XTBOptimizerError("Optimization failed to start")
+            raise OptimizerError("XTB: Optimization failed to start")
 
         # If convergence is achieved, then .xtboptok should exist.
         if os.path.exists(".xtboptok"):
@@ -366,9 +347,9 @@ class XTB(Optimizer):
                 return True
 
         elif os.path.exists("NOT_CONVERGED"):
-            raise XTBConvergenceError("Optimization not converged.")
+            raise ConvergenceError("XTB: Optimization not converged.")
         else:
-            raise XTBOptimizerError("Optimization failed to complete")
+            raise OptimizerError("XTB: Optimization failed to complete")
 
     def _run_xtb(self, xyz, out_file):
         """
@@ -735,16 +716,16 @@ class XTBCREST(Optimizer):
         if solvent is not None:
             solvent = solvent.lower()
             if gfn_version == 0:
-                raise XTBInvalidSolventError(
-                    "No solvent valid for version", f" {gfn_version!r}."
+                raise InvalidSolventError(
+                    "XTB: No solvent valid for version", f" {gfn_version!r}."
                 )
             if not is_valid_xtb_solvent(
                 gfn_version=gfn_version,
                 solvent_model=solvent_model,
                 solvent=solvent,
             ):
-                raise XTBInvalidSolventError(
-                    f"Solvent {solvent!r} and model {solvent_model!r}",
+                raise InvalidSolventError(
+                    f"XTB: Solvent {solvent!r} and model {solvent_model!r}",
                     f" is invalid for version {gfn_version!r}.",
                 )
 
@@ -756,8 +737,8 @@ class XTBCREST(Optimizer):
         self._mdlen = md_len
 
         if speed_setting is not None and ewin != 5:
-            raise CRESTSettingConflictError(
-                f"The chosen speed setting {speed_setting} will ",
+            raise SettingConflictError(
+                f"CREST: The chosen speed setting {speed_setting} will ",
                 f"override the chosen energy window {ewin}.",
             )
 
@@ -805,11 +786,11 @@ class XTBCREST(Optimizer):
 
         if not os.path.exists(output_file):
             # No simulation has been run.
-            raise CRESTNotStartedError("CREST run did not start")
+            raise NotStartedError("CREST run did not start")
 
         elif any(not os.path.exists(i) for i in output_xyzs):
             # Best conformer was not output.
-            raise CRESTNotCompletedError("CREST run did not complete")
+            raise NotCompletedError("CREST run did not complete")
 
         return True
 
@@ -1087,14 +1068,14 @@ class XTBFF(Optimizer):
         """
         if not os.path.exists(output_file):
             # No simulation has been run.
-            raise XTBOptimizerError("Optimization failed to start")
+            raise OptimizerError("XTB: Optimization failed to start")
         # If convergence is achieved, then .xtboptok should exist.
         if os.path.exists(".xtboptok"):
             return True
         elif os.path.exists("NOT_CONVERGED"):
-            raise XTBConvergenceError("Optimization not converged.")
+            raise ConvergenceError("XTB: Optimization not converged.")
         else:
-            raise XTBOptimizerError("Optimization failed to complete")
+            raise OptimizerError("XTB: Optimization failed to complete")
 
     def _run_xtb(self, xyz, out_file):
         """
@@ -1397,8 +1378,8 @@ class XTBFFCREST(Optimizer):
         self._mdlen = md_len
 
         if speed_setting is not None and ewin != 5:
-            raise CRESTSettingConflictError(
-                f"The chosen speed setting {speed_setting} will ",
+            raise SettingConflictError(
+                f"CREST: The chosen speed setting {speed_setting} will ",
                 f"override the chosen energy window {ewin}.",
             )
 
@@ -1442,11 +1423,11 @@ class XTBFFCREST(Optimizer):
 
         if not os.path.exists(output_file):
             # No simulation has been run.
-            raise CRESTNotStartedError("CREST run did not start")
+            raise NotStartedError("CREST run did not start")
 
         elif any(not os.path.exists(i) for i in output_xyzs):
             # Best conformer was not output.
-            raise CRESTNotCompletedError("CREST run did not complete")
+            raise NotCompletedError("CREST run did not complete")
 
         return True
 

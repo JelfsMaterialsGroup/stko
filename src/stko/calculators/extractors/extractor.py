@@ -8,10 +8,8 @@ Base results class for extracting molecule properties.
 
 """
 
-from abc import ABC
 
-
-class Extractor(ABC):
+class Extractor:
     """
     An abstract base class for extractors.
 

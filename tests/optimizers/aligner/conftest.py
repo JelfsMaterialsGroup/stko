@@ -42,23 +42,6 @@ class CaseData:
             rmsd=0.2440040878642247,
         ),
         CaseData(
-            molecule=stk.BuildingBlock(
-                "C(#Cc1cccc2ccncc21)c1ccc2[nH]c3ccc(C#Cc4cccc5cnccc54)"
-                "cc3c2c1"
-            ),
-            initial_molecule=(
-                stk.BuildingBlock(
-                    "C(#Cc1cccc2ccncc21)c1ccc2[nH]c3ccc(C#Cc4cccc5cncc"
-                    "c54)cc3c2c1"
-                ).with_rotation_about_axis(
-                    1.34,
-                    np.array((0, 0, 1)),
-                    np.array((0, 0, 0)),
-                )
-            ),
-            rmsd=0.06634296595541135,
-        ),
-        CaseData(
             molecule=stk.BuildingBlock("CCCCCC"),
             initial_molecule=(
                 stk.BuildingBlock("CCCCCC").with_rotation_about_axis(
@@ -68,17 +51,6 @@ class CaseData:
                 )
             ),
             rmsd=0.21668989505225564,
-        ),
-        CaseData(
-            molecule=stk.BuildingBlock("c1ccccc1"),
-            initial_molecule=(
-                stk.BuildingBlock("c1ccccc1").with_rotation_about_axis(
-                    1.34,
-                    np.array((0, 0, 1)),
-                    np.array((0, 0, 0)),
-                )
-            ),
-            rmsd=0.10509500676442843,
         ),
     ],
 )

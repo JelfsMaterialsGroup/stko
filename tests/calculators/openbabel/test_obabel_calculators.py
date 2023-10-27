@@ -9,7 +9,7 @@ except ImportError:
 
 def test_open_babel_energy(unoptimized_mol):
     if openbabel is None:
-        with pytest.raises(stko.WrapperNotInstalledException):
+        with pytest.raises(stko.WrapperNotInstalledError):
             calculator = stko.OpenBabelEnergy("uff")
     else:
         calculator = stko.OpenBabelEnergy("uff")

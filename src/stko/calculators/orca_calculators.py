@@ -17,12 +17,9 @@ import uuid
 
 from stko.calculators.calculators import Calculator
 from stko.calculators.results.orca_results import OrcaResults
+from stko.utilities.exceptions import OptimizerError
 
 logger = logging.getLogger(__name__)
-
-
-class OrcaOptimizerError(Exception):
-    ...
 
 
 class OrcaEnergy(Calculator):
@@ -202,22 +199,22 @@ class OrcaEnergy(Calculator):
 
     def _check_outcome(self, out_file):
         if not os.path.exists(out_file):
-            raise OrcaOptimizerError(
-                f"{out_file} does not exist, suggesting the job did "
+            raise OptimizerError(
+                f"ORCA: {out_file} does not exist, suggesting the job did "
                 "not run."
             )
 
         with open(out_file, "r") as f:
             lines = f.readlines()
             if "****ORCA TERMINATED NORMALLY****" not in lines[-2]:
-                raise OrcaOptimizerError(
-                    "Orca job did not terminate normally."
+                raise OptimizerError(
+                    "ORCA: Orca job did not terminate normally."
                 )
 
         tmp_files = glob.glob(f"{self._basename}*tmp")
         if len(tmp_files) > 0:
-            raise OrcaOptimizerError(
-                "tmp files exist, suggesting the job did not complete "
+            raise OptimizerError(
+                "ORCA: tmp files exist, suggesting the job did not complete "
                 "or did not converge."
             )
 

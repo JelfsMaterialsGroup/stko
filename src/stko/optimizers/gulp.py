@@ -114,6 +114,7 @@ import uuid
 from rdkit.Chem import AllChem as rdkit
 
 from stko.optimizers.optimizers import Optimizer
+from stko.utilities.exceptions import ExpectedMetalError, ForceFieldSetupError
 from stko.utilities.utilities import (
     get_metal_atoms,
     get_metal_bonds,
@@ -123,14 +124,6 @@ from stko.utilities.utilities import (
 )
 
 logger = logging.getLogger(__name__)
-
-
-class ExpectedMetal(Exception):
-    ...
-
-
-class UFFTyperError(Exception):
-    ...
 
 
 class GulpUFFOptimizer(Optimizer):
@@ -216,14 +209,14 @@ class GulpUFFOptimizer(Optimizer):
             if total_valence == 2:
                 atomkey += "+2"
             else:
-                raise UFFTyperError(
+                raise ForceFieldSetupError(
                     f"UFFTYPER: Unrecognized charge state for atom: "
                     f"{atom.GetIdx}"
                 )
         # Al.
         elif atnum == 13:
             if total_valence != 3:
-                raise UFFTyperError(
+                raise ForceFieldSetupError(
                     f"UFFTYPER: Unrecognized charge state for atom: "
                     f"{atom.GetIdx}"
                 )
@@ -231,7 +224,7 @@ class GulpUFFOptimizer(Optimizer):
         # Si.
         elif atnum == 14:
             if total_valence != 4:
-                raise UFFTyperError(
+                raise ForceFieldSetupError(
                     f"UFFTYPER: Unrecognized charge state for atom: "
                     f"{atom.GetIdx}"
                 )
@@ -242,7 +235,7 @@ class GulpUFFOptimizer(Optimizer):
             elif total_valence == 5:
                 atomkey += "+5"
             else:
-                raise UFFTyperError(
+                raise ForceFieldSetupError(
                     f"UFFTYPER: Unrecognized charge state for atom: "
                     f"{atom.GetIdx}"
                 )
@@ -258,7 +251,7 @@ class GulpUFFOptimizer(Optimizer):
                 elif total_valence == 6:
                     atomkey += "+6"
                 else:
-                    raise UFFTyperError(
+                    raise ForceFieldSetupError(
                         f"UFFTYPER: Unrecognized charge state for "
                         f"atom: {atom.GetIdx}"
                     )
@@ -267,7 +260,7 @@ class GulpUFFOptimizer(Optimizer):
             if total_valence == 2:
                 atomkey += "+2"
             else:
-                raise UFFTyperError(
+                raise ForceFieldSetupError(
                     f"UFFTYPER: Unrecognized charge state for atom: "
                     f"{atom.GetIdx}"
                 )
@@ -277,7 +270,7 @@ class GulpUFFOptimizer(Optimizer):
             if total_valence == 3:
                 atomkey += "+3"
             else:
-                raise UFFTyperError(
+                raise ForceFieldSetupError(
                     f"UFFTYPER: Unrecognized charge state for atom: "
                     f"{atom.GetIdx}"
                 )
@@ -286,7 +279,7 @@ class GulpUFFOptimizer(Optimizer):
             if total_valence == 3:
                 atomkey += "+3"
             else:
-                raise UFFTyperError(
+                raise ForceFieldSetupError(
                     f"UFFTYPER: Unrecognized charge state for atom: "
                     f"{atom.GetIdx}"
                 )
@@ -295,7 +288,7 @@ class GulpUFFOptimizer(Optimizer):
             if total_valence == 2:
                 atomkey += "+2"
             else:
-                raise UFFTyperError(
+                raise ForceFieldSetupError(
                     f"UFFTYPER: Unrecognized charge state for atom: "
                     f"{atom.GetIdx}"
                 )
@@ -305,7 +298,7 @@ class GulpUFFOptimizer(Optimizer):
             if total_valence == 2:
                 atomkey += "+2"
             else:
-                raise UFFTyperError(
+                raise ForceFieldSetupError(
                     f"UFFTYPER: Unrecognized charge state for atom: "
                     f"{atom.GetIdx}"
                 )
@@ -314,7 +307,7 @@ class GulpUFFOptimizer(Optimizer):
             if total_valence == 3:
                 atomkey += "+3"
             else:
-                raise UFFTyperError(
+                raise ForceFieldSetupError(
                     f"UFFTYPER: Unrecognized charge state for atom: "
                     f"{atom.GetIdx}"
                 )
@@ -324,7 +317,7 @@ class GulpUFFOptimizer(Optimizer):
             if total_valence == 3:
                 atomkey += "+3"
             else:
-                raise UFFTyperError(
+                raise ForceFieldSetupError(
                     f"UFFTYPER: Unrecognized charge state for atom: "
                     f"{atom.GetIdx}"
                 )
@@ -333,7 +326,7 @@ class GulpUFFOptimizer(Optimizer):
             if total_valence == 2:
                 atomkey += "+2"
             else:
-                raise UFFTyperError(
+                raise ForceFieldSetupError(
                     f"UFFTYPER: Unrecognized charge state for atom: "
                     f"{atom.GetIdx}"
                 )
@@ -342,7 +335,7 @@ class GulpUFFOptimizer(Optimizer):
             if total_valence == 2:
                 atomkey += "+2"
             else:
-                raise UFFTyperError(
+                raise ForceFieldSetupError(
                     f"UFFTYPER: Unrecognized charge state for atom: "
                     f"{atom.GetIdx}"
                 )
@@ -351,7 +344,7 @@ class GulpUFFOptimizer(Optimizer):
             if total_valence == 3:
                 atomkey += "+3"
             else:
-                raise UFFTyperError(
+                raise ForceFieldSetupError(
                     f"UFFTYPER: Unrecognized charge state for atom: "
                     f"{atom.GetIdx}"
                 )
@@ -360,7 +353,7 @@ class GulpUFFOptimizer(Optimizer):
             if total_valence == 3:
                 atomkey += "+3"
             else:
-                raise UFFTyperError(
+                raise ForceFieldSetupError(
                     f"UFFTYPER: Unrecognized charge state for atom: "
                     f"{atom.GetIdx}"
                 )
@@ -369,7 +362,7 @@ class GulpUFFOptimizer(Optimizer):
             if total_valence == 3:
                 atomkey += "+3"
             else:
-                raise UFFTyperError(
+                raise ForceFieldSetupError(
                     f"UFFTYPER: Unrecognized charge state for atom: "
                     f"{atom.GetIdx}"
                 )
@@ -378,7 +371,7 @@ class GulpUFFOptimizer(Optimizer):
             if total_valence == 2:
                 atomkey += "+2"
             else:
-                raise UFFTyperError(
+                raise ForceFieldSetupError(
                     f"UFFTYPER: Unrecognized charge state for atom: "
                     f"{atom.GetIdx}"
                 )
@@ -387,7 +380,7 @@ class GulpUFFOptimizer(Optimizer):
             if total_valence == 6:
                 atomkey += "+3"
             else:
-                raise UFFTyperError(
+                raise ForceFieldSetupError(
                     f"UFFTYPER: Unrecognized charge state for atom: "
                     f"{atom.GetIdx}"
                 )
@@ -418,14 +411,14 @@ class GulpUFFOptimizer(Optimizer):
             if atnum == 84:
                 atomkey += "3"
                 if hybrid != rdkit.HybridizationType.SP3:
-                    raise UFFTyperError(
+                    raise ForceFieldSetupError(
                         f"UFFTYPER: Unrecognized hybridization for"
                         f" atom: {atom.GetIdx}"
                     )
             elif atnum == 80:
                 atomkey += "1"
                 if hybrid != rdkit.HybridizationType.SP:
-                    raise UFFTyperError(
+                    raise ForceFieldSetupError(
                         f"UFFTYPER: Unrecognized hybridization for"
                         f" atom: {atom.GetIdx}"
                     )
@@ -454,7 +447,7 @@ class GulpUFFOptimizer(Optimizer):
                 elif hybrid == rdkit.HybridizationType.SP3D2:
                     atomkey += "6"
                 else:
-                    raise UFFTyperError(
+                    raise ForceFieldSetupError(
                         f"UFFTYPER: Unrecognized hybridization for"
                         f" atom: {atom.GetIdx}"
                     )
@@ -630,7 +623,7 @@ class GulpUFFOptimizer(Optimizer):
         metal_ids = [i.get_id() for i in metal_atoms]
 
         if len(metal_ids) > 1 and self._metal_FF is None:
-            raise ExpectedMetal(
+            raise ExpectedMetalError(
                 "No metal FF provivded, but metal atoms were found ("
                 f"{metal_atoms})"
             )

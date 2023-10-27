@@ -4,10 +4,8 @@ Calculator
 
 """
 
-from abc import ABC
 
-
-class Calculator(ABC):
+class Calculator:
     """
     An abstract base class for calculators.
 

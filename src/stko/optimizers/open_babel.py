@@ -19,17 +19,12 @@ except ImportError:
     openbabel = None
 
 from stko.optimizers.optimizers import Optimizer
-from stko.utilities.utilities import WrapperNotInstalledException
+from stko.utilities.exceptions import (
+    ForceFieldSetupError,
+    WrapperNotInstalledError,
+)
 
 logger = logging.getLogger(__name__)
-
-
-class OpenBabelError(Exception):
-    ...
-
-
-class ForceFieldSetupError(OpenBabelError):
-    ...
 
 
 class OpenBabel(Optimizer):
@@ -87,7 +82,7 @@ class OpenBabel(Optimizer):
         """
 
         if openbabel is None:
-            raise WrapperNotInstalledException(
+            raise WrapperNotInstalledError(
                 "openbabel is not installed; see README for " "installation."
             )
 
@@ -127,7 +122,7 @@ class OpenBabel(Optimizer):
         outcome = forcefield.Setup(OBMol)
         if not outcome:
             raise ForceFieldSetupError(
-                f"{self._forcefield} could not be setup for {mol}"
+                f"Openbabel: {self._forcefield} could not be setup for {mol}"
             )
         for step in range(self._repeat_steps):
             forcefield.SteepestDescent(self._sd_steps)

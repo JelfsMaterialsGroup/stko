@@ -20,11 +20,6 @@ import rdkit.Chem.AllChem as rdkit
 from rdkit.Geometry import Point3D
 from scipy.spatial.distance import euclidean
 
-
-class WrapperNotInstalledException(Exception):
-    ...
-
-
 # This dictionary gives easy access to the rdkit bond types.
 bond_dict = {
     "1": rdkit.rdchem.BondType.SINGLE,
@@ -32,128 +27,6 @@ bond_dict = {
     "2": rdkit.rdchem.BondType.DOUBLE,
     "3": rdkit.rdchem.BondType.TRIPLE,
     "ar": rdkit.rdchem.BondType.AROMATIC,
-}
-
-# A dictionary which matches atomic number to elemental symbols.
-periodic_table = {
-    1: "H",
-    2: "He",
-    3: "Li",
-    4: "Be",
-    5: "B",
-    6: "C",
-    7: "N",
-    8: "O",
-    9: "F",
-    10: "Ne",
-    11: "Na",
-    12: "Mg",
-    13: "Al",
-    14: "Si",
-    15: "P",
-    16: "S",
-    17: "Cl",
-    18: "Ar",
-    19: "K",
-    20: "Ca",
-    21: "Sc",
-    22: "Ti",
-    23: "V",
-    24: "Cr",
-    25: "Mn",
-    26: "Fe",
-    27: "Co",
-    28: "Ni",
-    29: "Cu",
-    30: "Zn",
-    31: "Ga",
-    32: "Ge",
-    33: "As",
-    34: "Se",
-    35: "Br",
-    36: "Kr",
-    37: "Rb",
-    38: "Sr",
-    39: "Y",
-    40: "Zr",
-    41: "Nb",
-    42: "Mo",
-    43: "Tc",
-    44: "Ru",
-    45: "Rh",
-    46: "Pd",
-    47: "Ag",
-    48: "Cd",
-    49: "In",
-    50: "Sn",
-    51: "Sb",
-    52: "Te",
-    53: "I",
-    54: "Xe",
-    55: "Cs",
-    56: "Ba",
-    57: "La",
-    58: "Ce",
-    59: "Pr",
-    60: "Nd",
-    61: "Pm",
-    62: "Sm",
-    63: "Eu",
-    64: "Gd",
-    65: "Tb",
-    66: "Dy",
-    67: "Ho",
-    68: "Er",
-    69: "Tm",
-    70: "Yb",
-    71: "Lu",
-    72: "Hf",
-    73: "Ta",
-    74: "W",
-    75: "Re",
-    76: "Os",
-    77: "Ir",
-    78: "Pt",
-    79: "Au",
-    80: "Hg",
-    81: "Tl",
-    82: "Pb",
-    83: "Bi",
-    84: "Po",
-    85: "At",
-    86: "Rn",
-    87: "Fr",
-    88: "Ra",
-    89: "Ac",
-    90: "Th",
-    91: "Pa",
-    92: "U",
-    93: "Np",
-    94: "Pu",
-    95: "Am",
-    96: "Cm",
-    97: "Bk",
-    98: "Cf",
-    99: "Es",
-    100: "Fm",
-    101: "Md",
-    102: "No",
-    103: "Lr",
-    104: "Rf",
-    105: "Db",
-    106: "Sg",
-    107: "Bh",
-    108: "Hs",
-    109: "Mt",
-    110: "Ds",
-    111: "Rg",
-    112: "Cn",
-    113: "Uut",
-    114: "Fl",
-    115: "Uup",
-    116: "Lv",
-    117: "Uus",
-    118: "Uuo",
 }
 
 
@@ -455,7 +328,7 @@ def mol_from_mae_file(mae_path):
             if "atomic_number" in label:
                 atom_num = int(data)
 
-        atom_sym = periodic_table[atom_num]
+        atom_sym = rdkit.GetPeriodicTable().GetElementSymbol(atom_num)
         atom_coord = Point3D(x, y, z)
         atom_id = mol.AddAtom(rdkit.Atom(atom_sym))
         conf.SetAtomPosition(atom_id, atom_coord)
@@ -505,10 +378,6 @@ def move_generated_macromodel_files(basename, output_dir):
         if filename == output_dir:
             continue
         shutil.move(filename, f"{output_dir}/{filename}")
-
-
-class XTBInvalidSolventError(Exception):
-    ...
 
 
 def is_valid_xtb_solvent(gfn_version, solvent_model, solvent):

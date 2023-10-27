@@ -1,6 +1,7 @@
 import pytest
 import stk
-from stko import ExpectedMetal, GulpUFFOptimizer
+from stko.optimizers.gulp import GulpUFFOptimizer
+from stko.utilities.exceptions import ExpectedMetalError
 
 pd_metal = stk.BuildingBlock(
     smiles="[Pd+2]",
@@ -301,7 +302,7 @@ def test_assign_FF(test_molecule):
 
     # Assign the force field.
     if test_molecule.has_metal and test_molecule.metal_ff is None:
-        with pytest.raises(ExpectedMetal):
+        with pytest.raises(ExpectedMetalError):
             gulp_opt.assign_FF(test_molecule.molecule)
     else:
         gulp_opt.assign_FF(test_molecule.molecule)
