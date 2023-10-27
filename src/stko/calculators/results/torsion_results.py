@@ -2,9 +2,6 @@
 Torsion Results
 ===============
 
-#. :class:`.TorsionResults`
-#. :class:`.ConstructedMoleculeTorsionResults`
-
 Results classes for extracting molecular torsions.
 
 """

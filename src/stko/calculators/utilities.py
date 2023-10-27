@@ -1,11 +1,3 @@
-"""
-This module defines general-purpose objects, functions and classes.
-
-Functions, classes, etc. defined here should not depend on any other
-part of ``stko``. They must be completely self-sufficient.
-
-"""
-
 from collections import defaultdict
 
 import numpy as np

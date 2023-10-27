@@ -2,8 +2,6 @@
 MD Analysis
 ===========
 
-#. :class:`.MDAnalysis`
-
 Class for converting a molecule to and back from an MDAnalysis object.
 
 """

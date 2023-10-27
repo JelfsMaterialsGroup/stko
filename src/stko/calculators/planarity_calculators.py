@@ -2,8 +2,6 @@
 Planarity Calculators
 =====================
 
-#. :class:`.PlanarityCalculator`
-
 Methods to calculate planarity measures of a molecule.
 
 """

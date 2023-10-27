@@ -2,8 +2,6 @@
 Extractor
 =========
 
-#. :class:`.Extractor`
-
 Base results class for extracting molecule properties.
 
 """

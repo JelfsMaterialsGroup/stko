@@ -2,8 +2,6 @@
 Orca Extractor
 =============
 
-#. :class:`.OrcaExtractor`
-
 Class to extract properties from Orca output.
 
 """

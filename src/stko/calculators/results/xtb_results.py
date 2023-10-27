@@ -2,8 +2,6 @@
 XTB Results
 ===========
 
-#. :class:`.XTBResults`
-
 Results class for the output of XTB.
 
 """

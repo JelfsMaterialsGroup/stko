@@ -2,9 +2,6 @@
 RMSD Calculators
 =================
 
-#. :class:`.RmsdCalculator`
-#. :class:`.RmsdMappedCalculator`
-
 Calculator of Root Mean Square Distance between two molecules.
 
 """

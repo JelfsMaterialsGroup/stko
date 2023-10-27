@@ -2,8 +2,6 @@
 Topology Info
 =============
 
-#. :class:`.TopologyInfo`
-
 Class containing extracted topology information.
 
 """

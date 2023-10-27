@@ -1,10 +1,3 @@
-"""
-Calculator
-==========
-
-"""
-
-
 class Calculator:
     """
     An abstract base class for calculators.

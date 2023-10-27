@@ -2,8 +2,6 @@
 Orca Results
 ============
 
-#. :class:`.OrcaResults`
-
 Results class for the output of Orca.
 
 """

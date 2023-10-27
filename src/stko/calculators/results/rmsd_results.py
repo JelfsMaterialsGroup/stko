@@ -2,8 +2,6 @@
 RMSD Results
 =============
 
-#. :class:`.RmsdResults`
-
 Results class for extracting RMSD of two molecules.
 
 """

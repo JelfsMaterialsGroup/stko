@@ -1,12 +1,3 @@
-"""
-This module defines general-purpose objects, functions and classes.
-
-Functions, classes, etc. defined here should not depend on any other
-part of ``stko``. They must be completely self-sufficient.
-
-"""
-
-
 import numpy as np
 from scipy.spatial.distance import euclidean
 

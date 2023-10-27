@@ -1,9 +1,3 @@
-"""
-This module defines exceptions.
-
-"""
-
-
 class WrapperNotInstalledError(Exception):
     ...
 

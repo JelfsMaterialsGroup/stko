@@ -2,9 +2,7 @@
 Aligner
 =======
 
-#. :class:`.Aligner`
-
-Wrappers for optimizers within the `openbabel` code.
+Optimizer that aligns two molecules using `Spindry`.
 
 """
 
@@ -190,21 +188,6 @@ class Aligner(Optimizer):
         return mol
 
     def optimize(self, mol):
-        """
-        Optimize `mol`.
-
-        Parameters
-        ----------
-        mol : :class:`.Molecule`
-            The molecule to be optimized.
-
-        Returns
-        -------
-        mol : :class:`.Molecule`
-            The optimized molecule.
-
-        """
-
         rotation_axes = (
             None,
             (1, 0, 0),

@@ -2,8 +2,6 @@
 XTB Calculators
 ===============
 
-#. :class:`.XTBEnergy`
-
 Wrappers for calculators within the :mod:`xtb` code.
 
 """

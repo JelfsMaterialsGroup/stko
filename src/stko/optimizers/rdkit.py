@@ -2,31 +2,6 @@
 RDKit Optimizers
 ================
 
-#. :class:`.MMFF`
-#. :class:`.UFF`
-#. :class:`.ETKDG`
-#. :class:`.MetalOptimizer`
-
-Wrappers for optimizers within the :mod:`rdkit` code.
-
-.. code-block:: python
-
-    import stk
-    import stko
-
-    mol = stk.BuildingBlock('NCCCN', [stk.PrimaryAminoFactory()])
-
-    # Optimizers work on stk.Molecule.
-    polymer = stk.ConstructedMolecule(
-        topology_graph=stk.polymer.Linear(
-            building_blocks=(mol, ),
-            repeating_unit='A',
-            num_repeating_units=3,
-        )
-    )
-    etkdg = stko.ETKDG()
-    polymer = etkdg.optimize(polymer)
-
 """
 
 import logging

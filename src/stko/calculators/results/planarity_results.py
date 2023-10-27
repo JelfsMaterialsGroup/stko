@@ -2,8 +2,6 @@
 Planarity Results
 =================
 
-#. :class:`.PlanarityResults`
-
 Results class for extracting molecular planarity measures.
 
 """

@@ -2,9 +2,6 @@
 Torsion Calculators
 ===================
 
-#. :class:`.TorsionCalculator`
-#. :class:`.ConstructedMoleculeTorsionCalculator`
-
 Methods to extract torsions from a molecule or constructed molecule.
 
 """

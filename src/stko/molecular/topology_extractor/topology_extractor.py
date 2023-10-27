@@ -2,8 +2,6 @@
 Topology Extractor
 ==================
 
-#. :class:`.TopologyExtractor`
-
 Class for defining a topology from a molecule and disconnections.
 
 """

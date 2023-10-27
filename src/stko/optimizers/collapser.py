@@ -2,9 +2,6 @@
 Collapser Optimizer
 ===================
 
-#. :class:`.Collapser`
-#. :class:`.CollapserMC`
-
 Optimizer for collapsing enlarged topologies.
 
 """

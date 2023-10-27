@@ -2,8 +2,6 @@
 Z Matrix
 ========
 
-#. :class:`.ZMatrix`
-
 Class for converting a molecule to a Z-matrix.
 
 """

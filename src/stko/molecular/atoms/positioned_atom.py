@@ -2,8 +2,6 @@
 Positioned Atom
 ===============
 
-#. :class:`.PositionedAtom`
-
 A class representing a positioned stk.Atom.
 
 """

@@ -1,14 +1,3 @@
-"""
-Results
-=======
-
-#. :class:`.Results`
-
-Base results class for extracting molecule properties.
-
-"""
-
-
 class Results:
     """
     An abstract base class for results.

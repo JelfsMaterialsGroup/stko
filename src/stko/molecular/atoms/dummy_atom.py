@@ -2,8 +2,6 @@
 Dummy Atom
 ==========
 
-#. :class:`.Du`
-
 A class representing a dummy stk.Atom.
 
 """

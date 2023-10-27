@@ -2,9 +2,6 @@
 RDKit Calculators
 =================
 
-#. :class:`.MMFFEnergy`
-#. :class:`.UFFEnergy`
-
 Wrappers for calculators within the :mod:`rdkit` code.
 
 """

@@ -2,8 +2,6 @@
 Orca Calculators
 ================
 
-#. :class:`.OrcaEnergy`
-
 Wrappers for calculators within the :mod:`orca` code.
 
 """

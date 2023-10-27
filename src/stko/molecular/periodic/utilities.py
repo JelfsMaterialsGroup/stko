@@ -1,8 +1,3 @@
-"""
-Utilities for periodic molecules.
-
-"""
-
 import logging
 
 import numpy as np

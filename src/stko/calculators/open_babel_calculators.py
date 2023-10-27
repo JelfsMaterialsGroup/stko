@@ -2,8 +2,6 @@
 OpenBabel Calculators
 =====================
 
-#. :class:`.OpenBabelEnergy`
-
 Wrappers for calculators within the `openbabel` code.
 
 """

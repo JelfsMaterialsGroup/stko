@@ -2,8 +2,6 @@
 Molecule Transformer
 ====================
 
-#. :class:`.MoleculeTransformer`
-
 Class for splitting a molecule into many with new connectors.
 
 """

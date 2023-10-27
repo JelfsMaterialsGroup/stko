@@ -2,8 +2,6 @@
 XTB Extractor
 =============
 
-#. :class:`.XTBExtractor`
-
 Class to extract properties from xTB output.
 
 """

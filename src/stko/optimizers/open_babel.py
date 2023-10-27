@@ -2,8 +2,6 @@
 OpenBabel Optimizers
 ====================
 
-#. :class:`.OpenBabel`
-
 Wrappers for optimizers within the `openbabel` code.
 
 """
