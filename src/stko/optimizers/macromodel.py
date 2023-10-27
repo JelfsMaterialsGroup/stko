@@ -17,6 +17,11 @@ from uuid import uuid4
 import rdkit.Chem.AllChem as rdkit
 
 from stko.optimizers.optimizers import Optimizer
+from stko.optimizers.utilities import (
+    MAEExtractor,
+    mol_from_mae_file,
+    move_generated_macromodel_files,
+)
 from stko.utilities.exceptions import (
     ConversionError,
     ForceFieldError,
@@ -24,11 +29,6 @@ from stko.utilities.exceptions import (
     LewisStructureError,
     OptimizerError,
     PathError,
-)
-from stko.optimizers.utilities import (
-    MAEExtractor,
-    mol_from_mae_file,
-    move_generated_macromodel_files,
 )
 
 logger = logging.getLogger(__name__)

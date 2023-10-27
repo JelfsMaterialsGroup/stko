@@ -18,8 +18,8 @@ from stko.calculators.results.torsion_results import (
     ConstructedMoleculeTorsionResults,
     TorsionResults,
 )
-from stko.molecular.torsion.torsion import Torsion
 from stko.calculators.utilities import get_atom_maps
+from stko.molecular.torsion.torsion import Torsion
 
 logger = logging.getLogger(__name__)
 

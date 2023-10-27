@@ -17,11 +17,11 @@ from scipy.spatial.distance import cdist
 
 from stko.calculators.calculators import Calculator
 from stko.calculators.results.rmsd_results import RmsdResults
+from stko.calculators.utilities import is_inequivalent_atom
 from stko.utilities.exceptions import (
     DifferentAtomError,
     DifferentMoleculeError,
 )
-from stko.calculators.utilities import is_inequivalent_atom
 
 logger = logging.getLogger(__name__)
 

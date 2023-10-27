@@ -114,7 +114,6 @@ import uuid
 from rdkit.Chem import AllChem as rdkit
 
 from stko.optimizers.optimizers import Optimizer
-from stko.utilities.exceptions import ExpectedMetalError, ForceFieldSetupError
 from stko.optimizers.utilities import (
     get_metal_atoms,
     get_metal_bonds,
@@ -122,6 +121,7 @@ from stko.optimizers.utilities import (
     has_metal_atom,
     to_rdkit_mol_without_metals,
 )
+from stko.utilities.exceptions import ExpectedMetalError, ForceFieldSetupError
 
 logger = logging.getLogger(__name__)
 
