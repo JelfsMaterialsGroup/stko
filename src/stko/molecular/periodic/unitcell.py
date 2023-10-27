@@ -20,6 +20,10 @@ class UnitCell(PeriodicInfo):
     """
     Unit cell information for periodic systems.
 
+    We are aware that this naming choice may not be appropriate (because
+    not all inputs will be unit cells, strictly). However, for backwards
+    compatability, we have not changed this naming.
+
     """
 
     @classmethod
