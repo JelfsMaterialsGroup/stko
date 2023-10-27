@@ -8,7 +8,7 @@ Results class for extracting RMSD of two molecules.
 
 """
 
-from .results import Results
+from stko.calculators.results.results import Results
 
 
 class RmsdResults(Results):

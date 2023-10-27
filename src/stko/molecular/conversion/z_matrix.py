@@ -10,7 +10,7 @@ Class for converting a molecule to a Z-matrix.
 
 import logging
 
-from ...utilities.utilities import (
+from stko.utilities.utilities import (
     calculate_angle,
     calculate_dihedral,
     get_atom_distance,

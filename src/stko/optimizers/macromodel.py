@@ -16,12 +16,12 @@ from uuid import uuid4
 
 import rdkit.Chem.AllChem as rdkit
 
-from ..utilities import (
+from stko.optimizers.optimizers import Optimizer
+from stko.utilities.utilities import (
     MAEExtractor,
     mol_from_mae_file,
     move_generated_macromodel_files,
 )
-from .optimizers import Optimizer
 
 logger = logging.getLogger(__name__)
 

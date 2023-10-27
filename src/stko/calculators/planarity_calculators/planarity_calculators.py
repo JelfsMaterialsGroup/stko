@@ -12,8 +12,8 @@ import logging
 
 import numpy as np
 
-from ..calculators import Calculator
-from ..results import PlanarityResults
+from stko.calculators.calculators import Calculator
+from stko.calculators.results.planarity_results import PlanarityResults
 
 logger = logging.getLogger(__name__)
 

@@ -15,8 +15,8 @@ import shutil
 import subprocess as sp
 import uuid
 
-from .calculators import Calculator
-from .results import OrcaResults
+from stko.calculators.calculators import Calculator
+from stko.calculators.results.orca_results import OrcaResults
 
 logger = logging.getLogger(__name__)
 

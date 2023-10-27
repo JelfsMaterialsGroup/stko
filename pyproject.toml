@@ -89,5 +89,8 @@ module = [
   "vabene.*",
   "setuptools.*",
   "stk.*",
+  "networkx.*",
+  "openbabel.*",
+  "MDAnalysis.*",
 ]
 ignore_missing_imports = true

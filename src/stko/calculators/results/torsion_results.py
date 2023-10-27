@@ -11,9 +11,10 @@ Results classes for extracting molecular torsions.
 
 from collections import defaultdict
 
-from ...molecular.torsion import Torsion, TorsionInfo
-from ...utilities import calculate_dihedral
-from .results import Results
+from stko.calculators.results.results import Results
+from stko.molecular.torsion.torsion import Torsion
+from stko.molecular.torsion.torsion_info import TorsionInfo
+from stko.utilities.utilities import calculate_dihedral
 
 
 class TorsionResults(Results):

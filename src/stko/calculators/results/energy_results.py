@@ -8,7 +8,7 @@ Results class for :class:`.Calculator` that outputs energy.
 
 """
 
-from .results import Results
+from stko.calculators.results.results import Results
 
 
 class EnergyResults(Results):

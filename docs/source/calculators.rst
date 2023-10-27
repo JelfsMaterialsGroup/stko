@@ -4,8 +4,7 @@ Calculators
 .. toctree::
   :maxdepth: 1
 
-  Calculator <_autosummary/stko.calculators.Calculator>
-
+  Calculator <_autosummary/stko.Calculator>
   MMFFEnergy <_autosummary/stko.MMFFEnergy>
   UFFEnergy <_autosummary/stko.UFFEnergy>
   OpenBabelEnergy <_autosummary/stko.OpenBabelEnergy>

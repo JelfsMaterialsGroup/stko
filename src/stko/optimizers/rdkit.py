@@ -35,13 +35,13 @@ from itertools import combinations
 import numpy as np
 import rdkit.Chem.AllChem as rdkit
 
-from ..utilities import (
+from stko.optimizers.optimizers import Optimizer
+from stko.utilities.utilities import (
     get_metal_atoms,
     get_metal_bonds,
     to_rdkit_mol_without_metals,
     vector_angle,
 )
-from .optimizers import Optimizer
 
 logger = logging.getLogger(__name__)
 

@@ -10,7 +10,7 @@ Class to extract properties from xTB output.
 
 import re
 
-from .extractor import Extractor
+from stko.calculators.extractors.extractor import Extractor
 
 
 class XTBExtractor(Extractor):

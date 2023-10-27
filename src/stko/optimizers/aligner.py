@@ -15,8 +15,8 @@ import numpy as np
 import spindry as spd
 from scipy.spatial.distance import cdist
 
-from ..calculators import RmsdMappedCalculator
-from .optimizers import Optimizer
+from stko.calculators.rmsd_calculators import RmsdMappedCalculator
+from stko.optimizers.optimizers import Optimizer
 
 logger = logging.getLogger(__name__)
 

@@ -113,14 +113,14 @@ import uuid
 
 from rdkit.Chem import AllChem as rdkit
 
-from ..utilities import (
+from stko.optimizers.optimizers import Optimizer
+from stko.utilities.utilities import (
     get_metal_atoms,
     get_metal_bonds,
     has_h_atom,
     has_metal_atom,
     to_rdkit_mol_without_metals,
 )
-from .optimizers import Optimizer
 
 logger = logging.getLogger(__name__)
 

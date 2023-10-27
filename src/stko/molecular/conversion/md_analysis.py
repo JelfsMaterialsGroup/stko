@@ -10,7 +10,7 @@ Class for converting a molecule to and back from an MDAnalysis object.
 
 import logging
 
-from ...utilities import WrapperNotInstalledException
+from stko.utilities.utilities import WrapperNotInstalledException
 
 try:
     import MDAnalysis as mda

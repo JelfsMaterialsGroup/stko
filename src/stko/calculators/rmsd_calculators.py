@@ -15,9 +15,9 @@ import numpy as np
 import stk
 from scipy.spatial.distance import cdist
 
-from ..utilities import is_inequivalent_atom
-from .calculators import Calculator
-from .results import RmsdResults
+from stko.calculators.calculators import Calculator
+from stko.calculators.results.rmsd_results import RmsdResults
+from stko.utilities.utilities import is_inequivalent_atom
 
 logger = logging.getLogger(__name__)
 

@@ -14,9 +14,12 @@ import shutil
 import subprocess as sp
 import uuid
 
-from ..utilities import XTBInvalidSolventError, is_valid_xtb_solvent
-from .calculators import Calculator
-from .results import XTBResults
+from stko.calculators.calculators import Calculator
+from stko.calculators.results.xtb_results import XTBResults
+from stko.utilities.utilities import (
+    XTBInvalidSolventError,
+    is_valid_xtb_solvent,
+)
 
 logger = logging.getLogger(__name__)
 

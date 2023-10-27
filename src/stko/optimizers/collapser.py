@@ -22,8 +22,8 @@ import numpy as np
 from scipy.spatial.distance import pdist
 from stk import PdbWriter
 
-from ..utilities import get_atom_distance
-from .optimizers import Optimizer
+from stko.optimizers.optimizers import Optimizer
+from stko.utilities.utilities import get_atom_distance
 
 logger = logging.getLogger(__name__)
 

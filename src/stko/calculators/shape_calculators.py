@@ -12,8 +12,8 @@ import logging
 
 from rdkit.Chem import Descriptors3D as D3D
 
-from .calculators import Calculator
-from .results import ShapeResults
+from stko.calculators.calculators import Calculator
+from stko.calculators.results.shape_results import ShapeResults
 
 logger = logging.getLogger(__name__)
 

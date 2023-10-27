@@ -11,7 +11,7 @@ import logging
 import numpy as np
 from stk import PeriodicInfo
 
-from .utilities import get_from_parameters
+from stko.molecular.periodic.utilities import get_from_parameters
 
 logger = logging.getLogger(__name__)
 

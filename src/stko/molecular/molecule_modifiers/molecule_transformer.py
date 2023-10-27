@@ -13,7 +13,7 @@ import logging
 import stk
 from rdkit.Chem import AllChem as rdkit
 
-from ..atoms import Du
+from stko.molecular.atoms.dummy_atom import Du
 
 logger = logging.getLogger(__name__)
 

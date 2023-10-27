@@ -10,8 +10,8 @@ Class for defining a topology from a molecule and disconnections.
 
 import logging
 
-from ..networkx import Network
-from .topology_info import TopologyInfo
+from stko.molecular.networkx.network import Network
+from stko.molecular.topology_extractor.topology_info import TopologyInfo
 
 logger = logging.getLogger(__name__)
 

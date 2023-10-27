@@ -16,9 +16,9 @@ try:
 except ImportError:
     openbabel = None
 
-from ..utilities import WrapperNotInstalledException
-from .calculators import Calculator
-from .results import EnergyResults
+from stko.calculators.calculators import Calculator
+from stko.calculators.results.energy_results import EnergyResults
+from stko.utilities.utilities import WrapperNotInstalledException
 
 logger = logging.getLogger(__name__)
 

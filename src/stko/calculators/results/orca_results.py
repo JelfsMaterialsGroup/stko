@@ -8,8 +8,8 @@ Results class for the output of Orca.
 
 """
 
-from ..extractors import OrcaExtractor
-from .results import Results
+from stko.calculators.extractors.orca_extractor import OrcaExtractor
+from stko.calculators.results.results import Results
 
 
 class OrcaResults(Results):

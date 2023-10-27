@@ -4,9 +4,9 @@ Optimizers
 .. toctree::
   :maxdepth: 1
 
-  Optimizer <_autosummary/stko.optimizers.Optimizer>
-  OptimizerSequence <_autosummary/stko.optimizers.OptimizerSequence>
-  TryCatchOptimizer <_autosummary/stko.optimizers.TryCatchOptimizer>
+  Optimizer <_autosummary/stko.Optimizer>
+  OptimizerSequence <_autosummary/stko.OptimizerSequence>
+  TryCatchOptimizer <_autosummary/stko.TryCatchOptimizer>
 
   Aligner <_autosummary/stko.Aligner>
   Collapser <_autosummary/stko.Collapser>

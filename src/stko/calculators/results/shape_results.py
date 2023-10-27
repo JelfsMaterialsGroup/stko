@@ -8,7 +8,7 @@ Results class for extracting molecular shape properties.
 
 """
 
-from .results import Results
+from stko.calculators.results.results import Results
 
 
 class ShapeResults(Results):

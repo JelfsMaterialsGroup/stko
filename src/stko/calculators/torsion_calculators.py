@@ -13,10 +13,13 @@ import logging
 
 from rdkit.Chem import TorsionFingerprints
 
-from ..molecular.torsion import Torsion
-from ..utilities.utilities import get_atom_maps
-from .calculators import Calculator
-from .results import ConstructedMoleculeTorsionResults, TorsionResults
+from stko.calculators.calculators import Calculator
+from stko.calculators.results.torsion_results import (
+    ConstructedMoleculeTorsionResults,
+    TorsionResults,
+)
+from stko.molecular.torsion.torsion import Torsion
+from stko.utilities.utilities import get_atom_maps
 
 logger = logging.getLogger(__name__)
 

@@ -18,8 +18,8 @@ try:
 except ImportError:
     openbabel = None
 
-from ..utilities import WrapperNotInstalledException
-from .optimizers import Optimizer
+from stko.optimizers.optimizers import Optimizer
+from stko.utilities.utilities import WrapperNotInstalledException
 
 logger = logging.getLogger(__name__)
 

@@ -13,8 +13,8 @@ import logging
 
 from rdkit.Chem import AllChem as rdkit
 
-from .calculators import Calculator
-from .results import EnergyResults
+from stko.calculators.calculators import Calculator
+from stko.calculators.results.energy_results import EnergyResults
 
 logger = logging.getLogger(__name__)
 

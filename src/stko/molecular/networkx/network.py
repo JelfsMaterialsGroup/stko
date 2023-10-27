@@ -12,7 +12,7 @@ import logging
 
 import networkx as nx
 
-from ..atoms import PositionedAtom
+from stko.molecular.atoms.positioned_atom import PositionedAtom
 
 logger = logging.getLogger(__name__)
 

@@ -8,8 +8,8 @@ Results class for the output of XTB.
 
 """
 
-from ..extractors import XTBExtractor
-from .results import Results
+from stko.calculators.extractors.xtb_extractor import XTBExtractor
+from stko.calculators.results.results import Results
 
 
 class XTBResults(Results):
