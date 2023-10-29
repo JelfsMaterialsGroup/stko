@@ -1,5 +1,4 @@
 from stko.calculators.calculators import Calculator
-from stko.calculators.extractors.extractor import Extractor
 from stko.calculators.extractors.orca_extractor import OrcaExtractor
 from stko.calculators.extractors.xtb_extractor import XTBExtractor
 from stko.calculators.open_babel_calculators import OpenBabelEnergy
@@ -177,7 +176,6 @@ __all__ = [
     "EnergyResults",
     "XTBExtractor",
     "OrcaExtractor",
-    "Extractor",
     "WrapperNotInstalledError",
     "OptimizerError",
     "ForceFieldError",

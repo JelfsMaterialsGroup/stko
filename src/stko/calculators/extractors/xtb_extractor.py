@@ -8,111 +8,139 @@ Class to extract properties from xTB output.
 
 import re
 
-from stko.calculators.extractors.extractor import Extractor
+from stko.calculators.extractors.utilities import check_line
 
 
-class XTBExtractor(Extractor):
+class XTBExtractor:
     """
     Extracts properties from xTB output files.
 
     All formatting based on the 190418 version of xTB.
 
-    Attributes
-    ----------
-    output_file : :class:`str`
-        Output file to extract properties from.
+    Attributes:
+        output_file:
+            Output file to extract properties from.
 
-    output_lines : :class:`list` : :class:`str`
-        :class:`list` of all lines in as :class:`str` in the output
-        file.
+        output_lines:
+            :class:`list` of all lines in as :class:`str` in the output
+            file.
 
-    total_energy : :class:`float`
-        The total energy in the :attr:`output_file` as
-        :class:`float`. The energy is in units of a.u..
+        total_energy:
+            The total energy in the :attr:`output_file` as
+            :class:`float`. The energy is in units of a.u..
 
-    homo_lumo_gap : :class:`float`
-        The HOMO-LUMO gap in the :attr:`output_file` as
-        :class:`float`. The gap is in units of eV.
+        homo_lumo_gap:
+            The HOMO-LUMO gap in the :attr:`output_file` as
+            :class:`float`. The gap is in units of eV.
 
-    fermi_level : :class:`float`
-        The Fermi level in the :attr:`output_file` as
-        :class:`float` in units of eV.
+        fermi_level:
+            The Fermi level in the :attr:`output_file` as
+            :class:`float` in units of eV.
 
-    qonly_dipole_moment : :class:`list`
-        Components of the Q only dipole moment in units
-        of Debye in :class:`list` of the form
-        ``[x, y, z]``.
+        qonly_dipole_moment:
+            Components of the Q only dipole moment in units
+            of Debye in :class:`list` of the form
+            ``[x, y, z]``.
 
-    full_dipole_moment : :class:`list`
-        Components of the full dipole moment in units
-        of Debye in :class:`list` of the form
-        ``[x, y, z, total]``.
+        full_dipole_moment:
+            Components of the full dipole moment in units
+            of Debye in :class:`list` of the form
+            ``[x, y, z, total]``.
 
-    qonly_quadrupole_moment : :class:`list`
-        Components of the Q only traceless quadrupole moment in units
-        of Debye in :class:`list` of the form
-        ``[xx, xy, xy, xz, yz, zz]``.
+        qonly_quadrupole_moment:
+            Components of the Q only traceless quadrupole moment in units
+            of Debye in :class:`list` of the form
+            ``[xx, xy, xy, xz, yz, zz]``.
 
-    qdip_quadrupole_moment : :class:`list`
-        Components of the Q+Dip traceless quadrupole moment in units of
-        Debye in :class:`list` of the form
-        ``[xx, xy, xy, xz, yz, zz]``.
+        qdip_quadrupole_moment:
+            Components of the Q+Dip traceless quadrupole moment in units of
+            Debye in :class:`list` of the form
+            ``[xx, xy, xy, xz, yz, zz]``.
 
-    full_quadrupole_moment : :class:`list`
-        Components of the full traceless quadrupole moment in units of
-        Debye in :class:`list` of the form
-        ``[xx, xy, xy, xz, yz, zz]``.
+        full_quadrupole_moment:
+            Components of the full traceless quadrupole moment in units of
+            Debye in :class:`list` of the form
+            ``[xx, xy, xy, xz, yz, zz]``.
 
-    homo_lumo_occ : :class:`dict`
-        :class:`dict` of :class:`list` containing the orbital number,
-        energy in eV and occupation of the HOMO and LUMO orbitals in
-        the :attr:`output_file`.
+        homo_lumo_occ:
+            :class:`dict` of :class:`list` containing the orbital number,
+            energy in eV and occupation of the HOMO and LUMO orbitals in
+            the :attr:`output_file`.
 
-    total_free_energy : :class:`float`
-        The total free energy in the :attr:`output_file` as
-        :class:`float`. The free energy is in units of a.u. and
-        calculated at 298.15K.
+        total_free_energy:
+            The total free energy in the :attr:`output_file` as
+            :class:`float`. The free energy is in units of a.u. and
+            calculated at 298.15K.
 
-    frequencies : :class:`list`
-        :class:`list` of the vibrational frequencies as :class:`float`
-        in the :attr:`output_file`. Vibrational frequencies are in
-        units of wavenumber and calculated at 298.15K.
+        frequencies:
+            :class:`list` of the vibrational frequencies as :class:`float`
+            in the :attr:`output_file`. Vibrational frequencies are in
+            units of wavenumber and calculated at 298.15K.
 
-    ionisation_potential : :class:`float`
-        The vertical ionisation potential in the :attr:`output_file` as
-        :class:`float`. Corresponds to the delta SCC IP.
+        ionisation_potential:
+            The vertical ionisation potential in the :attr:`output_file` as
+            :class:`float`. Corresponds to the delta SCC IP.
 
-    electron_affinity : :class:`float`
-        The vertical electron affinity in the :attr:`output_file` as
-        :class:`float`. Corresponds to the delta SCC EA.
+        electron_affinity:
+            The vertical electron affinity in the :attr:`output_file` as
+            :class:`float`. Corresponds to the delta SCC EA.
+
+    Examples:
+
+        .. code-block:: python
+
+            import stko
+
+            data = stko.XTBExtractor(output_file)
+            print(data.total_energy)
+            print(data.homo_lumo_gap)
 
     """
 
+    def __init__(self, output_file: str):
+        """
+        Initializes :class:`XTBExtractor`
+
+        Parameters:
+
+            output_file:
+                Output file to extract properties from.
+
+        """
+
+        self.output_file = output_file
+        # Explictly set encoding to UTF-8 because default encoding on
+        # Windows will fail to read the file otherwise.
+        with open(self.output_file, "r", encoding="UTF-8") as f:
+            self.output_lines = f.readlines()
+
+        self._extract_values()
+
     def _extract_values(self):
         for i, line in enumerate(self.output_lines):
-            if self._check_line(line, "total_energy"):
+            if check_line(line, "total_energy"):
                 self._extract_total_energy(line)
-            elif self._check_line(line, "homo_lumo_gap"):
+            elif check_line(line, "homo_lumo_gap"):
                 self._extract_homo_lumo_gap(line)
-            elif self._check_line(line, "fermi_level"):
+            elif check_line(line, "fermi_level"):
                 self._extract_fermi_level(line)
-            elif self._check_line(line, "dipole_moment"):
+            elif check_line(line, "dipole_moment"):
                 self._extract_qonly_dipole_moment(i)
                 self._extract_full_dipole_moment(i)
-            elif self._check_line(line, "quadrupole_moment"):
+            elif check_line(line, "quadrupole_moment"):
                 self._extract_qonly_quadrupole_moment(i)
                 self._extract_qdip_quadrupole_moment(i)
                 self._extract_full_quadrupole_moment(i)
-            elif self._check_line(line, "homo_lumo_occ_HOMO"):
+            elif check_line(line, "homo_lumo_occ_HOMO"):
                 self.homo_lumo_occ = {}
                 self._extract_homo_lumo_occ(line, "HOMO")
-            elif self._check_line(line, "homo_lumo_occ_LUMO"):
+            elif check_line(line, "homo_lumo_occ_LUMO"):
                 self._extract_homo_lumo_occ(line, "LUMO")
-            elif self._check_line(line, "total_free_energy"):
+            elif check_line(line, "total_free_energy"):
                 self._extract_total_free_energy(line)
-            elif self._check_line(line, "ionisation_potential"):
+            elif check_line(line, "ionisation_potential"):
                 self._extract_ionisation_potential(line)
-            elif self._check_line(line, "electron_affinity"):
+            elif check_line(line, "electron_affinity"):
                 self._extract_electron_affinity(line)
 
         # Frequency formatting requires loop through full file.
@@ -132,79 +160,60 @@ class XTBExtractor(Extractor):
             "electron_affinity": "delta SCC EA (eV)",
         }
 
-    def _extract_total_energy(self, line):
+    def _extract_total_energy(self, line: str):
         """
         Updates :attr:`total_energy`.
 
-        Parameters
-        ----------
-        line : :class:`str`
-            Line of output file to extract property from.
+        Parameters:
 
-        Returns
-        -------
-        None : :class:`NoneType`
+            line:
+                Line of output file to extract property from.
 
         """
 
         nums = re.compile(r"[+-]?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?")
-        string = nums.search(line.rstrip()).group(0)
-        self.total_energy = float(string)
+        string = nums.search(line.rstrip())
+        self.total_energy = float(string.group(0))  # type: ignore[union-attr]
 
-    def _extract_homo_lumo_gap(self, line):
+    def _extract_homo_lumo_gap(self, line: str):
         """
         Updates :attr:`homo_lumo_gap`.
 
-        Parameters
-        ----------
-        line : :class:`str`
-            Line of output file to extract property from.
+        Parameters:
 
-        Returns
-        -------
-        None : :class:`NoneType`
+            line:
+                Line of output file to extract property from.
 
         """
 
         nums = re.compile(r"[+-]?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?")
-        string = nums.search(line.rstrip()).group(0)
-        self.homo_lumo_gap = float(string)
+        string = nums.search(line.rstrip())
+        self.homo_lumo_gap = float(string.group(0))  # type: ignore[union-attr]
 
-    def _extract_fermi_level(self, line):
+    def _extract_fermi_level(self, line: str):
         """
         Updates :attr:`fermi_level`.
 
-        Parameters
-        ----------
-        line : :class:`str`
-            Line of output file to extract property from.
+        Parameters:
 
-        Returns
-        -------
-        None : :class:`NoneType`
+            line:
+                Line of output file to extract property from.
 
         """
 
         nums = re.compile(r"[+-]?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?")
         part2 = line.split("Eh")
-        string = nums.search(part2[1].rstrip()).group(0)
-        self.fermi_level = float(string)
+        string = nums.search(part2[1].rstrip())
+        self.fermi_level = float(string.group(0))  # type: ignore[union-attr]
 
-    def _extract_qonly_dipole_moment(self, index):
+    def _extract_qonly_dipole_moment(self, index: int):
         """
         Updates :attr:`qonly_dipole_moment`.
 
-        Parameters
-        ----------
-        line : :class:`str`
-            Line of output file to extract property from.
+        Parameters:
 
-        index : :class:`int`
-            Index of line in :attr:`output_lines`.
-
-        Returns
-        -------
-        None : :class:`NoneType`
+            index:
+                Index of line in :attr:`output_lines`.
 
         """
 
@@ -215,21 +224,14 @@ class XTBExtractor(Extractor):
                 float(i) for i in sample_set.split(":")[1].split(" ") if i
             ]
 
-    def _extract_full_dipole_moment(self, index):
+    def _extract_full_dipole_moment(self, index: int):
         """
         Updates :attr:`full_dipole_moment`.
 
-        Parameters
-        ----------
-        line : :class:`str`
-            Line of output file to extract property from.
+        Parameters:
 
-        index : :class:`int`
-            Index of line in :attr:`output_lines`.
-
-        Returns
-        -------
-        None : :class:`NoneType`
+            index:
+                Index of line in :attr:`output_lines`.
 
         """
 
@@ -240,21 +242,14 @@ class XTBExtractor(Extractor):
                 float(i) for i in sample_set.split(":")[1].split(" ") if i
             ]
 
-    def _extract_qonly_quadrupole_moment(self, index):
+    def _extract_qonly_quadrupole_moment(self, index: int):
         """
         Updates :attr:`qonly_quadrupole_moment`.
 
-        Parameters
-        ----------
-        line : :class:`str`
-            Line of output file to extract property from.
+        Parameters:
 
-        index : :class:`int`
-            Index of line in :attr:`output_lines`.
-
-        Returns
-        -------
-        None : :class:`NoneType`
+            index:
+                Index of line in :attr:`output_lines`.
 
         """
 
@@ -265,21 +260,14 @@ class XTBExtractor(Extractor):
                 float(i) for i in sample_set.split(":")[1].split(" ") if i
             ]
 
-    def _extract_qdip_quadrupole_moment(self, index):
+    def _extract_qdip_quadrupole_moment(self, index: int):
         """
         Updates :attr:`qdip_quadrupole_moment`.
 
-        Parameters
-        ----------
-        line : :class:`str`
-            Line of output file to extract property from.
+        Parameters:
 
-        index : :class:`int`
-            Index of line in :attr:`output_lines`.
-
-        Returns
-        -------
-        None : :class:`NoneType`
+            index:
+                Index of line in :attr:`output_lines`.
 
         """
 
@@ -290,21 +278,14 @@ class XTBExtractor(Extractor):
                 float(i) for i in sample_set.split(":")[1].split(" ") if i
             ]
 
-    def _extract_full_quadrupole_moment(self, index):
+    def _extract_full_quadrupole_moment(self, index: int):
         """
         Updates :attr:`full_quadrupole_moment`.
 
-        Parameters
-        ----------
-        line : :class:`str`
-            Line of output file to extract property from.
+        Parameters:
 
-        index : :class:`int`
-            Index of line in :attr:`output_lines`.
-
-        Returns
-        -------
-        None : :class:`NoneType`
+            index:
+                Index of line in :attr:`output_lines`.
 
         """
 
@@ -319,17 +300,13 @@ class XTBExtractor(Extractor):
         """
         Updates :attr:`homo_lumo_occ`.
 
-        Parameters
-        ----------
-        line : :class:`str`
-            Line of output file to extract property from.
+        Parameters:
 
-        orbital : :class:`str`
-            Can be 'HOMO' or 'LUMO'.
+            line:
+                Line of output file to extract property from.
 
-        Returns
-        -------
-        None : :class:`NoneType`
+            orbital:
+                Can be 'HOMO' or 'LUMO'.
 
         """
 
@@ -354,27 +331,26 @@ class XTBExtractor(Extractor):
 
         self.homo_lumo_occ[orbital] = orbital_val
 
-    def _extract_total_free_energy(self, line):
+    def _extract_total_free_energy(self, line: str):
         """
         Updates :attr:`total_free_energy`.
 
-        Returns
-        -------
-        None : :class:`NoneType`
+        Parameters:
+
+            line:
+                Line of output file to extract property from.
 
         """
 
         nums = re.compile(r"[+-]?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?")
-        string = nums.search(line.rstrip()).group(0)
-        self.total_free_energy = float(string)
+        string = nums.search(line.rstrip())
+        self.total_free_energy = float(
+            string.group(0)  # type: ignore[union-attr]
+        )
 
     def _extract_frequencies(self):
         """
         Updates :attr:`frequencies`.
-
-        Returns
-        -------
-        None : :class:`NoneType`
 
         """
 
@@ -401,30 +377,36 @@ class XTBExtractor(Extractor):
 
         self.frequencies = [float(i) for i in frequencies]
 
-    def _extract_ionisation_potential(self, line):
+    def _extract_ionisation_potential(self, line: str):
         """
         Updates :attr:`ionisation_potential`.
 
-        Returns
-        -------
-        None : :class:`NoneType`
+        Parameters:
+
+            line:
+                Line of output file to extract property from.
 
         """
 
         nums = re.compile(r"[+-]?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?")
-        string = nums.search(line.rstrip()).group(0)
-        self.ionisation_potential = float(string)
+        string = nums.search(line.rstrip())
+        self.ionisation_potential = float(
+            string.group(0)  # type: ignore[union-attr]
+        )
 
-    def _extract_electron_affinity(self, line):
+    def _extract_electron_affinity(self, line: str):
         """
         Updates :attr:`electron_affinity`.
 
-        Returns
-        -------
-        None : :class:`NoneType`
+        Parameters:
+
+            line:
+                Line of output file to extract property from.
 
         """
 
         nums = re.compile(r"[+-]?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?")
-        string = nums.search(line.rstrip()).group(0)
-        self.electron_affinity = float(string)
+        string = nums.search(line.rstrip())
+        self.electron_affinity = float(
+            string.group(0)  # type: ignore[union-attr]
+        )
