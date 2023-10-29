@@ -43,7 +43,8 @@ class XTBEnergy(Calculator):
     Note that this does not have any impact on multi-processing,
     which should always be safe.
 
-    *Contributors*
+    Contributors
+    ------------
     We thank Andrew Tarzia and Alejandro Santana-Bonilla for their
     contributions to this code.
 
@@ -261,8 +262,7 @@ class XTBEnergy(Calculator):
                     f" is invalid for version {gfn_version!r}.",
                 )
 
-        if not os.path.exists(xtb_path):
-            raise PathError(f"XTB not found at {xtb_path}")
+        self._check_path(xtb_path)
         self._xtb_path = xtb_path
         self._gfn_version = str(gfn_version)
         self._output_dir = output_dir
@@ -276,6 +276,10 @@ class XTBEnergy(Calculator):
         self._charge = str(charge)
         self._num_unpaired_electrons = str(num_unpaired_electrons)
         self._unlimited_memory = unlimited_memory
+
+    def _check_path(self, path):
+        if not os.path.exists(path):
+            raise PathError(f"XTB not found at {path}")
 
     def _write_detailed_control(self):
         string = f"$gbsa\n   gbsagrid={self._solvent_grid}"

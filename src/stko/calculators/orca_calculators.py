@@ -165,8 +165,7 @@ class OrcaEnergy(Calculator):
 
         """
 
-        if not os.path.exists(orca_path):
-            raise PathError(f"Orca not found at {orca_path}")
+        self._check_path(orca_path)
         self._orca_path = orca_path
         if basename is None:
             self._basename = f"_{str(uuid.uuid4().int)}"
@@ -179,6 +178,10 @@ class OrcaEnergy(Calculator):
         self._multiplicity = multiplicity
         self._write_input_only = write_input_only
         self._discard_output = discard_output
+
+    def _check_path(self, path):
+        if not os.path.exists(path):
+            raise PathError(f"Orca not found at {path}")
 
     def _write_input_file(self, path, xyz_file):
         # Write top line and base name.

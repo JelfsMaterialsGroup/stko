@@ -9,11 +9,17 @@ from .conftest import a_molecule
 
 
 class FakeGulpUFFOptimizer(GulpUFFOptimizer):
+    def _check_path(self, path):
+        return
+
     def optimize(self, mol):
         return a_molecule().with_centroid(np.array(([1, 3, 3])))
 
 
 class FakeGulpUFFMDOptimizer(GulpUFFMDOptimizer):
+    def _check_path(self, path):
+        return
+
     def optimize(self, mol):
         return a_molecule().with_centroid(np.array(([1, 3, 3])))
 
@@ -67,9 +73,7 @@ def test_gulp_position_section(unoptimized_mol, position_section):
 
 
 def test_gulp_bond_section(unoptimized_mol, bond_section):
-    opt = FakeGulpUFFOptimizer(
-        gulp_path="",
-    )
+    opt = FakeGulpUFFOptimizer(gulp_path="")
     opt.assign_FF(unoptimized_mol)
     metal_atoms = get_metal_atoms(unoptimized_mol)
     test = opt._bond_section(unoptimized_mol, metal_atoms)
@@ -77,9 +81,7 @@ def test_gulp_bond_section(unoptimized_mol, bond_section):
 
 
 def test_gulp_species_section(unoptimized_mol, species_section):
-    opt = FakeGulpUFFOptimizer(
-        gulp_path="",
-    )
+    opt = FakeGulpUFFOptimizer(gulp_path="")
     opt.assign_FF(unoptimized_mol)
     type_translator = opt._type_translator()
     test = opt._species_section(type_translator)

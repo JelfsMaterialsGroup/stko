@@ -51,7 +51,8 @@ class XTB(Optimizer):
     The presence of negative frequencies can occur even when the
     optimization has converged based on the given `opt_level`.
 
-    *Contributors*
+    Contributors
+    ------------
     We thank Andrew Tarzia and Alejandro Santana-Bonilla for their
     contributions to this code.
 
@@ -269,8 +270,7 @@ class XTB(Optimizer):
                 "set to 1."
             )
 
-        if not os.path.exists(xtb_path):
-            raise PathError(f"XTB not found at {xtb_path}")
+        self._check_path(xtb_path)
         self._xtb_path = xtb_path
         self._gfn_version = str(gfn_version)
         self._output_dir = output_dir
@@ -286,6 +286,10 @@ class XTB(Optimizer):
         self._num_unpaired_electrons = str(num_unpaired_electrons)
         self._unlimited_memory = unlimited_memory
         self.incomplete = set()
+
+    def _check_path(self, path):
+        if not os.path.exists(path):
+            raise PathError(f"XTB not found at {path}")
 
     def _has_neg_frequencies(self, output_file):
         """
@@ -727,11 +731,9 @@ class XTBCREST(Optimizer):
                     f" is invalid for version {gfn_version!r}.",
                 )
 
-        if not os.path.exists(crest_path):
-            raise PathError(f"CREST not found at {crest_path}")
+        self._check_path(crest_path)
+        self._check_path(xtb_path)
         self._crest_path = crest_path
-        if not os.path.exists(xtb_path):
-            raise PathError(f"XTB not found at {xtb_path}")
         self._xtb_path = xtb_path
         self._gfn_version = str(gfn_version)
         self._output_dir = output_dir
@@ -755,6 +757,10 @@ class XTBCREST(Optimizer):
         self._num_unpaired_electrons = str(num_unpaired_electrons)
         self._cross = cross
         self._unlimited_memory = unlimited_memory
+
+    def _check_path(self, path):
+        if not os.path.exists(path):
+            raise PathError(f"XTB or CREST not found at {path}")
 
     def _is_complete(self, output_file, output_xyzs):
         """
@@ -1038,14 +1044,17 @@ class XTBFF(Optimizer):
 
         """
 
-        if not os.path.exists(xtb_path):
-            raise PathError(f"XTB not found at {xtb_path}")
+        self._check_path(xtb_path)
         self._xtb_path = xtb_path
         self._output_dir = output_dir
         self._opt_level = opt_level
         self._num_cores = str(num_cores)
         self._charge = str(charge)
         self._unlimited_memory = unlimited_memory
+
+    def _check_path(self, path):
+        if not os.path.exists(path):
+            raise PathError(f"XTB not found at {path}")
 
     def _is_complete(self, output_file):
         """
@@ -1375,11 +1384,8 @@ class XTBFFCREST(Optimizer):
 
         """
 
-        if not os.path.exists(crest_path):
-            raise PathError(f"CREST not found at {crest_path}")
-        self._crest_path = crest_path
-        if not os.path.exists(xtb_path):
-            raise PathError(f"XTB not found at {xtb_path}")
+        self._check_path(crest_path)
+        self._check_path(xtb_path)
         self._xtb_path = xtb_path
         self._output_dir = output_dir
         self._opt_level = opt_level
@@ -1398,6 +1404,10 @@ class XTBFFCREST(Optimizer):
         self._charge = str(charge)
         self._cross = cross
         self._unlimited_memory = unlimited_memory
+
+    def _check_path(self, path):
+        if not os.path.exists(path):
+            raise PathError(f"XTB or CREST not found at {path}")
 
     def _is_complete(self, output_file, output_xyzs):
         """

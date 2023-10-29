@@ -66,6 +66,9 @@ class Optimizer:
 
     """
 
+    def _check_path(self, path):
+        raise NotImplementedError()
+
     def optimize(self, mol):
         """
         Optimize `mol`.

@@ -165,6 +165,7 @@ class GulpUFFOptimizer(Optimizer):
 
         """
 
+        self._check_path(gulp_path)
         self._gulp_path = gulp_path
         self._maxcyc = maxcyc
         self._metal_FF = metal_FF
@@ -175,6 +176,10 @@ class GulpUFFOptimizer(Optimizer):
         )
         self._conjugate_gradient = conjugate_gradient
         self._output_dir = output_dir
+
+    def _check_path(self, path):
+        if not os.path.exists(path):
+            raise PathError(f"GULP not found at {path}")
 
     def _add_atom_charge_flags(self, atom, atomkey):
         """
@@ -896,8 +901,8 @@ class GulpUFFMDOptimizer(GulpUFFOptimizer):
             Defaults to ``False``.
 
         """
-        if not os.path.exists(gulp_path):
-            raise PathError(f"GULP not found at {gulp_path}")
+
+        self._check_path(gulp_path)
         self._gulp_path = gulp_path
         self._metal_FF = metal_FF
         self._metal_ligand_bond_order = (

@@ -1,7 +1,8 @@
 import pytest
 import stk
-from stko.optimizers.gulp import GulpUFFOptimizer
 from stko.utilities.exceptions import ExpectedMetalError
+
+from .test_gulp import FakeGulpUFFOptimizer
 
 pd_metal = stk.BuildingBlock(
     smiles="[Pd+2]",
@@ -295,7 +296,7 @@ def test_molecule(request):
 
 
 def test_assign_FF(test_molecule):
-    gulp_opt = GulpUFFOptimizer(
+    gulp_opt = FakeGulpUFFOptimizer(
         gulp_path="not_required",
         metal_FF=test_molecule.metal_ff,
     )
