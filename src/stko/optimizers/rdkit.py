@@ -9,7 +9,7 @@ from itertools import combinations
 
 import numpy as np
 import rdkit.Chem.AllChem as rdkit
-
+import stk
 from stko.optimizers.optimizers import Optimizer
 from stko.optimizers.utilities import (
     get_metal_atoms,
@@ -23,43 +23,32 @@ logger = logging.getLogger(__name__)
 
 class MMFF(Optimizer):
     """
-    Use the MMFF force field to optimize molecules.
+    Use the MMFF force field in :mod:`rdkit` [#]_ to optimize molecules.
 
     Warning: this optimizer seems to be machine dependant, producing
     different energies after optimisation on Ubunut 18 vs. Ubuntu 20.
 
-    Examples
-    --------
-    .. code-block:: python
+    Examples:
 
-        import stk
-        import stko
+        .. code-block:: python
 
-        mol = stk.BuildingBlock('NCCNCCN')
-        mmff = stko.MMFF()
-        mol = mmff.optimize(mol)
+            import stk
+            import stko
+
+            mol = stk.BuildingBlock('NCCNCCN')
+            mmff = stko.MMFF()
+            mol = mmff.optimize(mol)
+
+    References:
+
+        .. [#] https://www.rdkit.org/
 
     """
 
-    def __init__(self, ignore_inter_interactions=True):
+    def __init__(self, ignore_inter_interactions: bool = True):
         self._ignore_inter_interactions = ignore_inter_interactions
 
-    def optimize(self, mol):
-        """
-        Optimize `mol`.
-
-        Parameters
-        ----------
-        mol : :class:`.Molecule`
-            The molecule to be optimized.
-
-        Returns
-        -------
-        mol : :class:`.Molecule`
-            The optimized molecule.
-
-        """
-
+    def optimize(self, mol: stk.Molecule) -> stk.Molecule:
         rdkit_mol = mol.to_rdkit_mol()
         # Needs to be sanitized to get force field params.
         rdkit.SanitizeMol(rdkit_mol)
@@ -76,43 +65,32 @@ class MMFF(Optimizer):
 
 class UFF(Optimizer):
     """
-    Use the UFF force field to optimize molecules.
+    Use the UFF force field in :mod:`rdkit` [#]_ to optimize molecules.
 
     Warning: this optimizer seems to be machine dependant, producing
     different energies after optimisation on Ubunut 18 vs. Ubuntu 20.
 
-    Examples
-    --------
-    .. code-block:: python
+    Examples:
 
-        import stk
-        import stko
+        .. code-block:: python
 
-        mol = stk.BuildingBlock('NCCNCCN')
-        uff = stko.UFF()
-        mol = uff.optimize(mol)
+            import stk
+            import stko
+
+            mol = stk.BuildingBlock('NCCNCCN')
+            uff = stko.UFF()
+            mol = uff.optimize(mol)
+
+    References:
+
+        .. [#] https://www.rdkit.org/
 
     """
 
-    def __init__(self, ignore_inter_interactions=True):
+    def __init__(self, ignore_inter_interactions: bool = True):
         self._ignore_inter_interactions = ignore_inter_interactions
 
-    def optimize(self, mol):
-        """
-        Optimize `mol`.
-
-        Parameters
-        ----------
-        mol : :class:`.Molecule`
-            The molecule to be optimized.
-
-        Returns
-        -------
-        mol : :class:`.Molecule`
-            The optimized molecule.
-
-        """
-
+    def optimize(self, mol: stk.Molecule) -> stk.Molecule:
         rdkit_mol = mol.to_rdkit_mol()
         # Needs to be sanitized to get force field params.
         rdkit.SanitizeMol(rdkit_mol)
@@ -129,54 +107,40 @@ class UFF(Optimizer):
 
 class ETKDG(Optimizer):
     """
-    Uses the ETKDG [#]_ v2 algorithm to find an optimized structure.
+    Uses ETKDG [#]_ v2 algorithm in :mod:`rdkit` [#]_ to optimize a structure.
 
-    Examples
-    --------
-    .. code-block:: python
+    Examples:
 
-        import stk
-        import stko
+        .. code-block:: python
 
-        mol = stk.BuildingBlock('NCCNCCN')
-        etkdg = stko.ETKDG()
-        mol = etkdg.optimize(mol)
+            import stk
+            import stko
 
-    References
-    ----------
-    .. [#] http://pubs.acs.org/doi/pdf/10.1021/acs.jcim.5b00654
+            mol = stk.BuildingBlock('NCCNCCN')
+            etkdg = stko.ETKDG()
+            mol = etkdg.optimize(mol)
+
+    References:
+
+        .. [#] http://pubs.acs.org/doi/pdf/10.1021/acs.jcim.5b00654
+        .. [#] https://www.rdkit.org/
 
     """
 
-    def __init__(self, random_seed=12):
+    def __init__(self, random_seed: int = 12):
         """
         Initialize a :class:`ETKDG` instance.
 
-        Parameters
-        ----------
-        random_seed : :class:`int`, optional
-            The random seed to use.
+        Parameters:
+
+            random_seed:
+                The random seed to use.
 
         """
 
         self._random_seed = random_seed
 
-    def optimize(self, mol):
-        """
-        Optimize `mol`.
-
-        Parameters
-        ----------
-        mol : :class:`.Molecule`
-            The molecule to be optimized.
-
-        Returns
-        -------
-        mol : :class:`.Molecule`
-            The optimized molecule.
-
-        """
-
+    def optimize(self, mol: stk.Molecule) -> stk.Molecule:
         params = rdkit.ETKDGv2()
         params.clearConfs = True
         params.random_seed = self._random_seed
@@ -192,105 +156,110 @@ class ETKDG(Optimizer):
 
 class MetalOptimizer(Optimizer):
     """
-    Applies forcefield optimizers that can handle metal centres.
+    Applies forcefield optimizers in :mod:`rdkit` [#]_ that can handle metals.
 
-    Notes
-    -----
-    By default, :meth:`optimize` will run a restricted optimization
-    using constraints and the UFF. To implement this, metal atoms are
-    replaced by noninteracting H atoms, and constraints are applied
-    to maintain the metal centre geometry.
-    Restrictions are applied to the ligand with respect to its input
-    structure. So if that is poorly optimised, then the output will be
-    also.
+    Notes:
 
-    Warning: this optimizer seems to be machine dependant, producing
-    different energies after optimisation on Ubunut 18 vs. Ubuntu 20.
+        By default, :meth:`optimize` will run a restricted optimization
+        using constraints and the UFF. To implement this, metal atoms are
+        replaced by noninteracting H atoms, and constraints are applied
+        to maintain the metal centre geometry.
+        Restrictions are applied to the ligand with respect to its input
+        structure. So if that is poorly optimised, then the output will be
+        also.
 
-    Examples
-    --------
-    :class:`MetalOptimizer` allows for the restricted optimization of
-    :class:`ConstructedMolecule` instances containing metals. Note that
-    this optimizer algorithm is not very robust to large bonds and may
-    fail.
+        Warning: this optimizer seems to be machine dependant, producing
+        different energies after optimisation on Ubunut 18 vs. Ubuntu 20.
 
-    .. code-block:: python
-        import stk
-        import stko
+    Examples:
 
-        # Produce a Pd+2 atom with 4 functional groups.
-        palladium_atom = stk.BuildingBlock(
-            smiles='[Pd+2]',
-            functional_groups=(
-                stk.SingleAtom(stk.Pd(0, charge=2))
-                for i in range(4)
-            ),
-            position_matrix=[[0., 0., 0.]],
-        )
+        :class:`MetalOptimizer` allows for the restricted optimization of
+        :class:`ConstructedMolecule` instances containing metals. Note that
+        this optimizer algorithm is not very robust to large bonds and may
+        fail.
 
-        # Build a building block with two functional groups using
-        # the SmartsFunctionalGroupFactory.
-        bb1 = stk.BuildingBlock(
-            smiles=(
-                'C1=NC=CC(C2=CC=CC(C3=C'
-                'C=NC=C3)=C2)=C1'
-            ),
-            functional_groups=[
-                stk.SmartsFunctionalGroupFactory(
-                    smarts='[#6]~[#7X2]~[#6]',
-                    bonders=(1, ),
-                    deleters=(),
+        .. code-block:: python
+
+            import stk
+            import stko
+
+            # Produce a Pd+2 atom with 4 functional groups.
+            palladium_atom = stk.BuildingBlock(
+                smiles='[Pd+2]',
+                functional_groups=(
+                    stk.SingleAtom(stk.Pd(0, charge=2))
+                    for i in range(4)
                 ),
-            ],
-        )
-
-        cage1 = stk.ConstructedMolecule(
-            stk.cage.M3L6(
-                building_blocks=(palladium_atom, bb1),
-                # Ensure that bonds between the GenericFunctionalGroups
-                # of the ligand and the SingleAtom functional groups
-                # of the metal are dative.
-                reaction_factory=stk.DativeReactionFactory(
-                    stk.GenericReactionFactory(
-                        bond_orders={
-                            frozenset({
-                                stk.GenericFunctionalGroup,
-                                stk.SingleAtom
-                            }): 9
-                        }
-                    )
-                ),
-                optimizer=stk.MCHammer(),
+                position_matrix=[[0., 0., 0.]],
             )
-        )
 
-        # Define an optimizer.
-        optimizer = stko.MetalOptimizer()
+            # Build a building block with two functional groups using
+            # the SmartsFunctionalGroupFactory.
+            bb1 = stk.BuildingBlock(
+                smiles=(
+                    'C1=NC=CC(C2=CC=CC(C3=C'
+                    'C=NC=C3)=C2)=C1'
+                ),
+                functional_groups=[
+                    stk.SmartsFunctionalGroupFactory(
+                        smarts='[#6]~[#7X2]~[#6]',
+                        bonders=(1, ),
+                        deleters=(),
+                    ),
+                ],
+            )
 
-        # Optimize.
-        cage1 = optimizer.optimize(mol=cage1)
+            cage1 = stk.ConstructedMolecule(
+                stk.cage.M3L6(
+                    building_blocks=(palladium_atom, bb1),
+                    # Ensure that bonds between the GenericFunctionalGroups
+                    # of the ligand and the SingleAtom functional groups
+                    # of the metal are dative.
+                    reaction_factory=stk.DativeReactionFactory(
+                        stk.GenericReactionFactory(
+                            bond_orders={
+                                frozenset({
+                                    stk.GenericFunctionalGroup,
+                                    stk.SingleAtom
+                                }): 9
+                            }
+                        )
+                    ),
+                    optimizer=stk.MCHammer(),
+                )
+            )
+
+            # Define an optimizer.
+            optimizer = stko.MetalOptimizer()
+
+            # Optimize.
+            cage1 = optimizer.optimize(mol=cage1)
+
+    References:
+
+        .. [#] https://www.rdkit.org/
 
     """
 
     def __init__(
         self,
-        metal_binder_distance=1.6,
-        metal_binder_forceconstant=1.0e2,
-        max_iterations=500,
+        metal_binder_distance: float = 1.6,
+        metal_binder_forceconstant: float = 1.0e2,
+        max_iterations: int = 500,
     ):
         """
         Initialize a :class:`MetalOptimizer` instance.
 
-        Parameters
-        ----------
-        metal_binder_distance : :class:`float`
-            Distance in Angstrom.
+        Parameters:
 
-        metal_binder_forceconstant : :class:`float`
-            Force constant to use for restricted metal-ligand bonds.
+            metal_binder_distance:
+                Distance in Angstrom.
 
-        max_iterations : :class:`int`, optional
-            Number of iteractions to run.
+            metal_binder_forceconstant:
+                Force constant to use for restricted metal-ligand bonds.
+
+            max_iterations:
+                Number of iteractions to run.
 
         """
         self._metal_binder_distance = metal_binder_distance
@@ -299,27 +268,23 @@ class MetalOptimizer(Optimizer):
 
     def _apply_metal_centre_constraints(
         self,
-        mol,
-        ff,
-        metal_bonds,
+        mol: stk.Molecule,
+        ff: rdkit.ForceField,
+        metal_bonds: list[stk.Bond],
     ):
         """
         Applies UFF metal centre constraints.
 
-        Parameters
-        ----------
-        mol : :class:`.Molecule`
-            The molecule to be optimized.
+        Parameters:
 
-        ff : :class:`rdkit.ForceField`
-            Forcefield to apply constraints to. Generally use UFF.
+            mol:
+                The molecule to be optimized.
 
-        metal_bonds : :class:`.list` of :class:`stk.Bond`
-            List of bonds including metal atoms.
+            ff:
+                Forcefield to apply constraints to. Generally use UFF.
 
-        Returns
-        -------
-        None : :class:`NoneType`
+            metal_bonds:
+                List of bonds including metal atoms.
 
         """
 
@@ -372,21 +337,7 @@ class MetalOptimizer(Optimizer):
                 forceConstant=1.0e5,
             )
 
-    def optimize(self, mol):
-        """
-        Optimize `mol`.
-
-        Parameters
-        ----------
-        mol : :class:`.Molecule`
-            The molecule to be optimized.
-
-        Returns
-        -------
-        mol : :class:`.Molecule`
-            The optimized molecule.
-
-        """
+    def optimize(self, mol: stk.Molecule) -> stk.Molecule:
         # Find all metal atoms and atoms they are bonded to.
         metal_atoms = get_metal_atoms(mol)
         metal_bonds, ids_to_metals = get_metal_bonds(

@@ -48,8 +48,7 @@ class OpenBabelEnergy(Calculator):
 
     References
     ----------
-    .. [1] http://openbabel.org/dev-api/classOpenBabel_1_
-    1OBForceField.shtml#a2f2732698efde5c2f155bfac08fd9ded
+    .. [1] https://github.com/openbabel/openbabel
 
     """
 

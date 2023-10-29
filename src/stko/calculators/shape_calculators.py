@@ -37,8 +37,7 @@ class ShapeCalculator(Calculator):
 
     References
     ----------
-    .. [1]
-    https://www.rdkit.org/docs/source/rdkit.Chem.Descriptors3D.html
+    .. [1] https://www.rdkit.org/docs/source/rdkit.Chem.Descriptors3D.html
 
     """
 
