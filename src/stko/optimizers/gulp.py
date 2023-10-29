@@ -7,6 +7,7 @@ Wrappers for calculators within the :mod:`gulp` code.
 """
 
 import logging
+import math
 import os
 import re
 import shutil
@@ -919,6 +920,7 @@ class GulpUFFMDOptimizer(GulpUFFOptimizer):
         self._timestep = timestep
         self._N_conformers = N_conformers
         samples = float(self._production) / float(self._N_conformers)
+        samples = math.floor(samples * 1000) / 1000
         self._sample = samples
         self._write = samples
         self._opt_conformers = opt_conformers

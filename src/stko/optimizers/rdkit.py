@@ -10,6 +10,7 @@ from itertools import combinations
 import numpy as np
 import rdkit.Chem.AllChem as rdkit
 import stk
+
 from stko.optimizers.optimizers import Optimizer
 from stko.optimizers.utilities import (
     get_metal_atoms,
