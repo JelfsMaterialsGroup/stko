@@ -10,13 +10,12 @@ import logging
 
 from rdkit.Chem import AllChem as rdkit
 
-from stko.calculators.calculators import Calculator
 from stko.calculators.results.energy_results import EnergyResults
 
 logger = logging.getLogger(__name__)
 
 
-class MMFFEnergy(Calculator):
+class MMFFEnergy:
     """
     Uses the MMFF force field to calculate energies.
 
@@ -95,7 +94,7 @@ class MMFFEnergy(Calculator):
         return self.get_results(mol).get_energy()
 
 
-class UFFEnergy(Calculator):
+class UFFEnergy:
     """
     Uses the UFF force field to calculate energies.
 

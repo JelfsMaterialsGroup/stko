@@ -14,7 +14,7 @@ try:
 except ImportError:
     openbabel = None
 
-from stko.calculators.calculators import Calculator
+
 from stko.calculators.results.energy_results import EnergyResults
 from stko.utilities.exceptions import (
     ForceFieldSetupError,
@@ -24,7 +24,7 @@ from stko.utilities.exceptions import (
 logger = logging.getLogger(__name__)
 
 
-class OpenBabelEnergy(Calculator):
+class OpenBabelEnergy:
     """
     Uses OpenBabel to calculate forcefield energies.[1]_
 

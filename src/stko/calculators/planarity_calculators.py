@@ -10,13 +10,12 @@ import logging
 
 import numpy as np
 
-from stko.calculators.calculators import Calculator
 from stko.calculators.results.planarity_results import PlanarityResults
 
 logger = logging.getLogger(__name__)
 
 
-class PlanarityCalculator(Calculator):
+class PlanarityCalculator:
     """
     Calculates measures of planarity of a molecule.
 

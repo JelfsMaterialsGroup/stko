@@ -1,4 +1,3 @@
-from stko.calculators.calculators import Calculator
 from stko.calculators.extractors.orca_extractor import OrcaExtractor
 from stko.calculators.extractors.xtb_extractor import XTBExtractor
 from stko.calculators.open_babel_calculators import OpenBabelEnergy
@@ -8,7 +7,6 @@ from stko.calculators.rdkit_calculators import MMFFEnergy, UFFEnergy
 from stko.calculators.results.energy_results import EnergyResults
 from stko.calculators.results.orca_results import OrcaResults
 from stko.calculators.results.planarity_results import PlanarityResults
-from stko.calculators.results.results import Results
 from stko.calculators.results.rmsd_results import RmsdResults
 from stko.calculators.results.shape_results import ShapeResults
 from stko.calculators.results.torsion_results import (
@@ -153,7 +151,6 @@ __all__ = [
     "Torsion",
     "TorsionInfo",
     "XTBEnergy",
-    "Calculator",
     "TorsionCalculator",
     "ConstructedMoleculeTorsionCalculator",
     "MatchedTorsionCalculator",
@@ -170,7 +167,6 @@ __all__ = [
     "ConstructedMoleculeTorsionResults",
     "ShapeResults",
     "RmsdResults",
-    "Results",
     "PlanarityResults",
     "OrcaResults",
     "EnergyResults",

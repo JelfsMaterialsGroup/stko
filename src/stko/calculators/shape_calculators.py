@@ -10,13 +10,12 @@ import logging
 
 from rdkit.Chem import Descriptors3D as D3D
 
-from stko.calculators.calculators import Calculator
 from stko.calculators.results.shape_results import ShapeResults
 
 logger = logging.getLogger(__name__)
 
 
-class ShapeCalculator(Calculator):
+class ShapeCalculator:
     """
     Calculates shape measures of a molecule.
 

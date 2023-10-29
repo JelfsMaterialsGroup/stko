@@ -10,7 +10,6 @@ import logging
 
 from rdkit.Chem import TorsionFingerprints
 
-from stko.calculators.calculators import Calculator
 from stko.calculators.results.torsion_results import (
     ConstructedMoleculeTorsionResults,
     TorsionResults,
@@ -21,7 +20,7 @@ from stko.molecular.torsion.torsion import Torsion
 logger = logging.getLogger(__name__)
 
 
-class TorsionCalculator(Calculator):
+class TorsionCalculator:
     """
     Uses rdkit to extract all torsions in a molecule.
 

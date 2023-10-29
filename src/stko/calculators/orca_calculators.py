@@ -13,14 +13,13 @@ import shutil
 import subprocess as sp
 import uuid
 
-from stko.calculators.calculators import Calculator
 from stko.calculators.results.orca_results import OrcaResults
 from stko.utilities.exceptions import OptimizerError, PathError
 
 logger = logging.getLogger(__name__)
 
 
-class OrcaEnergy(Calculator):
+class OrcaEnergy:
     """
     Uses Orca [1]_ to calculate energy and other properties.
 

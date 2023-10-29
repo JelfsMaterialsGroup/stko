@@ -12,7 +12,6 @@ import shutil
 import subprocess as sp
 import uuid
 
-from stko.calculators.calculators import Calculator
 from stko.calculators.results.xtb_results import XTBResults
 from stko.utilities.exceptions import InvalidSolventError, PathError
 from stko.utilities.utilities import is_valid_xtb_solvent
@@ -20,7 +19,7 @@ from stko.utilities.utilities import is_valid_xtb_solvent
 logger = logging.getLogger(__name__)
 
 
-class XTBEnergy(Calculator):
+class XTBEnergy:
     """
     Uses GFN-xTB [1]_ to calculate energy and other properties.
 
