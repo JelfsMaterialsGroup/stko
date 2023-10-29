@@ -7,10 +7,9 @@ Results class for the output of Orca.
 """
 
 from stko.calculators.extractors.orca_extractor import OrcaExtractor
-from stko.calculators.results.results import Results
 
 
-class OrcaResults(Results):
+class OrcaResults:
     """
     Results class containing molecule Orca properties.
 

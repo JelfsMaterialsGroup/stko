@@ -6,10 +6,8 @@ Results class for :class:`.Calculator` that outputs energy.
 
 """
 
-from stko.calculators.results.results import Results
 
-
-class EnergyResults(Results):
+class EnergyResults:
     """
     Results class containing molecule energy.
 

@@ -7,10 +7,9 @@ Results class for the output of XTB.
 """
 
 from stko.calculators.extractors.xtb_extractor import XTBExtractor
-from stko.calculators.results.results import Results
 
 
-class XTBResults(Results):
+class XTBResults:
     """
     Results class containing molecule xTB properties.
 

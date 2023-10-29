@@ -6,10 +6,8 @@ Results class for extracting molecular planarity measures.
 
 """
 
-from stko.calculators.results.results import Results
 
-
-class PlanarityResults(Results):
+class PlanarityResults:
     """
     Results class containing molecule planarity measures.
 
