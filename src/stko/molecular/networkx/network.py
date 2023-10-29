@@ -7,8 +7,10 @@ Class for defining a :mod:`networkx` graph from a molecule.
 """
 
 import logging
+import typing
 
 import networkx as nx
+import stk
 
 from stko.molecular.atoms.positioned_atom import PositionedAtom
 
@@ -19,20 +21,46 @@ class Network:
     """
     Definition of a network of an stk.Molecule.
 
+    Examples:
+
+        An stk molecule can be converted into a NetworkX object. This allows
+        for the disconnection and manipulation of the molecular graph.
+
+        .. code-block:: python
+
+            import stk
+            import stko
+
+            molecule = stk.BuildingBlock('NCCNCCN').with_centroid(
+                position=np.array((10, 10, 10))
+            )
+            graph = Network.init_from_molecule(molecule)
+
+            # Pick some bonds to break based on atom ids in those bonds.
+            atom_ids_to_disconnect = ((2, 3),)
+            graph = graph.with_deleted_bonds(atom_ids_to_disconnect)
+
+            # A series of graphs still connected.
+            connected_graphs = graph.get_connected_components()
+
+            print(graph)
+            for cg in connected_graphs:
+                print(cg)
+
     """
 
-    def __init__(self, graph):
+    def __init__(self, graph: nx.Graph) -> None:
         """
-        Initialize a Network from a networkx.graph.
+        Initialize a :class:`Network` from a :class:`networkx.Graph`.
 
         """
 
         self._graph = graph
 
     @classmethod
-    def init_from_molecule(cls, molecule):
+    def init_from_molecule(cls, molecule: stk.Molecule):
         """
-        Initialize a Network from a stk.Molecule.
+        Initialize a :class:`Network` from a :class:`stk.Molecule`.
 
         """
 
@@ -65,24 +93,24 @@ class Network:
 
         return cls(g)
 
-    def get_graph(self):
+    def get_graph(self) -> nx.Graph:
         """
-        Return a networkx.graph.
+        Return a :class:`networkx.Graph`.
 
         """
 
         return self._graph
 
-    def get_nodes(self):
+    def get_nodes(self) -> typing.Iterator[PositionedAtom]:
         """
-        Yield nodes of networkx.graph.
+        Yield nodes of :class:`networkx.Graph` (:class:`PositionAtom`).
 
         """
 
         for i in self._graph.nodes:
             yield i
 
-    def clone(self):
+    def clone(self) -> typing.Self:
         """
         Return a clone.
 
@@ -92,7 +120,10 @@ class Network:
         Network.__init__(self=clone, graph=self._graph)
         return clone
 
-    def _with_deleted_bonds(self, atom_ids):
+    def _with_deleted_bonds(
+        self,
+        atom_ids: tuple[tuple[int, int]],
+    ) -> typing.Self:
         sorted_set = {tuple(sorted(i)) for i in atom_ids}
         to_delete = []
         for edge in self._graph.edges:
@@ -107,7 +138,10 @@ class Network:
 
         return self
 
-    def with_deleted_bonds(self, atom_ids):
+    def with_deleted_bonds(
+        self,
+        atom_ids: tuple[tuple[int, int]],
+    ) -> typing.Self:
         """
         Return a clone with edges between `atom_ids` deleted.
 
@@ -115,13 +149,12 @@ class Network:
 
         return self.clone()._with_deleted_bonds(atom_ids)
 
-    def get_connected_components(self):
+    def get_connected_components(self) -> list[nx.Graph]:
         """
         Get connected components within full graph.
 
-        Returns
-        -------
-        :class:`list` of :class:`networkx.graph`
+        Returns:
+
             List of connected components of graph.
 
         """
