@@ -1,11 +1,3 @@
-"""
-Network
-=======
-
-Class for defining a :mod:`networkx` graph from a molecule.
-
-"""
-
 import logging
 import typing
 
@@ -19,7 +11,7 @@ logger = logging.getLogger(__name__)
 
 class Network:
     """
-    Definition of a network of an stk.Molecule.
+    Definition of a :mod:`networkx` graph of an :class:`stk.Molecule`.
 
     Examples:
 
@@ -58,7 +50,7 @@ class Network:
         self._graph = graph
 
     @classmethod
-    def init_from_molecule(cls, molecule: stk.Molecule):
+    def init_from_molecule(cls, molecule: stk.Molecule) -> typing.Self:
         """
         Initialize a :class:`Network` from a :class:`stk.Molecule`.
 
@@ -122,7 +114,7 @@ class Network:
 
     def _with_deleted_bonds(
         self,
-        atom_ids: tuple[tuple[int, int]],
+        atom_ids: typing.Iterable[tuple[int, int]],
     ) -> typing.Self:
         sorted_set = {tuple(sorted(i)) for i in atom_ids}
         to_delete = []
@@ -140,7 +132,7 @@ class Network:
 
     def with_deleted_bonds(
         self,
-        atom_ids: tuple[tuple[int, int]],
+        atom_ids: typing.Iterable[tuple[int, int]],
     ) -> typing.Self:
         """
         Return a clone with edges between `atom_ids` deleted.
@@ -201,10 +193,10 @@ class Network:
             for c in sorted(nx.connected_components(self._graph))
         ]
 
-    def __str__(self):
+    def __str__(self) -> str:
         return repr(self)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return (
             f"{self.__class__.__name__}("
             f"n={self._graph.number_of_nodes()}, "

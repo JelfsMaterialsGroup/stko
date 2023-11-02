@@ -1,12 +1,5 @@
-"""
-Molecule Transformer
-====================
-
-Class for splitting a molecule into many with new connectors.
-
-"""
-
 import logging
+import typing
 
 import stk
 from rdkit.Chem import AllChem as rdkit
@@ -20,58 +13,56 @@ class MoleculeTransformer:
     """
     Split an stk.molecule into many with new functional groups.
 
-    Examples
-    --------
+    Examples:
 
-    Given a molecule, this class allows you to cap a split molecule
-    (see :class:`MoleculeSplitter`) at the broken bond with an atom
-    defined in `replacer_smarts`.
+        Given a molecule, this class allows you to cap a split molecule
+        (see :class:`MoleculeSplitter`) at the broken bond with an atom
+        defined in `replacer_smarts`.
 
-    .. code-block:: python
+        .. code-block:: python
 
-        import stk
-        import stko
+            import stk
+            import stko
 
-        full_mol = stk.BuildingBlock('C1=CC=NC(=C1)C=NC2=CC=C(C=C2)Br')
+            full_mol = stk.BuildingBlock('C1=CC=NC(=C1)C=NC2=CC=C(C=C2)Br')
 
-        splitter = stko.MoleculeSplitter(
-            breaker_smarts='[#6X3]~[#7X2]~[#6X3H1]~[#6X3!H1]',
-            bond_deleter_ids=(0, 1),
-        )
-        split_mols = splitter.split(full_mol)
+            splitter = stko.MoleculeSplitter(
+                breaker_smarts='[#6X3]~[#7X2]~[#6X3H1]~[#6X3!H1]',
+                bond_deleter_ids=(0, 1),
+            )
+            split_mols = splitter.split(full_mol)
 
-        transformer = stko.MoleculeTransformer(
-            replacer_smarts='[Br]',
-            functional_groups=(stk.BromoFactory(), ),
-        )
-        for split in split_mols:
-            transformed_mol = transformer.transform(split)
+            transformer = stko.MoleculeTransformer(
+                replacer_smarts='[Br]',
+                functional_groups=(stk.BromoFactory(), ),
+            )
+            for split in split_mols:
+                transformed_mol = transformer.transform(split)
 
     """
 
     def __init__(
         self,
-        replacer_smarts,
-        functional_groups,
-    ):
+        replacer_smarts: str,
+        functional_groups: typing.Iterable[stk.FunctionalGroupFactory],
+    ) -> None:
         """
         Initialize a :class:`.MoleculeTransformer`.
 
-        Parameters
-        ----------
-        replacer_smarts : :class:`str`
-            SMARTS string of atom to replace dummy atoms with. This
-            must be a single atom.
+        Parameters:
 
-        functional_groups : :class:`iterable`
-        of :class:`stk.FunctionalGroupFactory`
-            Functional group factories to use to define new building
-            block.
+            replacer_smarts:
+                SMARTS string of atom to replace dummy atoms with. This
+                must be a single atom.
 
-        Raises
-        ------
-        :class:`ValueError`
-            If `replacer_smarts` does not correspond to a single atom.
+            functional_groups:
+                Functional group factories to use to define new building
+                block.
+
+        Raises:
+
+            :class:`ValueError`
+                If `replacer_smarts` does not correspond to a single atom.
 
         """
 
@@ -92,19 +83,19 @@ class MoleculeTransformer:
 
         self._functional_groups = functional_groups
 
-    def transform(self, molecule):
+    def transform(self, molecule: stk.Molecule) -> stk.Molecule:
         """
         Transform a molecule.
 
-        Parameters
-        ----------
-        molecule : :class:`stk.Molecule`
-            Molecule to modify.
+        Parameters:
 
-        Returns
-        -------
-        molecule : :class:`stk.BuildingBlock`
-            The resulting molecule.
+            molecule:
+                Molecule to modify.
+
+        Returns:
+
+            molecule:
+                The resulting molecule.
 
         """
 
@@ -113,8 +104,8 @@ class MoleculeTransformer:
 
         atoms = []
         for a in molecule.get_atoms():
-            if isinstance(a, Du):
-                atoms.append(
+            if isinstance(a, Du):  # type: ignore[unreachable]
+                atoms.append(  # type: ignore[unreachable]
                     stk.Atom(
                         id=a.get_id(),
                         atomic_number=self._replacer.get_atomic_number(),
@@ -123,7 +114,6 @@ class MoleculeTransformer:
                 )
             else:
                 atoms.append(a)
-        atoms = tuple(atoms)
 
         bonds = tuple(
             stk.Bond(
@@ -135,7 +125,7 @@ class MoleculeTransformer:
         )
         position_matrix = molecule.get_position_matrix()
         building_block = stk.BuildingBlock.init(
-            atoms=atoms,
+            atoms=tuple(atoms),
             bonds=bonds,
             position_matrix=position_matrix,
         )

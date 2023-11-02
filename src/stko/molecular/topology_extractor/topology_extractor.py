@@ -1,12 +1,7 @@
-"""
-Topology Extractor
-==================
-
-Class for defining a topology from a molecule and disconnections.
-
-"""
-
 import logging
+import typing
+
+import stk
 
 from stko.molecular.networkx.network import Network
 from stko.molecular.topology_extractor.topology_info import TopologyInfo
@@ -18,78 +13,76 @@ class TopologyExtractor:
     """
     Extractor of topology definitions from a molecule.
 
-    Examples
-    --------
+    Examples:
 
-    Using a SMARTS string and the
-    :class:`stk.SmartsFunctionalGroupFactory`, you can split a molecule
-    at any point to define a topology.
+        Using a SMARTS string and the
+        :class:`stk.SmartsFunctionalGroupFactory`, you can split a molecule
+        at any point to define a topology.
 
-    .. code-block:: python
+        .. code-block:: python
 
-        import stk
-        import stko
+            import stk
+            import stko
 
-        smarts = '[#6]~[#7]'
+            smarts = '[#6]~[#7]'
 
-        mol = stk.BuildingBlock(
-            smiles='C1=CC=C(C=C1)CN',
-            functional_groups=(stk.SmartsFunctionalGroupFactory(
-                smarts=smarts,
-                bonders=(),
-                deleters=(),
-            ), )
-        )
+            mol = stk.BuildingBlock(
+                smiles='C1=CC=C(C=C1)CN',
+                functional_groups=(stk.SmartsFunctionalGroupFactory(
+                    smarts=smarts,
+                    bonders=(),
+                    deleters=(),
+                ), )
+            )
 
-        broken_bonds_by_id = []
-        disconnectors = []
-        for fg in mol.get_functional_groups():
-            print(fg)
-            atom_ids = list(fg.get_atom_ids())
-            bond_c = atom_ids[0]
-            bond_n = atom_ids[1]
-            broken_bonds_by_id.append(sorted((bond_c, bond_n)))
-            disconnectors.extend((bond_c, bond_n))
+            broken_bonds_by_id = []
+            disconnectors = []
+            for fg in mol.get_functional_groups():
+                print(fg)
+                atom_ids = list(fg.get_atom_ids())
+                bond_c = atom_ids[0]
+                bond_n = atom_ids[1]
+                broken_bonds_by_id.append(sorted((bond_c, bond_n)))
+                disconnectors.extend((bond_c, bond_n))
 
-        print(broken_bonds_by_id)
-        print(disconnectors)
-        print('--')
+            print(broken_bonds_by_id)
+            print(disconnectors)
+            print('--')
 
-        new_topology_graph = stko.TopologyExtractor()
-        tg_info = new_topology_graph.extract_topology(
-            molecule=mol,
-            broken_bonds_by_id=broken_bonds_by_id,
-            disconnectors=set(disconnectors),
-        )
-        print(tg_info.get_vertex_positions())
-        print(tg_info.get_connectivities())
-        print(tg_info.get_edge_pairs())
+            new_topology_graph = stko.TopologyExtractor()
+            tg_info = new_topology_graph.extract_topology(
+                molecule=mol,
+                broken_bonds_by_id=broken_bonds_by_id,
+                disconnectors=set(disconnectors),
+            )
+            print(tg_info.get_vertex_positions())
+            print(tg_info.get_connectivities())
+            print(tg_info.get_edge_pairs())
 
     """
 
     def extract_topology(
         self,
-        molecule,
-        broken_bonds_by_id,
-        disconnectors,
-    ):
+        molecule: stk.Molecule,
+        broken_bonds_by_id: typing.Iterable[tuple[int, int]],
+        disconnectors: set,
+    ) -> TopologyInfo:
         """
         Extract a toplogy defining a molecule with disconnections.
 
-        Parameters
-        ----------
-        molecule : :class:`stk.Molecule`
-            Molecule to get underlying topology of.
+        Parameters:
 
-        broken_bonds_by_id : :class:`iterable` of :class:`tuple`
-            Tuples of bonds to break by atom id.
+            molecule:
+                Molecule to get underlying topology of.
 
-        disconnectors : :class:`set`
-            Atom ids of disconnection points.
+            broken_bonds_by_id:
+                Tuples of bonds to break by atom id.
 
-        Returns
-        -------
-        :class:`.TopologyInfo`
+            disconnectors:
+                Atom ids of disconnection points.
+
+        Returns:
+
             Information of the underlying topology.
 
         """
@@ -123,14 +116,12 @@ class TopologyExtractor:
 
         return TopologyInfo(centroids, connectivities, edge_pairs)
 
-    def get_connected_graphs(self, molecule, atom_ids_to_disconnect):
+    def get_connected_graphs(
+        self,
+        molecule: stk.Molecule,
+        atom_ids_to_disconnect: typing.Iterable[tuple[int, int]],
+    ) -> list:
         graph = Network.init_from_molecule(molecule)
         graph = graph.with_deleted_bonds(atom_ids_to_disconnect)
         connected_graphs = graph.get_connected_components()
         return connected_graphs
-
-    def __str__(self):
-        return repr(self)
-
-    def __repr__(self):
-        return f"<{self.__class__.__name__} at {id(self)}>"

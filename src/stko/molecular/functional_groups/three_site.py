@@ -1,16 +1,19 @@
 import logging
+import typing
 
 import stk
 
 logger = logging.getLogger(__name__)
 
 
-class ThreeSiteFG(stk.GenericFunctionalGroup):
+class ThreeSiteFG:
     """
     Represents FG sites like N atom in pyridine functional group.
 
     The structure of the functional group is given by the pseudo-SMILES
     ``[neighbour][binder][neighbour]``.
+
+    Contains :class:`stk.GenericFunctionalGroup`.
 
     """
 
@@ -19,9 +22,9 @@ class ThreeSiteFG(stk.GenericFunctionalGroup):
         neigh1: stk.Atom,
         binder: stk.Atom,
         neigh2: stk.Atom,
-        bonders: tuple[stk.Atom],
-        deleters: tuple[stk.Atom],
-    ):
+        bonders: tuple[stk.Atom, ...],
+        deleters: tuple[stk.Atom, ...],
+    ) -> None:
         """
         Initialize a :class:`.ThreeSiteFG` instance.
 
@@ -48,59 +51,112 @@ class ThreeSiteFG(stk.GenericFunctionalGroup):
         self._binder = binder
         self._neigh2 = neigh2
         atoms = (neigh1, binder, neigh2)
-        super().__init__(atoms, bonders, deleters)
+        self._functional_group = stk.GenericFunctionalGroup(
+            atoms=atoms,
+            bonders=bonders,
+            deleters=deleters,
+        )
 
-    def get_neigh1(self):
+    def get_neigh1(self) -> stk.Atom:
         return self._neigh1
 
-    def get_neigh2(self):
+    def get_neigh2(self) -> stk.Atom:
         return self._neigh2
 
-    def get_binder(self):
+    def get_binder(self) -> stk.Atom:
         return self._binder
 
-    def clone(self):
-        clone = super().clone()
+    def clone(self) -> typing.Self:
+        clone = self.__class__.__new__(self.__class__)
         clone._neigh1 = self._neigh1
         clone._binder = self._binder
         clone._neigh2 = self._neigh2
+        clone._functional_group = self._functional_group.clone()
         return clone
 
-    def with_atoms(self, atom_map):
-        clone = super().with_atoms(atom_map)
-        clone._neigh1 = atom_map.get(
-            self._neigh1.get_id(),
-            self._neigh1,
+    def get_bonders(self) -> typing.Iterator[stk.Atom]:
+        yield from self._functional_group._bonders
+
+    def get_num_bonders(self) -> int:
+        return len(self._functional_group._bonders)
+
+    def get_bonder_ids(self) -> typing.Iterator[int]:
+        yield from (a.get_id() for a in self._functional_group._bonders)
+
+    def get_deleters(self) -> typing.Iterator[stk.Atom]:
+        yield from self._functional_group._deleters
+
+    def get_deleter_ids(self) -> typing.Iterator[int]:
+        yield from (a.get_id() for a in self._functional_group._deleters)
+
+    def get_atoms(self) -> typing.Iterator[stk.Atom]:
+        yield from self._functional_group._atoms
+
+    def get_atom_ids(self) -> typing.Iterator[int]:
+        yield from (a.get_id() for a in self._functional_group._atoms)
+
+    def get_placer_ids(self) -> typing.Iterator[int]:
+        yield from (a.get_id() for a in self._functional_group._placers)
+
+    def get_core_atom_ids(self) -> typing.Iterator[int]:
+        yield from (a.get_id() for a in self._functional_group._core_atoms)
+
+    def with_atoms(self, atom_map: dict[int, stk.Atom]) -> typing.Self:
+        clone = self.__class__.__new__(self.__class__)
+        clone._functional_group = stk.GenericFunctionalGroup(
+            atoms=tuple(
+                atom_map.get(a.get_id(), a)
+                for a in self._functional_group._atoms
+            ),
+            bonders=tuple(
+                atom_map.get(a.get_id(), a)
+                for a in self._functional_group._bonders
+            ),
+            deleters=tuple(
+                atom_map.get(a.get_id(), a)
+                for a in self._functional_group._deleters
+            ),
+            placers=tuple(
+                atom_map.get(a.get_id(), a)
+                for a in self._functional_group._placers
+            ),
         )
-        clone._nitrogen = atom_map.get(
-            self._binder.get_id(),
-            self._binder,
+        clone._neigh1 = atom_map.get(self._neigh1.get_id(), self._neigh1)
+        clone._binder = atom_map.get(self._binder.get_id(), self._binder)
+        clone._neigh2 = atom_map.get(self._neigh2.get_id(), self._neigh2)
+        return clone
+
+    def with_ids(
+        self,
+        id_map: dict[int, int],
+    ) -> typing.Self:
+        clone = self.__class__.__new__(self.__class__)
+        clone._functional_group = self._functional_group.with_ids(id_map)
+        clone._neigh1 = self._neigh1.with_id(
+            id_map.get(self._neigh1.get_id(), self._neigh1.get_id())
         )
-        clone._neigh2 = atom_map.get(
-            self._neigh2.get_id(),
-            self._neigh2,
+        clone._binder = self._binder.with_id(
+            id_map.get(self._binder.get_id(), self._binder.get_id())
+        )
+        clone._neigh2 = self._neigh2.with_id(
+            id_map.get(self._neigh2.get_id(), self._neigh2.get_id())
         )
         return clone
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return (
             f"{self.__class__.__name__}("
             f"{self._neigh1}, {self._binder}, {self._neigh2}, "
-            f"bonders={self._bonders})"
+            f"bonders={self._functional_group._bonders})"
         )
 
 
 class ThreeSiteFactory(stk.FunctionalGroupFactory):
-    """
-    A subclass of :class:`stk.FunctionalGroupFactory`.
-
-    """
-
     def __init__(
         self,
         smarts: str,
-        bonders: tuple[int] = (1,),
-        deleters: tuple[int] = (),
+        bonders: tuple[int, ...] = (1,),
+        deleters: tuple[int, ...] = (),
     ) -> None:
         """
         Intiailize :class:`ThreeSiteFactory`.
@@ -123,7 +179,10 @@ class ThreeSiteFactory(stk.FunctionalGroupFactory):
         self._bonders = bonders
         self._deleters = deleters
 
-    def get_functional_groups(self, molecule):
+    def get_functional_groups(
+        self,
+        molecule: stk.Molecule,
+    ) -> typing.Iterable[ThreeSiteFG]:
         generic_functional_groups = stk.SmartsFunctionalGroupFactory(
             smarts=self._smarts,
             bonders=self._bonders,
@@ -149,7 +208,11 @@ class CNCFactory(ThreeSiteFactory):
 
     """
 
-    def __init__(self, bonders: tuple[int] = (1,), deleters: tuple[int] = ()):
+    def __init__(
+        self,
+        bonders: tuple[int, ...] = (1,),
+        deleters: tuple[int, ...] = (),
+    ):
         """
         Intiailize :class:`CNCFactory`.
 
@@ -167,7 +230,11 @@ class CNNFactory(ThreeSiteFactory):
 
     """
 
-    def __init__(self, bonders: tuple[int] = (1,), deleters: tuple[int] = ()):
+    def __init__(
+        self,
+        bonders: tuple[int, ...] = (1,),
+        deleters: tuple[int, ...] = (),
+    ):
         """
         Intiailize :class:`CNNFactory`.
 
@@ -185,7 +252,11 @@ class NNNFactory(ThreeSiteFactory):
 
     """
 
-    def __init__(self, bonders: tuple[int] = (1,), deleters: tuple[int] = ()):
+    def __init__(
+        self,
+        bonders: tuple[int, ...] = (1,),
+        deleters: tuple[int, ...] = (),
+    ):
         """
         Intiailize :class:`NNNFactory`.
 

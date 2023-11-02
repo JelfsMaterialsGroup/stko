@@ -1,11 +1,3 @@
-"""
-Topology Info
-=============
-
-Class containing extracted topology information.
-
-"""
-
 import logging
 
 logger = logging.getLogger(__name__)
@@ -17,53 +9,66 @@ class TopologyInfo:
 
     """
 
-    def __init__(self, centroids, connectivities, edge_pairs):
-        """ """
+    def __init__(
+        self,
+        centroids: dict,
+        connectivities: dict,
+        edge_pairs: list[tuple[int, int]],
+    ) -> None:
+        """
+        Initialize :class:`.TopologyInfo`.
+
+        Parameters:
+
+            centroids:
+
+            connectivities:
+
+            edge_pairs:
+
+        """
 
         self._centroids = centroids
         self._connectivities = connectivities
         self._edge_pairs = edge_pairs
 
-    def get_vertex_positions(self):
+    def get_vertex_positions(self) -> dict:
         """
         Get the positions of each vertex.
 
-        Returns
-        -------
-        :class:`dict`
+        Returns:
+
             Vertex ids with their positions.
 
         """
 
         return self._centroids
 
-    def get_connectivities(self):
+    def get_connectivities(self) -> dict:
         """
         Get the number of connections of each vertex.
 
-        Returns
-        -------
-        :class:`dict`
+        Returns:
+
             Vertex ids with their number of connections.
 
         """
 
         return self._connectivities
 
-    def get_edge_pairs(self):
+    def get_edge_pairs(self) -> list[tuple[int, int]]:
         """
         Get the edge pairs.
 
-        Returns
-        -------
-        :class:`list` of :class:`tuple`
+        Returns:
+
             List of edge pairs.
 
         """
 
         return self._edge_pairs
 
-    def write(self, path):
+    def write(self, path: str) -> None:
         """
         Writes a mock .pdb with vertex centroids and edges as bonds.
 
@@ -71,7 +76,7 @@ class TopologyInfo:
 
         content = []
 
-        atom_counts = {}
+        atom_counts: dict[str, int] = {}
         hetatm = "HETATM"
         alt_loc = ""
         res_name = "UNL"
@@ -116,9 +121,3 @@ class TopologyInfo:
 
         with open(path, "w") as f:
             f.write("".join(content))
-
-    def __str__(self):
-        return repr(self)
-
-    def __repr__(self):
-        return f"<{self.__class__.__name__} at {id(self)}>"

@@ -1,12 +1,6 @@
-"""
-Z Matrix
-========
-
-Class for converting a molecule to a Z-matrix.
-
-"""
-
 import logging
+
+import stk
 
 from stko.utilities.exceptions import ConversionError
 from stko.utilities.utilities import (
@@ -22,36 +16,35 @@ class ZMatrix:
     """
     Converter for :class:`stk.Molecule` to Z-Matrix.
 
-    Examples
-    --------
+    Examples:
 
-    The Z-matrix is returned as a string.
+        The Z-matrix is returned as a string.
 
-    .. code-block:: python
+        .. code-block:: python
 
-        import stk
-        import stko
+            import stk
+            import stko
 
-        bb1 = stk.BuildingBlock('NCCNCCN')
+            bb1 = stk.BuildingBlock('NCCNCCN')
 
-        print(stko.ZMatrix().get_zmatrix(bb1))
+            print(stko.ZMatrix().get_zmatrix(bb1))
 
     """
 
-    def get_zmatrix(self, molecule):
+    def get_zmatrix(self, molecule: stk.Molecule) -> str:
         """
         Get Z-matrix of a molecule.
 
-        Parameters
-        ----------
-        molecule : :class:`stk.Molecule`
-            Molecule to convert.
+        Parameters:
 
-        Returns
-        -------
-        zmatrix : :class:`str`
-            The Z-matrix of the molecule.
-            Distances in Angstrom, angles and torsions in degrees.
+            molecule:
+                Molecule to convert.
+
+        Returns:
+
+            zmatrix:
+                The Z-matrix of the molecule.
+                Distances in Angstrom, angles and torsions in degrees.
 
         """
 

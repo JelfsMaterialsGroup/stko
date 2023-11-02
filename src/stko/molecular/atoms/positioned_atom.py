@@ -1,12 +1,7 @@
-"""
-Positioned Atom
-===============
-
-A class representing a positioned stk.Atom.
-
-"""
-
 import logging
+import typing
+
+import stk
 
 logger = logging.getLogger(__name__)
 
@@ -17,40 +12,44 @@ class PositionedAtom:
 
     """
 
-    def __init__(self, atom, position):
+    def __init__(
+        self,
+        atom: stk.Atom,
+        position: tuple[float, ...],
+    ) -> None:
         """
         Initialize a :class:`PositionedAtom`.
 
-        Parameters
-        ----------
-        atom : :class:`stk.Atom`
-            The atom.
+        Parameters:
 
-        position : :class:`tuple` of :class:`float`
-            The position (`x`, `y`, `z`) of the atom in cartesian
-            coordinates.
+            atom:
+                The atom.
+
+            position:
+                The position (`x`, `y`, `z`) of the atom in cartesian
+                coordinates.
 
         """
 
         self._atom = atom
         self._position = position
 
-    def get_atom(self):
+    def get_atom(self) -> stk.Atom:
         return self._atom
 
-    def get_atomic_number(self):
+    def get_atomic_number(self) -> int:
         return self._atom.get_atomic_number()
 
-    def get_charge(self):
+    def get_charge(self) -> int:
         return self._atom.get_charge()
 
-    def get_id(self):
+    def get_id(self) -> int:
         return self._atom.get_id()
 
-    def get_position(self):
+    def get_position(self) -> tuple[float, ...]:
         return self._position
 
-    def _with_id(self, id):
+    def _with_id(self, id: int) -> typing.Self:
         """
         Modify the atom id.
 
@@ -59,13 +58,12 @@ class PositionedAtom:
         self._atom = self._atom.with_id(id)
         return self
 
-    def with_id(self, id):
+    def with_id(self, id: int) -> typing.Self:
         """
         Get a clone but with a different id.
 
-        Returns
-        -------
-        :class:`.Atom`
+        Returns:
+
             A clone with a new id. Has the same type as the original
             atom.
 
@@ -73,13 +71,12 @@ class PositionedAtom:
 
         return self.clone()._with_id(id)
 
-    def clone(self):
+    def clone(self) -> typing.Self:
         """
         Return a clone.
 
-        Returns
-        -------
-        :class:`.Atom`
+        Returns:
+
             The clone. It has the same type as the original atom.
 
         """
@@ -89,7 +86,7 @@ class PositionedAtom:
         clone._position = self._position
         return clone
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         charge = (
             f", charge={self._atom.get_charge()}"
             if self._atom.get_charge() != 0
@@ -100,5 +97,5 @@ class PositionedAtom:
             f"{charge})"
         )
 
-    def __str__(self):
+    def __str__(self) -> str:
         return repr(self)

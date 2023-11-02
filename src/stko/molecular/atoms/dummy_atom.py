@@ -1,12 +1,5 @@
-"""
-Dummy Atom
-==========
-
-A class representing a dummy stk.Atom.
-
-"""
-
 import logging
+import typing
 
 import stk
 
@@ -19,12 +12,14 @@ class Du:
 
     """
 
-    def __init__(self, id):
+    def __init__(self, id: int) -> None:
         """
         Initialize a :class:`.Du`
 
-        Parameters
-        ----------
+        Parameters:
+
+            id:
+                ID of dummy atom.
 
         """
 
@@ -36,56 +31,16 @@ class Du:
         self._atomic_number = 0
         self._charge = 0
 
-    def get_id(self):
-        """
-        Get the ID of the atom.
-
-        Returns
-        ------
-        :class:`int`
-            The atom ID.
-
-        """
-
+    def get_id(self) -> int:
         return self._stk_atom.get_id()
 
-    def get_atomic_number(self):
-        """
-        Get the atomic number of the atom.
-
-        Returns
-        ------
-        :class:`int`
-            The atomic number.
-
-        """
-
+    def get_atomic_number(self) -> int:
         return self._atomic_number
 
-    def get_charge(self):
-        """
-        Get the charge of the atom.
-
-        Returns
-        ------
-        :class:`int`
-            The atom charge.
-
-        """
-
+    def get_charge(self) -> int:
         return self._charge
 
-    def clone(self):
-        """
-        Returns a clone.
-
-        Returns
-        ------
-        :class:`.Atom`
-            A clone.
-
-        """
-
+    def clone(self) -> typing.Self:
         return type(self)(self._stk_atom.get_id())
 
     def __repr__(self) -> str:

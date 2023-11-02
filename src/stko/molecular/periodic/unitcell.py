@@ -1,12 +1,5 @@
-"""
-Unit Cell
-=========
-
-Class holding periodic cell information.
-
-"""
-
 import logging
+import typing
 
 import numpy as np
 from stk import PeriodicInfo
@@ -27,7 +20,12 @@ class UnitCell(PeriodicInfo):
     """
 
     @classmethod
-    def _update_periodic_info(cls, vector_1, vector_2, vector_3):
+    def _update_periodic_info(
+        cls,
+        vector_1: np.ndarray,
+        vector_2: np.ndarray,
+        vector_3: np.ndarray,
+    ) -> typing.Self:
         """
         Return clone of :class:`.UnitCell` with new parameters.
 
@@ -43,27 +41,28 @@ class UnitCell(PeriodicInfo):
 
         return clone
 
-    def with_cell_from_vectors(self, vector_1, vector_2, vector_3):
+    def with_cell_from_vectors(
+        self, vector_1: np.ndarray, vector_2: np.ndarray, vector_3: np.ndarray
+    ) -> typing.Self:
         """
         Update cell.
 
-        Parameters
-        ----------
-        vector_1 : :class:`numpy.ndarray`
-            First cell lattice vector of shape (3, ) in
-            Angstrom.
+        Parameters:
 
-        vector_2 : :class:`numpy.ndarray`
-            Second cell lattice vector of shape (3, ) in
-            Angstrom.
+            vector_1:
+                First cell lattice vector of shape (3, ) in
+                Angstrom.
 
-        vector_3 : :class:`numpy.ndarray`
-            Third cell lattice vector of shape (3, ) in
-            Angstrom.
+            vector_2:
+                Second cell lattice vector of shape (3, ) in
+                Angstrom.
 
-        Returns
-        -------
-        :class:`.UnitCell`
+            vector_3:
+                Third cell lattice vector of shape (3, ) in
+                Angstrom.
+
+        Returns:
+
             Clone with updated cell parameters.
 
         """
@@ -74,13 +73,12 @@ class UnitCell(PeriodicInfo):
             vector_3=vector_3,
         )
 
-    def with_cell_from_turbomole(self, filename):
+    def with_cell_from_turbomole(self, filename: str) -> typing.Self:
         """
         Update cell from structure in Turbomole coord file.
 
-        Returns
-        -------
-        :class:`.UnitCell`
+        Returns:
+
             Clone with updated cell parameters.
 
         """
@@ -90,7 +88,7 @@ class UnitCell(PeriodicInfo):
         with open(filename, "r") as f:
             content = f.readlines()
 
-        periodicity = False
+        periodicity: bool | int = False
         lattice_vectors = None
         lattice_units = None
         cell_parameters = None
@@ -183,18 +181,17 @@ class UnitCell(PeriodicInfo):
         # Update the cell.
         return self._update_periodic_info(vector_1, vector_2, vector_3)
 
-    def with_cell_from_cif(self, filename):
+    def with_cell_from_cif(self, filename: str) -> typing.Self:
         """
         Update cell from structure in CIF.
 
-        Returns
-        -------
-        :class:`NoneType`
+        Returns:
+
             Clone with updated cell parameters.
 
         """
 
-        cell_info = {}
+        cell_info: dict[str, float] = {}
 
         targets = {
             "_cell_length_a": "a",

@@ -28,7 +28,7 @@ class DecomposeMOC:
         self,
         molecule: stk.Molecule,
         metal_atom_nos: tuple[int],
-    ) -> tuple[stk.Molecule]:
+    ) -> tuple[stk.Molecule, ...]:
         """
         Decompose a MOC into ligands by deleting specific metal atoms.
 

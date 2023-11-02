@@ -29,8 +29,8 @@ class DitopicThreeSiteAnalyser:
 
         fg_counts = 0
         for fg in molecule.get_functional_groups():
-            if isinstance(fg, ThreeSiteFG):
-                fg_counts += 1
+            if isinstance(fg, ThreeSiteFG):  # type: ignore[unreachable]
+                fg_counts += 1  # type: ignore[unreachable]
 
         if fg_counts != 2:
             raise NotDitopicThreeSiteError(

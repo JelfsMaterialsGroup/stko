@@ -1,12 +1,6 @@
-"""
-MD Analysis
-===========
-
-Class for converting a molecule to and back from an MDAnalysis object.
-
-"""
-
 import logging
+
+import stk
 
 from stko.utilities.exceptions import WrapperNotInstalledError
 
@@ -22,47 +16,46 @@ class MDAnalysis:
     """
     Converter for :class:`stk.Molecule` to and from MDAnalysis.
 
-    Examples
-    --------
+    Examples:
 
-    An stk molecule can be converted into an MDAnalysis Universe.
+        An stk molecule can be converted into an MDAnalysis Universe.
 
-    .. code-block:: python
+        .. code-block:: python
 
-        import stk
-        import stko
+            import stk
+            import stko
 
-        stkmol = stk.BuildingBlock('NCCNCCN').with_centroid(
-            position=np.array((10, 10, 10))
-        )
-        universe = stko.MDAnalysis().get_universe(stkmol)
+            stkmol = stk.BuildingBlock('NCCNCCN').with_centroid(
+                position=np.array((10, 10, 10))
+            )
+            universe = stko.MDAnalysis().get_universe(stkmol)
 
-        print('R_g:', universe.atoms.radius_of_gyration())
-        print('B_sphere:', universe.atoms.bsphere())
-        print('Universe COM:', universe.atoms.center_of_mass())
-        print('stk centroid:', stkmol.get_centroid())
+            print('R_g:', universe.atoms.radius_of_gyration())
+            print('B_sphere:', universe.atoms.bsphere())
+            print('Universe COM:', universe.atoms.center_of_mass())
+            print('stk centroid:', stkmol.get_centroid())
 
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         if mda is None:
             raise WrapperNotInstalledError(
                 "MDAnalysis is not installed; see README for " "installation."
             )
 
-    def get_universe(self, mol):
+    def get_universe(self, mol: stk.Molecule):  # type: ignore[no-untyped-def]
         """
         Get an MDAnalysis object.
 
-        Parameters
-        ----------
-        mol : :class:`stk.Molecule`
-            Molecule to convert.
+        Parameters:
 
-        Returns
-        -------
-        :class:`MDAnalysis.Universe`
-            The MDAnalysis Universe of the molecule.
+            mol:
+                Molecule to convert.
+
+        Returns:
+
+            :class:`MDAnalysis.Universe`:
+                The MDAnalysis Universe of the molecule.
 
         """
 

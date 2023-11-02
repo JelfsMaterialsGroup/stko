@@ -1,12 +1,5 @@
-"""
-Molecule Splitter
-=================
-
-Class for splitting a molecule into many with new connectors.
-
-"""
-
 import logging
+import typing
 from itertools import combinations
 
 import stk
@@ -21,68 +14,70 @@ class MoleculeSplitter:
     """
     Split an stk.molecule into many with dummy atoms.
 
-    Examples
-    --------
+    Examples:
 
-    Given a molecule, this class allows you to break bonds based on
-    `breaker_smarts` between the atoms in `bond_deleter_ids`.
+        Given a molecule, this class allows you to break bonds based on
+        `breaker_smarts` between the atoms in `bond_deleter_ids`.
 
-    .. code-block:: python
+        .. code-block:: python
 
-        import stk
-        import stko
+            import stk
+            import stko
 
-        full_mol = stk.BuildingBlock('C1=CC=NC(=C1)C=NC2=CC=C(C=C2)Br')
+            full_mol = stk.BuildingBlock('C1=CC=NC(=C1)C=NC2=CC=C(C=C2)Br')
 
-        splitter = stko.MoleculeSplitter(
-            breaker_smarts='[#6X3]~[#7X2]~[#6X3H1]~[#6X3!H1]',
-            bond_deleter_ids=(0, 1),
-        )
-        split_mols = splitter.split(full_mol)
+            splitter = stko.MoleculeSplitter(
+                breaker_smarts='[#6X3]~[#7X2]~[#6X3H1]~[#6X3!H1]',
+                bond_deleter_ids=(0, 1),
+            )
+            split_mols = splitter.split(full_mol)
 
     """
 
     def __init__(
         self,
-        breaker_smarts,
-        bond_deleter_ids,
-    ):
+        breaker_smarts: str,
+        bond_deleter_ids: tuple[int, ...],
+    ) -> None:
         """
         Initialize a :class:`.MoleculeSplitter`.
 
-        Parameters
-        ----------
-        breaker_smarts : :class:`str`
-            SMARTS string used to find the substructure to break.
+        Parameters:
 
-        bond_deleter_ids : :class:`tuple` of :class:`int`
-            Index of atoms in `breaker_smarts` to break bond between.
+            breaker_smarts:
+                SMARTS string used to find the substructure to break.
+
+            bond_deleter_ids:
+                Index of atoms in `breaker_smarts` to break bond between.
 
         """
 
         self._breaker_smarts = breaker_smarts
         self._bond_deleter_ids = bond_deleter_ids
 
-    def split(self, molecule):
+    def split(
+        self,
+        molecule: stk.Molecule,
+    ) -> typing.Iterable[stk.BuildingBlock]:
         """
         Split a molecule.
 
-        Parameters
-        ----------
-        molecule : :class:`stk.Molecule`
-            Molecule to modify.
+        Parameters:
 
-        Returns
-        -------
-        molecules : :class:`iterable` of :class:`stk.BuildingBlock`
-            The resulting list of molecules.
+            molecule:
+                Molecule to modify.
+
+        Returns:
+
+            molecules:
+                The resulting list of molecules.
 
         """
 
         rdkit_mol = molecule.to_rdkit_mol()
         rdkit.SanitizeMol(rdkit_mol)
-        bond_pair_ids_to_delete = []
-        reactable_atom_ids = []
+        bond_pair_ids_to_delete: list[tuple] = []
+        reactable_atom_ids: list[int] = []
         for atom_ids in rdkit_mol.GetSubstructMatches(
             query=rdkit.MolFromSmarts(self._breaker_smarts)
         ):
@@ -123,7 +118,7 @@ class MoleculeSplitter:
 
         molecules = []
         for frag in fragments:
-            atoms = []
+            atoms: list[stk.Atom | Du] = []
             for a in frag.GetAtoms():
                 if a.GetAtomicNum() == 0:
                     atoms.append(Du(a.GetIdx()))
@@ -135,7 +130,6 @@ class MoleculeSplitter:
                             charge=a.GetFormalCharge(),
                         )
                     )
-            atoms = tuple(atoms)
 
             bonds = tuple(
                 stk.Bond(
@@ -152,7 +146,7 @@ class MoleculeSplitter:
             position_matrix = frag.GetConformer().GetPositions()
             molecules.append(
                 stk.BuildingBlock.init(
-                    atoms=atoms,
+                    atoms=atoms,  # type: ignore[arg-type]
                     bonds=bonds,
                     position_matrix=position_matrix,
                 )

@@ -1,12 +1,7 @@
-"""
-Torsion
-=======
-
-Class defining torsion angles.
-
-"""
-
 import logging
+import typing
+
+import stk
 
 logger = logging.getLogger(__name__)
 
@@ -17,23 +12,29 @@ class Torsion:
 
     """
 
-    def __init__(self, atom1, atom2, atom3, atom4):
+    def __init__(
+        self,
+        atom1: stk.Atom,
+        atom2: stk.Atom,
+        atom3: stk.Atom,
+        atom4: stk.Atom,
+    ) -> None:
         """
         Defines a torsion.
 
-        Parameters
-        ----------
-        atom1 : :class:`stk.Atom`
-            First atom in torsion.
+        Parameters:
 
-        atom2 : :class:`stk.Atom`
-            Second atom in torsion.
+            atom1:
+                First atom in torsion.
 
-        atom3 : :class:`stk.Atom`
-            Third atom in torsion.
+            atom2:
+                Second atom in torsion.
 
-        atom4 : :class:`stk.Atom`
-            Fourth atom in torsion.
+            atom3:
+                Third atom in torsion.
+
+            atom4:
+                Fourth atom in torsion.
 
         """
 
@@ -42,7 +43,7 @@ class Torsion:
         self._atom3 = atom3
         self._atom4 = atom4
 
-    def get_atoms(self):
+    def get_atoms(self) -> tuple[stk.Atom, ...]:
         return tuple(
             (
                 self._atom1,
@@ -52,17 +53,17 @@ class Torsion:
             )
         )
 
-    def get_atom_ids(self):
+    def get_atom_ids(self) -> tuple[int, ...]:
         return tuple(atom.get_id() for atom in self.get_atoms())
 
-    def __iter__(self):
+    def __iter__(self) -> typing.Iterable[stk.Atom]:
         return iter(self.get_atoms())
 
-    def __str__(self):
+    def __str__(self) -> str:
         return (
             f"{self.__class__.__name__}({self._atom1}, "
             f"{self._atom2}, {self._atom3}, {self._atom4})"
         )
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return str(self)
