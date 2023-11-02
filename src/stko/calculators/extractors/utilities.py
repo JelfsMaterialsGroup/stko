@@ -1,9 +1,4 @@
-def check_line(
-    self,
-    line: str,
-    option: str,
-    options_dict: dict[str, str],
-) -> bool:
+def check_line(line: str, option: str, options_dict: dict[str, str]) -> bool:
     """
     Checks a line for a string based on option.
 
@@ -26,9 +21,7 @@ def check_line(
 
     """
 
-    options = self._properties_dict()
-
-    if options[option] in line:
+    if options_dict[option] in line:
         return True
 
     return False

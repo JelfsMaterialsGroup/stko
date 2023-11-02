@@ -2,29 +2,32 @@ import numpy as np
 from scipy.spatial.distance import euclidean
 
 
-def is_valid_xtb_solvent(gfn_version, solvent_model, solvent):
+def is_valid_xtb_solvent(
+    gfn_version: int,
+    solvent_model: str,
+    solvent: str,
+) -> bool:
     """
-    Check if solvent is valid for the given GFN version.
+    Check if solvent is valid `[1]`_ for the given GFN version.
 
-    Parameters
-    ----------
-    gfn_version : :class:`int`
-        GFN parameterization version. Can be: ``0``, ``1`` or ``2``.
+    Parameters:
 
-    solvent_model : class:`str`
-        Solvent model being used [1]_.
+        gfn_version:
+            GFN parameterization version. Can be: ``0``, ``1`` or ``2``.
 
-    solvent : :class:`str`
-        Solvent being tested [1]_.
+        solvent_model:
+            Solvent model being used.
 
-    Returns
-    -------
-    :class:`bool`
+        solvent:
+            Solvent being tested.
+
+    Returns:
+
         ``True`` if solvent is valid.
 
-    References
-    ----------
-    .. [1] https://xtb-docs.readthedocs.io/en/latest/gbsa.html
+    References:
+
+        .. [1] https://xtb-docs.readthedocs.io/en/latest/gbsa.html
 
     """
 
@@ -120,7 +123,11 @@ def is_valid_xtb_solvent(gfn_version, solvent_model, solvent):
     return solvent in valid_solvents
 
 
-def get_atom_distance(position_matrix, atom1_id, atom2_id):
+def get_atom_distance(
+    position_matrix: np.ndarray,
+    atom1_id: int,
+    atom2_id: int,
+) -> float:
     """
     Return the distance between two atoms.
 
@@ -134,17 +141,19 @@ def get_atom_distance(position_matrix, atom1_id, atom2_id):
     return float(distance)
 
 
-def calculate_dihedral(pt1, pt2, pt3, pt4):
+def calculate_dihedral(
+    pt1: np.ndarray,
+    pt2: np.ndarray,
+    pt3: np.ndarray,
+    pt4: np.ndarray,
+) -> float:
     """
     Calculate the dihedral between four points in degrees.
 
     Uses Praxeolitic formula --> 1 sqrt, 1 cross product
     Output in range (-180 to 180).
 
-    From: https://stackoverflow.com/questions/20305272/
-    dihedral-torsion-angle-from-four-points-in-cartesian-
-    coordinates-in-python
-    (new_dihedral(p))
+    From: https://stackoverflow.com/a/34245697
 
     """
 
@@ -176,19 +185,22 @@ def calculate_dihedral(pt1, pt2, pt3, pt4):
     return np.degrees(np.arctan2(y, x))
 
 
-def vector_angle(vector1, vector2):
+def vector_angle(vector1: np.ndarray, vector2: np.ndarray) -> float:
     """
     Returns the angle between two vectors in radians.
-    Parameters
-    ----------
-    vector1 : :class:`numpy.ndarray`
-        The first vector.
-    vector2 : :class:`numpy.ndarray`
-        The second vector.
-    Returns
-    -------
-    :class:`float`
+
+    Parameters:
+
+        vector1:
+            The first vector.
+
+        vector2:
+            The second vector.
+
+    Returns:
+
         The angle between `vector1` and `vector2` in radians.
+
     """
 
     if np.all(np.equal(vector1, vector2)):
@@ -206,7 +218,11 @@ def vector_angle(vector1, vector2):
     return np.arccos(term)
 
 
-def calculate_angle(pt1, pt2, pt3):
+def calculate_angle(
+    pt1: np.ndarray,
+    pt2: np.ndarray,
+    pt3: np.ndarray,
+) -> float:
     """
     Calculate the angle between three points in degrees.
 
@@ -217,7 +233,10 @@ def calculate_angle(pt1, pt2, pt3):
     return np.degrees(vector_angle(v1, v2))
 
 
-def get_torsion_info_angles(mol, torsion_info):
+def get_torsion_info_angles(  # type: ignore[no-untyped-def]
+    mol,
+    torsion_info,
+) -> tuple[float, float | None]:
     """
     Get the angles for torsion_info in mol.
 
@@ -225,23 +244,22 @@ def get_torsion_info_angles(mol, torsion_info):
     :class:`stk.ConstructedMolecule`.
     The second angle returned is torsion angle in the
     :class:`stk.BuildingBlock`.
-    Both angles are in degrees.
 
     A :class:`stko.MatchedTorsionCalculator` should yield torsions
     such that the two angles returned are the same.
 
-    Parameters
-    ----------
-    mol : :class:`.ConstructedMolecule`
-        The :class:`.ConstructedMolecule` for which angles are
-        computed.
+    Parameters:
 
-    torsion_info : TorsionInfo
-        Specifies the torsion for which angles will be computed.
+        mol:
+            The :class:`.ConstructedMolecule` for which angles are
+            computed.
 
-    Returns
-    -------
-    angle : :class:`float`, bb_angle : :class:`float`
+        torsion_info:
+            Specifies the torsion for which angles will be computed.
+
+    Returns:
+
+        The angle and the bb_angle in degrees.
 
     """
 

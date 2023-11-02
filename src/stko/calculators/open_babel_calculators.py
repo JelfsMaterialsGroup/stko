@@ -1,13 +1,8 @@
-"""
-OpenBabel Calculators
-=====================
-
-Wrappers for calculators within the `openbabel` code.
-
-"""
-
 import logging
 import os
+import typing
+
+import stk
 
 try:
     from openbabel import openbabel
@@ -26,41 +21,41 @@ logger = logging.getLogger(__name__)
 
 class OpenBabelEnergy:
     """
-    Uses OpenBabel to calculate forcefield energies.[1]_
+    Uses OpenBabel to calculate forcefield energies. [1]_
 
-    Examples
-    --------
-    .. code-block:: python
+    Examples:
 
-        import stk
-        import stko
+        .. code-block:: python
 
-        # Create a molecule whose energy we want to know.
-        mol1 = stk.BuildingBlock('CCCNCCCN')
+            import stk
+            import stko
 
-        # Create the energy calculator.
-        energy_calc = stko.OpenBabelEnergy('uff')
+            # Create a molecule whose energy we want to know.
+            mol1 = stk.BuildingBlock('CCCNCCCN')
 
-        # Calculate the energy.
-        results = energy_calc.get_results(mol1)
-        energy = results.get_energy()
-        unit_string = results.get_unit_string()
+            # Create the energy calculator.
+            energy_calc = stko.OpenBabelEnergy('uff')
 
-    References
-    ----------
-    .. [1] https://github.com/openbabel/openbabel
+            # Calculate the energy.
+            results = energy_calc.get_results(mol1)
+            energy = results.get_energy()
+            unit_string = results.get_unit_string()
+
+    References:
+
+        .. [1] https://github.com/openbabel/openbabel
 
     """
 
-    def __init__(self, forcefield):
+    def __init__(self, forcefield: str) -> None:
         """
         Initialize `openbabel` forcefield energy calculation.
 
-        Parameters
-        ----------
-        forcefield : :class:`str`
-            Forcefield to use. Options include `uff`, `gaff`,
-            `ghemical`, `mmff94`.
+        Parameters:
+
+            forcefield:
+                Forcefield to use. Options include `uff`, `gaff`,
+                `ghemical`, `mmff94`.
 
         """
 
@@ -71,7 +66,7 @@ class OpenBabelEnergy:
 
         self._forcefield = forcefield
 
-    def calculate(self, mol):
+    def calculate(self, mol: stk.Molecule) -> typing.Iterable[float]:
         temp_file = "temp.mol"
         mol.write(temp_file)
         try:
@@ -92,18 +87,17 @@ class OpenBabelEnergy:
 
         yield forcefield.Energy()
 
-    def get_results(self, mol):
+    def get_results(self, mol: stk.Molecule) -> EnergyResults:
         """
         Calculate the energy of `mol`.
 
-        Parameters
-        ----------
-        mol : :class:`.Molecule`
-            The :class:`.Molecule` whose energy is to be calculated.
+        Parameters:
 
-        Returns
-        -------
-        :class:`.EnergyResults`
+            mol
+                The :class:`.Molecule` whose energy is to be calculated.
+
+        Returns:
+
             The energy and units of the energy.
 
         """
@@ -113,18 +107,17 @@ class OpenBabelEnergy:
             unit_string="kJ mol-1",
         )
 
-    def get_energy(self, mol):
+    def get_energy(self, mol: stk.Molecule) -> float:
         """
         Calculate the energy of `mol`.
 
-        Parameters
-        ----------
-        mol : :class:`.Molecule`
-            The :class:`.Molecule` whose energy is to be calculated.
+        Parameters:
 
-        Returns
-        -------
-        :class:`float`
+            mol:
+                The :class:`.Molecule` whose energy is to be calculated.
+
+        Returns:
+
             The energy.
 
         """

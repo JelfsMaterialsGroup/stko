@@ -1,14 +1,8 @@
-"""
-Planarity Calculators
-=====================
-
-Methods to calculate planarity measures of a molecule.
-
-"""
-
 import logging
+import typing
 
 import numpy as np
+import stk
 
 from stko.calculators.results.planarity_results import PlanarityResults
 
@@ -19,54 +13,60 @@ class PlanarityCalculator:
     """
     Calculates measures of planarity of a molecule.
 
-    Measures based on plane deviation from Angew. paper [1]_ and a
-    ChemRxiv paper [2]_.
+    Measures based on plane deviation from Angew. paper `[1]`_ and a
+    ChemRxiv paper `[2]`_.
 
     Plane deviation: sum of the shortest distance to the plane of best
     fit of all deviation atoms (sum abs(d_i)).
 
-    Plane deviation span: d_max - d_min (SDP in [2]_)
+    Plane deviation span: d_max - d_min (SDP in `[2]`_)
 
     Planarity parameter: defined as
-    sqrt((1/num_atoms) * (sum d_i ** 2)) (MPP in [2]_)
+    sqrt((1/num_atoms) * (sum d_i ** 2)) (MPP in `[2]`_)
 
-    Examples
-    --------
+    Examples:
 
-    .. code-block:: python
+        .. code-block:: python
 
-        import stk
-        import stko
+            import stk
+            import stko
 
-        # Create a molecule whose torsions we want to know.
-        mol1 = stk.BuildingBlock('c1ccccc1')
+            # Create a molecule whose torsions we want to know.
+            mol1 = stk.BuildingBlock('c1ccccc1')
 
-        # Create the calculator.
-        pc = stko.PlanarityCalculator()
+            # Create the calculator.
+            pc = stko.PlanarityCalculator()
 
-        # Extract the measures.
-        pc_results = pc.get_results(mol1)
-        plane_deviation = pc_results.get_plane_deviation()
-        plane_deviation_span = pc_results.get_plane_deviation_span()
-        planarity_parameter = pc_results.get_planarity_parameter()
+            # Extract the measures.
+            pc_results = pc.get_results(mol1)
+            plane_deviation = pc_results.get_plane_deviation()
+            plane_deviation_span = pc_results.get_plane_deviation_span()
+            planarity_parameter = pc_results.get_planarity_parameter()
 
-    References
-    ----------
-    .. [1] https://onlinelibrary.wiley.com/doi/10.1002/anie.202106721
+    References:
 
-    .. [2] https://chemrxiv.org/engage/chemrxiv/article-details/
-    60c73cbf9abda2e0c5f8b5c6
+        .. _[1] https://onlinelibrary.wiley.com/doi/10.1002/anie.202106721
+
+        .. _[2] https://link.springer.com/article/10.1007/s00894-021-04884-0
 
     """
 
-    def _get_plane_of_best_fit(self, mol, plane_atom_ids):
+    def _get_plane_of_best_fit(
+        self,
+        mol: stk.Molecule,
+        plane_atom_ids: typing.Iterable[int],
+    ) -> np.ndarray:
         centroid = mol.get_centroid(atom_ids=plane_atom_ids)
         normal = mol.get_plane_normal(atom_ids=plane_atom_ids)
         # Plane of equation ax + by + cz = d.
         atom_plane = np.append(normal, np.sum(normal * centroid))
         return atom_plane
 
-    def _shortest_distance_to_plane(self, plane, point):
+    def _shortest_distance_to_plane(
+        self,
+        plane: np.ndarray,
+        point: np.ndarray,
+    ) -> float:
         """
         Calculate the perpendicular distance from a point and a plane.
 
@@ -84,10 +84,10 @@ class PlanarityCalculator:
 
     def _calculate_deviations(
         self,
-        mol,
-        atom_plane,
-        deviation_atom_ids,
-    ):
+        mol: stk.Molecule,
+        atom_plane: np.ndarray,
+        deviation_atom_ids: typing.Iterable[int],
+    ) -> list[float]:
         return [
             self._shortest_distance_to_plane(
                 plane=atom_plane,
@@ -99,14 +99,14 @@ class PlanarityCalculator:
             if i.get_id() in deviation_atom_ids
         ]
 
-    def _plane_deviation(self, deviations):
+    def _plane_deviation(self, deviations: list[float]) -> float:
         deviations = [abs(i) for i in deviations]
         return sum(deviations)
 
-    def _plane_deviation_span(self, deviations):
+    def _plane_deviation_span(self, deviations: list[float]) -> float:
         return max(deviations) - min(deviations)
 
-    def _planarity_parameter(self, deviations):
+    def _planarity_parameter(self, deviations: list[float]) -> float:
         deviations = [abs(i) for i in deviations]
         num_atoms = len(deviations)
         inv_num_atoms = 1 / num_atoms
@@ -115,28 +115,27 @@ class PlanarityCalculator:
 
     def calculate(
         self,
-        mol,
-        plane_atom_ids=None,
-        deviation_atom_ids=None,
-    ):
+        mol: stk.Molecule,
+        plane_atom_ids: typing.Iterable[int] | None = None,
+        deviation_atom_ids: typing.Iterable[int] | None = None,
+    ) -> typing.Iterable[dict]:
         """
         Perform calculation on `mol`.
 
-        Parameters
-        ----------
-        mol : :class:`.Molecule`
-            The :class:`.Molecule` whose planarity is to be calculated.
+        Parameters:
 
-        plane_atom_ids : iterable of :class:`int`, optional
-            The atom ids to use to define the plane of best fit.
+            mol:
+                The :class:`.Molecule` whose planarity is to be calculated.
 
-        deviation_atom_ids : iterable of :class:`int`, optional
-            The atom ids to use to calculate planarity.
+            plane_atom_ids:
+                The atom ids to use to define the plane of best fit.
 
-        Yields
-        ------
-        :class:`function`
-            The function to perform the calculation.
+            deviation_atom_ids:
+                The atom ids to use to calculate planarity.
+
+        Yields:
+
+            Dictionary of results.
 
         """
 
@@ -164,27 +163,26 @@ class PlanarityCalculator:
 
     def get_results(
         self,
-        mol,
-        plane_atom_ids=None,
-        deviation_atom_ids=None,
-    ):
+        mol: stk.Molecule,
+        plane_atom_ids: typing.Iterable[int] | None = None,
+        deviation_atom_ids: typing.Iterable[int] | None = None,
+    ) -> PlanarityResults:
         """
         Calculate the planarity of `mol`.
 
-        Parameters
-        ----------
-        mol : :class:`.Molecule`
-            The :class:`.Molecule` whose planarity is to be calculated.
+        Parameters:
 
-        plane_atom_ids : iterable of :class:`int`, optional
-            The atom ids to use to define the plane of best fit.
+            mol:
+                The :class:`.Molecule` whose planarity is to be calculated.
 
-        deviation_atom_ids : iterable of :class:`int`, optional
-            The atom ids to use to calculate planarity.
+            plane_atom_ids:
+                The atom ids to use to define the plane of best fit.
 
-        Returns
-        -------
-        :class:`.PlanarityResults`
+            deviation_atom_ids:
+                The atom ids to use to calculate planarity.
+
+        Returns:
+
             The planarity measures of the molecule.
 
         """

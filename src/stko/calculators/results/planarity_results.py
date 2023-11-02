@@ -1,10 +1,4 @@
-"""
-Planarity Results
-=================
-
-Results class for extracting molecular planarity measures.
-
-"""
+import typing
 
 
 class PlanarityResults:
@@ -13,14 +7,14 @@ class PlanarityResults:
 
     """
 
-    def __init__(self, generator):
-        self._values = next(generator)
+    def __init__(self, generator: typing.Iterable) -> None:
+        self._values = next(generator)  # type: ignore[call-overload]
 
-    def get_planarity_parameter(self):
+    def get_planarity_parameter(self) -> float:
         return self._values["planarity_parameter"]
 
-    def get_plane_deviation(self):
+    def get_plane_deviation(self) -> float:
         return self._values["plane_deviation"]
 
-    def get_plane_deviation_span(self):
+    def get_plane_deviation_span(self) -> float:
         return self._values["plane_deviation_span"]

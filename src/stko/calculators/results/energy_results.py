@@ -1,10 +1,4 @@
-"""
-Energy Results
-==============
-
-Results class for :class:`.Calculator` that outputs energy.
-
-"""
+import typing
 
 
 class EnergyResults:
@@ -13,12 +7,12 @@ class EnergyResults:
 
     """
 
-    def __init__(self, generator, unit_string):
-        self._value = next(generator)
+    def __init__(self, generator: typing.Iterable, unit_string: str):
+        self._value = next(generator)  # type: ignore[call-overload]
         self._unit_string = unit_string
 
-    def get_energy(self):
+    def get_energy(self) -> float:
         return self._value
 
-    def get_unit_string(self):
+    def get_unit_string(self) -> str:
         return self._unit_string

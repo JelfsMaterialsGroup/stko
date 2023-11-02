@@ -1,11 +1,3 @@
-"""
-Orca Extractor
-==============
-
-Class to extract properties from Orca output.
-
-"""
-
 import re
 
 from stko.calculators.extractors.utilities import check_line
@@ -59,20 +51,20 @@ class OrcaExtractor:
 
         self._extract_values()
 
-    def _extract_values(self):
+    def _extract_values(self) -> None:
         """
         Updates all properties by extracting from Orca output file.
 
         """
 
         for i, line in enumerate(self.output_lines):
-            if check_line(line, "total_energy"):
+            if check_line(line, "total_energy", self._properties_dict()):
                 self._extract_total_energy(line)
 
     def _properties_dict(self) -> dict[str, str]:
         return {"total_energy": "FINAL SINGLE POINT ENERGY"}
 
-    def _extract_total_energy(self, line: str):
+    def _extract_total_energy(self, line: str) -> None:
         """
         Updates :attr:`total_energy`.
 

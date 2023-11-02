@@ -1,5 +1,4 @@
 import logging
-import typing
 
 import numpy as np
 import stk
@@ -114,13 +113,13 @@ class RmsdCalculator:
         N = len(pos_mat1)
         return np.sqrt(np.sum(deviations * deviations) / N)
 
-    def calculate(self, mol: stk.Molecule) -> typing.Iterable[float]:
+    def calculate(self, mol: stk.Molecule) -> float:
         self._check_valid_comparison(mol)
         self._initial_molecule = self._initial_molecule.with_centroid(
             position=np.array((0, 0, 0)),
         )
         mol = mol.with_centroid(np.array((0, 0, 0)))
-        yield self._calculate_rmsd(mol)
+        return self._calculate_rmsd(mol)
 
     def get_results(self, mol: stk.Molecule) -> stko.RmsdResults:
         """
@@ -228,9 +227,9 @@ class RmsdMappedCalculator(RmsdCalculator):
         )
         return np.sqrt(np.sum(deviations * deviations) / N)
 
-    def calculate(self, mol: stk.Molecule) -> typing.Iterable[float]:
+    def calculate(self, mol: stk.Molecule) -> float:
         self._initial_molecule = self._initial_molecule.with_centroid(
             position=np.array((0, 0, 0)),
         )
         mol = mol.with_centroid(np.array((0, 0, 0)))
-        yield self._calculate_rmsd(mol)
+        return self._calculate_rmsd(mol)

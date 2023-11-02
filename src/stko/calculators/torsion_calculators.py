@@ -49,7 +49,7 @@ class TorsionCalculator:
     def calculate(
         self,
         mol: stk.Molecule,
-    ) -> typing.Iterable[tuple[Torsion, ...]]:
+    ) -> typing.Generator:
         yield tuple(
             Torsion(*mol.get_atoms(atoms[0]))
             for atoms, _ in (
@@ -129,7 +129,7 @@ class ConstructedMoleculeTorsionCalculator:
     def calculate(
         self,
         mol: stk.ConstructedMolecule,
-    ) -> typing.Iterable[tuple[Torsion, ...]]:
+    ) -> typing.Generator:
         yield tuple(
             Torsion(*mol.get_atoms(atoms[0]))
             for atoms, _ in (
@@ -172,7 +172,7 @@ class MatchedTorsionCalculator(ConstructedMoleculeTorsionCalculator):
     def calculate(
         self,
         mol: stk.ConstructedMolecule,
-    ) -> typing.Iterable[tuple[Torsion, ...]]:
+    ) -> typing.Generator:
         """
         Extract torsions with rdkit, then match to building blocks.
 

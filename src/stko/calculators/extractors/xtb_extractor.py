@@ -1,11 +1,3 @@
-"""
-XTB Extractor
-=============
-
-Class to extract properties from xTB output.
-
-"""
-
 import re
 
 from stko.calculators.extractors.utilities import check_line
@@ -97,7 +89,7 @@ class XTBExtractor:
 
     """
 
-    def __init__(self, output_file: str):
+    def __init__(self, output_file: str) -> None:
         """
         Initializes :class:`XTBExtractor`
 
@@ -116,37 +108,49 @@ class XTBExtractor:
 
         self._extract_values()
 
-    def _extract_values(self):
+    def _extract_values(self) -> None:
         for i, line in enumerate(self.output_lines):
-            if check_line(line, "total_energy"):
+            if check_line(line, "total_energy", self._properties_dict()):
                 self._extract_total_energy(line)
-            elif check_line(line, "homo_lumo_gap"):
+            elif check_line(line, "homo_lumo_gap", self._properties_dict()):
                 self._extract_homo_lumo_gap(line)
-            elif check_line(line, "fermi_level"):
+            elif check_line(line, "fermi_level", self._properties_dict()):
                 self._extract_fermi_level(line)
-            elif check_line(line, "dipole_moment"):
+            elif check_line(line, "dipole_moment", self._properties_dict()):
                 self._extract_qonly_dipole_moment(i)
                 self._extract_full_dipole_moment(i)
-            elif check_line(line, "quadrupole_moment"):
+            elif check_line(
+                line, "quadrupole_moment", self._properties_dict()
+            ):
                 self._extract_qonly_quadrupole_moment(i)
                 self._extract_qdip_quadrupole_moment(i)
                 self._extract_full_quadrupole_moment(i)
-            elif check_line(line, "homo_lumo_occ_HOMO"):
-                self.homo_lumo_occ = {}
+            elif check_line(
+                line, "homo_lumo_occ_HOMO", self._properties_dict()
+            ):
+                self.homo_lumo_occ: dict[str, list[float]] = {}
                 self._extract_homo_lumo_occ(line, "HOMO")
-            elif check_line(line, "homo_lumo_occ_LUMO"):
+            elif check_line(
+                line, "homo_lumo_occ_LUMO", self._properties_dict()
+            ):
                 self._extract_homo_lumo_occ(line, "LUMO")
-            elif check_line(line, "total_free_energy"):
+            elif check_line(
+                line, "total_free_energy", self._properties_dict()
+            ):
                 self._extract_total_free_energy(line)
-            elif check_line(line, "ionisation_potential"):
+            elif check_line(
+                line, "ionisation_potential", self._properties_dict()
+            ):
                 self._extract_ionisation_potential(line)
-            elif check_line(line, "electron_affinity"):
+            elif check_line(
+                line, "electron_affinity", self._properties_dict()
+            ):
                 self._extract_electron_affinity(line)
 
         # Frequency formatting requires loop through full file.
         self._extract_frequencies()
 
-    def _properties_dict(self):
+    def _properties_dict(self) -> dict[str, str]:
         return {
             "total_energy": "          | TOTAL ENERGY  ",
             "homo_lumo_gap": "          | HOMO-LUMO GAP   ",
@@ -160,7 +164,7 @@ class XTBExtractor:
             "electron_affinity": "delta SCC EA (eV)",
         }
 
-    def _extract_total_energy(self, line: str):
+    def _extract_total_energy(self, line: str) -> None:
         """
         Updates :attr:`total_energy`.
 
@@ -175,7 +179,7 @@ class XTBExtractor:
         string = nums.search(line.rstrip())
         self.total_energy = float(string.group(0))  # type: ignore[union-attr]
 
-    def _extract_homo_lumo_gap(self, line: str):
+    def _extract_homo_lumo_gap(self, line: str) -> None:
         """
         Updates :attr:`homo_lumo_gap`.
 
@@ -190,7 +194,7 @@ class XTBExtractor:
         string = nums.search(line.rstrip())
         self.homo_lumo_gap = float(string.group(0))  # type: ignore[union-attr]
 
-    def _extract_fermi_level(self, line: str):
+    def _extract_fermi_level(self, line: str) -> None:
         """
         Updates :attr:`fermi_level`.
 
@@ -206,7 +210,7 @@ class XTBExtractor:
         string = nums.search(part2[1].rstrip())
         self.fermi_level = float(string.group(0))  # type: ignore[union-attr]
 
-    def _extract_qonly_dipole_moment(self, index: int):
+    def _extract_qonly_dipole_moment(self, index: int) -> None:
         """
         Updates :attr:`qonly_dipole_moment`.
 
@@ -224,7 +228,7 @@ class XTBExtractor:
                 float(i) for i in sample_set.split(":")[1].split(" ") if i
             ]
 
-    def _extract_full_dipole_moment(self, index: int):
+    def _extract_full_dipole_moment(self, index: int) -> None:
         """
         Updates :attr:`full_dipole_moment`.
 
@@ -242,7 +246,7 @@ class XTBExtractor:
                 float(i) for i in sample_set.split(":")[1].split(" ") if i
             ]
 
-    def _extract_qonly_quadrupole_moment(self, index: int):
+    def _extract_qonly_quadrupole_moment(self, index: int) -> None:
         """
         Updates :attr:`qonly_quadrupole_moment`.
 
@@ -260,7 +264,7 @@ class XTBExtractor:
                 float(i) for i in sample_set.split(":")[1].split(" ") if i
             ]
 
-    def _extract_qdip_quadrupole_moment(self, index: int):
+    def _extract_qdip_quadrupole_moment(self, index: int) -> None:
         """
         Updates :attr:`qdip_quadrupole_moment`.
 
@@ -278,7 +282,7 @@ class XTBExtractor:
                 float(i) for i in sample_set.split(":")[1].split(" ") if i
             ]
 
-    def _extract_full_quadrupole_moment(self, index: int):
+    def _extract_full_quadrupole_moment(self, index: int) -> None:
         """
         Updates :attr:`full_quadrupole_moment`.
 
@@ -296,7 +300,7 @@ class XTBExtractor:
                 float(i) for i in sample_set.split(":")[1].split(" ") if i
             ]
 
-    def _extract_homo_lumo_occ(self, line, orbital):
+    def _extract_homo_lumo_occ(self, line: str, orbital: str) -> None:
         """
         Updates :attr:`homo_lumo_occ`.
 
@@ -331,7 +335,7 @@ class XTBExtractor:
 
         self.homo_lumo_occ[orbital] = orbital_val
 
-    def _extract_total_free_energy(self, line: str):
+    def _extract_total_free_energy(self, line: str) -> None:
         """
         Updates :attr:`total_free_energy`.
 
@@ -348,7 +352,7 @@ class XTBExtractor:
             string.group(0)  # type: ignore[union-attr]
         )
 
-    def _extract_frequencies(self):
+    def _extract_frequencies(self) -> None:
         """
         Updates :attr:`frequencies`.
 
@@ -377,7 +381,7 @@ class XTBExtractor:
 
         self.frequencies = [float(i) for i in frequencies]
 
-    def _extract_ionisation_potential(self, line: str):
+    def _extract_ionisation_potential(self, line: str) -> None:
         """
         Updates :attr:`ionisation_potential`.
 
@@ -394,7 +398,7 @@ class XTBExtractor:
             string.group(0)  # type: ignore[union-attr]
         )
 
-    def _extract_electron_affinity(self, line: str):
+    def _extract_electron_affinity(self, line: str) -> None:
         """
         Updates :attr:`electron_affinity`.
 

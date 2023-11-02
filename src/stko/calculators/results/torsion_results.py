@@ -1,12 +1,7 @@
-"""
-Torsion Results
-===============
-
-Results classes for extracting molecular torsions.
-
-"""
-
+import typing
 from collections import defaultdict
+
+import stk
 
 from stko.molecular.torsion.torsion import Torsion
 from stko.molecular.torsion.torsion_info import TorsionInfo
@@ -19,19 +14,18 @@ class TorsionResults:
 
     """
 
-    def __init__(self, generator, mol):
+    def __init__(self, generator: typing.Generator, mol: stk.Molecule):
         self._torsions = next(generator)
         self._mol = mol
 
-    def get_torsions(self):
+    def get_torsions(self) -> typing.Iterable[Torsion]:
         return self._torsions
 
-    def get_molecule(self):
+    def get_molecule(self) -> stk.Molecule:
         return self._mol
 
-    def get_torsion_angles(self):
+    def get_torsion_angles(self) -> typing.Iterable[tuple[Torsion, float]]:
         for torsion in self._torsions:
-            print("a", torsion)
             yield (
                 torsion,
                 calculate_dihedral(
@@ -65,11 +59,15 @@ class ConstructedMoleculeTorsionResults(TorsionResults):
 
     """
 
-    def __init__(self, generator, mol):
+    def __init__(
+        self,
+        generator: typing.Generator,
+        mol: stk.ConstructedMolecule,
+    ) -> None:
         self._torsions = next(generator)
-        self._mol = mol
+        self._mol: stk.ConstructedMolecule = mol
 
-    def get_torsion_infos_by_building_block(self):
+    def get_torsion_infos_by_building_block(self) -> dict[int, list]:
         """
         Returns dictionary of torsions by building block.
 
@@ -83,7 +81,7 @@ class ConstructedMoleculeTorsionResults(TorsionResults):
                 ].append(torsion_info)
         return torsion_infos_by_building_block
 
-    def get_torsion_infos(self):
+    def get_torsion_infos(self) -> typing.Iterable[TorsionInfo]:
         for torsion in self._torsions:
             atom_infos = list(
                 self._mol.get_atom_infos(

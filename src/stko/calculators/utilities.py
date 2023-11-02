@@ -4,7 +4,7 @@ import numpy as np
 import stk
 
 
-def get_plane_normal(points):
+def get_plane_normal(points: np.ndarray) -> np.ndarray:
     centroid = points.sum(axis=0) / len(points)
     return np.linalg.svd(points - centroid)[-1][2, :]
 
@@ -34,7 +34,7 @@ def get_atom_maps(mol: stk.ConstructedMolecule) -> dict:
     return atom_maps
 
 
-def is_inequivalent_atom(atom1: stk.Atom, atom2: stk.Atom):
+def is_inequivalent_atom(atom1: stk.Atom, atom2: stk.Atom) -> bool | None:
     if atom1.__class__ is not atom2.__class__:
         return True
     if atom1.get_id() != atom2.get_id():
@@ -43,3 +43,4 @@ def is_inequivalent_atom(atom1: stk.Atom, atom2: stk.Atom):
         return True
     if atom1.get_atomic_number() != atom2.get_atomic_number():
         return True
+    return None

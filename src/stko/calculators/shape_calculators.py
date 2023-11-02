@@ -1,13 +1,7 @@
-"""
-Shape Calculators
-=================
-
-Wrappers for shape calculators within the :mod:`rdkit` code.
-
-"""
-
 import logging
+import typing
 
+import stk
 from rdkit.Chem import Descriptors3D as D3D
 
 from stko.calculators.results.shape_results import ShapeResults
@@ -40,7 +34,7 @@ class ShapeCalculator:
 
     """
 
-    def calculate(self, mol):
+    def calculate(self, mol: stk.Molecule) -> typing.Iterable[dict]:
         rdkit_mol = mol.to_rdkit_mol()
         results_dict = {
             "pmi1": D3D.PMI1(rdkit_mol),
@@ -57,18 +51,17 @@ class ShapeCalculator:
 
         yield results_dict
 
-    def get_results(self, mol):
+    def get_results(self, mol: stk.Molecule) -> ShapeResults:
         """
         Calculate the shape measures of `mol`.
 
-        Parameters
-        ----------
-        mol : :class:`.Molecule`
-            The :class:`.Molecule` whose energy is to be calculated.
+        Parameters:
 
-        Returns
-        -------
-        :class:`.ShapeResults`
+            mol:
+                The :class:`.Molecule` whose energy is to be calculated.
+
+        Returns:
+
             The shape measures of the molecule.
 
         """

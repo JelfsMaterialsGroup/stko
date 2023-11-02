@@ -1,13 +1,7 @@
-"""
-RDKit Calculators
-=================
-
-Wrappers for calculators within the :mod:`rdkit` code.
-
-"""
-
 import logging
+import typing
 
+import stk
 from rdkit.Chem import AllChem as rdkit
 
 from stko.calculators.results.energy_results import EnergyResults
@@ -19,31 +13,31 @@ class MMFFEnergy:
     """
     Uses the MMFF force field to calculate energies.
 
-    Examples
-    --------
-    .. code-block:: python
+    Examples:
 
-        import stk
-        import stko
+        .. code-block:: python
+
+            import stk
+            import stko
 
 
-        # Create a molecule whose energy we want to know.
-        mol1 = stk.BuildingBlock('CCCNCCCN')
+            # Create a molecule whose energy we want to know.
+            mol1 = stk.BuildingBlock('CCCNCCCN')
 
-        # Create the energy calculator.
-        mmff = stko.MMFFEnergy()
+            # Create the energy calculator.
+            mmff = stko.MMFFEnergy()
 
-        # Calculate the energy.
-        results = mmff.get_results(mol1)
-        energy = results.get_energy()
-        unit_string = results.get_unit_string()
+            # Calculate the energy.
+            results = mmff.get_results(mol1)
+            energy = results.get_energy()
+            unit_string = results.get_unit_string()
 
     """
 
-    def __init__(self, ignore_inter_interactions=True):
+    def __init__(self, ignore_inter_interactions: bool = True) -> None:
         self._ignore_inter_interactions = ignore_inter_interactions
 
-    def calculate(self, mol):
+    def calculate(self, mol: stk.Molecule) -> typing.Iterable[float]:
         rdkit_mol = mol.to_rdkit_mol()
         rdkit.SanitizeMol(rdkit_mol)
         rdkit.GetSSSR(rdkit_mol)
@@ -54,18 +48,17 @@ class MMFFEnergy:
         )
         yield ff.CalcEnergy()
 
-    def get_results(self, mol):
+    def get_results(self, mol: stk.Molecule) -> EnergyResults:
         """
         Calculate the energy of `mol`.
 
-        Parameters
-        ----------
-        mol : :class:`.Molecule`
-            The :class:`.Molecule` whose energy is to be calculated.
+        Parameters:
 
-        Returns
-        -------
-        :class:`.EnergyResults`
+            mol:
+                The :class:`.Molecule` whose energy is to be calculated.
+
+        Returns:
+
             The energy and units of the energy.
 
         """
@@ -75,18 +68,17 @@ class MMFFEnergy:
             unit_string="kcal mol-1",
         )
 
-    def get_energy(self, mol):
+    def get_energy(self, mol: stk.Molecule) -> float:
         """
         Calculate the energy of `mol`.
 
-        Parameters
-        ----------
-        mol : :class:`.Molecule`
-            The :class:`.Molecule` whose energy is to be calculated.
+        Parameters:
 
-        Returns
-        -------
-        :class:`float`
+            mol:
+                The :class:`.Molecule` whose energy is to be calculated.
+
+        Returns:
+
             The energy.
 
         """
@@ -98,31 +90,31 @@ class UFFEnergy:
     """
     Uses the UFF force field to calculate energies.
 
-    Examples
-    --------
-    .. code-block:: python
+    Examples:
 
-        import stk
-        import stko
+        .. code-block:: python
+
+            import stk
+            import stko
 
 
-        # Create a molecule whose energy we want to know.
-        mol1 = stk.BuildingBlock('CCCNCCCN')
+            # Create a molecule whose energy we want to know.
+            mol1 = stk.BuildingBlock('CCCNCCCN')
 
-        # Create the energy calculator.
-        uff = stko.UFFEnergy()
+            # Create the energy calculator.
+            uff = stko.UFFEnergy()
 
-        # Calculate the energy.
-        results = uff.get_results(mol1)
-        energy = results.get_energy()
-        unit_string = results.get_unit_string()
+            # Calculate the energy.
+            results = uff.get_results(mol1)
+            energy = results.get_energy()
+            unit_string = results.get_unit_string()
 
     """
 
-    def __init__(self, ignore_inter_interactions=True):
+    def __init__(self, ignore_inter_interactions: bool = True) -> None:
         self._ignore_inter_interactions = ignore_inter_interactions
 
-    def calculate(self, mol):
+    def calculate(self, mol: stk.Molecule) -> typing.Iterable[float]:
         rdkit_mol = mol.to_rdkit_mol()
         rdkit.SanitizeMol(rdkit_mol)
         # RingInfo needs to be initialized, else rdkit may raise an
@@ -134,18 +126,17 @@ class UFFEnergy:
         )
         yield ff.CalcEnergy()
 
-    def get_results(self, mol):
+    def get_results(self, mol: stk.Molecule) -> EnergyResults:
         """
         Calculate the energy of `mol`.
 
-        Parameters
-        ----------
-        mol : :class:`.Molecule`
-            The :class:`.Molecule` whose energy is to be calculated.
+        Parameters:
 
-        Returns
-        -------
-        :class:`.EnergyResults`
+            mol:
+                The :class:`.Molecule` whose energy is to be calculated.
+
+        Returns:
+
             The energy and units of the energy.
 
         """
@@ -155,18 +146,17 @@ class UFFEnergy:
             unit_string="kcal mol-1",
         )
 
-    def get_energy(self, mol):
+    def get_energy(self, mol: stk.Molecule) -> float:
         """
         Calculate the energy of `mol`.
 
-        Parameters
-        ----------
-        mol : :class:`.Molecule`
-            The :class:`.Molecule` whose energy is to be calculated.
+        Parameters:
 
-        Returns
-        -------
-        :class:`float`
+            mol:
+                The :class:`.Molecule` whose energy is to be calculated.
+
+        Returns:
+
             The energy.
 
         """
