@@ -2,10 +2,11 @@
 default:
   @just --list
 
-# Build the docs.
+# Build docs.
 docs:
+  rm -rf docs/source/_autosummary
   make -C docs html
-  @echo Docs are in: $PWD/docs/build/html/index.html
+  echo Docs are in $PWD/docs/build/html/index.html
 
 # Install development environment.
 dev:

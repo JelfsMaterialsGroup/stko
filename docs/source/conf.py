@@ -22,18 +22,12 @@ extensions = [
     "sphinx.ext.intersphinx",
     "sphinx.ext.viewcode",
     "sphinx_copybutton",
-    "moldoc",
 ]
 
 autosummary_imported_members = True
 
 autodoc_typehints = "description"
 autodoc_member_order = "groupwise"
-autodoc_type_aliases = {
-    "NumBuildingBlocks": "dict[Molecule, int]",
-    "IncludedBatches": "set[BatchKey] | None",
-    "ExcludedBatches": "set[BatchKey] | None",
-}
 autoclass_content = "both"
 
 intersphinx_mapping = {
@@ -49,5 +43,5 @@ exclude_patterns: list[str] = []
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
-html_theme = "sphinx_rtd_theme"
+html_theme = "furo"
 html_static_path = ["_static"]
