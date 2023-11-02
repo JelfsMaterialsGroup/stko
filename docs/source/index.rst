@@ -6,6 +6,7 @@
    Molecular <molecular>
    Calculators <calculators>
    Optimizers <optimizers>
+   Cage analysis <cage_analysis>
 
 
 .. toctree::
@@ -51,8 +52,30 @@ optimizations, a clone of :class:`stk.Molecule` is returned. For
 calculators, a :class:`.Results` are used to calculate and extract
 properties of an :class:`stk.Molecule`.
 
+Examples
+--------
+
+For every class (including `Calculator`, `Optimizer`), there are small
+examples of usage on the associated docs page. There are also some
+examples for `stko` usage available
+`here <https://github.com/JelfsMaterialsGroup/stko/tree/master/examples>`_.
+These cover:
+
+* `Basic examples <https://github.com/JelfsMaterialsGroup/stko/blob/master/examples/basic_example.py>`_
+* `Molecule alignment <https://github.com/JelfsMaterialsGroup/stko/blob/master/examples/aligner_example.py>`_
+* `Using calculators <https://github.com/JelfsMaterialsGroup/stko/blob/master/examples/calculators_example.py>`_
+* `Splitting molecules <https://github.com/JelfsMaterialsGroup/stko/blob/master/examples/molecule_splitter_example.py>`_
+* `Interfacing with MDAnalysis <https://github.com/JelfsMaterialsGroup/stko/blob/master/examples/mdanalysis_example.py>`_
+* `Interfacing with OpenBabel <https://github.com/JelfsMaterialsGroup/stko/blob/master/examples/obabel_example.py>`_
+* `Interfacing with Orca <https://github.com/JelfsMaterialsGroup/stko/blob/master/examples/orca_example.py>`_
+* `Calculating molecular shape with RDKit <https://github.com/JelfsMaterialsGroup/stko/blob/master/examples/shape_example.py>`_
+* `Extracting stk topology graphs from molecules <https://github.com/JelfsMaterialsGroup/stko/blob/master/examples/topology_extraction_example.py>`_
+* `Analysing torsions <https://github.com/JelfsMaterialsGroup/stko/blob/master/examples/torsion_example.py>`_
+* `Converting molecules to their Zmatrix <https://github.com/JelfsMaterialsGroup/stko/blob/master/examples/zmatrix_example.py>`_
 
 Indices and Tables
 ==================
 
 * :ref:`genindex`
+* :ref:`modindex`
+* :ref:`search`
