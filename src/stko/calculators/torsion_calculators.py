@@ -1,13 +1,7 @@
-"""
-Torsion Calculators
-===================
-
-Methods to extract torsions from a molecule or constructed molecule.
-
-"""
-
 import logging
+import typing
 
+import stk
 from rdkit.Chem import TorsionFingerprints
 
 from stko.calculators.results.torsion_results import (
@@ -28,33 +22,34 @@ class TorsionCalculator:
     one torsion for each rotatable bond. We use the
     `TorsionFingerprints.CalculateTorsionLists` method.
 
-    Examples
-    --------
+    Examples:
 
-    .. code-block:: python
+        .. code-block:: python
 
-        import stk
-        import stko
+            import stk
+            import stko
 
-        # Create a molecule whose torsions we want to know.
-        mol1 = stk.BuildingBlock('CCCNCCCN')
+            # Create a molecule whose torsions we want to know.
+            mol1 = stk.BuildingBlock('CCCNCCCN')
 
-        # Create the calculator.
-        tc = stko.TorsionCalculator()
+            # Create the calculator.
+            tc = stko.TorsionCalculator()
 
-        # Extract the torsions.
-        tc_results = tc.get_results(mol1)
-        for t, ang in tc_results.get_torsion_angles():
-            print(t, ang, t.get_atom_ids())
+            # Extract the torsions.
+            tc_results = tc.get_results(mol1)
+            for t, ang in tc_results.get_torsion_angles():
+                print(t, ang, t.get_atom_ids())
 
-    References
-    ----------
-    .. [1] http://rdkit.org/docs/source/
-    rdkit.Chem.TorsionFingerprints.html
+    References:
+
+        .. [1] http://rdkit.org/docs/source/rdkit.Chem.TorsionFingerprints.html
 
     """
 
-    def calculate(self, mol):
+    def calculate(
+        self,
+        mol: stk.Molecule,
+    ) -> typing.Iterable[tuple[Torsion, ...]]:
         yield tuple(
             Torsion(*mol.get_atoms(atoms[0]))
             for atoms, _ in (
@@ -64,18 +59,17 @@ class TorsionCalculator:
             )
         )
 
-    def get_results(self, mol):
+    def get_results(self, mol: stk.Molecule) -> TorsionResults:
         """
         Calculate the torsions of `mol`.
 
-        Parameters
-        ----------
-        mol : :class:`.Molecule`
-            The :class:`.Molecule` whose torsions are to be calculated.
+        Parameters:
 
-        Returns
-        -------
-        :class:`.TorsionResults`
+            mol:
+                The :class:`.Molecule` whose torsions are to be calculated.
+
+        Returns:
+
             The torsions of the molecule.
 
         """
@@ -83,7 +77,7 @@ class TorsionCalculator:
         return TorsionResults(self.calculate(mol), mol)
 
 
-class ConstructedMoleculeTorsionCalculator(TorsionCalculator):
+class ConstructedMoleculeTorsionCalculator:
     """
     Uses rdkit to extract all torsions in a molecule.
 
@@ -91,61 +85,74 @@ class ConstructedMoleculeTorsionCalculator(TorsionCalculator):
     one torsion for each rotatable bond. We use the
     `TorsionFingerprints.CalculateTorsionLists` method.
 
-    Examples
-    --------
+    Examples:
 
-    .. code-block:: python
+        .. code-block:: python
 
-        import stk
-        import stko
+            import stk
+            import stko
 
-        # Create a molecule whose energy we want to know.
-        bb1 = stk.BuildingBlock('NCCNCCN', [stk.PrimaryAminoFactory()])
-        bb2 = stk.BuildingBlock('O=CCCC=O', [stk.AldehydeFactory()])
-        polymer = stk.ConstructedMolecule(
-            stk.polymer.Linear(
-                building_blocks=(bb1, bb2),
-                repeating_unit="AB",
-                orientations=[0, 0],
-                num_repeating_units=1
-            )
-        )
-
-        # Create the calculator.
-        tc = stko.ConstructedMoleculeTorsionCalculator()
-
-        # Extract the torsions.
-        tc_results = tc.get_results(polymer)
-
-        # Get information about torsions in building blocks and in the
-        # ConstructedMolecule.
-        for t in tc_results.get_torsion_infos():
-            print(
-                'c', t.get_torsion(),
-                t.get_building_block(),
-                t.get_building_block_id(),
-                t.get_building_block_torsion(),
+            # Create a molecule whose energy we want to know.
+            bb1 = stk.BuildingBlock('NCCNCCN', [stk.PrimaryAminoFactory()])
+            bb2 = stk.BuildingBlock('O=CCCC=O', [stk.AldehydeFactory()])
+            polymer = stk.ConstructedMolecule(
+                stk.polymer.Linear(
+                    building_blocks=(bb1, bb2),
+                    repeating_unit="AB",
+                    orientations=[0, 0],
+                    num_repeating_units=1
+                )
             )
 
-    References
-    ----------
-    .. [1] http://rdkit.org/docs/source/
-    rdkit.Chem.TorsionFingerprints.html
+            # Create the calculator.
+            tc = stko.ConstructedMoleculeTorsionCalculator()
+
+            # Extract the torsions.
+            tc_results = tc.get_results(polymer)
+
+            # Get information about torsions in building blocks and in the
+            # ConstructedMolecule.
+            for t in tc_results.get_torsion_infos():
+                print(
+                    'c', t.get_torsion(),
+                    t.get_building_block(),
+                    t.get_building_block_id(),
+                    t.get_building_block_torsion(),
+                )
+
+    References:
+
+        .. [1] http://rdkit.org/docs/source/rdkit.Chem.TorsionFingerprints.html
 
     """
 
-    def get_results(self, mol):
+    def calculate(
+        self,
+        mol: stk.ConstructedMolecule,
+    ) -> typing.Iterable[tuple[Torsion, ...]]:
+        yield tuple(
+            Torsion(*mol.get_atoms(atoms[0]))
+            for atoms, _ in (
+                TorsionFingerprints.CalculateTorsionLists(mol.to_rdkit_mol())[
+                    0
+                ]
+            )
+        )
+
+    def get_results(
+        self,
+        mol: stk.ConstructedMolecule,
+    ) -> ConstructedMoleculeTorsionResults:
         """
         Calculate the torsions of `mol`.
 
-        Parameters
-        ----------
-        mol : :class:`.Molecule`
-            The :class:`.Molecule` whose torsions are to be calculated.
+        Parameters:
 
-        Returns
-        -------
-        :class:`.TorsionResults`
+            mol:
+                The molecule whose torsions are to be calculated.
+
+        Returns:
+
             The torsions of the molecule.
 
         """
@@ -162,7 +169,10 @@ class MatchedTorsionCalculator(ConstructedMoleculeTorsionCalculator):
 
     """
 
-    def calculate(self, mol):
+    def calculate(
+        self,
+        mol: stk.ConstructedMolecule,
+    ) -> typing.Iterable[tuple[Torsion, ...]]:
         """
         Extract torsions with rdkit, then match to building blocks.
 
@@ -173,15 +183,17 @@ class MatchedTorsionCalculator(ConstructedMoleculeTorsionCalculator):
         of the torsion with the atoms corresponding to the end atoms
         of the underlying building block torsion.
 
-        Parameters
-        ----------
-        mol : :class:`.ConstructedMolecule`
-            The :class:`.ConstructedMolecule` whose torsions are to be
-            calculated.
+        Parameters:
+
+            mol:
+                The :class:`.ConstructedMolecule` whose torsions are to be
+                calculated.
 
         """
 
-        torsions = list(next(super().calculate(mol)))
+        torsions = list(
+            next(super().calculate(mol))  # type: ignore[call-overload]
+        )
         atom_maps = get_atom_maps(mol)
 
         # Loop over torsions, updating each to match a building block
@@ -190,9 +202,9 @@ class MatchedTorsionCalculator(ConstructedMoleculeTorsionCalculator):
             # Atom ids, atom infos, and building block ids of current
             # torsion in constructed molecule.
             atom_ids = list(torsion.get_atom_ids())
-            atom_infos = list(mol.get_atom_infos(atom_ids))
+            a_infos = list(mol.get_atom_infos(atom_ids))
             build_block_ids = [
-                atom_info.get_building_block_id() for atom_info in atom_infos
+                atom_info.get_building_block_id() for atom_info in a_infos
             ]
 
             if build_block_ids[1] is None:
@@ -204,7 +216,9 @@ class MatchedTorsionCalculator(ConstructedMoleculeTorsionCalculator):
 
             build_block_torsions = (
                 TorsionCalculator()
-                .get_results(atom_infos[1].get_building_block())
+                .get_results(
+                    a_infos[1].get_building_block()  # type: ignore[arg-type]
+                )
                 .get_torsions()
             )
             atom_map = atom_maps[build_block_ids[1]]

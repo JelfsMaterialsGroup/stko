@@ -9,9 +9,9 @@ Optimizer that aligns two molecules using `Spindry`.
 import logging
 from itertools import product
 
-import stk
 import numpy as np
 import spindry as spd
+import stk
 from scipy.spatial.distance import cdist
 
 from stko.calculators.rmsd_calculators import RmsdMappedCalculator

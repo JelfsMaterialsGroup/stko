@@ -1,17 +1,11 @@
-"""
-RMSD Calculators
-=================
-
-Calculator of Root Mean Square Distance between two molecules.
-
-"""
-
 import logging
+import typing
 
 import numpy as np
 import stk
 from scipy.spatial.distance import cdist
 
+import stko
 from stko.calculators.results.rmsd_results import RmsdResults
 from stko.calculators.utilities import is_inequivalent_atom
 from stko.utilities.exceptions import (
@@ -32,38 +26,42 @@ class RmsdCalculator:
     No alignment of the two molecules occurs. However, both molecules
     are moved to a centroid position of (0, 0, 0).
 
-    Examples
-    --------
-    .. code-block:: python
+    Examples:
 
-        import stk
-        import stko
+        .. code-block:: python
 
-        bb1 = stk.BuildingBlock('C1CCCCC1')
-        calculator = stko.RmsdCalculator(bb1)
-        results = calculator.get_results(stk.UFF().optimize(bb1))
-        rmsd  = results.get_rmsd()
+            import stk
+            import stko
+
+            bb1 = stk.BuildingBlock('C1CCCCC1')
+            calculator = stko.RmsdCalculator(bb1)
+            results = calculator.get_results(stk.UFF().optimize(bb1))
+            rmsd  = results.get_rmsd()
 
     """
 
-    def __init__(self, initial_molecule, ignore_hydrogens=False):
+    def __init__(
+        self,
+        initial_molecule: stk.Molecule,
+        ignore_hydrogens: bool = False,
+    ) -> None:
         """
         Initialize RMSD calculator with initial molecule.
 
-        Parameters
-        ----------
-        initial_molecule : :class:`.Molecule`
-            The :class:`.Molecule` to calculate RMSD from.
+        Parameters:
 
-        ignore_hydrogens : :class:`bool`, optional
-            ``True`` to ignore hydrogen atoms.
+            initial_molecule:
+                The :class:`.Molecule` to calculate RMSD from.
+
+            ignore_hydrogens:
+                ``True`` to ignore hydrogen atoms.
 
         """
 
         self._initial_molecule = initial_molecule
         self._ignore_hydrogens = ignore_hydrogens
 
-    def _check_valid_comparison(self, mol):
+    def _check_valid_comparison(self, mol: stk.Molecule) -> None:
         if mol.get_num_atoms() != (self._initial_molecule.get_num_atoms()):
             raise DifferentMoleculeError(
                 f"{self._initial_molecule} and {mol} are not "
@@ -86,7 +84,7 @@ class RmsdCalculator:
                     f"{atom1} and {atom2} are not equivalent."
                 )
 
-    def _calculate_rmsd(self, mol):
+    def _calculate_rmsd(self, mol: stk.Molecule) -> float:
         if self._ignore_hydrogens:
             initial_atom_ids = (
                 i.get_id()
@@ -116,26 +114,25 @@ class RmsdCalculator:
         N = len(pos_mat1)
         return np.sqrt(np.sum(deviations * deviations) / N)
 
-    def calculate(self, mol):
+    def calculate(self, mol: stk.Molecule) -> typing.Iterable[float]:
         self._check_valid_comparison(mol)
         self._initial_molecule = self._initial_molecule.with_centroid(
-            position=(0, 0, 0)
+            position=np.array((0, 0, 0)),
         )
-        mol = mol.with_centroid((0, 0, 0))
+        mol = mol.with_centroid(np.array((0, 0, 0)))
         yield self._calculate_rmsd(mol)
 
-    def get_results(self, mol):
+    def get_results(self, mol: stk.Molecule) -> stko.RmsdResults:
         """
         Calculate the RMSD between `mol` and the initial molecule.
 
-        Parameters
-        ----------
-        mol : :class:`.Molecule`
-            The :class:`.Molecule` to calculate RMSD to.
+        Parameters:
 
-        Returns
-        -------
-        :class:`.RmsdResults`
+            mol:
+                The :class:`.Molecule` to calculate RMSD to.
+
+        Returns:
+
             The RMSD between the molecules.
 
         """
@@ -156,36 +153,36 @@ class RmsdMappedCalculator(RmsdCalculator):
     Warning: the RMSD depends on the order, i.e. it is not guaranteed
     to be the same when you switch the initial and test molecule.
 
-    Examples
-    --------
-    .. code-block:: python
+    Examples:
 
-        import stk
-        import stko
-        import numpy as np
+        .. code-block:: python
 
-        bb1 = stk.BuildingBlock('C1CCCCC1')
-        # Fake rotation of new molecule.
-        bb2 = stk.BuildingBlock('C1CCCCC1').with_rotation_about_axis(
-            1.34, np.array((0, 0, 1)), np.array((0, 0, 0)),
-        )
+            import stk
+            import stko
+            import numpy as np
 
-        # Get RMSD without alignment.
-        calculator = stko.RmsdMappedCalculator(bb1)
-        results = calculator.get_results(bb2)
-        rmsd  = results.get_rmsd()
+            bb1 = stk.BuildingBlock('C1CCCCC1')
+            # Fake rotation of new molecule.
+            bb2 = stk.BuildingBlock('C1CCCCC1').with_rotation_about_axis(
+                1.34, np.array((0, 0, 1)), np.array((0, 0, 0)),
+            )
 
-        # Align the molecules.
-        optimizer = stko.Aligner(bb1, (('C', 'C'), ))
-        aligned_bb2 = optimizer.optimize(bb2)
+            # Get RMSD without alignment.
+            calculator = stko.RmsdMappedCalculator(bb1)
+            results = calculator.get_results(bb2)
+            rmsd  = results.get_rmsd()
 
-        calculator = stko.RmsdMappedCalculator(bb1)
-        results = calculator.get_results(aligned_bb2)
-        rmsd  = results.get_rmsd()
+            # Align the molecules.
+            optimizer = stko.Aligner(bb1, (('C', 'C'), ))
+            aligned_bb2 = optimizer.optimize(bb2)
+
+            calculator = stko.RmsdMappedCalculator(bb1)
+            results = calculator.get_results(aligned_bb2)
+            rmsd  = results.get_rmsd()
 
     """
 
-    def _calculate_rmsd(self, mol):
+    def _calculate_rmsd(self, mol: stk.Molecule) -> float:
         if self._ignore_hydrogens:
             initial_atom_ids = (
                 i.get_id()
@@ -231,9 +228,9 @@ class RmsdMappedCalculator(RmsdCalculator):
         )
         return np.sqrt(np.sum(deviations * deviations) / N)
 
-    def calculate(self, mol):
+    def calculate(self, mol: stk.Molecule) -> typing.Iterable[float]:
         self._initial_molecule = self._initial_molecule.with_centroid(
-            position=(0, 0, 0),
+            position=np.array((0, 0, 0)),
         )
-        mol = mol.with_centroid((0, 0, 0))
+        mol = mol.with_centroid(np.array((0, 0, 0)))
         yield self._calculate_rmsd(mol)

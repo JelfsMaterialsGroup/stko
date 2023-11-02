@@ -9,19 +9,19 @@ Optimizer for collapsing enlarged topologies.
 import logging
 import os
 import random
-import typing
 import shutil
+import typing
 import uuid
 from collections import defaultdict
 from itertools import combinations
 
-import stk
-import stko
 import matplotlib.pyplot as plt
 import numpy as np
+import stk
 from scipy.spatial.distance import pdist
 from stk import PdbWriter
 
+import stko
 from stko.optimizers.optimizers import Optimizer
 from stko.utilities.utilities import get_atom_distance
 
@@ -173,7 +173,7 @@ class Collapser(Optimizer):
         unit_cell: stko.UnitCell,
         step: float,
         scales: dict,
-    ) -> tuple(np.ndarray):
+    ) -> tuple[np.ndarray]:
         """
         Get the unit cell vectors after collapse step.
 
@@ -339,7 +339,7 @@ class Collapser(Optimizer):
         self,
         mol: stk.ConstructedMolecule,
         unit_cell: stko.UnitCell,
-    ) -> tuple(stk.ConstructedMolecule, stko.UnitCell):
+    ) -> tuple[stk.ConstructedMolecule, stko.UnitCell]:
         """
         Optimize `mol`.
 
