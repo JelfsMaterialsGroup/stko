@@ -42,8 +42,15 @@ def main():
         metal_atom_nos=(46,),
     )
     print(len(ligands))
+
+    tsa = stko.subgroup_analysis.DitopicThreeSiteAnalyser()
     for i, lig in enumerate(ligands):
         lig.write(f"cage_output/apdcage_{i}.mol")
+        as_building_block = stk.BuildingBlock.init_from_molecule(
+            lig,
+            stko.functional_groups.ThreeSiteFactory(smarts="[#6]~[#7X2]~[#6]"),
+        )
+        print(f"binder distance: {tsa.get_binder_distance(as_building_block)}")
         raise SystemExit("now to do ligand analysis.")
 
 

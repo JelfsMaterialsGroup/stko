@@ -7,14 +7,17 @@ class CaseData:
 
     Attributes:
 
-        smiles:
-            The SMILES string of molecule being tested.
+        cage:
+            The cage to decompose.
 
-        num_fgs:
-            The expected number of functional groups.
+        num_ligands:
+            The expected number of ligands.
 
-        factory:
-            The factory to use.
+        metal_atom_nos:
+            The metal atom atomic numbers to use.
+
+        bb_smiles:
+            The expected smiles of the extracted ligands.
 
         name:
             The name of the test case.

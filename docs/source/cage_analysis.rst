@@ -19,4 +19,5 @@ There is an example script with some of the analyses
   CNNFactory <_autosummary/stko.functional_groups.CNNFactory>
   NNNFactory <_autosummary/stko.functional_groups.NNNFactory>
   DecomposeMOC <_autosummary/stko.cage_analysis.DecomposeMOC>
+  DitopicThreeSiteAnalyser <_autosummary/stko.subgroup_analysis.DitopicThreeSiteAnalyser>
 

@@ -64,3 +64,7 @@ class NotCompletedError(Exception):
 
 class SettingConflictError(Exception):
     ...
+
+
+class NotDitopicThreeSiteError(Exception):
+    ...

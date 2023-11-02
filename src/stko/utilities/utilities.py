@@ -127,7 +127,8 @@ def get_atom_distance(position_matrix, atom1_id, atom2_id):
     """
 
     distance = euclidean(
-        u=position_matrix[atom1_id], v=position_matrix[atom2_id]
+        u=position_matrix[atom1_id],
+        v=position_matrix[atom2_id],
     )
 
     return float(distance)
