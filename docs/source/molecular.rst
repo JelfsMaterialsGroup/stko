@@ -16,3 +16,6 @@ Molecular
   TopologyInfo <_autosummary/stko.TopologyInfo>
   Torsion <_autosummary/stko.Torsion>
   TorsionInfo <_autosummary/stko.TorsionInfo>
+  ThreeSiteFG <_autosummary/stko.functional_groups.ThreeSiteFG>
+  ThreeSiteFactory <_autosummary/stko.functional_groups.ThreeSiteFactory>
+

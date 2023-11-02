@@ -10,4 +10,8 @@ like all other methods in :mod:`stko`.
 .. toctree::
   :maxdepth: 1
 
-  PositionedAtom <_autosummary/stko.PositionedAtom>
+  ThreeSiteFG <_autosummary/stko.functional_groups.ThreeSiteFG>
+  ThreeSiteFactory <_autosummary/stko.functional_groups.ThreeSiteFactory>
+  CNCFactory <_autosummary/stko.functional_groups.CNCFactory>
+  CNNFactory <_autosummary/stko.functional_groups.CNNFactory>
+  NNNFactory <_autosummary/stko.functional_groups.NNNFactory>
