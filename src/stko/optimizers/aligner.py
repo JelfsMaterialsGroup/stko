@@ -9,6 +9,7 @@ Optimizer that aligns two molecules using `Spindry`.
 import logging
 from itertools import product
 
+import stk
 import numpy as np
 import spindry as spd
 from scipy.spatial.distance import cdist
@@ -20,14 +21,18 @@ logger = logging.getLogger(__name__)
 
 
 class AlignmentPotential(spd.Potential):
-    def __init__(self, matching_pairs, width):
+    def __init__(self, matching_pairs: tuple[tuple[str]], width: float):
         self._matching_pairs = matching_pairs
         self._width = width
 
-    def _potential(self, distance):
+    def _potential(self, distance: np.ndarray) -> np.ndarray:
         return self._width * (distance**2)
 
-    def _combine_atoms(self, atoms1, atoms2):
+    def _combine_atoms(
+        self,
+        atoms1: tuple[spd.Atom, ...],
+        atoms2: tuple[spd.Atom, ...],
+    ) -> np.ndarray:
         len1 = len(atoms1)
         len2 = len(atoms2)
 
@@ -43,7 +48,7 @@ class AlignmentPotential(spd.Potential):
 
         return mixed
 
-    def compute_potential(self, supramolecule):
+    def compute_potential(self, supramolecule: spd.SupraMolecule) -> float:
         component_position_matrices = list(
             i.get_position_matrix() for i in supramolecule.get_components()
         )
@@ -68,45 +73,44 @@ class Aligner(Optimizer):
     """
     Use SpinDry to align two molecules.[1]_
 
-    Examples
-    --------
+    Examples:
 
-    .. code-block:: python
+        .. code-block:: python
 
-        import stk
-        import stko
-        import numpy as np
+            import stk
+            import stko
+            import numpy as np
 
 
-        # For this example, we have produced rotated molecules.
-        mol = stk.BuildingBlock('NCCNCCN')
-        mol2 = mol.with_rotation_about_axis(
-            1.34, np.array((0, 0, 1)), np.array((0, 0, 0)),
-        )
-        aligner = stko.Aligner(mol2, (('N', 'N'), ))
-        mol = aligner.optimize(mol)
+            # For this example, we have produced rotated molecules.
+            mol = stk.BuildingBlock('NCCNCCN')
+            mol2 = mol.with_rotation_about_axis(
+                1.34, np.array((0, 0, 1)), np.array((0, 0, 0)),
+            )
+            aligner = stko.Aligner(mol2, (('N', 'N'), ))
+            mol = aligner.optimize(mol)
 
-    References
-    ----------
-    .. [1] https://github.com/andrewtarzia/SpinDry
+    References:
+
+        .. [1] https://github.com/andrewtarzia/SpinDry
 
     """
 
     def __init__(
         self,
-        initial_molecule,
-        matching_pairs,
-    ):
+        initial_molecule: stk.Molecule,
+        matching_pairs: tuple[tuple[str]],
+    ) -> None:
         """
         Initialize aligner optimizer.
 
-        Parameters
-        ----------
-        initial_molecule : :class:`stk.Molecule`
-            Molecule to align to.
+        Parameters:
 
-        matching_pairs : :class:`tuple`
-            Pairs of atom types to use in alignment.
+            initial_molecule:
+                Molecule to align to.
+
+            matching_pairs:
+                Pairs of atom types to use in alignment.
 
         """
 
@@ -115,7 +119,7 @@ class Aligner(Optimizer):
         )
         self._matching_pairs = matching_pairs
 
-    def _get_supramolecule(self, mol):
+    def _get_supramolecule(self, mol: stk.Molecule) -> spd.SupraMolecule:
         host_molecule = spd.Molecule(
             atoms=(
                 spd.Atom(
@@ -161,7 +165,7 @@ class Aligner(Optimizer):
             components=(host_molecule, guest_molecule),
         )
 
-    def _align_molecules(self, mol):
+    def _align_molecules(self, mol: stk.Molecule) -> stk.Molecule:
         supramolecule = self._get_supramolecule(mol)
         for comp in supramolecule.get_components():
             pass
@@ -187,7 +191,7 @@ class Aligner(Optimizer):
 
         return mol
 
-    def optimize(self, mol):
+    def optimize(self, mol: stk.Molecule) -> stk.Molecule:
         rotation_axes = (
             None,
             (1, 0, 0),

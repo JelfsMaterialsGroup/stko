@@ -1,5 +1,5 @@
-import stko
 import numpy as np
+import stko
 
 
 def test_get_binder_distance(case_data):

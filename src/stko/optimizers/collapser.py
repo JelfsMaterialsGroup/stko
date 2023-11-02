@@ -9,11 +9,14 @@ Optimizer for collapsing enlarged topologies.
 import logging
 import os
 import random
+import typing
 import shutil
 import uuid
 from collections import defaultdict
 from itertools import combinations
 
+import stk
+import stko
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy.spatial.distance import pdist
@@ -67,32 +70,32 @@ class Collapser(Optimizer):
 
     def __init__(
         self,
-        output_dir,
-        step_size,
-        distance_cut,
-        scale_steps=True,
-    ):
+        output_dir: str,
+        step_size: float,
+        distance_cut: float,
+        scale_steps: bool = True,
+    ) -> None:
         """
         Initialize a :class:`Collapser` instance.
 
-        Parameters
-        ----------
-        output_dir : :class:`str`
-            The name of the directory into which files generated during
-            the calculation are written, if ``None`` then
-            :func:`uuid.uuid4` is used.
+        Parameters:
 
-        step_size : :class:`float`
-            The relative size of the step to take during collapse.
+            output_dir:
+                The name of the directory into which files generated during
+                the calculation are written, if ``None`` then
+                :func:`uuid.uuid4` is used.
 
-        distance_cut : :class:`float`
-            Distance between distinct building blocks to use as
-            threshold for halting collapse in Angstrom.
+            step_size:
+                The relative size of the step to take during collapse.
 
-        scale_steps : :class:`bool`, optional
-            Whether to scale the step of each distict building block
-            by their relative distance from the molecules centroid.
-            Defaults to ``True``
+            distance_cut:
+                Distance between distinct building blocks to use as
+                threshold for halting collapse in Angstrom.
+
+            scale_steps:
+                Whether to scale the step of each distict building block
+                by their relative distance from the molecules centroid.
+                Defaults to ``True``
 
         """
 
@@ -101,7 +104,10 @@ class Collapser(Optimizer):
         self._distance_cut = distance_cut
         self._scale_steps = scale_steps
 
-    def _get_inter_bb_distance(self, mol):
+    def _get_inter_bb_distance(
+        self,
+        mol: stk.ConstructedMolecule,
+    ) -> typing.Iterable[float]:
         """
         Yield The distances between building blocks in mol.
 
@@ -128,7 +134,7 @@ class Collapser(Optimizer):
                 )
                 yield dist
 
-    def _has_short_contacts(self, mol):
+    def _has_short_contacts(self, mol: stk.ConstructedMolecule) -> bool:
         """
         Calculate if there are short contants in mol.
 
@@ -139,7 +145,13 @@ class Collapser(Optimizer):
             for dist in self._get_inter_bb_distance(mol)
         )
 
-    def _get_new_position_matrix(self, mol, step, vectors, scales):
+    def _get_new_position_matrix(
+        self,
+        mol: stk.ConstructedMolecule,
+        step: float,
+        vectors: list,
+        scales: dict,
+    ) -> np.ndarray:
         """
         Get the position matrix of the mol after translation.
 
@@ -156,7 +168,12 @@ class Collapser(Optimizer):
 
         return new_position_matrix
 
-    def _get_new_cell_vectors(self, unit_cell, step, scales):
+    def _get_new_cell_vectors(
+        self,
+        unit_cell: stko.UnitCell,
+        step: float,
+        scales: dict,
+    ) -> tuple(np.ndarray):
         """
         Get the unit cell vectors after collapse step.
 
@@ -174,7 +191,11 @@ class Collapser(Optimizer):
 
         return vector_1, vector_2, vector_3
 
-    def _get_bb_vectors(self, mol, bb_atom_ids):
+    def _get_bb_vectors(
+        self,
+        mol: stk.ConstructedMolecule,
+        bb_atom_ids: dict[int, list],
+    ) -> tuple[dict[int, np.ndarray], dict[int, float]]:
         """
         Get the building block to COM vectors.
 
@@ -225,19 +246,20 @@ class Collapser(Optimizer):
 
         return bb_cent_vectors, bb_cent_scales
 
-    def optimize(self, mol):
+    def optimize(
+        self, mol: stk.ConstructedMolecule
+    ) -> stk.ConstructedMolecule:
         """
         Optimize `mol`.
 
-        Parameters
-        ----------
-        mol : :class:`stk.ConstructedMolecule`
-            The molecule to be optimized.
+        Parameters:
 
-        Returns
-        -------
-        mol : :class:`stk.ConstructedMolecule`
-            The optimized molecule.
+            mol:
+                The molecule to be optimized.
+
+            Returns:
+
+                The optimized molecule.
 
         """
 
@@ -313,25 +335,29 @@ class Collapser(Optimizer):
             )
         return mol
 
-    def p_optimize(self, mol, unit_cell):
+    def p_optimize(
+        self,
+        mol: stk.ConstructedMolecule,
+        unit_cell: stko.UnitCell,
+    ) -> tuple(stk.ConstructedMolecule, stko.UnitCell):
         """
         Optimize `mol`.
 
-        Parameters
-        ----------
-        mol : :class:`stk.ConstructedMolecule`
-            The molecule to be optimized.
+        Parameters:
 
-        unit_cell : :class:`.UnitCell`
-            The cell to be optimized.
+            mol:
+                The molecule to be optimized.
 
-        Returns
-        -------
-        mol : :class:`stk.ConstructedMolecule`
-            The optimized molecule.
+            unit_cell:
+                The cell to be optimized.
 
-        unit_cell : :class:`.UnitCell`
-            The optimized cell.
+        Returns:
+
+            mol:
+                The optimized molecule.
+
+            unit_cell:
+                The optimized cell.
 
         """
 
@@ -729,28 +755,12 @@ class CollapserMC(Collapser):
         )
         plt.close()
 
-    def optimize(self, mol):
-        """
-        Optimize `mol`.
-
-        Parameters
-        ----------
-        mol : :class:`stk.ConstructedMolecule`
-            The molecule to be optimized.
-
-        Returns
-        -------
-        mol : :class:`stk.ConstructedMolecule`
-            The optimized molecule.
-
-        """
-
+    def optimize(
+        self,
+        mol: stk.ConstructedMolecule,
+    ) -> stk.ConstructedMolecule:
         # Handle output dir.
-        if self._output_dir is None:
-            output_dir = str(uuid.uuid4().int)
-        else:
-            output_dir = self._output_dir
-        output_dir = os.path.abspath(output_dir)
+        output_dir = os.path.abspath(self._output_dir)
 
         if os.path.exists(output_dir):
             shutil.rmtree(output_dir)

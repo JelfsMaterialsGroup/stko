@@ -17,7 +17,7 @@ class DitopicThreeSiteAnalyser:
 
     """
 
-    def _check_functional_groups(self, molecule: stk.Molecule) -> None:
+    def _check_functional_groups(self, molecule: stk.BuildingBlock) -> None:
         """
         Check if the molecule has two ditopic functional groups.
 
@@ -37,7 +37,7 @@ class DitopicThreeSiteAnalyser:
                 f"{molecule} does not have 2 ThreeSiteFG functional groups."
             )
 
-    def get_binder_distance(self, molecule: stk.Molecule) -> float:
+    def get_binder_distance(self, molecule: stk.BuildingBlock) -> float:
         """
         Get the distance between binder atoms in Angstrom.
 
@@ -50,7 +50,8 @@ class DitopicThreeSiteAnalyser:
         self._check_functional_groups(molecule)
 
         binder_ids = [
-            fg.get_binder().get_id() for fg in molecule.get_functional_groups()
+            fg.get_binder().get_id()  # type: ignore[attr-defined]
+            for fg in molecule.get_functional_groups()
         ]
         return get_atom_distance(
             position_matrix=molecule.get_position_matrix(),
