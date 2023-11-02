@@ -1,4 +1,4 @@
-from stko import functional_groups
+from stko import cage_analysis, functional_groups
 from stko.calculators.extractors.orca_extractor import OrcaExtractor
 from stko.calculators.extractors.xtb_extractor import XTBExtractor
 from stko.calculators.open_babel_calculators import OpenBabelEnergy
@@ -96,6 +96,7 @@ from stko.utilities.exceptions import (
 
 __all__ = [
     "functional_groups",
+    "cage_analysis",
     "MAEExtractor",
     "mol_from_mae_file",
     "move_generated_macromodel_files",

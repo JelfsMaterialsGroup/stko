@@ -149,6 +149,43 @@ class Network:
 
         return self.clone()._with_deleted_bonds(atom_ids)
 
+    def _with_deleted_elements(
+        self,
+        atomic_numbers: tuple[int],
+    ) -> typing.Self:
+        to_delete = []
+        deleted_atom_ids = set()
+        for node in self._graph.nodes:
+            if node.get_atomic_number() in atomic_numbers:
+                deleted_atom_ids.add(node.get_id())
+                to_delete.append(node)
+
+        self._graph.remove_nodes_from(to_delete)
+
+        # Remove associated edges.
+        to_delete = []
+        for edge in self._graph.edges:
+            a1id = edge[0].get_id()
+            a2id = edge[1].get_id()
+            if a1id in deleted_atom_ids or a2id in deleted_atom_ids:
+                to_delete.append(edge)
+
+        for id1, id2 in to_delete:
+            self._graph.remove_edge(id1, id2)
+
+        return self
+
+    def with_deleted_elements(
+        self,
+        atomic_numbers: tuple[int],
+    ) -> typing.Self:
+        """
+        Return a clone with nodes with `atomic numbers` deleted.
+
+        """
+
+        return self.clone()._with_deleted_elements(atomic_numbers)
+
     def get_connected_components(self) -> list[nx.Graph]:
         """
         Get connected components within full graph.
