@@ -157,8 +157,6 @@ class ThreeSiteFactory(stk.FunctionalGroupFactory):
         deleters: tuple[int, ...] = (),
     ) -> None:
         """
-        Intiailize :class:`ThreeSiteFactory`.
-
         Parameters:
 
             smarts:
@@ -211,10 +209,6 @@ class CNCFactory(ThreeSiteFactory):
         bonders: tuple[int, ...] = (1,),
         deleters: tuple[int, ...] = (),
     ):
-        """
-        Intiailize :class:`CNCFactory`.
-
-        """
         self._smarts = "[#6]~[#7X2]~[#6]"
         self._bonders = bonders
         self._deleters = deleters
@@ -233,10 +227,6 @@ class CNNFactory(ThreeSiteFactory):
         bonders: tuple[int, ...] = (1,),
         deleters: tuple[int, ...] = (),
     ):
-        """
-        Intiailize :class:`CNNFactory`.
-
-        """
         self._smarts = "[#7]~[#7X2]~[#6]"
         self._bonders = bonders
         self._deleters = deleters
@@ -255,10 +245,6 @@ class NNNFactory(ThreeSiteFactory):
         bonders: tuple[int, ...] = (1,),
         deleters: tuple[int, ...] = (),
     ):
-        """
-        Intiailize :class:`NNNFactory`.
-
-        """
         self._smarts = "[#7]~[#7X2]~[#7]"
         self._bonders = bonders
         self._deleters = deleters

@@ -12,7 +12,7 @@ def test_decomposemoc(case_data):
             A test case.
 
     """
-    ligands = stko.cage_analysis.DecomposeMOC().decompose(
+    ligands = stko.molecule_analysis.DecomposeMOC().decompose(
         molecule=case_data.cage,
         metal_atom_nos=case_data.metal_atom_nos,
     )
