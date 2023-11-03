@@ -185,9 +185,19 @@ def calculate_dihedral(
     return np.degrees(np.arctan2(y, x))
 
 
+def unit_vector(vector: np.ndarray) -> np.ndarray:
+    """
+    Returns the unit vector of the vector.
+
+    """
+    return vector / np.linalg.norm(vector)
+
+
 def vector_angle(vector1: np.ndarray, vector2: np.ndarray) -> float:
     """
     Returns the angle between two vectors in radians.
+
+    From: https://stackoverflow.com/a/13849249
 
     Parameters:
 
@@ -203,19 +213,10 @@ def vector_angle(vector1: np.ndarray, vector2: np.ndarray) -> float:
 
     """
 
-    if np.all(np.equal(vector1, vector2)):
-        return 0.0
-
-    numerator = np.dot(vector1, vector2)
-    denominator = np.linalg.norm(vector1) * np.linalg.norm(vector2)
-    # This if statement prevents returns of NaN due to floating point
-    # inaccuracy.
-    term = numerator / denominator
-    if term >= 1.0:
-        return 0.0
-    if term <= -1.0:
-        return np.pi
-    return np.arccos(term)
+    v1_u = unit_vector(vector1)
+    v2_u = unit_vector(vector2)
+    angle = np.arccos(np.clip(np.dot(v1_u, v2_u), -1.0, 1.0))
+    return angle
 
 
 def calculate_angle(
