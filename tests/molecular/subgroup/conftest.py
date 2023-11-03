@@ -16,6 +16,9 @@ from .case_data import CaseData
                 ),
             ),
             binder_distance=2.717,
+            binder_centroid_angle=179.55163,
+            binder_angles=(0, 0),
+            binder_adjacent_torsion=50,
             name=name,
         ),
         lambda name: CaseData(
@@ -26,6 +29,22 @@ from .case_data import CaseData
                 ),
             ),
             binder_distance=10.105,
+            binder_centroid_angle=179.46618,
+            binder_angles=(0, 0),
+            binder_adjacent_torsion=50,
+            name=name,
+        ),
+        lambda name: CaseData(
+            building_block=stk.BuildingBlock(
+                smiles="C1=CC(=CC(=C1)C2=CC=NC=C2)C3=CC=NC=C3",
+                functional_groups=stko.functional_groups.ThreeSiteFactory(
+                    smarts="[#6]~[#7X2]~[#6]"
+                ),
+            ),
+            binder_distance=9.8893,
+            binder_centroid_angle=149.0484,
+            binder_angles=(0, 0),
+            binder_adjacent_torsion=50,
             name=name,
         ),
     ),

@@ -13,7 +13,7 @@ def test_get_binder_distance(case_data):
 
     """
 
-    threesite_analysis = stko.subgroup_analysis.DitopicThreeSiteAnalyser()
+    threesite_analysis = stko.molecule_analysis.DitopicThreeSiteAnalyser()
 
     distance = threesite_analysis.get_binder_distance(case_data.building_block)
     print(distance)
