@@ -18,8 +18,6 @@ class PositionedAtom:
         position: tuple[float, ...],
     ) -> None:
         """
-        Initialize a :class:`PositionedAtom`.
-
         Parameters:
 
             atom:

@@ -37,7 +37,7 @@ class CaseData:
 
     Attributes
     ----------
-    molecule : :class:`.Molecule`
+    molecule : :class:`stk.Molecule`
         The molecule to be tested.
 
     atom_types : :class:`dict`

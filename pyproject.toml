@@ -33,7 +33,6 @@ dev = [
   "sphinx-copybutton",
   "sphinx-rtd-theme",
   "twine",
-  "furo",
 ]
 
 [project.urls]

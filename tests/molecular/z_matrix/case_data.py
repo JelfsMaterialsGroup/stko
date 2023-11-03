@@ -14,8 +14,6 @@ class CaseData:
 
     def __init__(self, molecule, zmatrix):
         """
-        Initialize a :class:`.CaseData` instance.
-
         Parameters
         ----------
         molecule : :class:`stk.Molecule`

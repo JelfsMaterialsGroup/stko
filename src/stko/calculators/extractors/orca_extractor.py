@@ -10,16 +10,16 @@ class OrcaExtractor:
     Limited to final single point energy for now.
 
     Attributes:
+
         output_file:
             Output file to extract properties from.
 
         output_lines:
-            :class:`list` of all lines in as :class:`str` in the output
-            file.
+            List of all lines in as strings in the output file.
 
         total_energy:
-            The total energy in the :attr:`output_file` as
-            :class:`float`. The energy is in units of a.u..
+            The total energy in the :attr:`output_file`.
+            The energy is in units of a.u..
 
     Examples:
 
@@ -35,9 +35,8 @@ class OrcaExtractor:
 
     def __init__(self, output_file: str) -> None:
         """
-        Initializes :class:`OrcaExtractor`
-
         Parameters:
+
             output_file:
                 Output file to extract properties from.
 

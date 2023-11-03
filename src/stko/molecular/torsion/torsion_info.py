@@ -21,8 +21,6 @@ class TorsionInfo:
         building_block_torsion: Torsion | None,
     ) -> None:
         """
-        Initialize :class:`TorsionInfo`.
-
         Parameters:
 
             torsion:
@@ -34,9 +32,9 @@ class TorsionInfo:
                 not come from a single building block.
 
             building_block_id:
-                A unique id for each :class:`.Molecule` placed during
+                A unique id for each :class:`stk.Molecule` placed during
                 the construction of the :class:`.ConstructedMolecule`. As a
-                single :class:`.Molecule` can be placed multiple times
+                single :class:`stk.Molecule` can be placed multiple times
                 during construction, the `building_block_id` allows
                 the user to distinguish between each placement. Can be
                 Can be ``None``, if the atoms that make up the torsion did

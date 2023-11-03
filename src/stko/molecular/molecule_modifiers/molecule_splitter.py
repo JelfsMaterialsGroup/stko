@@ -40,8 +40,6 @@ class MoleculeSplitter:
         bond_deleter_ids: tuple[int, ...],
     ) -> None:
         """
-        Initialize a :class:`.MoleculeSplitter`.
-
         Parameters:
 
             breaker_smarts:

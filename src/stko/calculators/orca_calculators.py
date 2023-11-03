@@ -16,11 +16,11 @@ logger = logging.getLogger(__name__)
 
 class OrcaEnergy:
     """
-    Uses Orca [1]_ to calculate energy and other properties.
+    Uses Orca [#]_ to calculate energy and other properties.
 
     By default, :meth:`get_results` will extract other properties of
-    the :class:`.Molecule` passed to :meth:`calculate`, which
-    will be saved in the attributes of :class:`.OrcaResults`.
+    the :class:`stk.Molecule` passed to :meth:`calculate`, which
+    will be saved in the attributes of :class:`stko.OrcaResults`.
 
     All intermediate and output files from Orca are deleted at the end
     of the job (i.e. the `.gbw` file will be deleted) because they can
@@ -40,7 +40,7 @@ class OrcaEnergy:
 
         If multi-threading is being used an error could occur if two
         different threads need to know about the current working directory
-        as :class:`.OrcaEnergy` can change it from under them.
+        as :class:`stko.OrcaEnergy` can change it from under them.
 
         Note that this does not have any impact on multi-processing,
         which should always be safe.
@@ -103,7 +103,7 @@ class OrcaEnergy:
 
     References:
 
-        .. [1] https://orcaforum.kofo.mpg.de/app.php/portal
+        .. [#] https://orcaforum.kofo.mpg.de/app.php/portal
 
     """
 
@@ -120,8 +120,6 @@ class OrcaEnergy:
         discard_output: bool = True,
     ):
         """
-        Initializes a :class:`OrcaEnergy` instance.
-
         Parameters:
 
             orca_path:
@@ -304,7 +302,7 @@ class OrcaEnergy:
         Parameters:
 
             mol:
-                The :class:`.Molecule` whose energy is to be calculated.
+                The :class:`stk.Molecule` whose energy is to be calculated.
 
         Returns:
 
@@ -337,7 +335,7 @@ class OrcaEnergy:
         Parameters:
 
             mol:
-                The :class:`.Molecule` whose energy is to be calculated.
+                The :class:`stk.Molecule` whose energy is to be calculated.
 
         Returns:
 

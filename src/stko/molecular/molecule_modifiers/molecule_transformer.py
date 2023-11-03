@@ -47,8 +47,6 @@ class MoleculeTransformer:
         functional_groups: typing.Iterable[stk.FunctionalGroupFactory],
     ) -> None:
         """
-        Initialize a :class:`.MoleculeTransformer`.
-
         Parameters:
 
             replacer_smarts:

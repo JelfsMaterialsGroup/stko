@@ -71,7 +71,7 @@ class AlignmentPotential(spd.Potential):
 
 class Aligner(Optimizer):
     """
-    Use SpinDry to align two molecules.[1]_
+    Use SpinDry to align two molecules. [#]_
 
     Examples:
 
@@ -92,7 +92,7 @@ class Aligner(Optimizer):
 
     References:
 
-        .. [1] https://github.com/andrewtarzia/SpinDry
+        .. [#] https://github.com/andrewtarzia/SpinDry
 
     """
 
@@ -102,8 +102,6 @@ class Aligner(Optimizer):
         matching_pairs: tuple[tuple[str]],
     ) -> None:
         """
-        Initialize aligner optimizer.
-
         Parameters:
 
             initial_molecule:

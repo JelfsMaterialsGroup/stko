@@ -129,6 +129,10 @@ def get_from_parameters(
 
         Tuple of cell lattice vectors of shape (3, ) in Angstrom.
 
+    References:
+
+        .. [1] https://pymatgen.org/pymatgen.util.num.html
+
     """
 
     angles_r = np.radians([alpha, beta, gamma])
@@ -161,7 +165,7 @@ def cap_absolute_value(value: float, max_absolute_value: float = 1) -> float:
     where numerical errors may result in an argument > 1 being passed
     in.
 
-    This code is modified from the pymatgen source code [1]_.
+    This code is modified from the pymatgen source code [2]_.
 
     Parameters:
 
@@ -177,7 +181,7 @@ def cap_absolute_value(value: float, max_absolute_value: float = 1) -> float:
 
     References:
 
-        .. [1] https://pymatgen.org/pymatgen.util.num.html
+        .. [2] https://pymatgen.org/pymatgen.util.num.html
 
     """
 

@@ -43,7 +43,10 @@ class Network:
 
     def __init__(self, graph: nx.Graph) -> None:
         """
-        Initialize a :class:`Network` from a :class:`networkx.Graph`.
+        Parameters:
+
+            graph:
+                The NetworkX graph to initialise from.
 
         """
 
@@ -52,7 +55,10 @@ class Network:
     @classmethod
     def init_from_molecule(cls, molecule: stk.Molecule) -> typing.Self:
         """
-        Initialize a :class:`Network` from a :class:`stk.Molecule`.
+        Parameters:
+
+            molecule:
+                The molecule to initialise from.
 
         """
 

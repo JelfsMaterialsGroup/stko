@@ -13,16 +13,16 @@ class PlanarityCalculator:
     """
     Calculates measures of planarity of a molecule.
 
-    Measures based on plane deviation from Angew. paper `[1]`_ and a
-    ChemRxiv paper `[2]`_.
+    Measures based on plane deviation from Angew. paper [1]_ and a
+    ChemRxiv paper [2]_.
 
     Plane deviation: sum of the shortest distance to the plane of best
     fit of all deviation atoms (sum abs(d_i)).
 
-    Plane deviation span: d_max - d_min (SDP in `[2]`_)
+    Plane deviation span: d_max - d_min (SDP in [2]_)
 
     Planarity parameter: defined as
-    sqrt((1/num_atoms) * (sum d_i ** 2)) (MPP in `[2]`_)
+    sqrt((1/num_atoms) * (sum d_i ** 2)) (MPP in [2]_)
 
     Examples:
 
@@ -45,9 +45,9 @@ class PlanarityCalculator:
 
     References:
 
-        .. _[1] https://onlinelibrary.wiley.com/doi/10.1002/anie.202106721
+        .. [1] https://onlinelibrary.wiley.com/doi/10.1002/anie.202106721
 
-        .. _[2] https://link.springer.com/article/10.1007/s00894-021-04884-0
+        .. [2] https://link.springer.com/article/10.1007/s00894-021-04884-0
 
     """
 
@@ -125,7 +125,7 @@ class PlanarityCalculator:
         Parameters:
 
             mol:
-                The :class:`.Molecule` whose planarity is to be calculated.
+                The :class:`stk.Molecule` whose planarity is to be calculated.
 
             plane_atom_ids:
                 The atom ids to use to define the plane of best fit.
@@ -173,7 +173,7 @@ class PlanarityCalculator:
         Parameters:
 
             mol:
-                The :class:`.Molecule` whose planarity is to be calculated.
+                The :class:`stk.Molecule` whose planarity is to be calculated.
 
             plane_atom_ids:
                 The atom ids to use to define the plane of best fit.

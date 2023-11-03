@@ -49,7 +49,7 @@ Overview
 performs optimizations and calculations on complex molecules built using
 `stk <https://github.com/JelfsMaterialsGroup/stko>`_. In the case of
 optimizations, a clone of :class:`stk.Molecule` is returned. For
-calculators, a :class:`.Results` are used to calculate and extract
+calculators, a `Results` class are used to calculate and extract
 properties of an :class:`stk.Molecule`.
 
 Examples

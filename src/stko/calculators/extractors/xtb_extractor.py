@@ -14,68 +14,64 @@ class XTBExtractor:
             Output file to extract properties from.
 
         output_lines:
-            :class:`list` of all lines in as :class:`str` in the output
-            file.
+            List of all lines in as string in the output file.
 
         total_energy:
-            The total energy in the :attr:`output_file` as
-            :class:`float`. The energy is in units of a.u..
+            The total energy in the :attr:`output_file`. The energy is
+            in units of a.u..
 
         homo_lumo_gap:
-            The HOMO-LUMO gap in the :attr:`output_file` as
-            :class:`float`. The gap is in units of eV.
+            The HOMO-LUMO gap in the :attr:`output_file`. The gap is
+            in units of eV.
 
         fermi_level:
-            The Fermi level in the :attr:`output_file` as
-            :class:`float` in units of eV.
+            The Fermi level in the :attr:`output_file` in units of eV.
 
         qonly_dipole_moment:
             Components of the Q only dipole moment in units
-            of Debye in :class:`list` of the form
-            ``[x, y, z]``.
+            of Debye in List of the form ``[x, y, z]``.
 
         full_dipole_moment:
             Components of the full dipole moment in units
-            of Debye in :class:`list` of the form
+            of Debye in List of the form
             ``[x, y, z, total]``.
 
         qonly_quadrupole_moment:
             Components of the Q only traceless quadrupole moment in units
-            of Debye in :class:`list` of the form
+            of Debye in List of the form
             ``[xx, xy, xy, xz, yz, zz]``.
 
         qdip_quadrupole_moment:
             Components of the Q+Dip traceless quadrupole moment in units of
-            Debye in :class:`list` of the form
+            Debye in List of the form
             ``[xx, xy, xy, xz, yz, zz]``.
 
         full_quadrupole_moment:
             Components of the full traceless quadrupole moment in units of
-            Debye in :class:`list` of the form
+            Debye in List of the form
             ``[xx, xy, xy, xz, yz, zz]``.
 
         homo_lumo_occ:
-            :class:`dict` of :class:`list` containing the orbital number,
+            Dictionary of List containing the orbital number,
             energy in eV and occupation of the HOMO and LUMO orbitals in
             the :attr:`output_file`.
 
         total_free_energy:
-            The total free energy in the :attr:`output_file` as
-            :class:`float`. The free energy is in units of a.u. and
-            calculated at 298.15K.
+            The total free energy in the :attr:`output_file`.
+            The free energy is in units of a.u. and calculated at 298.15K.
 
         frequencies:
-            :class:`list` of the vibrational frequencies as :class:`float`
-            in the :attr:`output_file`. Vibrational frequencies are in
-            units of wavenumber and calculated at 298.15K.
+            List of the vibrational frequencies in the :attr:`output_file`.
+            Vibrational frequencies are in units of wavenumber and
+            calculated at 298.15K.
 
         ionisation_potential:
-            The vertical ionisation potential in the :attr:`output_file` as
-            :class:`float`. Corresponds to the delta SCC IP.
+            The vertical ionisation potential in the :attr:`output_file`.
+            Corresponds to the delta SCC IP.
 
         electron_affinity:
-            The vertical electron affinity in the :attr:`output_file` as
-            :class:`float`. Corresponds to the delta SCC EA.
+            The vertical electron affinity in the :attr:`output_file`.
+            Corresponds to the delta SCC EA.
 
     Examples:
 
@@ -91,8 +87,6 @@ class XTBExtractor:
 
     def __init__(self, output_file: str) -> None:
         """
-        Initializes :class:`XTBExtractor`
-
         Parameters:
 
             output_file:

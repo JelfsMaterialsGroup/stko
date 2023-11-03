@@ -50,7 +50,7 @@ class Optimizer:
     .. _`adding optimizers`:
 
     Making New Optimizers:
-    ---------------------
+    ----------------------
 
     New optimizers can be made by simply making a class which inherits the
     :class:`.Optimizer` class. In addition to this, the new class must
@@ -106,8 +106,6 @@ class OptimizerSequence(Optimizer):
 
     def __init__(self, *optimizers: Optimizer) -> None:
         """
-        Initialize a :class:`OptimizerSequence` instance.
-
         Parameters:
 
             *optimizers:
@@ -129,7 +127,7 @@ class OptimizerSequence(Optimizer):
 
 class TryCatchOptimizer(Optimizer):
     """
-    Try to optimize with a :class:`Optimizer`, use another on failure.
+    Try to optimize with a Optimizer, use another on failure.
 
     Examples:
 
@@ -170,17 +168,15 @@ class TryCatchOptimizer(Optimizer):
         catch_optimizer: Optimizer,
     ) -> None:
         """
-        Initialize a :class:`TryCatchOptimizer` instance.
-
         Parameters:
 
             try_optimizer
                 The optimizer which is used initially to try and optimize a
-                :class:`.Molecule`.
+                :class:`stk.Molecule`.
 
             catch_optimizer:
                 If `try_optimizer` raises an error, this optimizer is
-                run on the :class:`.Molecule` instead.
+                run on the :class:`stk.Molecule` instead.
 
         """
 

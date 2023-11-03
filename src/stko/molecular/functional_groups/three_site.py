@@ -26,8 +26,6 @@ class ThreeSiteFG:
         deleters: tuple[stk.Atom, ...],
     ) -> None:
         """
-        Initialize a :class:`.ThreeSiteFG` instance.
-
         Parameters:
 
             neigh1:

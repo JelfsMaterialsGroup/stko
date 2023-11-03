@@ -8,7 +8,7 @@ def is_valid_xtb_solvent(
     solvent: str,
 ) -> bool:
     """
-    Check if solvent is valid `[1]`_ for the given GFN version.
+    Check if solvent is valid [#]_ for the given GFN version.
 
     Parameters:
 
@@ -27,7 +27,7 @@ def is_valid_xtb_solvent(
 
     References:
 
-        .. [1] https://xtb-docs.readthedocs.io/en/latest/gbsa.html
+        .. [#] https://xtb-docs.readthedocs.io/en/latest/gbsa.html
 
     """
 

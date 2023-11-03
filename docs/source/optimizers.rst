@@ -4,7 +4,7 @@ Optimizers
 .. toctree::
   :maxdepth: 1
 
-  Optimizer Overview <_autosummary/stko.Optimizer>
+  Optimization Overview <_autosummary/stko.Optimizer>
 
 .. toctree::
   :maxdepth: 1

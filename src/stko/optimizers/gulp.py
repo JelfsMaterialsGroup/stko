@@ -128,8 +128,6 @@ class GulpUFFOptimizer(Optimizer):
         output_dir: str | None = None,
     ):
         """
-        Initialize a :class:`GulpUFFOptimizer` instance.
-
         Parameters:
 
             gulp_path:
@@ -845,8 +843,6 @@ class GulpUFFMDOptimizer(GulpUFFOptimizer):
         save_conformers: bool = False,
     ) -> None:
         """
-        Initialize a :class:`GulpUFFOptimizer` instance.
-
         Parameters:
 
             gulp_path:

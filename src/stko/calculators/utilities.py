@@ -16,11 +16,11 @@ def get_atom_maps(mol: stk.ConstructedMolecule) -> dict:
     Returns a dictionary of dictionaries from atom id (in building
     block) to constructed molecule atom, indexed by building block id.
 
-    Parameters
-    ----------
-    mol : :class:`.ConstructedMolecule`
-        The :class:`.ConstructedMolecule` for which atom maps are
-        desired.
+    Parameters:
+
+        mol:
+            The :class:`stk.ConstructedMolecule` for which atom maps are
+            desired.
 
     """
     atom_maps = defaultdict(dict)  # type: ignore[var-annotated]

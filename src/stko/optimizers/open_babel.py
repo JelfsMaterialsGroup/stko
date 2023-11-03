@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 
 class OpenBabel(Optimizer):
     """
-    Use OpenBabel to optimize molecules with forcefields.[1]_
+    Use OpenBabel to optimize molecules with forcefields. [#]_
 
     Warning: this optimizer seems to be machine dependant, producing
     different energies after optimisation on Ubunut 18 vs. Ubuntu 20.
@@ -38,7 +38,7 @@ class OpenBabel(Optimizer):
 
     References:
 
-        .. [1] https://github.com/openbabel/openbabel
+        .. [#] https://github.com/openbabel/openbabel
 
     """
 
@@ -50,8 +50,6 @@ class OpenBabel(Optimizer):
         cg_steps: int = 50,
     ) -> None:
         """
-        Initialize `openbabel` forcefield energy calculation.
-
         Parameters:
 
             forcefield:

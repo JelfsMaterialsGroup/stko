@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 
 class MMFF(Optimizer):
     """
-    Use the MMFF force field in :mod:`rdkit` [#]_ to optimize molecules.
+    Use the MMFF force field in :mod:`rdkit` [1]_ to optimize molecules.
 
     Warning: this optimizer seems to be machine dependant, producing
     different energies after optimisation on Ubunut 18 vs. Ubuntu 20.
@@ -36,7 +36,7 @@ class MMFF(Optimizer):
 
     References:
 
-        .. [#] https://www.rdkit.org/
+        .. [1] https://www.rdkit.org/
 
     """
 
@@ -60,7 +60,7 @@ class MMFF(Optimizer):
 
 class UFF(Optimizer):
     """
-    Use the UFF force field in :mod:`rdkit` [#]_ to optimize molecules.
+    Use the UFF force field in :mod:`rdkit` [2]_ to optimize molecules.
 
     Warning: this optimizer seems to be machine dependant, producing
     different energies after optimisation on Ubunut 18 vs. Ubuntu 20.
@@ -78,7 +78,7 @@ class UFF(Optimizer):
 
     References:
 
-        .. [#] https://www.rdkit.org/
+        .. [2] https://www.rdkit.org/
 
     """
 
@@ -102,7 +102,7 @@ class UFF(Optimizer):
 
 class ETKDG(Optimizer):
     """
-    Uses ETKDG [#]_ v2 algorithm in :mod:`rdkit` [#]_ to optimize a structure.
+    Uses ETKDG [3]_ v2 algorithm in :mod:`rdkit` [4]_ to optimize a structure.
 
     Examples:
 
@@ -117,15 +117,13 @@ class ETKDG(Optimizer):
 
     References:
 
-        .. [#] http://pubs.acs.org/doi/pdf/10.1021/acs.jcim.5b00654
-        .. [#] https://www.rdkit.org/
+        .. [3] http://pubs.acs.org/doi/pdf/10.1021/acs.jcim.5b00654
+        .. [4] https://www.rdkit.org/
 
     """
 
     def __init__(self, random_seed: int = 12):
         """
-        Initialize a :class:`ETKDG` instance.
-
         Parameters:
 
             random_seed:
@@ -151,7 +149,7 @@ class ETKDG(Optimizer):
 
 class MetalOptimizer(Optimizer):
     """
-    Applies forcefield optimizers in :mod:`rdkit` [#]_ that can handle metals.
+    Applies forcefield optimizers in :mod:`rdkit` [5]_ that can handle metals.
 
     Notes:
 
@@ -232,7 +230,7 @@ class MetalOptimizer(Optimizer):
 
     References:
 
-        .. [#] https://www.rdkit.org/
+        .. [5] https://www.rdkit.org/
 
     """
 
@@ -243,8 +241,6 @@ class MetalOptimizer(Optimizer):
         max_iterations: int = 500,
     ):
         """
-        Initialize a :class:`MetalOptimizer` instance.
-
         Parameters:
 
             metal_binder_distance:

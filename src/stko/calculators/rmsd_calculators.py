@@ -45,12 +45,10 @@ class RmsdCalculator:
         ignore_hydrogens: bool = False,
     ) -> None:
         """
-        Initialize RMSD calculator with initial molecule.
-
         Parameters:
 
             initial_molecule:
-                The :class:`.Molecule` to calculate RMSD from.
+                The :class:`stk.Molecule` to calculate RMSD from.
 
             ignore_hydrogens:
                 ``True`` to ignore hydrogen atoms.
@@ -128,7 +126,7 @@ class RmsdCalculator:
         Parameters:
 
             mol:
-                The :class:`.Molecule` to calculate RMSD to.
+                The :class:`stk.Molecule` to calculate RMSD to.
 
         Returns:
 

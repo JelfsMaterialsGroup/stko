@@ -24,7 +24,7 @@ logger = logging.getLogger(__name__)
 
 class XTB(Optimizer):
     """
-    Uses GFN-xTB [1]_ to optimize molecules.
+    Uses GFN-xTB [#1]_ to optimize molecules.
 
     Notes:
 
@@ -138,7 +138,7 @@ class XTB(Optimizer):
 
     References:
 
-        .. [1] https://xtb-docs.readthedocs.io/en/latest/setup.html
+        .. [#1] https://xtb-docs.readthedocs.io/en/latest/setup.html
 
     """
 
@@ -162,8 +162,6 @@ class XTB(Optimizer):
         unlimited_memory: bool = False,
     ) -> None:
         """
-        Initialize a :class:`XTB` instance.
-
         Parameters:
 
             xtb_path:
@@ -508,7 +506,7 @@ class XTB(Optimizer):
 
 class XTBCREST(Optimizer):
     """
-    Uses GFN-n [1]_ to run CREST [2]_ on molecules.
+    Uses GFN-n [#2]_ to run CREST [#3]_ on molecules.
 
     Notes:
 
@@ -586,8 +584,8 @@ class XTBCREST(Optimizer):
 
     References:
 
-        .. [1] https://xtb-docs.readthedocs.io/en/latest/setup.html
-        .. [2] https://xtb-docs.readthedocs.io/en/latest/crestcmd.html
+        .. [#2] https://xtb-docs.readthedocs.io/en/latest/setup.html
+        .. [#3] https://xtb-docs.readthedocs.io/en/latest/crestcmd.html
 
     """
 
@@ -612,8 +610,6 @@ class XTBCREST(Optimizer):
         unlimited_memory: bool = False,
     ):
         """
-        Initialize a :class:`XTBCREST` instance.
-
         Parameters:
 
             crest_path:
@@ -929,7 +925,7 @@ class XTBCREST(Optimizer):
 
 class XTBFF(Optimizer):
     """
-    Uses GFN-FF [1]_ to optimize molecules.
+    Uses GFN-FF [#4]_ to optimize molecules.
 
     Notes:
 
@@ -981,7 +977,7 @@ class XTBFF(Optimizer):
 
     References:
 
-        .. [1] https://xtb-docs.readthedocs.io/en/latest/gfnff.html
+        .. [#4] https://xtb-docs.readthedocs.io/en/latest/gfnff.html
 
     """
 
@@ -995,8 +991,6 @@ class XTBFF(Optimizer):
         unlimited_memory: bool = False,
     ):
         """
-        Initialize a :class:`XTB` instance.
-
         Parameters:
 
             xtb_path:
@@ -1193,7 +1187,7 @@ class XTBFF(Optimizer):
 
 class XTBFFCREST(Optimizer):
     """
-    Uses GFN-FF [1]_ to run CREST [2]_ on molecules.
+    Uses GFN-FF [#5]_ to run CREST [#6]_ on molecules.
 
     Notes:
 
@@ -1276,8 +1270,8 @@ class XTBFFCREST(Optimizer):
 
     References:
 
-        .. [1] https://xtb-docs.readthedocs.io/en/latest/gfnff.html
-        .. [2] https://xtb-docs.readthedocs.io/en/latest/crestcmd.html
+        .. [#5] https://xtb-docs.readthedocs.io/en/latest/gfnff.html
+        .. [#6] https://xtb-docs.readthedocs.io/en/latest/crestcmd.html
 
     """
 
@@ -1297,8 +1291,6 @@ class XTBFFCREST(Optimizer):
         unlimited_memory: bool = False,
     ) -> None:
         """
-        Initialize a :class:`XTBFFCREST` instance.
-
         Parameters:
 
             crest_path:

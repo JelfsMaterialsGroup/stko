@@ -55,7 +55,7 @@ class MMFFEnergy:
         Parameters:
 
             mol:
-                The :class:`.Molecule` whose energy is to be calculated.
+                The :class:`stk.Molecule` whose energy is to be calculated.
 
         Returns:
 
@@ -75,7 +75,7 @@ class MMFFEnergy:
         Parameters:
 
             mol:
-                The :class:`.Molecule` whose energy is to be calculated.
+                The :class:`stk.Molecule` whose energy is to be calculated.
 
         Returns:
 
@@ -133,7 +133,7 @@ class UFFEnergy:
         Parameters:
 
             mol:
-                The :class:`.Molecule` whose energy is to be calculated.
+                The :class:`stk.Molecule` whose energy is to be calculated.
 
         Returns:
 
@@ -153,7 +153,7 @@ class UFFEnergy:
         Parameters:
 
             mol:
-                The :class:`.Molecule` whose energy is to be calculated.
+                The :class:`stk.Molecule` whose energy is to be calculated.
 
         Returns:
 

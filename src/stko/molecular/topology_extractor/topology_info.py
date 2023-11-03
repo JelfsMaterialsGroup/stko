@@ -16,15 +16,16 @@ class TopologyInfo:
         edge_pairs: list[tuple[int, int]],
     ) -> None:
         """
-        Initialize :class:`.TopologyInfo`.
-
         Parameters:
 
             centroids:
+                Positions of vertices.
 
             connectivities:
+                Connections between vertices.
 
             edge_pairs:
+                Pairs of vertices with edges between them.
 
         """
 

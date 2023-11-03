@@ -43,8 +43,6 @@ class MacroModel(Optimizer):
         minimum_gradient: float,
     ) -> None:
         """
-        Initialize a :class:`MacroModel` instance.
-
         Parameters:
 
             macromodel_path:
@@ -507,8 +505,6 @@ class MacroModelForceField(MacroModel):
         minimum_gradient: float = 0.05,
     ) -> None:
         """
-        Initialize a :class:`MacroModelForceField` object.
-
         Parameters:
 
             macromodel_path:
@@ -931,8 +927,6 @@ class MacroModelMD(MacroModel):
         restricted_torsional_angles: set | None = None,
     ) -> None:
         """
-        Initialize a :class:`.MacroModelMD` instance.
-
         Parameters:
 
             macromodel_path:

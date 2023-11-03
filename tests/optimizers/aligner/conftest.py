@@ -56,7 +56,7 @@ class CaseData:
 )
 def case_molecule(request):
     """
-    A :class:`.Molecule` instance.
+    A :class:`stk.Molecule` instance.
 
     """
 
@@ -146,7 +146,7 @@ class CasePotential:
 )
 def case_potential(request):
     """
-    A :class:`.Molecule` instance.
+    A :class:`stk.Molecule` instance.
 
     """
 

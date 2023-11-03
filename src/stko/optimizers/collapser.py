@@ -68,8 +68,6 @@ class Collapser(Optimizer):
         scale_steps: bool = True,
     ) -> None:
         """
-        Initialize a :class:`Collapser` instance.
-
         Parameters:
 
             output_dir:
@@ -464,7 +462,7 @@ class CollapserMC(Collapser):
     Collapse molecule to decrease enlarged bonds using MC algorithm.
 
     It is recommended to use the MCHammer version of this code with
-    :mod:`MCHammer` [1]_, where a much cleaner version is written.
+    :mod:`MCHammer` [2]_, where a much cleaner version is written.
     The utilities `get_long_bond_ids` will help generate sub units.
 
     Smarter optimisation than Collapser using simple Monte Carlo
@@ -472,7 +470,7 @@ class CollapserMC(Collapser):
 
     References:
 
-        .. [1] https://github.com/andrewtarzia/MCHammer
+        .. [2] https://github.com/andrewtarzia/MCHammer
 
     """
 
@@ -490,8 +488,6 @@ class CollapserMC(Collapser):
         random_seed: int | None = None,
     ):
         """
-        Initialize a :class:`Collapser` instance.
-
         Parameters:
 
             output_dir:

@@ -66,7 +66,7 @@ class TorsionCalculator:
         Parameters:
 
             mol:
-                The :class:`.Molecule` whose torsions are to be calculated.
+                The :class:`stk.Molecule` whose torsions are to be calculated.
 
         Returns:
 
@@ -81,7 +81,7 @@ class ConstructedMoleculeTorsionCalculator:
     """
     Uses rdkit to extract all torsions in a molecule.
 
-    Note that the rdkit [1]_ function we use only outputs
+    Note that the rdkit [2]_ function we use only outputs
     one torsion for each rotatable bond. We use the
     `TorsionFingerprints.CalculateTorsionLists` method.
 
@@ -122,7 +122,7 @@ class ConstructedMoleculeTorsionCalculator:
 
     References:
 
-        .. [1] http://rdkit.org/docs/source/rdkit.Chem.TorsionFingerprints.html
+        .. [2] http://rdkit.org/docs/source/rdkit.Chem.TorsionFingerprints.html
 
     """
 
@@ -186,7 +186,7 @@ class MatchedTorsionCalculator(ConstructedMoleculeTorsionCalculator):
         Parameters:
 
             mol:
-                The :class:`.ConstructedMolecule` whose torsions are to be
+                The :class:`stk.ConstructedMolecule` whose torsions are to be
                 calculated.
 
         """

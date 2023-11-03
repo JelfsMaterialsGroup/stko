@@ -14,8 +14,6 @@ class Du:
 
     def __init__(self, id: int) -> None:
         """
-        Initialize a :class:`.Du`
-
         Parameters:
 
             id:

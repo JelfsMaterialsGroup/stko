@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 
 class OpenBabelEnergy:
     """
-    Uses OpenBabel to calculate forcefield energies. [1]_
+    Uses OpenBabel to calculate forcefield energies. [#]_
 
     Examples:
 
@@ -43,14 +43,12 @@ class OpenBabelEnergy:
 
     References:
 
-        .. [1] https://github.com/openbabel/openbabel
+        .. [#] https://github.com/openbabel/openbabel
 
     """
 
     def __init__(self, forcefield: str) -> None:
         """
-        Initialize `openbabel` forcefield energy calculation.
-
         Parameters:
 
             forcefield:
@@ -98,7 +96,7 @@ class OpenBabelEnergy:
         Parameters:
 
             mol
-                The :class:`.Molecule` whose energy is to be calculated.
+                The :class:`stk.Molecule` whose energy is to be calculated.
 
         Returns:
 
@@ -118,7 +116,7 @@ class OpenBabelEnergy:
         Parameters:
 
             mol:
-                The :class:`.Molecule` whose energy is to be calculated.
+                The :class:`stk.Molecule` whose energy is to be calculated.
 
         Returns:
 

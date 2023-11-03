@@ -16,11 +16,11 @@ logger = logging.getLogger(__name__)
 
 class XTBEnergy:
     """
-    Uses GFN-xTB `[1]`_ to calculate energy and other properties.
+    Uses GFN-xTB [1]_ to calculate energy and other properties.
 
     By default, :meth:`get_results` will extract other properties of
-    the :class:`.Molecule` passed to :meth:`calculate`, which
-    will be saved in the attributes of :class:`.XTBResults`.
+    the :class:`stk.Molecule` passed to :meth:`calculate`, which
+    will be saved in the attributes of :class:`stko.XTBResults`.
 
     Notes:
 
@@ -32,7 +32,7 @@ class XTBEnergy:
 
         If multi-threading is being used an error could occur if two
         different threads need to know about the current working directory
-        as :class:`.XTBEnergy` can change it from under them.
+        as :class:`stko.XTBEnergy` can change it from under them.
 
         Note that this does not have any impact on multi-processing,
         which should always be safe.
@@ -150,7 +150,7 @@ class XTBEnergy:
 
     References:
 
-        .. _[1] https://xtb-docs.readthedocs.io/en/latest/setup.html
+        .. [1] https://xtb-docs.readthedocs.io/en/latest/setup.html
 
     """
 
@@ -171,8 +171,6 @@ class XTBEnergy:
         unlimited_memory: bool = False,
     ):
         """
-        Initializes a :class:`XTBEnergy` instance.
-
         Parameters:
 
             xtb_path:
@@ -383,7 +381,7 @@ class XTBEnergy:
         Parameters:
 
             mol:
-                The :class:`.Molecule` whose energy is to be calculated.
+                The :class:`stk.Molecule` whose energy is to be calculated.
 
         Returns:
 
@@ -411,7 +409,7 @@ class XTBEnergy:
         Parameters
 
             mol:
-                The :class:`.Molecule` whose energy is to be calculated.
+                The :class:`stk.Molecule` whose energy is to be calculated.
 
         Returns:
 
