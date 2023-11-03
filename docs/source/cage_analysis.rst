@@ -18,6 +18,9 @@ There is an example script with some of the analyses
   CNCFactory <_autosummary/stko.functional_groups.CNCFactory>
   CNNFactory <_autosummary/stko.functional_groups.CNNFactory>
   NNNFactory <_autosummary/stko.functional_groups.NNNFactory>
-  DecomposeMOC <_autosummary/stko.cage_analysis.DecomposeMOC>
-  DitopicThreeSiteAnalyser <_autosummary/stko.subgroup_analysis.DitopicThreeSiteAnalyser>
+  DecomposeMOC <_autosummary/stko.molecule_analysis.DecomposeMOC>
+  DitopicThreeSiteAnalyser <_autosummary/stko.molecule_analysis.DitopicThreeSiteAnalyser>
+  ConstructedAnalyser <_autosummary/stko.molecule_analysis.ConstructedAnalyser>
+  GeometryAnalyser <_autosummary/stko.molecule_analysis.GeometryAnalyser>
+  PoreAnalyser <_autosummary/stko.molecule_analysis.PoreAnalyser>
 

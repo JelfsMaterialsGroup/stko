@@ -37,13 +37,13 @@ def main():
         ),
     )
     apdcage.write("cage_output/apdcage.mol")
-    ligands = stko.cage_analysis.DecomposeMOC().decompose(
+    ligands = stko.molecule_analysis.DecomposeMOC().decompose(
         molecule=apdcage,
         metal_atom_nos=(46,),
     )
     print(len(ligands))
 
-    tsa = stko.subgroup_analysis.DitopicThreeSiteAnalyser()
+    tsa = stko.molecule_analysis.DitopicThreeSiteAnalyser()
     for i, lig in enumerate(ligands):
         lig.write(f"cage_output/apdcage_{i}.mol")
         as_building_block = stk.BuildingBlock.init_from_molecule(
@@ -52,6 +52,10 @@ def main():
         )
         print(f"binder distance: {tsa.get_binder_distance(as_building_block)}")
         raise SystemExit("now to do ligand analysis.")
+
+    raise SystemExit("now to do cage analysis : PORE.")
+    raise SystemExit("now to do cage analysis : Geom.")
+    raise SystemExit("now to do cage analysis : Constructed.")
 
 
 if __name__ == "__main__":
