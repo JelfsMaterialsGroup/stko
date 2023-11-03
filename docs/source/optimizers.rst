@@ -4,7 +4,11 @@ Optimizers
 .. toctree::
   :maxdepth: 1
 
-  Optimizer <_autosummary/stko.Optimizer>
+  Optimizer Overview <_autosummary/stko.Optimizer>
+
+.. toctree::
+  :maxdepth: 1
+
   OptimizerSequence <_autosummary/stko.OptimizerSequence>
   TryCatchOptimizer <_autosummary/stko.TryCatchOptimizer>
 

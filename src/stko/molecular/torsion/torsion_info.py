@@ -16,10 +16,10 @@ class TorsionInfo:
     def __init__(
         self,
         torsion: Torsion,
-        building_block: stk.BuildingBlock,
-        building_block_id: int,
-        building_block_torsion: Torsion,
-    ):
+        building_block: stk.Molecule | None,
+        building_block_id: int | None,
+        building_block_torsion: Torsion | None,
+    ) -> None:
         """
         Initialize :class:`TorsionInfo`.
 
@@ -62,10 +62,10 @@ class TorsionInfo:
 
         return self._torsion
 
-    def get_building_block(self) -> stk.BuildingBlock:
+    def get_building_block(self) -> stk.Molecule | None:
         return self._building_block
 
-    def get_building_block_torsion(self) -> Torsion:
+    def get_building_block_torsion(self) -> Torsion | None:
         """
         Torsion of atoms in building block.
 
@@ -73,5 +73,5 @@ class TorsionInfo:
 
         return self._building_block_torsion
 
-    def get_building_block_id(self) -> int:
+    def get_building_block_id(self) -> int | None:
         return self._building_block_id

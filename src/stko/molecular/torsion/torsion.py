@@ -14,10 +14,10 @@ class Torsion:
 
     def __init__(
         self,
-        atom1: stk.Atom,
-        atom2: stk.Atom,
-        atom3: stk.Atom,
-        atom4: stk.Atom,
+        atom1: stk.Atom | None,
+        atom2: stk.Atom | None,
+        atom3: stk.Atom | None,
+        atom4: stk.Atom | None,
     ) -> None:
         """
         Defines a torsion.
@@ -43,7 +43,7 @@ class Torsion:
         self._atom3 = atom3
         self._atom4 = atom4
 
-    def get_atoms(self) -> tuple[stk.Atom, ...]:
+    def get_atoms(self) -> tuple[stk.Atom | None, ...]:
         return tuple(
             (
                 self._atom1,
@@ -54,9 +54,12 @@ class Torsion:
         )
 
     def get_atom_ids(self) -> tuple[int, ...]:
-        return tuple(atom.get_id() for atom in self.get_atoms())
+        return tuple(
+            atom.get_id()  # type: ignore[union-attr]
+            for atom in self.get_atoms()
+        )
 
-    def __iter__(self) -> typing.Iterable[stk.Atom]:
+    def __iter__(self) -> typing.Iterable[stk.Atom | None]:
         return iter(self.get_atoms())
 
     def __str__(self) -> str:

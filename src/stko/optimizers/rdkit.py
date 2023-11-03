@@ -1,9 +1,3 @@
-"""
-RDKit Optimizers
-================
-
-"""
-
 import logging
 from itertools import combinations
 
@@ -272,7 +266,7 @@ class MetalOptimizer(Optimizer):
         mol: stk.Molecule,
         ff: rdkit.ForceField,
         metal_bonds: list[stk.Bond],
-    ):
+    ) -> None:
         """
         Applies UFF metal centre constraints.
 

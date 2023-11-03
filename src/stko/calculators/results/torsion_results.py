@@ -67,7 +67,9 @@ class ConstructedMoleculeTorsionResults(TorsionResults):
         self._torsions = next(generator)
         self._mol: stk.ConstructedMolecule = mol
 
-    def get_torsion_infos_by_building_block(self) -> dict[int, list]:
+    def get_torsion_infos_by_building_block(
+        self,
+    ) -> dict[int | None, list[TorsionInfo]]:
         """
         Returns dictionary of torsions by building block.
 
@@ -106,7 +108,9 @@ class ConstructedMoleculeTorsionResults(TorsionResults):
                 bb_atoms = tuple(
                     i.get_building_block_atom() for i in atom_infos
                 )
-                building_block_torsion = Torsion(*bb_atoms)
+                building_block_torsion = Torsion(
+                    bb_atoms[0], bb_atoms[1], bb_atoms[2], bb_atoms[3]
+                )
                 yield TorsionInfo(
                     torsion=torsion,
                     building_block=building_block,

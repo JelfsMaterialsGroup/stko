@@ -61,8 +61,8 @@ class MoleculeTransformer:
 
         Raises:
 
-            :class:`ValueError`
-                If `replacer_smarts` does not correspond to a single atom.
+            :class:`ValueError` If `replacer_smarts` does not correspond
+            to a single atom.
 
         """
 

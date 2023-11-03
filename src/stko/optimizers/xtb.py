@@ -1,16 +1,10 @@
-"""
-XTB Optimizers
-==============
-
-Wrappers for optimizers within the :mod:`xtb` code.
-
-"""
-
 import logging
 import os
 import shutil
 import subprocess as sp
 import uuid
+
+import stk
 
 from stko.calculators.extractors.xtb_extractor import XTBExtractor
 from stko.optimizers.optimizers import Optimizer
@@ -32,216 +26,216 @@ class XTB(Optimizer):
     """
     Uses GFN-xTB [1]_ to optimize molecules.
 
-    Notes
-    -----
-    When running :meth:`optimize`, this calculator changes the
-    present working directory with :func:`os.chdir`. The original
-    working directory will be restored even if an error is raised, so
-    unless multi-threading is being used this implementation detail
-    should not matter.
+    Notes:
 
-    Furthermore, :meth:`optimize` will check that the
-    structure is adequately optimized by checking for negative
-    frequencies after a Hessian calculation. `max_runs` can be
-    provided to the initializer to set the maximum number of
-    optimizations which will be attempted at the given
-    `opt_level` to obtain an optimized structure. However, we outline
-    in the examples how to iterate over `opt_levels` to increase
-    convergence criteria and hopefully obtain an optimized structure.
-    The presence of negative frequencies can occur even when the
-    optimization has converged based on the given `opt_level`.
+        When running :meth:`optimize`, this calculator changes the
+        present working directory with :func:`os.chdir`. The original
+        working directory will be restored even if an error is raised, so
+        unless multi-threading is being used this implementation detail
+        should not matter.
 
-    Contributors
-    ------------
-    We thank Andrew Tarzia and Alejandro Santana-Bonilla for their
-    contributions to this code.
+        Furthermore, :meth:`optimize` will check that the
+        structure is adequately optimized by checking for negative
+        frequencies after a Hessian calculation. `max_runs` can be
+        provided to the initializer to set the maximum number of
+        optimizations which will be attempted at the given
+        `opt_level` to obtain an optimized structure. However, we outline
+        in the examples how to iterate over `opt_levels` to increase
+        convergence criteria and hopefully obtain an optimized structure.
+        The presence of negative frequencies can occur even when the
+        optimization has converged based on the given `opt_level`.
 
-    Attributes
-    ----------
-    incomplete : :class:`set` of :class:`.Molecule`
-        A :class:`set` of molecules passed to :meth:`optimize` whose
-        optimzation was incomplete.
+        We thank Andrew Tarzia and Alejandro Santana-Bonilla for their
+        contributions to this code.
 
-    Examples
-    --------
-    Note that for :class:`.ConstructedMolecule` objects constructed by
-    ``stk``, :class:`XTB` should usually be used in a
-    :class:`.OptimizerSequence`. This is because xTB only uses
-    xyz coordinates as input and so will not recognize the long bonds
-    created during construction. An optimizer which can minimize
-    these bonds should be used before :class:`XTB`.
+    Attributes:
 
-    .. code-block:: python
+        incomplete:
+            A :class:`set` of molecules passed to :meth:`optimize` whose
+            optimzation was incomplete.
 
-        import stk
-        import stko
+    Examples:
 
-        bb1 = stk.BuildingBlock('NCCNCCN', [stk.PrimaryAminoFactory()])
-        bb2 = stk.BuildingBlock('O=CCCC=O', [stk.AldehydeFactory()])
-        polymer = stk.ConstructedMolecule(
-            stk.polymer.Linear(
-                building_blocks=(bb1, bb2),
-                repeating_unit="AB",
-                orientations=[0, 0],
-                num_repeating_units=1
+        Note that for :class:`.ConstructedMolecule` objects constructed by
+        ``stk``, :class:`XTB` should usually be used in a
+        :class:`.OptimizerSequence`. This is because xTB only uses
+        xyz coordinates as input and so will not recognize the long bonds
+        created during construction. An optimizer which can minimize
+        these bonds should be used before :class:`XTB`.
+
+        .. code-block:: python
+
+            import stk
+            import stko
+
+            bb1 = stk.BuildingBlock('NCCNCCN', [stk.PrimaryAminoFactory()])
+            bb2 = stk.BuildingBlock('O=CCCC=O', [stk.AldehydeFactory()])
+            polymer = stk.ConstructedMolecule(
+                stk.polymer.Linear(
+                    building_blocks=(bb1, bb2),
+                    repeating_unit="AB",
+                    orientations=[0, 0],
+                    num_repeating_units=1
+                )
             )
-        )
 
-        xtb = stko.OptimizerSequence(
-            stko.UFF(),
-            stko.XTB(xtb_path='/opt/gfnxtb/xtb', unlimited_memory=True)
-        )
-        polymer = xtb.optimize(polymer)
+            xtb = stko.OptimizerSequence(
+                stko.UFF(),
+                stko.XTB(xtb_path='/opt/gfnxtb/xtb', unlimited_memory=True)
+            )
+            polymer = xtb.optimize(polymer)
 
 
-    By default, all optimizations with xTB are performed using the
-    ``--ohess`` flag, which forces the calculation of a numerical
-    Hessian, thermodynamic properties and vibrational frequencies.
-    :meth:`optimize` will check that the structure is appropriately
-    optimized (i.e. convergence is obtained and no negative vibrational
-    frequencies are present) and continue optimizing a structure (up to
-    `max_runs` times) until this is achieved. This loop, by
-    default, will be performed at the same `opt_level`. The
-    following example shows how a user may optimize structures with
-    tigher convergence criteria (i.e. different `opt_level`)
-    until the structure is sufficiently optimized. Furthermore, the
-    calculation of the Hessian can be turned off using
-    `max_runs` to ``1`` and `calculate_hessian` to ``False``.
+        By default, all optimizations with xTB are performed using the
+        ``--ohess`` flag, which forces the calculation of a numerical
+        Hessian, thermodynamic properties and vibrational frequencies.
+        :meth:`optimize` will check that the structure is appropriately
+        optimized (i.e. convergence is obtained and no negative vibrational
+        frequencies are present) and continue optimizing a structure (up to
+        `max_runs` times) until this is achieved. This loop, by
+        default, will be performed at the same `opt_level`. The
+        following example shows how a user may optimize structures with
+        tigher convergence criteria (i.e. different `opt_level`)
+        until the structure is sufficiently optimized. Furthermore, the
+        calculation of the Hessian can be turned off using
+        `max_runs` to ``1`` and `calculate_hessian` to ``False``.
 
-    .. code-block:: python
+        .. code-block:: python
 
-        # Use crude optimization with max_runs=1 because this will
-        # not achieve optimization and rerunning it is unproductive.
-        xtb_crude = stko.XTB(
-            xtb_path='/opt/gfnxtb/xtb',
-            output_dir='xtb_crude',
-            unlimited_memory=True,
-            opt_level='crude',
-            max_runs=1,
-            calculate_hessian=True
-        )
-        # Use normal optimization with max_runs == 2.
-        xtb_normal = stko.XTB(
-            xtb_path='/opt/gfnxtb/xtb',
-            output_dir='xtb_normal',
-            unlimited_memory=True,
-            opt_level='normal',
-            max_runs=2
-        )
-        # Use vtight optimization with max_runs == 2, which should
-        # achieve sufficient optimization.
-        xtb_vtight = stko.XTB(
-            xtb_path='/opt/gfnxtb/xtb',
-            output_dir='xtb_vtight',
-            unlimited_memory=True,
-            opt_level='vtight',
-            max_runs=2
-        )
+            # Use crude optimization with max_runs=1 because this will
+            # not achieve optimization and rerunning it is unproductive.
+            xtb_crude = stko.XTB(
+                xtb_path='/opt/gfnxtb/xtb',
+                output_dir='xtb_crude',
+                unlimited_memory=True,
+                opt_level='crude',
+                max_runs=1,
+                calculate_hessian=True
+            )
+            # Use normal optimization with max_runs == 2.
+            xtb_normal = stko.XTB(
+                xtb_path='/opt/gfnxtb/xtb',
+                output_dir='xtb_normal',
+                unlimited_memory=True,
+                opt_level='normal',
+                max_runs=2
+            )
+            # Use vtight optimization with max_runs == 2, which should
+            # achieve sufficient optimization.
+            xtb_vtight = stko.XTB(
+                xtb_path='/opt/gfnxtb/xtb',
+                output_dir='xtb_vtight',
+                unlimited_memory=True,
+                opt_level='vtight',
+                max_runs=2
+            )
 
-        optimizers = [xtb_crude, xtb_normal, xtb_vtight]
-        for optimizer in optimizers:
-            polymer = optimizer.optimize(polymer)
-            if polymer not in optimizer.incomplete:
-                break
+            optimizers = [xtb_crude, xtb_normal, xtb_vtight]
+            for optimizer in optimizers:
+                polymer = optimizer.optimize(polymer)
+                if polymer not in optimizer.incomplete:
+                    break
 
-    References
-    ----------
-    .. [1] https://xtb-docs.readthedocs.io/en/latest/setup.html
+    References:
+
+        .. [1] https://xtb-docs.readthedocs.io/en/latest/setup.html
 
     """
 
+    incomplete: set[stk.Molecule]
+
     def __init__(
         self,
-        xtb_path,
-        gfn_version=2,
-        output_dir=None,
-        opt_level="normal",
-        max_runs=2,
-        calculate_hessian=True,
-        num_cores=1,
-        electronic_temperature=300,
-        solvent_model="gbsa",
-        solvent=None,
-        solvent_grid="normal",
-        charge=0,
-        num_unpaired_electrons=0,
-        unlimited_memory=False,
-    ):
+        xtb_path: str,
+        gfn_version: int = 2,
+        output_dir: str | None = None,
+        opt_level: str = "normal",
+        max_runs: int = 2,
+        calculate_hessian: bool = True,
+        num_cores: int = 1,
+        electronic_temperature: float = 300,
+        solvent_model: str = "gbsa",
+        solvent: str | None = None,
+        solvent_grid: str = "normal",
+        charge: int = 0,
+        num_unpaired_electrons: int = 0,
+        unlimited_memory: bool = False,
+    ) -> None:
         """
         Initialize a :class:`XTB` instance.
 
-        Parameters
-        ----------
-        xtb_path : :class:`str`
-            The path to the xTB executable.
+        Parameters:
 
-        gfn_version : :class:`int`, optional
-            Parameterization of GFN to use in xTB.
-            For details see
-            https://xtb-docs.readthedocs.io/en/latest/basics.html.
+            xtb_path:
+                The path to the xTB executable.
 
-        output_dir : :class:`str`, optional
-            The name of the directory into which files generated during
-            the optimization are written, if ``None`` then
-            :func:`uuid.uuid4` is used.
+            gfn_version:
+                Parameterization of GFN to use in xTB.
+                For details see
+                https://xtb-docs.readthedocs.io/en/latest/basics.html.
 
-        opt_level : :class:`str`, optional
-            Optimization level to use.
-            Can be one of ``'crude'``, ``'sloppy'``, ``'loose'``,
-            ``'lax'``, ``'normal'``, ``'tight'``, ``'vtight'``
-            or ``'extreme'``.
-            For details see
-            https://xtb-docs.readthedocs.io/en/latest/optimization.html
-            .
+            output_dir:
+                The name of the directory into which files generated during
+                the optimization are written, if ``None`` then
+                :func:`uuid.uuid4` is used.
 
-        max_runs : :class:`int`, optional
-            Maximum number of optimizations to attempt in a row.
+            opt_level:
+                Optimization level to use.
+                Can be one of ``'crude'``, ``'sloppy'``, ``'loose'``,
+                ``'lax'``, ``'normal'``, ``'tight'``, ``'vtight'``
+                or ``'extreme'``.
+                For details see
+                https://xtb-docs.readthedocs.io/en/latest/optimization.html
+                .
 
-        calculate_hessian : :class:`bool`, optional
-            Toggle calculation of the hessian and vibrational
-            frequencies after optimization. ``True`` is required to
-            check that the structure is completely optimized.
-            ``False`` will drastically speed up the calculation but
-            potentially provide incomplete optimizations and forces
-            :attr:`max_runs` to be ``1``.
+            max_runs:
+                Maximum number of optimizations to attempt in a row.
 
-        num_cores : :class:`int`, optional
-            The number of cores xTB should use.
+            calculate_hessian:
+                Toggle calculation of the hessian and vibrational
+                frequencies after optimization. ``True`` is required to
+                check that the structure is completely optimized.
+                ``False`` will drastically speed up the calculation but
+                potentially provide incomplete optimizations and forces
+                :attr:`max_runs` to be ``1``.
 
-        electronic_temperature : :class:`int`, optional
-            Electronic temperature in Kelvin.
+            num_cores:
+                The number of cores xTB should use.
 
-        solvent_model : :class:`str`
-            Solvent model to use out of older `gbsa` and newer `alpb`.
-            `gbsa` is default for backwards compatability, but `alpb`
-            is recommended.
-            For details see
-            https://xtb-docs.readthedocs.io/en/latest/gbsa.html.
+            electronic_temperature:
+                Electronic temperature in Kelvin.
 
-        solvent : :class:`str`, optional
-            Solvent to use in GBSA implicit solvation method.
-            For details see
-            https://xtb-docs.readthedocs.io/en/latest/gbsa.html.
+            solvent_model:
+                Solvent model to use out of older `gbsa` and newer `alpb`.
+                `gbsa` is default for backwards compatability, but `alpb`
+                is recommended.
+                For details see
+                https://xtb-docs.readthedocs.io/en/latest/gbsa.html.
 
-        solvent_grid : :class:`str`, optional
-            Grid level to use in SASA calculations for GBSA implicit
-            solvent.
-            Can be one of ``'normal'``, ``'tight'``, ``'verytight'``
-            or ``'extreme'``.
-            For details see
-            https://xtb-docs.readthedocs.io/en/latest/gbsa.html.
+            solvent:
+                Solvent to use in GBSA implicit solvation method.
+                For details see
+                https://xtb-docs.readthedocs.io/en/latest/gbsa.html.
 
-        charge : :class:`int`, optional
-            Formal molecular charge.
+            solvent_grid:
+                Grid level to use in SASA calculations for GBSA implicit
+                solvent.
+                Can be one of ``'normal'``, ``'tight'``, ``'verytight'``
+                or ``'extreme'``.
+                For details see
+                https://xtb-docs.readthedocs.io/en/latest/gbsa.html.
 
-        num_unpaired_electrons : :class:`int`, optional
-            Number of unpaired electrons.
+            charge:
+                Formal molecular charge.
 
-        unlimited_memory : :class: `bool`, optional
-            If ``True`` :meth:`optimize` will be run without
-            constraints on the stack size. If memory issues are
-            encountered, this should be ``True``, however this may
-            raise issues on clusters.
+            num_unpaired_electrons:
+                Number of unpaired electrons.
+
+            unlimited_memory:
+                If ``True`` :meth:`optimize` will be run without
+                constraints on the stack size. If memory issues are
+                encountered, this should be ``True``, however this may
+                raise issues on clusters.
 
         """
 
@@ -287,22 +281,21 @@ class XTB(Optimizer):
         self._unlimited_memory = unlimited_memory
         self.incomplete = set()
 
-    def _check_path(self, path):
+    def _check_path(self, path: str) -> None:
         if not os.path.exists(path):
             raise PathError(f"XTB not found at {path}")
 
-    def _has_neg_frequencies(self, output_file):
+    def _has_neg_frequencies(self, output_file: str) -> bool:
         """
         Check for negative frequencies.
 
-        Parameters
-        ----------
-        output_file : :class:`str`
-            Name of output file with xTB results.
+        Parameters:
 
-        Returns
-        -------
-        :class:`bool`
+            output_file:
+                Name of output file with xTB results.
+
+        Returns:
+
             Returns ``True`` if a negative frequency is present.
 
         """
@@ -311,29 +304,27 @@ class XTB(Optimizer):
         # 6 frequencies.
         return any(x < 0 for x in xtbext.frequencies[6:])
 
-    def _is_complete(self, output_file):
+    def _is_complete(self, output_file: str) -> bool:
         """
         Check if xTB optimization has completed and converged.
 
-        Parameters
-        ----------
-        output_file : :class:`str`
-            Name of xTB output file.
+        Parameters:
 
-        Returns
-        -------
-        :class:`bool`
+            output_file:
+                Name of xTB output file.
+
+        Returns:
+
             Returns ``False`` if a negative frequency is present.
 
-        Raises
-        -------
-        :class:`XTBOptimizerError`
-            If the optimization failed.
+        Raises:
 
-        :class:`XTBConvergenceError`
-            If the optimization did not converge.
+            :class:`XTBOptimizerError` if the optimization failed.
+
+            :class:`XTBConvergenceError` if the optimization did not converge.
 
         """
+
         if not os.path.exists(output_file):
             # No simulation has been run.
             raise OptimizerError("XTB: Optimization failed to start")
@@ -353,21 +344,17 @@ class XTB(Optimizer):
         else:
             raise OptimizerError("XTB: Optimization failed to complete")
 
-    def _run_xtb(self, xyz, out_file):
+    def _run_xtb(self, xyz: str, out_file: str) -> None:
         """
         Run GFN-xTB.
 
-        Parameters
-        ----------
-        xyz : :class:`str`
-            The name of the input structure ``.xyz`` file.
+        Parameters:
 
-        out_file : :class:`str`
-            The name of output file with xTB results.
+            xyz:
+                The name of the input structure ``.xyz`` file.
 
-        Returns
-        -------
-        None : :class:`NoneType`
+            out_file:
+                The name of output file with xTB results.
 
         """
 
@@ -411,29 +398,32 @@ class XTB(Optimizer):
                 shell=True,
             )
 
-    def _write_detailed_control(self):
+    def _write_detailed_control(self) -> None:
         string = f"$gbsa\n   gbsagrid={self._solvent_grid}"
 
         with open("det_control.in", "w") as f:
             f.write(string)
 
-    def _run_optimizations(self, mol):
+    def _run_optimizations(
+        self,
+        mol: stk.Molecule,
+    ) -> tuple[stk.Molecule, bool]:
         """
         Run loop of optimizations on `mol` using xTB.
 
-        Parameters
-        ----------
-        mol : :class:`.Molecule`
-            The molecule to be optimized.
+        Parameters:
 
-        Returns
-        -------
-        mol : :class:`.Molecule`
-            The optimized molecule.
+            mol:
+                The molecule to be optimized.
 
-        opt_complete : :class:`bool`
-            Returns ``True`` if the calculation is complete and
-            ``False`` if the calculation is incomplete.
+        Returns:
+
+            mol:
+                The optimized molecule.
+
+            opt_complete:
+                Returns ``True`` if the calculation is complete and
+                ``False`` if the calculation is incomplete.
 
         """
 
@@ -471,19 +461,19 @@ class XTB(Optimizer):
 
         return mol, opt_complete
 
-    def optimize(self, mol):
+    def optimize(self, mol: stk.Molecule) -> stk.Molecule:
         """
         Optimize `mol`.
 
-        Parameters
-        ----------
-        mol : :class:`.Molecule`
-            The molecule to be optimized.
+        Parameters:
 
-        Returns
-        -------
-        mol : :class:`.Molecule`
-            The optimized molecule.
+            mol:
+                The molecule to be optimized.
+
+        Returns:
+
+            mol:
+                The optimized molecule.
 
         """
 
@@ -520,198 +510,197 @@ class XTBCREST(Optimizer):
     """
     Uses GFN-n [1]_ to run CREST [2]_ on molecules.
 
-    Notes
-    -----
-    Requires version > 6.2 of xtb.
+    Notes:
 
-    When running :meth:`optimize`, this calculator changes the
-    present working directory with :func:`os.chdir`. The original
-    working directory will be restored even if an error is raised, so
-    unless multi-threading is being used this implementation detail
-    should not matter.
+        Requires version > 6.2 of xtb.
 
-    *Restrictions to iMTD-GC Algorithm*
-    Z-matrix sorting is forced to be off because :class:`stk.Molecules`
-    cannot have their atom ordering changed by an external program at
-    this stage.
+        When running :meth:`optimize`, this calculator changes the
+        present working directory with :func:`os.chdir`. The original
+        working directory will be restored even if an error is raised, so
+        unless multi-threading is being used this implementation detail
+        should not matter.
 
-    Examples
-    --------
+        *Restrictions to iMTD-GC Algorithm*
+        Z-matrix sorting is forced to be off because :class:`stk.Molecules`
+        cannot have their atom ordering changed by an external program at
+        this stage.
 
-    Note that for :class:`.ConstructedMolecule` objects constructed by
-    ``stk``, :class:`XTBCREST` should usually be used in a
-    :class:`.OptimizerSequence`. This is because xTB only uses
-    xyz coordinates as input and so will not recognize the long bonds
-    created during construction. An optimizer which can minimize
-    these bonds should be used before :class:`XTBCREST`. Further,
-    CREST runs best on an input structure optimized at the same level
-    used throughout the algorithm (i.e. :class:`XTB`).
+    Examples:
 
-    .. code-block:: python
+        Note that for :class:`.ConstructedMolecule` objects constructed by
+        ``stk``, :class:`XTBCREST` should usually be used in a
+        :class:`.OptimizerSequence`. This is because xTB only uses
+        xyz coordinates as input and so will not recognize the long bonds
+        created during construction. An optimizer which can minimize
+        these bonds should be used before :class:`XTBCREST`. Further,
+        CREST runs best on an input structure optimized at the same level
+        used throughout the algorithm (i.e. :class:`XTB`).
 
-        import stk
-        import stko
+        .. code-block:: python
 
-        bb1 = stk.BuildingBlock('NCCNCCN', [stk.PrimaryAminoFactory()])
-        bb2 = stk.BuildingBlock('O=CCCC=O', [stk.AldehydeFactory()])
-        polymer = stk.ConstructedMolecule(
-            stk.polymer.Linear(
-                building_blocks=(bb1, bb2),
-                repeating_unit="AB",
-                orientations=[0, 0],
-                num_repeating_units=1
+            import stk
+            import stko
+
+            bb1 = stk.BuildingBlock('NCCNCCN', [stk.PrimaryAminoFactory()])
+            bb2 = stk.BuildingBlock('O=CCCC=O', [stk.AldehydeFactory()])
+            polymer = stk.ConstructedMolecule(
+                stk.polymer.Linear(
+                    building_blocks=(bb1, bb2),
+                    repeating_unit="AB",
+                    orientations=[0, 0],
+                    num_repeating_units=1
+                )
             )
-        )
 
-        xtb = stko.OptimizerSequence(
-            stko.UFF(),
-            stko.XTB(
-                xtb_path='/opt/gfnxtb/xtb',
-                unlimited_memory=True,
-            ),
-            # Perform quick conformer search.
-            stko.XTBCREST(
-                crest_path='/opt/crest/crest',
-                xtb_path='/opt/gfnxtb/xtb',
-                opt_level='normal',
-                speed_setting='quick',
-                unlimited_memory=True,
-            ),
-        )
-        polymer = xtb.optimize(polymer)
+            xtb = stko.OptimizerSequence(
+                stko.UFF(),
+                stko.XTB(
+                    xtb_path='/opt/gfnxtb/xtb',
+                    unlimited_memory=True,
+                ),
+                # Perform quick conformer search.
+                stko.XTBCREST(
+                    crest_path='/opt/crest/crest',
+                    xtb_path='/opt/gfnxtb/xtb',
+                    opt_level='normal',
+                    speed_setting='quick',
+                    unlimited_memory=True,
+                ),
+            )
+            polymer = xtb.optimize(polymer)
 
-    While most auxiliary and MD run files will be deleted if
-    :attr:`keepdir` is `False`, the files listed below are kept in
-    :attr:`output_dir` and could be useful for further analysis!
+        While most auxiliary and MD run files will be deleted if
+        :attr:`keepdir` is `False`, the files listed below are kept in
+        :attr:`output_dir` and could be useful for further analysis!
 
-        | crest_best.xyz: Structure of the lowest energy conformer.
-        |    This structure is output by :meth:`optimize`.
-        | crest_conformers.xyz: Structure of all conformers.
-        |    All conformers with RMSD and energy threshold of the
-        |    lowest energy conformer.
-        | crest_rotamers.xyz: Structure of all rotamers.
-        |    All unique rotamers explored by CREST.
-        | crest.energies: Relative conformer energies in a.u..
-        | gfn_topo: GFN-FF binary topology file.
-        |    Defines the molecules force field topology.
+            | crest_best.xyz: Structure of the lowest energy conformer.
+            |    This structure is output by :meth:`optimize`.
+            | crest_conformers.xyz: Structure of all conformers.
+            |    All conformers with RMSD and energy threshold of the
+            |    lowest energy conformer.
+            | crest_rotamers.xyz: Structure of all rotamers.
+            |    All unique rotamers explored by CREST.
+            | crest.energies: Relative conformer energies in a.u..
+            | gfn_topo: GFN-FF binary topology file.
+            |    Defines the molecules force field topology.
 
-    References
-    ----------
-    .. [1] https://xtb-docs.readthedocs.io/en/latest/setup.html
-    .. [2] https://xtb-docs.readthedocs.io/en/latest/crestcmd.html
+    References:
+
+        .. [1] https://xtb-docs.readthedocs.io/en/latest/setup.html
+        .. [2] https://xtb-docs.readthedocs.io/en/latest/crestcmd.html
 
     """
 
     def __init__(
         self,
-        crest_path,
-        xtb_path,
-        gfn_version=2,
-        output_dir=None,
-        opt_level="normal",
-        md_len=None,
-        ewin=5,
-        speed_setting=None,
-        keepdir=False,
-        num_cores=4,
-        cross=True,
-        charge=0,
-        electronic_temperature=300,
-        solvent_model="gbsa",
-        solvent=None,
-        num_unpaired_electrons=0,
-        unlimited_memory=False,
+        crest_path: str,
+        xtb_path: str,
+        gfn_version: int = 2,
+        output_dir: str | None = None,
+        opt_level: str = "normal",
+        md_len: float | None = None,
+        ewin: float = 5,
+        speed_setting: None | str = None,
+        keepdir: bool = False,
+        num_cores: int = 4,
+        cross: bool = True,
+        charge: int = 0,
+        electronic_temperature: float = 300,
+        solvent_model: str = "gbsa",
+        solvent: str | None = None,
+        num_unpaired_electrons: int = 0,
+        unlimited_memory: bool = False,
     ):
         """
         Initialize a :class:`XTBCREST` instance.
 
-        Parameters
-        ----------
-        crest_path : :class:`str`
-            The path to the CREST executable.
+        Parameters:
 
-        xtb_path : :class:`str`
-            The path to the xTB executable.
-            Version >6.3.0 is required.
+            crest_path:
+                The path to the CREST executable.
 
-        gfn_version : :class:`int`, optional
-            Parameterization of GFN to use in xTB.
-            For details see
-            https://xtb-docs.readthedocs.io/en/latest/basics.html.
+            xtb_path:
+                The path to the xTB executable.
+                Version >6.3.0 is required.
 
-        output_dir : :class:`str`, optional
-            The name of the directory into which files generated during
-            the optimization are written, if ``None`` then
-            :func:`uuid.uuid4` is used.
+            gfn_version:
+                Parameterization of GFN to use in xTB.
+                For details see
+                https://xtb-docs.readthedocs.io/en/latest/basics.html.
 
-        opt_level : :class:`str`, optional
-            Optimization level to use.
-            Can be one of ``'crude'``, ``'sloppy'``, ``'loose'``,
-            ``'lax'``, ``'normal'``, ``'tight'``, ``'vtight'``
-            or ``'extreme'``.
-            For details see
-            https://xtb-docs.readthedocs.io/en/latest/optimization.html
-            .
+            output_dir:
+                The name of the directory into which files generated during
+                the optimization are written, if ``None`` then
+                :func:`uuid.uuid4` is used.
 
-        md_len : :class:`float`, optional.
-            Set length of the meta-dynamics simulations (MTD) in ps.
-            Default is chosen based on size and flexibility of the
-            system.
+            opt_level:
+                Optimization level to use.
+                Can be one of ``'crude'``, ``'sloppy'``, ``'loose'``,
+                ``'lax'``, ``'normal'``, ``'tight'``, ``'vtight'``
+                or ``'extreme'``.
+                For details see
+                https://xtb-docs.readthedocs.io/en/latest/optimization.html
+                .
 
-        ewin : :class:`float`, optional.
-            Set the energy threshold in kcal/mol for conformer
-            selection. Double this is used in crude optimization.
-            Defaults ot 5 kcal/mol and is overridden by
-            :attr:`speed_setting`.
+            md_len:
+                Set length of the meta-dynamics simulations (MTD) in ps.
+                Default is chosen based on size and flexibility of the
+                system.
 
-        speed_setting : :class:`str` or :class:`NoneType`, optional
-            Conformer search speed setting. Fast methods turn off
-            parts of the calculations and alter MD run times.
-            Defaults to no modification of iMTD-GC algorithm: `None`.
-            Can be one of ``'norotmd'``, ``'quick'``, ``'squick'``
-            or ``'mquick'``.
-            Overrides :attr:`ewin` with chosen parameters.
-            For details see
-            https://xtb-docs.readthedocs.io/en/latest/crestcmd.html.
+            ewin:
+                Set the energy threshold in kcal/mol for conformer
+                selection. Double this is used in crude optimization.
+                Defaults ot 5 kcal/mol and is overridden by
+                :attr:`speed_setting`.
 
-        keepdir : :class:`bool`, optional
-            `True` to keep subdirectories from MD runs.
-            Defaults to `False`.
-            For details see
-            https://xtb-docs.readthedocs.io/en/latest/crestcmd.html.
+            speed_setting:
+                Conformer search speed setting. Fast methods turn off
+                parts of the calculations and alter MD run times.
+                Defaults to no modification of iMTD-GC algorithm: `None`.
+                Can be one of ``'norotmd'``, ``'quick'``, ``'squick'``
+                or ``'mquick'``.
+                Overrides :attr:`ewin` with chosen parameters.
+                For details see
+                https://xtb-docs.readthedocs.io/en/latest/crestcmd.html.
 
-        num_cores : :class:`int`, optional
-            The number of cores CREST should use.
+            keepdir:
+                `True` to keep subdirectories from MD runs.
+                Defaults to `False`.
+                For details see
+                https://xtb-docs.readthedocs.io/en/latest/crestcmd.html.
 
-        charge : :class:`int`, optional
-            Formal molecular charge.
+            num_cores:
+                The number of cores CREST should use.
 
-        electronic_temperature : :class:`int`, optional
-            Electronic temperature in Kelvin.
+            charge:
+                Formal molecular charge.
 
-        solvent_model : :class:`str`
-            Solvent model to use out of older `gbsa` and newer `alpb`.
-            `gbsa` is default for backwards compatability, but `alpb`
-            is recommended.
-            For details see
-            https://xtb-docs.readthedocs.io/en/latest/gbsa.html.
+            electronic_temperature:
+                Electronic temperature in Kelvin.
 
-        solvent : :class:`str`, optional
-            Solvent to use in GBSA implicit solvation method.
-            For details see
-            https://xtb-docs.readthedocs.io/en/latest/gbsa.html.
+            solvent_model:
+                Solvent model to use out of older `gbsa` and newer `alpb`.
+                `gbsa` is default for backwards compatability, but `alpb`
+                is recommended.
+                For details see
+                https://xtb-docs.readthedocs.io/en/latest/gbsa.html.
 
-        num_unpaired_electrons : :class:`int`, optional
-            Number of unpaired electrons.
+            solvent:
+                Solvent to use in GBSA implicit solvation method.
+                For details see
+                https://xtb-docs.readthedocs.io/en/latest/gbsa.html.
 
-        cross : :class:`bool`, optional
-            Whether or not structure crossing is performed.
+            num_unpaired_electrons:
+                Number of unpaired electrons.
 
-        unlimited_memory : :class: `bool`, optional
-            If ``True`` :meth:`optimize` will be run without
-            constraints on the stack size. If memory issues are
-            encountered, this should be ``True``, however this may
-            raise issues on clusters.
+            cross:
+                Whether or not structure crossing is performed.
+
+            unlimited_memory:
+                If ``True`` :meth:`optimize` will be run without
+                constraints on the stack size. If memory issues are
+                encountered, this should be ``True``, however this may
+                raise issues on clusters.
 
         """
 
@@ -758,37 +747,35 @@ class XTBCREST(Optimizer):
         self._cross = cross
         self._unlimited_memory = unlimited_memory
 
-    def _check_path(self, path):
+    def _check_path(self, path: str) -> None:
         if not os.path.exists(path):
             raise PathError(f"XTB or CREST not found at {path}")
 
-    def _is_complete(self, output_file, output_xyzs):
+    def _is_complete(self, output_file: str, output_xyzs: list[str]) -> bool:
         """
         Check if CREST run has completed.
 
-        Parameters
-        ----------
-        output_file : :class:`str`
-            Name of CREST output file.
+        Parameters:
 
-        output_xyzs : :class:`str`
-            Name of CREST conformer output files.
-            crest_best.xyz > Best conformer, exists throughout run.
-            crest_conformers.xyz > All conformers,
-                exists throughout run.
+            output_file:
+                Name of CREST output file.
 
-        Returns
-        -------
-        :class:`bool`
+            output_xyzs:
+                Name of CREST conformer output files.
+                crest_best.xyz > Best conformer, exists throughout run.
+                crest_conformers.xyz > All conformers,
+                    exists throughout run.
+
+        Returns:
+
             Returns ``False`` if a negative frequency is present.
 
-        Raises
-        -------
-        :class:`CRESTNotStartedError`
-            If the CREST run failed to start.
+        Raises:
 
-        :class:`CRESTNotCompletedError`
-            If the CREST run failed to complete.
+            :class:`CRESTNotStartedError` if the CREST run failed to start.
+
+            :class:`CRESTNotCompletedError` if the CREST run failed to
+            complete.
 
         """
 
@@ -802,21 +789,17 @@ class XTBCREST(Optimizer):
 
         return True
 
-    def _run_crest(self, xyz, out_file):
+    def _run_crest(self, xyz: str, out_file: str) -> None:
         """
         Run CREST along side GFN-xTB.
 
-        Parameters
-        ----------
-        xyz : :class:`str`
-            The name of the input structure ``.xyz`` file.
+        Parameters:
 
-        out_file : :class:`str`
-            The name of output file with xTB results.
+            xyz:
+                The name of the input structure ``.xyz`` file.
 
-        Returns
-        -------
-        None : :class:`NoneType`
+            out_file:
+                The name of output file with xTB results.
 
         """
 
@@ -866,23 +849,26 @@ class XTBCREST(Optimizer):
                 shell=True,
             )
 
-    def _run_optimization(self, mol):
+    def _run_optimization(
+        self,
+        mol: stk.Molecule,
+    ) -> tuple[stk.Molecule, bool]:
         """
         Run loop of optimizations on `mol` using xTB.
 
-        Parameters
-        ----------
-        mol : :class:`.Molecule`
-            The molecule to be optimized.
+        Parameters:
 
-        Returns
-        -------
-        mol : :class:`.Molecule`
-            The optimized molecule.
+            mol:
+                The molecule to be optimized.
 
-        opt_complete : :class:`bool`
-            Returns ``True`` if the calculation is complete and
-            ``False`` if the calculation is incomplete.
+        Returns:
+
+            mol:
+                The optimized molecule.
+
+            opt_complete:
+                Returns ``True`` if the calculation is complete and
+                ``False`` if the calculation is incomplete.
 
         """
 
@@ -901,19 +887,19 @@ class XTBCREST(Optimizer):
 
         return mol, opt_complete
 
-    def optimize(self, mol):
+    def optimize(self, mol: stk.Molecule) -> stk.Molecule:
         """
         Optimize `mol`.
 
-        Parameters
-        ----------
-        mol : :class:`.Molecule`
-            The molecule to be optimized.
+        Parameters:
 
-        Returns
-        -------
-        mol : :class:`.Molecule`
-            The optimized molecule.
+            mol:
+                The molecule to be optimized.
+
+        Returns:
+
+            mol:
+                The optimized molecule.
 
         """
 
@@ -945,102 +931,102 @@ class XTBFF(Optimizer):
     """
     Uses GFN-FF [1]_ to optimize molecules.
 
-    Notes
-    -----
-    GFN-FF requires >= version 6.3 of xtb.
+    Notes:
 
-    When running :meth:`optimize`, this calculator changes the
-    present working directory with :func:`os.chdir`. The original
-    working directory will be restored even if an error is raised, so
-    unless multi-threading is being used this implementation detail
-    should not matter.
+        GFN-FF requires >= version 6.3 of xtb.
 
-    Currently, we only provide inputs that work with GFN-FF,
-    specifically the charge of the system. Other electronic properties
-    of the molecule are not relavent to a forcefield optimisation.
+        When running :meth:`optimize`, this calculator changes the
+        present working directory with :func:`os.chdir`. The original
+        working directory will be restored even if an error is raised, so
+        unless multi-threading is being used this implementation detail
+        should not matter.
 
-    Examples
-    --------
-    Note that for :class:`.ConstructedMolecule` objects constructed by
-    ``stk``, :class:`XTBFF` should usually be used in a
-    :class:`.OptimizerSequence`. This is because xTB only uses
-    xyz coordinates as input and so will not recognize the long bonds
-    created during construction. An optimizer which can minimize
-    these bonds should be used before :class:`XTBFF`.
+        Currently, we only provide inputs that work with GFN-FF,
+        specifically the charge of the system. Other electronic properties
+        of the molecule are not relavent to a forcefield optimisation.
 
-    .. code-block:: python
+    Examples:
 
-        import stk
-        import stko
+        Note that for :class:`.ConstructedMolecule` objects constructed by
+        ``stk``, :class:`XTBFF` should usually be used in a
+        :class:`.OptimizerSequence`. This is because xTB only uses
+        xyz coordinates as input and so will not recognize the long bonds
+        created during construction. An optimizer which can minimize
+        these bonds should be used before :class:`XTBFF`.
 
-        bb1 = stk.BuildingBlock('NCCNCCN', [stk.PrimaryAminoFactory()])
-        bb2 = stk.BuildingBlock('O=CCCC=O', [stk.AldehydeFactory()])
-        polymer = stk.ConstructedMolecule(
-            stk.polymer.Linear(
-                building_blocks=(bb1, bb2),
-                repeating_unit="AB",
-                orientations=[0, 0],
-                num_repeating_units=1
+        .. code-block:: python
+
+            import stk
+            import stko
+
+            bb1 = stk.BuildingBlock('NCCNCCN', [stk.PrimaryAminoFactory()])
+            bb2 = stk.BuildingBlock('O=CCCC=O', [stk.AldehydeFactory()])
+            polymer = stk.ConstructedMolecule(
+                stk.polymer.Linear(
+                    building_blocks=(bb1, bb2),
+                    repeating_unit="AB",
+                    orientations=[0, 0],
+                    num_repeating_units=1
+                )
             )
-        )
 
-        xtb = stko.OptimizerSequence(
-            stko.UFF(),
-            stko.XTBFF(
-                xtb_path='/opt/gfnxtb/xtb',
-                unlimited_memory=True,
-            ),
-        )
-        polymer = xtb.optimize(polymer)
+            xtb = stko.OptimizerSequence(
+                stko.UFF(),
+                stko.XTBFF(
+                    xtb_path='/opt/gfnxtb/xtb',
+                    unlimited_memory=True,
+                ),
+            )
+            polymer = xtb.optimize(polymer)
 
-    References
-    ----------
-    .. [1] https://xtb-docs.readthedocs.io/en/latest/gfnff.html
+    References:
+
+        .. [1] https://xtb-docs.readthedocs.io/en/latest/gfnff.html
 
     """
 
     def __init__(
         self,
-        xtb_path,
-        output_dir=None,
-        opt_level="normal",
-        num_cores=1,
-        charge=0,
-        unlimited_memory=False,
+        xtb_path: str,
+        output_dir: str | None = None,
+        opt_level: str = "normal",
+        num_cores: int = 1,
+        charge: int = 0,
+        unlimited_memory: bool = False,
     ):
         """
         Initialize a :class:`XTB` instance.
 
-        Parameters
-        ----------
-        xtb_path : :class:`str`
-            The path to the xTB executable.
+        Parameters:
 
-        output_dir : :class:`str`, optional
-            The name of the directory into which files generated during
-            the optimization are written, if ``None`` then
-            :func:`uuid.uuid4` is used.
+            xtb_path:
+                The path to the xTB executable.
 
-        opt_level : :class:`str`, optional
-            Optimization level to use.
-            Can be one of ``'crude'``, ``'sloppy'``, ``'loose'``,
-            ``'lax'``, ``'normal'``, ``'tight'``, ``'vtight'``
-            or ``'extreme'``.
-            For details see
-            https://xtb-docs.readthedocs.io/en/latest/optimization.html
-            .
+            output_dir:
+                The name of the directory into which files generated during
+                the optimization are written, if ``None`` then
+                :func:`uuid.uuid4` is used.
 
-        num_cores : :class:`int`, optional
-            The number of cores xTB should use.
+            opt_level:
+                Optimization level to use.
+                Can be one of ``'crude'``, ``'sloppy'``, ``'loose'``,
+                ``'lax'``, ``'normal'``, ``'tight'``, ``'vtight'``
+                or ``'extreme'``.
+                For details see
+                https://xtb-docs.readthedocs.io/en/latest/optimization.html
+                .
 
-        charge : :class:`int`, optional
-            Formal molecular charge.
+            num_cores:
+                The number of cores xTB should use.
 
-        unlimited_memory : :class: `bool`, optional
-            If ``True`` :meth:`optimize` will be run without
-            constraints on the stack size. If memory issues are
-            encountered, this should be ``True``, however this may
-            raise issues on clusters.
+            charge:
+                Formal molecular charge.
+
+            unlimited_memory:
+                If ``True`` :meth:`optimize` will be run without
+                constraints on the stack size. If memory issues are
+                encountered, this should be ``True``, however this may
+                raise issues on clusters.
 
         """
 
@@ -1052,31 +1038,28 @@ class XTBFF(Optimizer):
         self._charge = str(charge)
         self._unlimited_memory = unlimited_memory
 
-    def _check_path(self, path):
+    def _check_path(self, path: str) -> None:
         if not os.path.exists(path):
             raise PathError(f"XTB not found at {path}")
 
-    def _is_complete(self, output_file):
+    def _is_complete(self, output_file: str) -> bool:
         """
         Check if xTB optimization has completed and converged.
 
-        Parameters
-        ----------
-        output_file : :class:`str`
-            Name of xTB output file.
+        Parameters:
 
-        Returns
-        -------
-        :class:`bool`
+            output_file:
+                Name of xTB output file.
+
+        Returns:
+
             Returns ``False`` if a negative frequency is present.
 
-        Raises
-        -------
-        :class:`XTBOptimizerError`
-            If the optimization failed.
+        Raises:
 
-        :class:`XTBConvergenceError`
-            If the optimization did not converge.
+            :class:`XTBOptimizerError` if the optimization failed.
+
+            :class:`XTBConvergenceError` if the optimization did not converge.
 
         """
         if not os.path.exists(output_file):
@@ -1090,21 +1073,18 @@ class XTBFF(Optimizer):
         else:
             raise OptimizerError("XTB: Optimization failed to complete")
 
-    def _run_xtb(self, xyz, out_file):
+    def _run_xtb(self, xyz: str, out_file: str) -> None:
         """
         Run GFN-xTB.
 
-        Parameters
-        ----------
-        xyz : :class:`str`
-            The name of the input structure ``.xyz`` file.
+        Parameters:
 
-        out_file : :class:`str`
-            The name of output file with xTB results.
+            xyz:
+                The name of the input structure ``.xyz`` file.
 
-        Returns
-        -------
-        None : :class:`NoneType`
+            out_file:
+                The name of output file with xTB results.
+
 
         """
 
@@ -1136,23 +1116,26 @@ class XTBFF(Optimizer):
                 shell=True,
             )
 
-    def _run_optimization(self, mol):
+    def _run_optimization(
+        self,
+        mol: stk.Molecule,
+    ) -> tuple[stk.Molecule, bool]:
         """
         Run loop of optimizations on `mol` using xTB.
 
-        Parameters
-        ----------
-        mol : :class:`.Molecule`
+        Parameters:
+
+            mol:
             The molecule to be optimized.
 
-        Returns
-        -------
-        mol : :class:`.Molecule`
+        Returns:
+
+            mol:
             The optimized molecule.
 
-        opt_complete : :class:`bool`
-            Returns ``True`` if the calculation is complete and
-            ``False`` if the calculation is incomplete.
+            opt_complete:
+                Returns ``True`` if the calculation is complete and
+                ``False`` if the calculation is incomplete.
 
         """
 
@@ -1168,18 +1151,18 @@ class XTBFF(Optimizer):
 
         return mol, opt_complete
 
-    def optimize(self, mol):
+    def optimize(self, mol: stk.Molecule) -> stk.Molecule:
         """
         Optimize `mol`.
 
-        Parameters
-        ----------
-        mol : :class:`.Molecule`
+        Parameters:
+
+            mol:
             The molecule to be optimized.
 
-        Returns
-        -------
-        mol : :class:`.Molecule`
+        Returns:
+
+            mol:
             The optimized molecule.
 
         """
@@ -1212,180 +1195,180 @@ class XTBFFCREST(Optimizer):
     """
     Uses GFN-FF [1]_ to run CREST [2]_ on molecules.
 
-    Notes
-    -----
-    GFN-FF requires version 6.3 of xtb.
+    Notes:
 
-    When running :meth:`optimize`, this calculator changes the
-    present working directory with :func:`os.chdir`. The original
-    working directory will be restored even if an error is raised, so
-    unless multi-threading is being used this implementation detail
-    should not matter.
+        GFN-FF requires version 6.3 of xtb.
 
-    Currently, we only provide inputs that work with GFN-FF,
-    specifically the charge of the system. Other electronic properties
-    of the molecule are not relavent to a forcefield optimisation.
-    We intend on adding more options in the future!
+        When running :meth:`optimize`, this calculator changes the
+        present working directory with :func:`os.chdir`. The original
+        working directory will be restored even if an error is raised, so
+        unless multi-threading is being used this implementation detail
+        should not matter.
 
-    *Restrictions to iMTD-GC Algorithm*
-    Z-matrix sorting is forced to be off because :class:`stk.Molecules`
-    cannot have their atom ordering changed by an external program at
-    this stage.
+        Currently, we only provide inputs that work with GFN-FF,
+        specifically the charge of the system. Other electronic properties
+        of the molecule are not relavent to a forcefield optimisation.
+        We intend on adding more options in the future!
 
-    Examples
-    --------
+        *Restrictions to iMTD-GC Algorithm*
+        Z-matrix sorting is forced to be off because :class:`stk.Molecules`
+        cannot have their atom ordering changed by an external program at
+        this stage.
 
-    Note that for :class:`.ConstructedMolecule` objects constructed by
-    ``stk``, :class:`XTBFFCREST` should usually be used in a
-    :class:`.OptimizerSequence`. This is because xTB only uses
-    xyz coordinates as input and so will not recognize the long bonds
-    created during construction. An optimizer which can minimize
-    these bonds should be used before :class:`XTBFFCREST`. Further,
-    CREST runs best on an input structure optimized at the same level
-    used throughout the algorithm (i.e. :class:`XTBFF`).
+    Examples:
 
-    .. code-block:: python
+        Note that for :class:`.ConstructedMolecule` objects constructed by
+        ``stk``, :class:`XTBFFCREST` should usually be used in a
+        :class:`.OptimizerSequence`. This is because xTB only uses
+        xyz coordinates as input and so will not recognize the long bonds
+        created during construction. An optimizer which can minimize
+        these bonds should be used before :class:`XTBFFCREST`. Further,
+        CREST runs best on an input structure optimized at the same level
+        used throughout the algorithm (i.e. :class:`XTBFF`).
 
-        import stk
-        import stko
+        .. code-block:: python
 
-        bb1 = stk.BuildingBlock('NCCNCCN', [stk.PrimaryAminoFactory()])
-        bb2 = stk.BuildingBlock('O=CCCC=O', [stk.AldehydeFactory()])
-        polymer = stk.ConstructedMolecule(
-            stk.polymer.Linear(
-                building_blocks=(bb1, bb2),
-                repeating_unit="AB",
-                orientations=[0, 0],
-                num_repeating_units=1
+            import stk
+            import stko
+
+            bb1 = stk.BuildingBlock('NCCNCCN', [stk.PrimaryAminoFactory()])
+            bb2 = stk.BuildingBlock('O=CCCC=O', [stk.AldehydeFactory()])
+            polymer = stk.ConstructedMolecule(
+                stk.polymer.Linear(
+                    building_blocks=(bb1, bb2),
+                    repeating_unit="AB",
+                    orientations=[0, 0],
+                    num_repeating_units=1
+                )
             )
-        )
 
-        xtb = stko.OptimizerSequence(
-            stko.UFF(),
-            stko.XTBFF(
-                xtb_path='/opt/gfnxtb/xtb',
-                unlimited_memory=True,
-            ),
-            # Perform quick conformer search.
-            stko.XTBFFCREST(
-                crest_path='/opt/crest/crest',
-                xtb_path='/opt/gfnxtb/xtb',
-                opt_level='normal',
-                speed_setting='quick',
-                unlimited_memory=True,
-            ),
-        )
-        polymer = xtb.optimize(polymer)
+            xtb = stko.OptimizerSequence(
+                stko.UFF(),
+                stko.XTBFF(
+                    xtb_path='/opt/gfnxtb/xtb',
+                    unlimited_memory=True,
+                ),
+                # Perform quick conformer search.
+                stko.XTBFFCREST(
+                    crest_path='/opt/crest/crest',
+                    xtb_path='/opt/gfnxtb/xtb',
+                    opt_level='normal',
+                    speed_setting='quick',
+                    unlimited_memory=True,
+                ),
+            )
+            polymer = xtb.optimize(polymer)
 
-    While most auxiliary and MD run files will be deleted if
-    :attr:`keepdir` is `False`, the files listed below are kept in
-    :attr:`output_dir` and could be useful for further analysis!
+        While most auxiliary and MD run files will be deleted if
+        :attr:`keepdir` is `False`, the files listed below are kept in
+        :attr:`output_dir` and could be useful for further analysis!
 
-        | crest_best.xyz: Structure of the lowest energy conformer.
-        |    This structure is output by :meth:`optimize`.
-        | crest_conformers.xyz: Structure of all conformers.
-        |    All conformers with RMSD and energy threshold of the
-        |    lowest energy conformer.
-        | crest_rotamers.xyz: Structure of all rotamers.
-        |    All unique rotamers explored by CREST.
-        | crest.energies: Relative conformer energies in a.u..
-        | gfn_topo: GFN-FF binary topology file.
-        |    Defines the molecules force field topology.
+            | crest_best.xyz: Structure of the lowest energy conformer.
+            |    This structure is output by :meth:`optimize`.
+            | crest_conformers.xyz: Structure of all conformers.
+            |    All conformers with RMSD and energy threshold of the
+            |    lowest energy conformer.
+            | crest_rotamers.xyz: Structure of all rotamers.
+            |    All unique rotamers explored by CREST.
+            | crest.energies: Relative conformer energies in a.u..
+            | gfn_topo: GFN-FF binary topology file.
+            |    Defines the molecules force field topology.
 
-    References
-    ----------
-    .. [1] https://xtb-docs.readthedocs.io/en/latest/gfnff.html
-    .. [2] https://xtb-docs.readthedocs.io/en/latest/crestcmd.html
+    References:
+
+        .. [1] https://xtb-docs.readthedocs.io/en/latest/gfnff.html
+        .. [2] https://xtb-docs.readthedocs.io/en/latest/crestcmd.html
 
     """
 
     def __init__(
         self,
-        crest_path,
-        xtb_path,
-        output_dir=None,
-        opt_level="normal",
-        md_len=None,
-        ewin=5,
-        speed_setting=None,
-        keepdir=False,
-        num_cores=1,
-        charge=0,
-        cross=True,
-        unlimited_memory=False,
-    ):
+        crest_path: str,
+        xtb_path: str,
+        output_dir: str | None = None,
+        opt_level: str = "normal",
+        md_len: float | None = None,
+        ewin: float = 5,
+        speed_setting: str | None = None,
+        keepdir: bool = False,
+        num_cores: int = 1,
+        charge: int = 0,
+        cross: bool = True,
+        unlimited_memory: bool = False,
+    ) -> None:
         """
         Initialize a :class:`XTBFFCREST` instance.
 
-        Parameters
-        ----------
-        crest_path : :class:`str`
-            The path to the CREST executable.
+        Parameters:
 
-        xtb_path : :class:`str`
-            The path to the xTB executable.
-            Version >6.3.0 is required.
+            crest_path:
+                The path to the CREST executable.
 
-        output_dir : :class:`str`, optional
-            The name of the directory into which files generated during
-            the optimization are written, if ``None`` then
-            :func:`uuid.uuid4` is used.
+            xtb_path:
+                The path to the xTB executable.
+                Version >6.3.0 is required.
 
-        opt_level : :class:`str`, optional
-            Optimization level to use.
-            Can be one of ``'crude'``, ``'sloppy'``, ``'loose'``,
-            ``'lax'``, ``'normal'``, ``'tight'``, ``'vtight'``
-            or ``'extreme'``.
-            For details see
-            https://xtb-docs.readthedocs.io/en/latest/optimization.html
-            .
+            output_dir:
+                The name of the directory into which files generated during
+                the optimization are written, if ``None`` then
+                :func:`uuid.uuid4` is used.
 
-        md_len : :class:`float`, optional.
-            Set length of the meta-dynamics simulations (MTD) in ps.
-            Default is chosen based on size and flexibility of the
-            system.
+            opt_level:
+                Optimization level to use.
+                Can be one of ``'crude'``, ``'sloppy'``, ``'loose'``,
+                ``'lax'``, ``'normal'``, ``'tight'``, ``'vtight'``
+                or ``'extreme'``.
+                For details see
+                https://xtb-docs.readthedocs.io/en/latest/optimization.html
+                .
 
-        ewin : :class:`float`, optional.
-            Set the energy threshold in kcal/mol for conformer
-            selection. Double this is used in crude optimization.
-            Defaults ot 5 kcal/mol and is overridden by
-            :attr:`speed_setting`.
+            md_len:
+                Set length of the meta-dynamics simulations (MTD) in ps.
+                Default is chosen based on size and flexibility of the
+                system.
 
-        speed_setting : :class:`str` or :class:`NoneType`, optional
-            Conformer search speed setting. Fast methods turn off
-            parts of the calculations and alter MD run times.
-            Defaults to no modification of iMTD-GC algorithm: `None`.
-            Can be one of ``'norotmd'``, ``'quick'``, ``'squick'``
-            or ``'mquick'``.
-            Overrides :attr:`ewin` with chosen parameters.
-            For details see
-            https://xtb-docs.readthedocs.io/en/latest/crestcmd.html.
+            ewin:
+                Set the energy threshold in kcal/mol for conformer
+                selection. Double this is used in crude optimization.
+                Defaults ot 5 kcal/mol and is overridden by
+                :attr:`speed_setting`.
 
-        keepdir : :class:`bool`, optional
-            `True` to keep subdirectories from MD runs.
-            Defaults to `False`.
-            For details see
-            https://xtb-docs.readthedocs.io/en/latest/crestcmd.html.
+            speed_setting:
+                Conformer search speed setting. Fast methods turn off
+                parts of the calculations and alter MD run times.
+                Defaults to no modification of iMTD-GC algorithm: `None`.
+                Can be one of ``'norotmd'``, ``'quick'``, ``'squick'``
+                or ``'mquick'``.
+                Overrides :attr:`ewin` with chosen parameters.
+                For details see
+                https://xtb-docs.readthedocs.io/en/latest/crestcmd.html.
 
-        num_cores : :class:`int`, optional
-            The number of cores CREST should use.
+            keepdir:
+                `True` to keep subdirectories from MD runs.
+                Defaults to `False`.
+                For details see
+                https://xtb-docs.readthedocs.io/en/latest/crestcmd.html.
 
-        charge : :class:`int`, optional
-            Formal molecular charge.
+            num_cores:
+                The number of cores CREST should use.
 
-        cross : :class:`bool`, optional
-            Whether or not structure crossing is performed.
+            charge:
+                Formal molecular charge.
 
-        unlimited_memory : :class: `bool`, optional
-            If ``True`` :meth:`optimize` will be run without
-            constraints on the stack size. If memory issues are
-            encountered, this should be ``True``, however this may
-            raise issues on clusters.
+            cross:
+                Whether or not structure crossing is performed.
+
+            unlimited_memory:
+                If ``True`` :meth:`optimize` will be run without
+                constraints on the stack size. If memory issues are
+                encountered, this should be ``True``, however this may
+                raise issues on clusters.
 
         """
 
         self._check_path(crest_path)
         self._check_path(xtb_path)
+        self._crest_path = crest_path
         self._xtb_path = xtb_path
         self._output_dir = output_dir
         self._opt_level = opt_level
@@ -1405,37 +1388,35 @@ class XTBFFCREST(Optimizer):
         self._cross = cross
         self._unlimited_memory = unlimited_memory
 
-    def _check_path(self, path):
+    def _check_path(self, path: str) -> None:
         if not os.path.exists(path):
             raise PathError(f"XTB or CREST not found at {path}")
 
-    def _is_complete(self, output_file, output_xyzs):
+    def _is_complete(self, output_file: str, output_xyzs: list[str]) -> bool:
         """
         Check if CREST run has completed.
 
-        Parameters
-        ----------
-        output_file : :class:`str`
-            Name of CREST output file.
+        Parameters:
 
-        output_xyzs : :class:`str`
-            Name of CREST conformer output files.
-            crest_best.xyz > Best conformer, exists throughout run.
-            crest_conformers.xyz > All conformers,
-                exists throughout run.
+            output_file:
+                Name of CREST output file.
 
-        Returns
-        -------
-        :class:`bool`
+            output_xyzs:
+                Name of CREST conformer output files.
+                crest_best.xyz > Best conformer, exists throughout run.
+                crest_conformers.xyz > All conformers,
+                    exists throughout run.
+
+        Returns:
+
             Returns ``False`` if a negative frequency is present.
 
-        Raises
-        -------
-        :class:`CRESTNotStartedError`
-            If the CREST run failed to start.
+        Raises:
 
-        :class:`CRESTNotCompletedError`
-            If the CREST run failed to complete.
+            :class:`CRESTNotStartedError` if the CREST run failed to start.
+
+            :class:`CRESTNotCompletedError` if the CREST run failed to
+            complete.
 
         """
 
@@ -1449,21 +1430,17 @@ class XTBFFCREST(Optimizer):
 
         return True
 
-    def _run_crest(self, xyz, out_file):
+    def _run_crest(self, xyz: str, out_file: str) -> None:
         """
         Run CREST along side GFN-xTB.
 
-        Parameters
-        ----------
-        xyz : :class:`str`
-            The name of the input structure ``.xyz`` file.
+        Parameters:
 
-        out_file : :class:`str`
-            The name of output file with xTB results.
+            xyz:
+                The name of the input structure ``.xyz`` file.
 
-        Returns
-        -------
-        None : :class:`NoneType`
+            out_file:
+                The name of output file with xTB results.
 
         """
 
@@ -1506,23 +1483,26 @@ class XTBFFCREST(Optimizer):
                 shell=True,
             )
 
-    def _run_optimization(self, mol):
+    def _run_optimization(
+        self,
+        mol: stk.Molecule,
+    ) -> tuple[stk.Molecule, bool]:
         """
         Run loop of optimizations on `mol` using xTB.
 
-        Parameters
-        ----------
-        mol : :class:`.Molecule`
-            The molecule to be optimized.
+        Parameters:
 
-        Returns
-        -------
-        mol : :class:`.Molecule`
-            The optimized molecule.
+            mol:
+                The molecule to be optimized.
 
-        opt_complete : :class:`bool`
-            Returns ``True`` if the calculation is complete and
-            ``False`` if the calculation is incomplete.
+        Returns:
+
+            mol:
+                The optimized molecule.
+
+            opt_complete:
+                Returns ``True`` if the calculation is complete and
+                ``False`` if the calculation is incomplete.
 
         """
 
@@ -1541,19 +1521,19 @@ class XTBFFCREST(Optimizer):
 
         return mol, opt_complete
 
-    def optimize(self, mol):
+    def optimize(self, mol: stk.Molecule) -> stk.Molecule:
         """
         Optimize `mol`.
 
-        Parameters
-        ----------
-        mol : :class:`.Molecule`
-            The molecule to be optimized.
+        Parameters:
 
-        Returns
-        -------
-        mol : :class:`.Molecule`
-            The optimized molecule.
+            mol:
+                The molecule to be optimized.
+
+        Returns:
+
+            mol:
+                The optimized molecule.
 
         """
 

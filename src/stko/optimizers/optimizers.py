@@ -1,10 +1,6 @@
-"""
-Optimizers
-==========
-
-"""
-
 import logging
+
+import stk
 
 logger = logging.getLogger(__name__)
 
@@ -53,7 +49,7 @@ class Optimizer:
 
     .. _`adding optimizers`:
 
-    Making New Optimizers
+    Making New Optimizers:
     ---------------------
 
     New optimizers can be made by simply making a class which inherits the
@@ -66,63 +62,63 @@ class Optimizer:
 
     """
 
-    def _check_path(self, path):
+    def _check_path(self, path: str) -> None:
         raise NotImplementedError()
 
-    def optimize(self, mol):
+    def optimize(self, mol: stk.Molecule) -> stk.Molecule:
         """
         Optimize `mol`.
 
-        Parameters
-        ----------
-        mol : :class:`.Molecule`
-            The molecule to be optimized.
+        Parameters:
 
-        Returns
-        -------
-        mol : :class:`.Molecule`
-            The optimized molecule.
+            mol:
+                The molecule to be optimized.
+
+        Returns:
+
+            mol:
+                The optimized molecule.
 
         """
 
-        ...
+        raise NotImplementedError()
 
 
 class OptimizerSequence(Optimizer):
     """
     Applies optimizers in sequence.
 
-    Examples
-    --------
-    Let's say we want to embed a molecule with ETKDG first and then
-    minimize it with the MMFF force field.
+    Examples:
 
-    .. code-block:: python
+        Let's say we want to embed a molecule with ETKDG first and then
+        minimize it with the MMFF force field.
 
-        import stk
-        import stko
+        .. code-block:: python
 
-        mol = stk.BuildingBlock('NCCCN', [stk.PrimaryAminoFactory()])
-        optimizer = stko.OptimizerSequence(stko.ETKDG(), stko.MMFF())
-        mol = optimizer.optimize(mol)
+            import stk
+            import stko
+
+            mol = stk.BuildingBlock('NCCCN', [stk.PrimaryAminoFactory()])
+            optimizer = stko.OptimizerSequence(stko.ETKDG(), stko.MMFF())
+            mol = optimizer.optimize(mol)
 
     """
 
-    def __init__(self, *optimizers):
+    def __init__(self, *optimizers: Optimizer) -> None:
         """
         Initialize a :class:`OptimizerSequence` instance.
 
-        Parameters
-        ----------
-        *optimizers : :class:`Optimizer`
-            A number of optimizers, each of which gets applied to a
-            molecule, based on the order given.
+        Parameters:
+
+            *optimizers:
+                A number of optimizers, each of which gets applied to a
+                molecule, based on the order given.
 
         """
 
         self._optimizers = optimizers
 
-    def optimize(self, mol):
+    def optimize(self, mol: stk.Molecule) -> stk.Molecule:
         for optimizer in self._optimizers:
             cls_name = optimizer.__class__.__name__
             logger.info(f'Using {cls_name} on "{mol}".')
@@ -135,71 +131,75 @@ class TryCatchOptimizer(Optimizer):
     """
     Try to optimize with a :class:`Optimizer`, use another on failure.
 
-    Examples
-    --------
-    .. code-block:: python
+    Examples:
 
-        import stk
-        import stko
+        .. code-block:: python
 
-        # Create some molecules to optimize.
-        mol1 = stk.BuildingBlock('NCCN')
-        mol2 = stk.BuildingBlock('CCCCC')
-        mol3 = stk.BuildingBlock('O=CCCN')
+            import stk
+            import stko
 
-        # Create an optimizer which may fail.
-        uff = stko.UFF()
+            # Create some molecules to optimize.
+            mol1 = stk.BuildingBlock('NCCN')
+            mol2 = stk.BuildingBlock('CCCCC')
+            mol3 = stk.BuildingBlock('O=CCCN')
 
-        # Create a backup optimizer.
-        mmff = stko.MMFF()
+            # Create an optimizer which may fail.
+            uff = stko.UFF()
 
-        # Make an optimizer which tries to run raiser and if that
-        # raises an error, will run mmff on the molecule instead.
-        try_catch = stko.TryCatchOptimizer(
-            try_optimizer=uff,
-            catch_optimizer=mmff,
-        )
+            # Create a backup optimizer.
+            mmff = stko.MMFF()
 
-        # Optimize the molecules. In each case if the optimization with
-        # UFF fails, MMFF is used to optimize the molecule instead.
-        mol1 = try_catch.optimize(mol1)
-        mol2 = try_catch.optimize(mol2)
-        mol3 = try_catch.optimize(mol3)
+            # Make an optimizer which tries to run raiser and if that
+            # raises an error, will run mmff on the molecule instead.
+            try_catch = stko.TryCatchOptimizer(
+                try_optimizer=uff,
+                catch_optimizer=mmff,
+            )
+
+            # Optimize the molecules. In each case if the optimization with
+            # UFF fails, MMFF is used to optimize the molecule instead.
+            mol1 = try_catch.optimize(mol1)
+            mol2 = try_catch.optimize(mol2)
+            mol3 = try_catch.optimize(mol3)
 
     """
 
-    def __init__(self, try_optimizer, catch_optimizer):
+    def __init__(
+        self,
+        try_optimizer: Optimizer,
+        catch_optimizer: Optimizer,
+    ) -> None:
         """
         Initialize a :class:`TryCatchOptimizer` instance.
 
-        Parameters
-        ----------
-        try_optimizer : :class:`Optimizer`
-            The optimizer which is used initially to try and optimize a
-            :class:`.Molecule`.
+        Parameters:
 
-        catch_optimizer : :class:`Optimizer`
-            If `try_optimizer` raises an error, this optimizer is
-            run on the :class:`.Molecule` instead.
+            try_optimizer
+                The optimizer which is used initially to try and optimize a
+                :class:`.Molecule`.
+
+            catch_optimizer:
+                If `try_optimizer` raises an error, this optimizer is
+                run on the :class:`.Molecule` instead.
 
         """
 
         self._try_optimizer = try_optimizer
         self._catch_optimizer = catch_optimizer
 
-    def optimize(self, mol):
+    def optimize(self, mol: stk.Molecule) -> stk.Molecule:
         """
         Optimize `mol`.
 
-        Parameters
-        ----------
-        mol : :class:`.Molecule`
-            The molecule to be optimized.
+        Parameters:
 
-        Returns
-        -------
-        mol : :class:`.Molecule`
-            The molecule to be optimized.
+            mol:
+                The molecule to be optimized.
+
+        Returns:
+
+            mol:
+                The molecule to be optimized.
 
         """
 

@@ -38,6 +38,14 @@ class MDAnalysis:
     """
 
     def __init__(self) -> None:
+        """
+
+        Raises:
+
+            :class:`WrapperNotInstalledError` if `MDAnalysis` not installed.
+
+
+        """
         if mda is None:
             raise WrapperNotInstalledError(
                 "MDAnalysis is not installed; see README for " "installation."

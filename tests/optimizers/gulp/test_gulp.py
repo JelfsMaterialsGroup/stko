@@ -2,6 +2,7 @@ import os
 
 import numpy as np
 import pytest
+import stk
 from stko import GulpUFFMDOptimizer, GulpUFFOptimizer
 from stko.optimizers.utilities import get_metal_atoms
 
@@ -12,7 +13,7 @@ class FakeGulpUFFOptimizer(GulpUFFOptimizer):
     def _check_path(self, path):
         return
 
-    def optimize(self, mol):
+    def optimize(self, mol: stk.Molecule) -> stk.Molecule:
         return a_molecule().with_centroid(np.array(([1, 3, 3])))
 
 
@@ -20,7 +21,7 @@ class FakeGulpUFFMDOptimizer(GulpUFFMDOptimizer):
     def _check_path(self, path):
         return
 
-    def optimize(self, mol):
+    def optimize(self, mol: stk.Molecule) -> stk.Molecule:
         return a_molecule().with_centroid(np.array(([1, 3, 3])))
 
 

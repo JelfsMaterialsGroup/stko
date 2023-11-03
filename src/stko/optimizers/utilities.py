@@ -2,11 +2,13 @@ import gzip
 import os
 import re
 import shutil
+import typing
 from collections import deque
 from glob import iglob
 from itertools import chain
 
 import rdkit.Chem.AllChem as rdkit
+import stk
 from rdkit.Geometry import Point3D
 
 # This dictionary gives easy access to the rdkit bond types.
@@ -66,23 +68,21 @@ class MAEExtractor:
 
     """
 
-    def __init__(self, run_name, n=1):
+    content: str
+
+    def __init__(self, run_name: str, n: int = 1) -> None:
         self.maegz_path = f"{run_name}-out.maegz"
         self.maegz_to_mae()
         self.extract_conformers(n)
 
-    def extract_conformers(self, n):
+    def extract_conformers(self, n: int) -> None:
         """
         Creates ``.mae`` files holding the lowest energy conformers.
 
-        Parameters
-        ----------
-        n : :class:`int`
-            The number of conformers to extract.
+        Parameters:
 
-        Returns
-        -------
-        None : :class:`NoneType`
+            n:
+                The number of conformers to extract.
 
         """
 
@@ -114,40 +114,44 @@ class MAEExtractor:
                 # Save the path of the newly created file.
                 self.path = new_name
 
-    def extract_energy(self, block):
+    def extract_energy(self, block: str) -> float | None:
         """
         Extracts the energy value from a ``.mae`` energy data block.
 
-        Parameters
-        ----------
-        block : :class:`str`
-            An ``.mae`` energy data block.
+        Parameters:
 
-        Returns
-        -------
-        :class:`float`
+            block:
+                An ``.mae`` energy data block.
+
+        Returns:
+
             The energy value extracted from `block` or ``None`` if
             one is not found.
 
         """
 
-        block = block.split(":::")
-        for name, value in zip(block[0].split("\n"), block[1].split("\n")):
+        block_list = block.split(":::")
+        for name, value in zip(
+            block_list[0].split("\n"), block_list[1].split("\n")
+        ):
             if "r_mmod_Potential_Energy" in name:
                 return float(value)
+        return None
 
-    def lowest_energy_conformers(self, n):
+    def lowest_energy_conformers(
+        self,
+        n: int,
+    ) -> list[tuple[float | None, int]]:
         """
         Returns the id and energy of the lowest energy conformers.
 
-        Parameters
-        ----------
-        n : :class:`int`
-            The number of lowest energy conformers to return.
+        Parameters:
 
-        Returns
-        -------
-        :class:`list`
+            n:
+                The number of lowest energy conformers to return.
+
+        Returns:
+
             A :class:`list` of the form
 
             .. code-block:: python
@@ -193,13 +197,9 @@ class MAEExtractor:
         # conformers.
         return confs
 
-    def maegz_to_mae(self):
+    def maegz_to_mae(self) -> None:
         """
         Converts the .maegz file to a .mae file.
-
-        Returns
-        -------
-        None : :class:`NoneType`
 
         """
 
@@ -209,19 +209,18 @@ class MAEExtractor:
                 mae_file.write(maegz_file.read())
 
 
-def mol_from_mae_file(mae_path):
+def mol_from_mae_file(mae_path: str) -> rdkit.Mol:
     """
     Creates a ``rdkit`` molecule from a ``.mae`` file.
 
-    Parameters
-    ----------
-    mol2_file : :class:`str`
-        The full path of the ``.mae`` file from which an rdkit molecule
-        should be instantiated.
+    Parameters:
 
-    Returns
-    -------
-    :class:`rdkit.Mol`
+        mol2_file:
+            The full path of the ``.mae`` file from which an rdkit molecule
+            should be instantiated.
+
+    Returns:
+
         An ``rdkit`` instance of the molecule held in `mae_file`.
 
     """
@@ -315,7 +314,7 @@ def mol_from_mae_file(mae_path):
     return mol
 
 
-def move_generated_macromodel_files(basename, output_dir):
+def move_generated_macromodel_files(basename: str, output_dir: str) -> None:
     if not os.path.exists(output_dir):
         os.mkdir(output_dir)
 
@@ -326,18 +325,17 @@ def move_generated_macromodel_files(basename, output_dir):
         shutil.move(filename, f"{output_dir}/{filename}")
 
 
-def has_h_atom(bond):
+def has_h_atom(bond: stk.Bond) -> bool:
     """
     Check if a bond has a H atom.
 
-    Parameters
-    ----------
-    bond : :class:`stk.Bond`
-        Bond to test if it has a H atom.
+    Parameters:
 
-    Returns
-    -------
-    :class:`bool`
+        bond:
+            Bond to test if it has a H atom.
+
+    Returns:
+
         Returns `True` if bond has H atom.
 
     """
@@ -350,21 +348,20 @@ def has_h_atom(bond):
     return False
 
 
-def has_metal_atom(bond, metal_atoms):
+def has_metal_atom(bond: stk.Bond, metal_atoms: list[stk.Atom]) -> bool:
     """
     Check if a bond has a metal atom.
 
-    Parameters
-    ----------
-    bond : :class:`stk.Bond`
-        Bond to test if it has a metal atom.
+    Parameters:
 
-    metal_atoms : :class:`.list` of :class:`stk.Atom`
-        List of metal atoms.
+        bond:
+            Bond to test if it has a metal atom.
 
-    Returns
-    -------
-    :class:`bool`
+        metal_atoms:
+            List of metal atoms.
+
+    Returns:
+
         Returns `True` if bond has metal atom.
 
     """
@@ -377,11 +374,11 @@ def has_metal_atom(bond, metal_atoms):
     return False
 
 
-def metal_atomic_numbers():
+def metal_atomic_numbers() -> typing.Iterable:
     return chain(range(21, 31), range(39, 49), range(72, 81))
 
 
-def get_metal_atoms(mol):
+def get_metal_atoms(mol: stk.Molecule) -> list[stk.Atom]:
     """
     Return a list of metal atoms in molecule.
 
@@ -395,7 +392,10 @@ def get_metal_atoms(mol):
     return metal_atoms
 
 
-def get_metal_bonds(mol, metal_atoms):
+def get_metal_bonds(
+    mol: stk.Molecule,
+    metal_atoms: list[stk.Atom],
+) -> tuple[list, list]:
     """
     Return a list of bonds in molecule that contain metal atoms.
 
@@ -414,25 +414,29 @@ def get_metal_bonds(mol, metal_atoms):
     return metal_bonds, ids_to_metals
 
 
-def to_rdkit_mol_without_metals(mol, metal_atoms, metal_bonds):
+def to_rdkit_mol_without_metals(
+    mol: stk.Molecule,
+    metal_atoms: list[stk.Atom],
+    metal_bonds: list[stk.Bond],
+) -> rdkit.Mol:
     """
     Create :class:`rdkit.Mol` with metals replaced by H atoms.
 
-    Parameters
-    ----------
-    mol : :class:`.Molecule`
-        The molecule to be optimized.
+    Parameters:
 
-    metal_atoms : :class:`.list` of :class:`stk.Atom`
-        List of metal atoms.
+        mol:
+            The molecule to be optimized.
 
-    metal_bonds : :class:`.list` of :class:`stk.Bond`
-        List of bonds including metal atoms.
+        metal_atoms:
+            List of metal atoms.
 
-    Returns
-    -------
-    edit_mol : :class:`rdkit.Mol`
-        RDKit molecule with metal atoms replaced with H atoms.
+        metal_bonds:
+            List of bonds including metal atoms.
+
+    Returns:
+
+        edit_mol:
+            RDKit molecule with metal atoms replaced with H atoms.
 
     """
     edit_mol = rdkit.EditableMol(rdkit.Mol())
@@ -467,7 +471,10 @@ def to_rdkit_mol_without_metals(mol, metal_atoms, metal_bonds):
     return edit_mol
 
 
-def get_long_bond_ids(mol, reorder=False):
+def get_long_bond_ids(
+    mol: stk.ConstructedMolecule,
+    reorder: bool = False,
+) -> tuple[tuple[int, int], ...]:
     """
     Return tuple of long bond ids in a ConstructedMolecule.
 

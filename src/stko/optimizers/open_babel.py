@@ -1,15 +1,8 @@
-"""
-OpenBabel Optimizers
-====================
-
-Wrappers for optimizers within the `openbabel` code.
-
-"""
-
 import logging
 import os
 
 import numpy as np
+import stk
 
 try:
     from openbabel import openbabel
@@ -32,50 +25,53 @@ class OpenBabel(Optimizer):
     Warning: this optimizer seems to be machine dependant, producing
     different energies after optimisation on Ubunut 18 vs. Ubuntu 20.
 
-    Examples
-    --------
-    .. code-block:: python
+    Examples:
 
-        import stk
-        import stko
+        .. code-block:: python
 
-        mol = stk.BuildingBlock('NCCNCCN')
-        openbabel = stko.OpenBabel('uff')
-        mol = openbabel.optimize(mol)
+            import stk
+            import stko
 
-    References
-    ----------
-    .. [1] http://openbabel.org/dev-api/classOpenBabel_1_
-    1OBForceField.shtml#a2f2732698efde5c2f155bfac08fd9ded
+            mol = stk.BuildingBlock('NCCNCCN')
+            openbabel = stko.OpenBabel('uff')
+            mol = openbabel.optimize(mol)
+
+    References:
+
+        .. [1] https://github.com/openbabel/openbabel
 
     """
 
     def __init__(
         self,
-        forcefield,
-        repeat_steps=10,
-        sd_steps=50,
-        cg_steps=50,
-    ):
+        forcefield: str,
+        repeat_steps: int = 10,
+        sd_steps: int = 50,
+        cg_steps: int = 50,
+    ) -> None:
         """
         Initialize `openbabel` forcefield energy calculation.
 
-        Parameters
-        ----------
-        forcefield : :class:`str`
-            Forcefield to use. Options include `uff`, `gaff`,
-            `ghemical`, `mmff94`.
+        Parameters:
 
-        repeat_steps : :class:`int`
-            Number of optimisation steps. Each optimisation step
-            contains `sd_steps` steepest descent and then `cg_steps`
-            conjugate gradient runs.
+            forcefield:
+                Forcefield to use. Options include `uff`, `gaff`,
+                `ghemical`, `mmff94`.
 
-        sd_steps : :class:`int`
-            Number of steepest descent steps per optimisations.
+            repeat_steps:
+                Number of optimisation steps. Each optimisation step
+                contains `sd_steps` steepest descent and then `cg_steps`
+                conjugate gradient runs.
 
-        cg_steps : :class:`int`
-            Number of conjugate gradient steps per optimisations.
+            sd_steps:
+                Number of steepest descent steps per optimisations.
+
+            cg_steps:
+                Number of conjugate gradient steps per optimisations.
+
+        Raises:
+
+            :class:`WrapperNotInstalledError` if `openbabel` not installed.
 
         """
 
@@ -89,22 +85,7 @@ class OpenBabel(Optimizer):
         self._sd_steps = sd_steps
         self._cg_steps = cg_steps
 
-    def optimize(self, mol):
-        """
-        Optimize `mol`.
-
-        Parameters
-        ----------
-        mol : :class:`.Molecule`
-            The molecule to be optimized.
-
-        Returns
-        -------
-        mol : :class:`.Molecule`
-            The optimized molecule.
-
-        """
-
+    def optimize(self, mol: stk.Molecule) -> stk.Molecule:
         temp_file = "temp.mol"
         mol.write(temp_file)
         try:

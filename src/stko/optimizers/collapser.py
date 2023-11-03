@@ -1,17 +1,8 @@
-"""
-Collapser Optimizer
-===================
-
-Optimizer for collapsing enlarged topologies.
-
-"""
-
 import logging
 import os
 import random
 import shutil
 import typing
-import uuid
 from collections import defaultdict
 from itertools import combinations
 
@@ -21,8 +12,9 @@ import stk
 from scipy.spatial.distance import pdist
 from stk import PdbWriter
 
-import stko
+from stko.molecular.periodic.unitcell import UnitCell
 from stko.optimizers.optimizers import Optimizer
+from stko.utilities.exceptions import InputError
 from stko.utilities.utilities import get_atom_distance
 
 logger = logging.getLogger(__name__)
@@ -62,9 +54,9 @@ class Collapser(Optimizer):
         )
         cage1 = optimizer.optimize(mol=cage1)
 
-    References
-    ----------
-    .. [1] https://github.com/andrewtarzia/MCHammer
+    References:
+
+        .. [1] https://github.com/andrewtarzia/MCHammer
 
     """
 
@@ -82,8 +74,7 @@ class Collapser(Optimizer):
 
             output_dir:
                 The name of the directory into which files generated during
-                the calculation are written, if ``None`` then
-                :func:`uuid.uuid4` is used.
+                the calculation are written.
 
             step_size:
                 The relative size of the step to take during collapse.
@@ -106,7 +97,7 @@ class Collapser(Optimizer):
 
     def _get_inter_bb_distance(
         self,
-        mol: stk.ConstructedMolecule,
+        mol: stk.Molecule,
     ) -> typing.Iterable[float]:
         """
         Yield The distances between building blocks in mol.
@@ -117,7 +108,10 @@ class Collapser(Optimizer):
 
         position_matrix = mol.get_position_matrix()
 
-        for atom1, atom2 in combinations(mol.get_atom_infos(), 2):
+        for atom1, atom2 in combinations(
+            mol.get_atom_infos(),  # type:ignore[attr-defined]
+            2,
+        ):
             chk1 = atom1.get_atom().get_id() != atom2.get_atom().get_id()
             chk2 = (
                 atom1.get_atom().get_atomic_number() != 1
@@ -134,7 +128,7 @@ class Collapser(Optimizer):
                 )
                 yield dist
 
-    def _has_short_contacts(self, mol: stk.ConstructedMolecule) -> bool:
+    def _has_short_contacts(self, mol: stk.Molecule) -> bool:
         """
         Calculate if there are short contants in mol.
 
@@ -147,9 +141,9 @@ class Collapser(Optimizer):
 
     def _get_new_position_matrix(
         self,
-        mol: stk.ConstructedMolecule,
+        mol: stk.Molecule,
         step: float,
-        vectors: list,
+        vectors: dict[int, np.ndarray],
         scales: dict,
     ) -> np.ndarray:
         """
@@ -158,7 +152,7 @@ class Collapser(Optimizer):
         """
 
         new_position_matrix = mol.get_position_matrix()
-        for atom in mol.get_atom_infos():
+        for atom in mol.get_atom_infos():  # type:ignore[attr-defined]
             bb_id = atom.get_building_block_id()
             _id = atom.get_atom().get_id()
             pos = mol.get_position_matrix()[_id]
@@ -170,10 +164,10 @@ class Collapser(Optimizer):
 
     def _get_new_cell_vectors(
         self,
-        unit_cell: stko.UnitCell,
+        unit_cell: UnitCell,
         step: float,
         scales: dict,
-    ) -> tuple[np.ndarray]:
+    ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
         """
         Get the unit cell vectors after collapse step.
 
@@ -193,35 +187,33 @@ class Collapser(Optimizer):
 
     def _get_bb_vectors(
         self,
-        mol: stk.ConstructedMolecule,
-        bb_atom_ids: dict[int, list],
-    ) -> tuple[dict[int, np.ndarray], dict[int, float]]:
+        mol: stk.Molecule,
+        bb_atom_ids: dict[int, list[int]],
+    ) -> tuple[dict[int, np.ndarray], dict[int, np.floating]]:
         """
         Get the building block to COM vectors.
 
-        Parameters
-        ----------
-        mol : :class:`.Molecule`
-            The molecule to be optimized.
+        Parameters:
 
-        bb_atom_ids : :class:`dict` mapping :class:`int`: :class:`list`
-            Dictionary mapping building block ids (keys) to a list of
-            atom ids (values) in each distinct building block in the
-            molecule.
+            mol:
+                The molecule to be optimized.
 
-        Returns
-        -------
-        bb_cent_vectors :
-            :class:`dict` mapping :class:`int`: :class:`numpy.ndarray`
-            Dictionary mapping building block ids (keys) to centroid
-            vectors (values) of each distinct building block in the
-            molecule.
+            bb_atom_ids:
+                Dictionary mapping building block ids (keys) to a list of
+                atom ids (values) in each distinct building block in the
+                molecule.
 
-        bb_cent_scales :
-            :class:`dict` mapping :class:`int`: :class:`float`
-            Dictionary mapping building block ids (keys) to relative
-            magnitude of centroid vectors (values) of each distinct
-            building block in the molecule.
+        Returns:
+
+            bb_cent_vectors:
+                Dictionary mapping building block ids (keys) to centroid
+                vectors (values) of each distinct building block in the
+                molecule.
+
+            bb_cent_scales:
+                Dictionary mapping building block ids (keys) to relative
+                magnitude of centroid vectors (values) of each distinct
+                building block in the molecule.
 
         """
 
@@ -242,32 +234,18 @@ class Collapser(Optimizer):
             max_distance = max(list(norms.values()))
             bb_cent_scales = {i: norms[i] / max_distance for i in norms}
         else:
-            bb_cent_scales = {i: 1 for i in bb_cent_vectors}
+            bb_cent_scales = {i: np.floating(1) for i in bb_cent_vectors}
 
         return bb_cent_vectors, bb_cent_scales
 
-    def optimize(
-        self, mol: stk.ConstructedMolecule
-    ) -> stk.ConstructedMolecule:
-        """
-        Optimize `mol`.
+    def optimize(self, mol: stk.Molecule) -> stk.Molecule:
+        if not isinstance(mol, stk.ConstructedMolecule):
+            raise InputError(
+                f"{mol} needs to be a ConstructedMolecule for "
+                f"this optimizer"
+            )
 
-        Parameters:
-
-            mol:
-                The molecule to be optimized.
-
-            Returns:
-
-                The optimized molecule.
-
-        """
-
-        # Handle output dir.
-        if self._output_dir is None:
-            output_dir = str(uuid.uuid4().int)
-        else:
-            output_dir = self._output_dir
+        output_dir = self._output_dir
         output_dir = os.path.abspath(output_dir)
 
         if os.path.exists(output_dir):
@@ -288,7 +266,8 @@ class Collapser(Optimizer):
         while not self._has_short_contacts(mol):
             # Update each step the building block vectors and distance.
             bb_cent_vectors, bb_cent_scales = self._get_bb_vectors(
-                mol=mol, bb_atom_ids=bb_atom_ids
+                mol=mol,
+                bb_atom_ids=bb_atom_ids,  # type: ignore[arg-type]
             )
 
             new_pos = self._get_new_position_matrix(
@@ -302,7 +281,8 @@ class Collapser(Optimizer):
             mol.write(os.path.join(output_dir, f"collapsed_{step_no}.mol"))
 
         bb_cent_vectors, bb_cent_scales = self._get_bb_vectors(
-            mol=mol, bb_atom_ids=bb_atom_ids
+            mol=mol,
+            bb_atom_ids=bb_atom_ids,  # type: ignore[arg-type]
         )
 
         # Check that we have not gone too far.
@@ -337,9 +317,9 @@ class Collapser(Optimizer):
 
     def p_optimize(
         self,
-        mol: stk.ConstructedMolecule,
-        unit_cell: stko.UnitCell,
-    ) -> tuple[stk.ConstructedMolecule, stko.UnitCell]:
+        mol: stk.Molecule,
+        unit_cell: UnitCell,
+    ) -> tuple[stk.Molecule, UnitCell]:
         """
         Optimize `mol`.
 
@@ -360,12 +340,13 @@ class Collapser(Optimizer):
                 The optimized cell.
 
         """
+        if not isinstance(mol, stk.ConstructedMolecule):
+            raise InputError(
+                f"{mol} needs to be a ConstructedMolecule for "
+                f"this optimizer"
+            )
 
-        # Handle output dir.
-        if self._output_dir is None:
-            output_dir = str(uuid.uuid4().int)
-        else:
-            output_dir = self._output_dir
+        output_dir = self._output_dir
         output_dir = os.path.abspath(output_dir)
 
         if os.path.exists(output_dir):
@@ -385,8 +366,12 @@ class Collapser(Optimizer):
         step = self._step_size
         while not self._has_short_contacts(mol):
             # Update each step the building block vectors and distance.
-            bb_cent_vectors, bb_cent_scales = self._get_bb_vectors(
-                mol=mol, bb_atom_ids=bb_atom_ids
+            (
+                bb_cent_vectors,
+                bb_cent_scales,
+            ) = self._get_bb_vectors(
+                mol=mol,
+                bb_atom_ids=bb_atom_ids,  # type:ignore[arg-type]
             )
 
             new_pos = self._get_new_position_matrix(
@@ -417,8 +402,12 @@ class Collapser(Optimizer):
                 periodic_info=unit_cell,
             )
 
-        bb_cent_vectors, bb_cent_scales = self._get_bb_vectors(
-            mol=mol, bb_atom_ids=bb_atom_ids
+        (
+            bb_cent_vectors,
+            bb_cent_scales,
+        ) = self._get_bb_vectors(
+            mol=mol,
+            bb_atom_ids=bb_atom_ids,  # type:ignore[arg-type]
         )
 
         # Check that we have not gone too far.
@@ -481,74 +470,73 @@ class CollapserMC(Collapser):
     Smarter optimisation than Collapser using simple Monte Carlo
     algorithm to perform rigid translations of building blocks.
 
-    References
-    ----------
-    .. [1] https://github.com/andrewtarzia/MCHammer
+    References:
+
+        .. [1] https://github.com/andrewtarzia/MCHammer
 
     """
 
     def __init__(
         self,
-        output_dir,
-        step_size,
-        target_bond_length,
-        num_steps,
-        bond_epsilon=50,
-        nonbond_epsilon=20,
-        nonbond_sigma=1.2,
-        nonbond_mu=3,
-        beta=2,
-        random_seed=None,
+        output_dir: str,
+        step_size: float,
+        target_bond_length: float,
+        num_steps: int,
+        bond_epsilon: float = 50,
+        nonbond_epsilon: float = 20,
+        nonbond_sigma: float = 1.2,
+        nonbond_mu: float = 3,
+        beta: float = 2,
+        random_seed: int | None = None,
     ):
         """
         Initialize a :class:`Collapser` instance.
 
-        Parameters
-        ----------
-        output_dir : :class:`str`
-            The name of the directory into which files generated during
-            the calculation are written, if ``None`` then
-            :func:`uuid.uuid4` is used.
+        Parameters:
 
-        step_size : :class:`float`
-            The relative size of the step to take during step.
+            output_dir:
+                The name of the directory into which files generated during
+                the calculation are written.
 
-        target_bond_length : :class:`float`
-            Target equilibrium bond length for long bonds to minimize
-            to.
+            step_size:
+                The relative size of the step to take during step.
 
-        num_steps : :class:`int`
-            Number of MC moves to perform.
+            target_bond_length:
+                Target equilibrium bond length for long bonds to minimize
+                to.
 
-        bond_epsilon : :class:`float`, optional
-            Value of epsilon used in the bond potential in MC moves.
-            Determines strength of the bond potential.
-            Defaults to 50.
+            num_steps:
+                Number of MC moves to perform.
 
-        nonbond_epsilon : :class:`float`, optional
-            Value of epsilon used in the nonbond potential in MC moves.
-            Determines strength of the nonbond potential.
-            Defaults to 20.
+            bond_epsilon:
+                Value of epsilon used in the bond potential in MC moves.
+                Determines strength of the bond potential.
+                Defaults to 50.
 
-        nonbond_sigma : :class:`float`, optional
-            Value of sigma used in the nonbond potential in MC moves.
-            Defaults to 1.2.
+            nonbond_epsilon:
+                Value of epsilon used in the nonbond potential in MC moves.
+                Determines strength of the nonbond potential.
+                Defaults to 20.
 
-        nonbond_mu : :class:`float`, optional
-            Value of mu used in the nonbond potential in MC moves.
-            Determines the steepness of the nonbond potential.
-            Defaults to 3.
+            nonbond_sigma:
+                Value of sigma used in the nonbond potential in MC moves.
+                Defaults to 1.2.
 
-        beta : :class:`float`, optional
-            Value of beta used in the in MC moves. Beta takes the
-            place of the inverse boltzmann temperature.
-            Defaults to 2.
+            nonbond_mu:
+                Value of mu used in the nonbond potential in MC moves.
+                Determines the steepness of the nonbond potential.
+                Defaults to 3.
 
-        random_seed : :class:`int`, optional
-            Random seed to use for MC algorithm. Should only be set
-            if exactly reproducible results are required, otherwise
-            a system-based random seed should be used for proper
-            sampling.
+            beta:
+                Value of beta used in the in MC moves. Beta takes the
+                place of the inverse boltzmann temperature.
+                Defaults to 2.
+
+            random_seed:
+                Random seed to use for MC algorithm. Should only be set
+                if exactly reproducible results are required, otherwise
+                a system-based random seed should be used for proper
+                sampling.
 
         """
 
@@ -566,16 +554,16 @@ class CollapserMC(Collapser):
         else:
             random.seed(random_seed)
 
-    def _get_bb_atom_ids(self, mol):
+    def _get_bb_atom_ids(self, mol: stk.Molecule) -> dict[int, list[int]]:
         bb_atom_ids = defaultdict(list)
-        for i in mol.get_atom_infos():
+        for i in mol.get_atom_infos():  # type: ignore[attr-defined]
             bb_atom_ids[i.get_building_block_id()].append(
                 i.get_atom().get_id()
             )
 
         return bb_atom_ids
 
-    def _get_bond_length(self, mol, bond):
+    def _get_bond_length(self, mol: stk.Molecule, bond: stk.Bond) -> float:
         position_matrix = mol.get_position_matrix()
         return get_atom_distance(
             position_matrix=position_matrix,
@@ -583,20 +571,25 @@ class CollapserMC(Collapser):
             atom2_id=bond.get_atom2().get_id(),
         )
 
-    def _get_bond_vector(self, mol, bond):
+    def _get_bond_vector(
+        self, mol: stk.Molecule, bond: stk.Bond
+    ) -> np.ndarray:
         position_matrix = mol.get_position_matrix()
         atom1_pos = position_matrix[bond.get_atom1().get_id()]
         atom2_pos = position_matrix[bond.get_atom2().get_id()]
         return atom2_pos - atom1_pos
 
-    def _get_long_bond_infos(self, mol):
+    def _get_long_bond_infos(
+        self,
+        mol: stk.Molecule,
+    ) -> dict[tuple[int, int], stk.BondInfo]:
         """
         Returns dict of long bond infos.
 
         """
 
-        long_bond_infos = {}
-        for bond_infos in mol.get_bond_infos():
+        long_bond_infos: dict[tuple[int, int], stk.BondInfo] = {}
+        for bond_infos in mol.get_bond_infos():  # type: ignore[attr-defined]
             if bond_infos.get_building_block() is None:
                 ids = (
                     bond_infos.get_bond().get_atom1().get_id(),
@@ -606,7 +599,11 @@ class CollapserMC(Collapser):
 
         return long_bond_infos
 
-    def _get_bb_centroids(self, mol, bb_atom_ids):
+    def _get_bb_centroids(
+        self,
+        mol: stk.Molecule,
+        bb_atom_ids: dict[int, tuple[int, ...]],
+    ) -> dict[int, np.ndarray]:
         """
         Returns dict of building block centroids.
 
@@ -618,19 +615,28 @@ class CollapserMC(Collapser):
 
         return bb_centroids
 
-    def _get_cent_to_lb_vector(self, mol, bb_centroids, long_bond_infos):
+    def _get_cent_to_lb_vector(
+        self,
+        mol: stk.Molecule,
+        bb_centroids: dict[int, np.ndarray],
+        long_bond_infos: dict[tuple, stk.BondInfo],
+    ) -> dict[tuple[int, int], tuple[float]]:
         """
         Returns dict of long bond atom to bb centroid vectors.
 
         """
 
         position_matrix = mol.get_position_matrix()
-        centroid_to_lb_vectors = {}
+        centroid_to_lb_vectors: dict[tuple[int, int], tuple[float]] = {}
         for bb in bb_centroids:
             cent = bb_centroids[bb]
             for b_atom_ids, bond_info in long_bond_infos.items():
                 for atom_id in b_atom_ids:
-                    (atom_info,) = mol.get_atom_infos(atom_ids=atom_id)
+                    (
+                        atom_info,
+                    ) = mol.get_atom_infos(  # type: ignore[attr-defined]
+                        atom_id
+                    )
                     atom_pos = position_matrix[atom_id]
                     if atom_info.get_building_block_id() == bb:
                         centroid_to_lb_vectors[(bb, atom_id)] = (
@@ -640,7 +646,7 @@ class CollapserMC(Collapser):
 
         return centroid_to_lb_vectors
 
-    def _bond_potential(self, distance):
+    def _bond_potential(self, distance: float) -> float:
         """
         Define an arbitrary parabolic bond potential.
 
@@ -652,7 +658,7 @@ class CollapserMC(Collapser):
 
         return potential
 
-    def _non_bond_potential(self, distance):
+    def _non_bond_potential(self, distance: float) -> float:
         """
         Define an arbitrary repulsive nonbonded potential.
 
@@ -663,36 +669,46 @@ class CollapserMC(Collapser):
             (self._nonbond_sigma / distance) ** self._nonbond_mu
         )
 
-    def _compute_non_bonded_potential(self, mol):
+    def _compute_non_bonded_potential(self, mol: stk.Molecule) -> float:
         # Get all pairwise distances.
         pair_dists = pdist(mol.get_position_matrix())
         nonbonded_potential = np.sum(self._non_bond_potential(pair_dists))
 
         return nonbonded_potential
 
-    def _compute_potential(self, mol, long_bond_infos):
+    def _compute_potential(
+        self,
+        mol: stk.Molecule,
+        long_bond_infos: dict[tuple[int, int], stk.BondInfo],
+    ) -> float:
         system_potential = self._compute_non_bonded_potential(mol)
         for long_bond_ids in long_bond_infos:
             long_bond = long_bond_infos[long_bond_ids]
 
             system_potential += self._bond_potential(
                 distance=self._get_bond_length(
-                    mol=mol, bond=long_bond.get_bond()
+                    mol=mol,
+                    bond=long_bond.get_bond(),
                 )
             )
 
         return system_potential
 
-    def _translate_atoms_along_vector(self, mol, atom_ids, vector):
+    def _translate_atoms_along_vector(
+        self,
+        mol: stk.Molecule,
+        atom_ids: tuple[int, ...],
+        vector: np.ndarray,
+    ) -> stk.Molecule:
         new_position_matrix = mol.get_position_matrix()
-        for atom in mol.get_atom_infos(atom_ids=atom_ids):
+        for atom in mol.get_atom_infos(atom_ids):  # type: ignore[attr-defined]
             _id = atom.get_atom().get_id()
             pos = mol.get_position_matrix()[_id]
             new_position_matrix[_id] = pos - vector
 
         return mol.with_position_matrix(new_position_matrix)
 
-    def _test_move(self, curr_pot, new_pot):
+    def _test_move(self, curr_pot: float, new_pot: float) -> bool:
         if new_pot < curr_pot:
             return True
         else:
@@ -704,7 +720,7 @@ class CollapserMC(Collapser):
             else:
                 return False
 
-    def _output_top_lines(self):
+    def _output_top_lines(self) -> str:
         string = (
             "====================================================\n"
             "                Collapser optimisation              \n"
@@ -723,7 +739,14 @@ class CollapserMC(Collapser):
 
         return string
 
-    def _plot_progess(self, steps, maxds, spots, npots, output_dir):
+    def _plot_progess(
+        self,
+        steps: typing.Iterable,
+        maxds: typing.Iterable,
+        spots: typing.Iterable,
+        npots: typing.Iterable,
+        output_dir: str,
+    ) -> None:
         fig, ax = plt.subplots(figsize=(8, 5))
         ax.plot(steps, maxds, c="k", lw=2)
         # Set number of ticks for x-axis
@@ -755,10 +778,13 @@ class CollapserMC(Collapser):
         )
         plt.close()
 
-    def optimize(
-        self,
-        mol: stk.ConstructedMolecule,
-    ) -> stk.ConstructedMolecule:
+    def optimize(self, mol: stk.Molecule) -> stk.Molecule:
+        if not isinstance(mol, stk.ConstructedMolecule):
+            raise InputError(
+                f"{mol} needs to be a ConstructedMolecule for "
+                f"this optimizer"
+            )
+
         # Handle output dir.
         output_dir = os.path.abspath(self._output_dir)
 
@@ -783,7 +809,8 @@ class CollapserMC(Collapser):
         print("###################################################")
 
         system_potential = self._compute_potential(
-            mol=mol, long_bond_infos=long_bond_infos
+            mol=mol,
+            long_bond_infos=long_bond_infos,
         )
 
         with open(os.path.join(output_dir, "coll.out"), "w") as f:
@@ -816,19 +843,22 @@ class CollapserMC(Collapser):
                 lb_info = long_bond_infos[lb_ids]
 
                 lb_vector = self._get_bond_vector(
-                    mol=mol, bond=lb_info.get_bond()
+                    mol=mol,
+                    bond=lb_info.get_bond(),
                 )
 
                 bb_id_1, bb_id_2 = (
                     i.get_building_block_id()
-                    for i in mol.get_atom_infos(atom_ids=lb_ids)
+                    for i in mol.get_atom_infos(  # type: ignore[attr-defined]
+                        atom_ids=lb_ids
+                    )
                 )
 
                 # Choose bb to move out of the two randomly.
                 moving_bb = random.choice([bb_id_1, bb_id_2])
                 moving_bb_atom_ids = tuple(
                     i.get_atom().get_id()
-                    for i in mol.get_atom_infos()
+                    for i in mol.get_atom_infos()  # type: ignore[attr-defined]
                     if i.get_building_block_id() == moving_bb
                 )
 
@@ -876,7 +906,8 @@ class CollapserMC(Collapser):
                 ###################################################
 
                 new_system_potential = self._compute_potential(
-                    mol=mol, long_bond_infos=long_bond_infos
+                    mol=mol,
+                    long_bond_infos=long_bond_infos,
                 )
 
                 if self._test_move(system_potential, new_system_potential):

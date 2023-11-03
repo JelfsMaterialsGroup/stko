@@ -57,6 +57,10 @@ class OpenBabelEnergy:
                 Forcefield to use. Options include `uff`, `gaff`,
                 `ghemical`, `mmff94`.
 
+        Raises:
+
+            :class:`WrapperNotInstalledError` if `openbabel` not installed.
+
         """
 
         if openbabel is None:
