@@ -76,8 +76,6 @@ def main():
             f"{sum(tsa.get_halfbite_angles(as_building_block))}"
         )
 
-        raise SystemExit("now to do ligand analysis.")
-
     # Get the centroid and atom ids of distinct building blocks.
     # This is similar to the above, but does not perform any disconnections
     # on the constructed molecule or maintain building block chemistry.
@@ -89,7 +87,16 @@ def main():
     centroids = analyser.get_building_block_centroids(apdcage)
     print(centroids)
 
-    raise SystemExit("now to do cage analysis : PORE.")
+    # Get measures of pore size without any external software.
+    # These are just geometrical measures.
+    analyser = stko.pore_analysis.PoreAnalyser()
+    print(analyser.get_min_centroid_distance(apdcage))
+    print(analyser.get_avg_centroid_distance(apdcage))
+    print(analyser.get_metal_distances(apdcage, metal_atom_nos=(46,)))
+    print(
+        analyser.get_metal_centroid_metal_angle(apdcage, metal_atom_nos=(46,))
+    )
+
     raise SystemExit("now to do cage analysis : Geom.")
 
 
