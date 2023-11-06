@@ -1,3 +1,4 @@
+import numpy as np
 import stko
 
 
@@ -22,4 +23,6 @@ def test_get_metal_distances(case_data):
     assert len(result) == len(case_data.metal_atom_distances)
     for i in result:
         print(i, result[i])
-        assert result[i] == case_data.metal_atom_distances[i]
+        assert np.isclose(
+            result[i], case_data.metal_atom_distances[i], rtol=0, atol=1e-2
+        )

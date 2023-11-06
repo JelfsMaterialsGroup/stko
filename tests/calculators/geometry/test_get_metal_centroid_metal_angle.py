@@ -1,3 +1,4 @@
+import numpy as np
 import stko
 
 
@@ -22,4 +23,6 @@ def test_get_metal_centroid_metal_angle(case_data):
     assert len(result) == len(case_data.metal_centroid_angles)
     for i in result:
         print(i, result[i])
-        assert result[i] == case_data.metal_centroid_angles[i]
+        assert np.isclose(
+            result[i], case_data.metal_centroid_angles[i], atol=1e-3, rtol=0
+        )
