@@ -23,6 +23,7 @@ dev = [
   "black",
   "ruff",
   "mypy",
+  "moldoc",
   "pip-tools",
   "pytest",
   "pytest-benchmark",

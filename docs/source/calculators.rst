@@ -16,3 +16,5 @@ Calculators
   ConstructedMoleculeTorsionCalculator <_autosummary/stko.ConstructedMoleculeTorsionCalculator>
   MatchedTorsionCalculator <_autosummary/stko.MatchedTorsionCalculator>
   PlanarityCalculator <_autosummary/stko.PlanarityCalculator>
+  GeometryAnalyser <_autosummary/stko.molecule_analysis.GeometryAnalyser>
+  PoreAnalyser <_autosummary/stko.molecule_analysis.PoreAnalyser>

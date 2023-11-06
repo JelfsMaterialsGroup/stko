@@ -18,4 +18,6 @@ Molecular
   TorsionInfo <_autosummary/stko.TorsionInfo>
   ThreeSiteFG <_autosummary/stko.functional_groups.ThreeSiteFG>
   ThreeSiteFactory <_autosummary/stko.functional_groups.ThreeSiteFactory>
-
+  DecomposeMOC <_autosummary/stko.molecule_analysis.DecomposeMOC>
+  DitopicThreeSiteAnalyser <_autosummary/stko.molecule_analysis.DitopicThreeSiteAnalyser>
+  ConstructedAnalyser <_autosummary/stko.molecule_analysis.ConstructedAnalyser>

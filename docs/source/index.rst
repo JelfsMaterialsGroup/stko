@@ -49,21 +49,22 @@ Overview
 performs optimizations and calculations on complex molecules built using
 `stk <https://github.com/JelfsMaterialsGroup/stko>`_. In the case of
 optimizations, a clone of :class:`stk.Molecule` is returned. For
-calculators, a `Results` class are used to calculate and extract
+calculators, a ``Results`` class are used to calculate and extract
 properties of an :class:`stk.Molecule`.
 
 Examples
 --------
 
-For every class (including `Calculator`, `Optimizer`), there are small
-examples of usage on the associated docs page. There are also some
-examples for `stko` usage available
-`here <https://github.com/JelfsMaterialsGroup/stko/tree/master/examples>`_.
+For every class (including ``Calculator``, ``Optimizer``), there are small
+examples of usage on the associated docs page. We have a page dedicated to
+analysing `cage structures <cage_analysis.html>`_. There are also some examples
+for ``stko`` usage available `here <https://github.com/JelfsMaterialsGroup/stko/tree/master/examples>`_.
 These cover:
 
 * `Basic examples <https://github.com/JelfsMaterialsGroup/stko/blob/master/examples/basic_example.py>`_
 * `Molecule alignment <https://github.com/JelfsMaterialsGroup/stko/blob/master/examples/aligner_example.py>`_
 * `Using calculators <https://github.com/JelfsMaterialsGroup/stko/blob/master/examples/calculators_example.py>`_
+* `Cage analysis <https://github.com/JelfsMaterialsGroup/stko/blob/master/examples/cage_analysis_example.py>`_
 * `Splitting molecules <https://github.com/JelfsMaterialsGroup/stko/blob/master/examples/molecule_splitter_example.py>`_
 * `Interfacing with MDAnalysis <https://github.com/JelfsMaterialsGroup/stko/blob/master/examples/mdanalysis_example.py>`_
 * `Interfacing with OpenBabel <https://github.com/JelfsMaterialsGroup/stko/blob/master/examples/obabel_example.py>`_
