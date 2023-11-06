@@ -53,9 +53,19 @@ def main():
         print(f"binder distance: {tsa.get_binder_distance(as_building_block)}")
         raise SystemExit("now to do ligand analysis.")
 
+    # Get the centroid and atom ids of distinct building blocks.
+    # This is similar to the above, but does not perform any disconnections
+    # on the constructed molecule or maintain building block chemistry.
+    # It simply extracts the parts of building blocks still present in
+    # the molecule.
+    analyser = stko.molecule_analysis.ConstructedAnalyser()
+    atom_ids = analyser.get_building_block_atom_ids(apdcage)
+    print(atom_ids)
+    centroids = analyser.get_building_block_centroids(apdcage)
+    print(centroids)
+
     raise SystemExit("now to do cage analysis : PORE.")
     raise SystemExit("now to do cage analysis : Geom.")
-    raise SystemExit("now to do cage analysis : Constructed.")
 
 
 if __name__ == "__main__":
