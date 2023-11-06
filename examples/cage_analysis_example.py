@@ -87,9 +87,9 @@ def main():
     centroids = analyser.get_building_block_centroids(apdcage)
     print(centroids)
 
-    # Get measures of pore size without any external software.
-    # These are just geometrical measures.
-    analyser = stko.pore_analysis.PoreAnalyser()
+    # Get measures of pore size and cage geometry without any external
+    # software. These are just geometrical measures.
+    analyser = stko.molecule_analysis.GeometryAnalyser()
     print(analyser.get_min_centroid_distance(apdcage))
     print(analyser.get_avg_centroid_distance(apdcage))
     print(analyser.get_metal_distances(apdcage, metal_atom_nos=(46,)))

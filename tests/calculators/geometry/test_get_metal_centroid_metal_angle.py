@@ -3,7 +3,7 @@ import stko
 
 def test_get_metal_centroid_metal_angle(case_data):
     """
-    Test :class:`.PoreAnalyser.get_metal_centroid_metal_angle`.
+    Test :class:`.GeometryAnalyser.get_metal_centroid_metal_angle`.
 
     Parameters:
 
@@ -12,7 +12,7 @@ def test_get_metal_centroid_metal_angle(case_data):
 
     """
 
-    analyser = stko.molecule_analysis.PoreAnalyser()
+    analyser = stko.molecule_analysis.GeometryAnalyser()
 
     result = analyser.get_metal_centroid_metal_angle(
         case_data.molecule,

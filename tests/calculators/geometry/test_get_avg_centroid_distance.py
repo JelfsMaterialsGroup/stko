@@ -4,7 +4,7 @@ import stko
 
 def test_get_avg_centroid_distance(case_data):
     """
-    Test :class:`.PoreAnalyser.get_avg_centroid_distance`.
+    Test :class:`.GeometryAnalyser.get_avg_centroid_distance`.
 
     Parameters:
 
@@ -13,7 +13,7 @@ def test_get_avg_centroid_distance(case_data):
 
     """
 
-    analyser = stko.molecule_analysis.PoreAnalyser()
+    analyser = stko.molecule_analysis.GeometryAnalyser()
 
     result = analyser.get_avg_centroid_distance(case_data.molecule)
     print(result)
