@@ -1,5 +1,7 @@
 import stk
 import stko
+import numpy as np
+from collections import defaultdict
 
 
 def main():
@@ -41,40 +43,49 @@ def main():
         molecule=apdcage,
         metal_atom_nos=(46,),
     )
-    print(len(ligands))
+    print(f"there are {len(ligands)} ligands")
 
     tsa = stko.molecule_analysis.DitopicThreeSiteAnalyser()
-    for i, lig in enumerate(ligands):
-        lig.write(f"cage_output/apdcage_{i}.mol")
+    ligand_dict = defaultdict(list)
+    for id_, lig in enumerate(ligands):
+        lig.write(f"cage_output/apdcage_{id_}.mol")
         as_building_block = stk.BuildingBlock.init_from_molecule(
             lig,
             stko.functional_groups.ThreeSiteFactory(smarts="[#6]~[#7X2]~[#6]"),
         )
-
-        # Distance between binders in the organic linkers?
-        print(f"binder distance: {tsa.get_binder_distance(as_building_block)}")
-
-        # How twisted is the molecule, or aligned are the binding groups?
-        print(
-            "binder binder angle: "
-            f"{tsa.get_binder_binder_angle(as_building_block)}"
+        ligand_dict["binder_dist"].append(
+            tsa.get_binder_distance(as_building_block)
+        )
+        ligand_dict["binder_binder"].append(
+            tsa.get_binder_binder_angle(as_building_block)
+        )
+        ligand_dict["torsion"].append(
+            abs(tsa.get_binder_adjacent_torsion(as_building_block))
+        )
+        binder_angles = tsa.get_binder_angles(as_building_block)
+        ligand_dict["binder_angle"].append(binder_angles[0])
+        ligand_dict["binder_angle"].append(binder_angles[1])
+        ligand_dict["bite_angle"].append(
+            sum(tsa.get_halfbite_angles(as_building_block))
         )
 
-        # How twisted is the molecule, or what is the torsion between
-        # the binding groups?
-        print(
-            "binder adjacent torsion: "
-            f"{abs(tsa.get_binder_adjacent_torsion(as_building_block))}"
-        )
-
-        # What is the angle made by the binders?
-        print(f"binder angles: {tsa.get_binder_angles(as_building_block)}")
-
-        # And the resultant bite-angle [caution!]?
-        print(
-            "bite angle [caution]: "
-            f"{sum(tsa.get_halfbite_angles(as_building_block))}"
-        )
+    # Distance between binders in the organic linkers?
+    print(f"avg. binder distance: {np.mean(ligand_dict['binder_dist'])}")
+    # How twisted is the molecule, or aligned are the binding groups?
+    print(
+        "avg. binder binder angle: " f"{np.mean(ligand_dict['binder_binder'])}"
+    )
+    # How twisted is the molecule, or what is the torsion between
+    # the binding groups?
+    print(
+        "avg. binder adjacent torsion: " f"{np.mean(ligand_dict['torsion'])}"
+    )
+    # What is the angle made by the binders?
+    print(f"avg. binder angles: {np.mean(ligand_dict['binder_angle'])}")
+    # And the resultant bite-angle [caution!]?
+    print(
+        "avg. bite angle [caution]: " f"{np.mean(ligand_dict['bite_angle'])}"
+    )
 
     # Get the centroid and atom ids of distinct building blocks.
     # This is similar to the above, but does not perform any disconnections
@@ -82,22 +93,42 @@ def main():
     # It simply extracts the parts of building blocks still present in
     # the molecule.
     analyser = stko.molecule_analysis.ConstructedAnalyser()
-    atom_ids = analyser.get_building_block_atom_ids(apdcage)
-    print(atom_ids)
     centroids = analyser.get_building_block_centroids(apdcage)
+    print("building block centroids:")
     print(centroids)
+    print()
 
     # Get measures of pore size and cage geometry without any external
     # software. These are just geometrical measures.
     analyser = stko.molecule_analysis.GeometryAnalyser()
-    print(analyser.get_min_centroid_distance(apdcage))
-    print(analyser.get_avg_centroid_distance(apdcage))
-    print(analyser.get_metal_distances(apdcage, metal_atom_nos=(46,)))
     print(
-        analyser.get_metal_centroid_metal_angle(apdcage, metal_atom_nos=(46,))
+        f"approximate pore size: {analyser.get_min_centroid_distance(apdcage)}"
     )
+    print(f"avg cage size: {analyser.get_avg_centroid_distance(apdcage)}")
+    m_distances = list(
+        analyser.get_metal_distances(
+            apdcage,
+            metal_atom_nos=(46,),
+        ).values()
+    )
+    print(f"avg. metal distance: {np.mean(m_distances)}")
+    m_angles = list(
+        analyser.get_metal_centroid_metal_angle(
+            apdcage,
+            metal_atom_nos=(46,),
+        ).values()
+    )
+    print(f"avg. metal-centroid-angles: {np.mean(m_angles)}")
 
-    raise SystemExit("now to do cage analysis : Geom.")
+    # And some geometrical measures.
+    print(
+        f"avg. N-Pd bond length:"
+        f' {np.mean(analyser.calculate_bonds(apdcage)[("N", "Pd")])}'
+    )
+    print(
+        f"N-Pd-N angles: "
+        f'{analyser.calculate_angles(apdcage)[("N", "Pd", "N")]}'
+    )
 
 
 if __name__ == "__main__":

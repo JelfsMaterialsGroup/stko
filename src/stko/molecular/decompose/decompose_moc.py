@@ -52,10 +52,16 @@ class DecomposeMOC:
             metal_atom_nos=metal_atom_nos,
         )
         ligands = []
-        for i, cg in enumerate(connected_graphs):
+        for cg in connected_graphs:
             # Get atoms from nodes.
             atoms = list(cg)
             atom_ids = tuple(i.get_id() for i in atoms)
+
+            # Sort both by atom id.
+            atom_ids, atoms = zip(
+                *sorted(zip(atom_ids, atoms, strict=True)), strict=True
+            )
+
             atom_ids_map = {atom_ids[i]: i for i in range(len(atom_ids))}
             new_mol = stk.BuildingBlock.init(
                 atoms=(
@@ -81,6 +87,7 @@ class DecomposeMOC:
                     )
                 ),
             )
+
             ligands.append(new_mol)
 
         return tuple(ligands)
