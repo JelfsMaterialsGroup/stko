@@ -31,6 +31,7 @@ class CaseData:
         binder_centroid_angle: float,
         binder_adjacent_torsion: float,
         binder_angles: tuple[float, float],
+        binder_binder_angle: float,
         name: str,
     ) -> None:
         self.building_block = building_block
@@ -38,4 +39,6 @@ class CaseData:
         self.binder_centroid_angle = binder_centroid_angle
         self.binder_adjacent_torsion = binder_adjacent_torsion
         self.binder_angles = binder_angles
+        self.bite_angles = ((binder_angles[0] - 90), (binder_angles[1] - 90))
+        self.binder_binder_angle = binder_binder_angle
         self.name = name

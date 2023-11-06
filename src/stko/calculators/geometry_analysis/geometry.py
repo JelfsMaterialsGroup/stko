@@ -1,8 +1,7 @@
 import logging
 
-import stk
 import numpy as np
-
+import stk
 
 logger = logging.getLogger(__name__)
 

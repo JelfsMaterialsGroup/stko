@@ -1,4 +1,4 @@
-from stko import molecule_analysis, functional_groups
+from stko import functional_groups, molecule_analysis
 from stko.calculators.extractors.orca_extractor import OrcaExtractor
 from stko.calculators.extractors.xtb_extractor import XTBExtractor
 from stko.calculators.open_babel_calculators import OpenBabelEnergy

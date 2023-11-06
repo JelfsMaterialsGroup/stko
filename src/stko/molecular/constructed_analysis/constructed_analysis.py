@@ -1,9 +1,8 @@
 import logging
-
-import stk
-import numpy as np
 from collections import defaultdict
 
+import numpy as np
+import stk
 
 logger = logging.getLogger(__name__)
 
@@ -17,7 +16,7 @@ class ConstructedAnalyser:
     def get_building_block_atom_ids(
         self,
         molecule: stk.ConstructedMolecule,
-    ) -> dict[int, list[int]]:
+    ) -> dict[int | None, list[int]]:
         """
         Get the centroids of all building blocks.
 
@@ -30,15 +29,16 @@ class ConstructedAnalyser:
 
         atom_ids = defaultdict(list)
         for atom in molecule.get_atom_infos():
-            atom_ids[atom.get_building_block_id()].append(
-                atom.get_atom().get_id()
-            )
+            if atom.get_building_block_id() is None:
+                continue
+            bb_id = atom.get_building_block_id()
+            atom_ids[bb_id].append(atom.get_atom().get_id())
         return atom_ids
 
     def get_building_block_centroids(
         self,
         molecule: stk.ConstructedMolecule,
-    ) -> dict[int, np.ndarray]:
+    ) -> dict[int | None, np.ndarray]:
         """
         Get the centroids of all building blocks.
 

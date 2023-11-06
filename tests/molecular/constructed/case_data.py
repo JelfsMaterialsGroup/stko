@@ -1,5 +1,5 @@
-import stk
 import numpy as np
+import stk
 
 
 class CaseData:

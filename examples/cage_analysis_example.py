@@ -50,7 +50,32 @@ def main():
             lig,
             stko.functional_groups.ThreeSiteFactory(smarts="[#6]~[#7X2]~[#6]"),
         )
+
+        # Distance between binders in the organic linkers?
         print(f"binder distance: {tsa.get_binder_distance(as_building_block)}")
+
+        # How twisted is the molecule, or aligned are the binding groups?
+        print(
+            "binder binder angle: "
+            f"{tsa.get_binder_binder_angle(as_building_block)}"
+        )
+
+        # How twisted is the molecule, or what is the torsion between
+        # the binding groups?
+        print(
+            "binder adjacent torsion: "
+            f"{abs(tsa.get_binder_adjacent_torsion(as_building_block))}"
+        )
+
+        # What is the angle made by the binders?
+        print(f"binder angles: {tsa.get_binder_angles(as_building_block)}")
+
+        # And the resultant bite-angle [caution!]?
+        print(
+            "bite angle [caution]: "
+            f"{sum(tsa.get_halfbite_angles(as_building_block))}"
+        )
+
         raise SystemExit("now to do ligand analysis.")
 
     # Get the centroid and atom ids of distinct building blocks.
