@@ -3,33 +3,32 @@ import stko
 
 
 def main():
-
-    bb1 = stk.BuildingBlock('NCCNCCN', [stk.PrimaryAminoFactory()])
-    bb2 = stk.BuildingBlock('O=CCCC=O', [stk.AldehydeFactory()])
+    bb1 = stk.BuildingBlock("NCCNCCN", [stk.PrimaryAminoFactory()])
+    bb2 = stk.BuildingBlock("O=CCCC=O", [stk.AldehydeFactory()])
     polymer = stk.ConstructedMolecule(
         stk.polymer.Linear(
             building_blocks=(bb1, bb2),
             repeating_unit="AB",
             orientations=(0, 0),
-            num_repeating_units=1
+            num_repeating_units=1,
         )
     )
 
     # Zipping calculations together.
     mols = [
         # Perfect linear short.
-        stk.BuildingBlock('C#C'),
+        stk.BuildingBlock("C#C"),
         # Kind of linear long.
-        stk.BuildingBlock('C#CC#C'),
-        stk.BuildingBlock('CCCC'),
+        stk.BuildingBlock("C#CC#C"),
+        stk.BuildingBlock("CCCC"),
         # Flat.
-        stk.BuildingBlock('C1=CC=CC=C1'),
+        stk.BuildingBlock("C1=CC=CC=C1"),
         # Less flat.
-        stk.BuildingBlock('C1CCCCC1'),
+        stk.BuildingBlock("C1CCCCC1"),
         # Sphere - CH4.
-        stk.BuildingBlock('C'),
+        stk.BuildingBlock("C"),
         # Sphere - adamantane.
-        stk.BuildingBlock('C1C3CC2CC(CC1C2)C3'),
+        stk.BuildingBlock("C1C3CC2CC(CC1C2)C3"),
         # Constructed Molecule.
         polymer,
     ]
@@ -40,9 +39,7 @@ def main():
             stko.ShapeResults(
                 shape_calc.calculate(mol)
             ).get_spherocity_index(),
-            stko.ShapeResults(
-                shape_calc.calculate(mol)
-            ).get_eccentricity(),
+            stko.ShapeResults(shape_calc.calculate(mol)).get_eccentricity(),
         )
 
 

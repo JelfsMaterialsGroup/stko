@@ -1,23 +1,23 @@
+import os
+
 import stk
 import stko
 
-import os
-
 
 def main():
-    bb1 = stk.BuildingBlock('NCCNCCN', [stk.PrimaryAminoFactory()])
-    bb2 = stk.BuildingBlock('O=CCCC=O', [stk.AldehydeFactory()])
+    bb1 = stk.BuildingBlock("NCCNCCN", [stk.PrimaryAminoFactory()])
+    bb2 = stk.BuildingBlock("O=CCCC=O", [stk.AldehydeFactory()])
     polymer = stk.ConstructedMolecule(
         stk.polymer.Linear(
             building_blocks=(bb1, bb2),
             repeating_unit="AB",
             orientations=[0, 0],
-            num_repeating_units=1
+            num_repeating_units=1,
         )
     )
 
     # Run calculations for bb.
-    bb1.write(os.path.join('output_directory', 'tors_test_bb1.mol'))
+    bb1.write(os.path.join("output_directory", "tors_test_bb1.mol"))
     tors_calculator = stko.TorsionCalculator()
     tors_results = tors_calculator.get_results(bb1)
     print(tors_results.get_molecule())
@@ -25,9 +25,7 @@ def main():
         print(t, ang, t.get_atom_ids())
 
     # Run calculations for constructed molecule.
-    polymer.write(os.path.join(
-        'output_directory', 'tors_test_polymer.mol'
-    ))
+    polymer.write(os.path.join("output_directory", "tors_test_polymer.mol"))
     tors_calculator = stko.ConstructedMoleculeTorsionCalculator()
     tors_results = tors_calculator.get_results(polymer)
     print(tors_results.get_molecule())
@@ -35,7 +33,8 @@ def main():
         print(t, ang, t.get_atom_ids())
     for t in tors_results.get_torsion_infos():
         print(
-            'c', t.get_torsion(),
+            "c",
+            t.get_torsion(),
             t.get_building_block(),
             t.get_building_block_id(),
             t.get_building_block_torsion(),

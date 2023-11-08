@@ -1,5 +1,5 @@
-import stko
 import numpy as np
+import stko
 
 
 def test_planarity_calculation(case_data):
@@ -12,15 +12,15 @@ def test_planarity_calculation(case_data):
     assert np.isclose(
         test.get_plane_deviation(),
         case_data.plane_deviation,
-        atol=1E-4,
+        atol=1e-4,
     )
     assert np.isclose(
         test.get_plane_deviation_span(),
         case_data.plane_span,
-        atol=1E-4,
+        atol=1e-4,
     )
     assert np.isclose(
         test.get_planarity_parameter(),
         case_data.planarity_parameter,
-        atol=1E-4,
+        atol=1e-4,
     )

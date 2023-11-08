@@ -1,5 +1,6 @@
-import numpy as np
 import itertools as it
+
+import numpy as np
 
 
 def is_equivalent_atom(atom1, atom2):

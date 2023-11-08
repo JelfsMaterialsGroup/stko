@@ -1,84 +1,83 @@
+.. toctree::
+   :hidden:
+   :caption: stko
+   :maxdepth: 2
+
+   Molecular <molecular>
+   Calculators <calculators>
+   Optimizers <optimizers>
+   Cage analysis <cage_analysis>
+
+
+.. toctree::
+   :hidden:
+   :caption: Modules
+   :maxdepth: 1
+
+   Modules <modules.rst>
+
 Welcome to stko's documentation!
 ================================
 
 GitHub: https://github.com/JelfsMaterialsGroup/stko
 
 
+Install
+=======
+
+:mod:`.stko` can be installed directly with pip::
+
+   $ pip install stko
+
+
+Dependencies
+------------
+
+The software packages we offer optimizers are also depencies depending
+on the desired functions used. These are:
+
+* `MacroModel <https://sites.google.com/site/orcainputlibrary/home/>`_
+* `GULP <http://gulp.curtin.edu.au/gulp/>`_
+* `XTB <https://xtb-docs.readthedocs.io/en/latest/>`_
+* `OpenBabel <https://github.com/openbabel/openbabel>`_
+
+
 Overview
 ========
 
-`stko <https://github.com/lukasturcani/stk>`_ is a Python library which performs optimizations and calculations on
-complex molecules built using `stk <https://github.com/JelfsMaterialsGroup/stko>`_.
-In the case of optimizations, a clone of :class:`stk.Molecule` is returned.
-For calculators, a :class:`.Calculator` and a :class:`.Results` are used to calculate and extract properties of an :class:`stk.Molecule`.
+`stko <https://github.com/lukasturcani/stk>`_ is a Python library which
+performs optimizations and calculations on complex molecules built using
+`stk <https://github.com/JelfsMaterialsGroup/stko>`_. In the case of
+optimizations, a clone of :class:`stk.Molecule` is returned. For
+calculators, a ``Results`` class are used to calculate and extract
+properties of an :class:`stk.Molecule`.
 
+Examples
+--------
 
-Documentation
-=============
+For every class (including ``Calculator``, ``Optimizer``), there are small
+examples of usage on the associated docs page. We have a page dedicated to
+analysing `cage structures <cage_analysis.html>`_. There are also some examples
+for ``stko`` usage available `here <https://github.com/JelfsMaterialsGroup/stko/tree/master/examples>`_.
+These cover:
 
-.. glossary::
-
-   Version
-      |version|
-
-
-.. toctree::
-   :hidden:
-   :caption: Installation
-   :maxdepth: 1
-
-   Install <install>
-
-
-.. toctree::
-   :hidden:
-   :caption: Optimizers
-   :maxdepth: 2
-
-   Optimizers <stko.optimizers.optimizers>
-   XTB <stko.optimizers.xtb>
-   RDKit <stko.optimizers.rdkit>
-   GULP <stko.optimizers.gulp>
-   Collapser <stko.optimizers.collapser>
-   MacroModel <stko.optimizers.macromodel>
-
-
-.. toctree::
-   :hidden:
-   :caption: Calculators
-   :maxdepth: 2
-
-   Calculators <stko.calculators.calculators>
-   RDKit <stko.calculators.rdkit_calculators>
-   XTB <stko.calculators.xtb_calculators>
-   Shape <stko.calculators.shape_calculators>
-   Torsion <stko.calculators.torsion_calculators>
-
-
-.. toctree::
-   :hidden:
-   :caption: Results
-   :maxdepth: 2
-
-   Results <stko.calculators.results.results>
-   Energy Results <stko.calculators.results.energy_results>
-   XTB Results <stko.calculators.results.xtb_results>
-   Shape Results <stko.calculators.results.shape_results>
-   Torsion Results <stko.calculators.results.torsion_results>
-
-
-.. toctree::
-   :hidden:
-   :caption: Molecular Systems
-   :maxdepth: 2
-
-   Topology Extraction <stko.molecular.topology_extractor>
-   Unit Cell <stko.molecular.periodic.unitcell>
-   NetworkX <stko.molecular.networkx>
-   Torsions <stko.molecular.torsion>
-
+* `Basic examples <https://github.com/JelfsMaterialsGroup/stko/blob/master/examples/basic_example.py>`_
+* `Molecule alignment <https://github.com/JelfsMaterialsGroup/stko/blob/master/examples/aligner_example.py>`_
+* `Using calculators <https://github.com/JelfsMaterialsGroup/stko/blob/master/examples/calculators_example.py>`_
+* `Cage analysis <https://github.com/JelfsMaterialsGroup/stko/blob/master/examples/cage_analysis_example.py>`_
+* `Using Gulp <https://github.com/JelfsMaterialsGroup/stko/blob/master/examples/gulp_test_example.py>`_
+* `Splitting molecules <https://github.com/JelfsMaterialsGroup/stko/blob/master/examples/molecule_splitter_example.py>`_
+* `Interfacing with MDAnalysis <https://github.com/JelfsMaterialsGroup/stko/blob/master/examples/mdanalysis_example.py>`_
+* `Interfacing with OpenBabel <https://github.com/JelfsMaterialsGroup/stko/blob/master/examples/obabel_example.py>`_
+* `Interfacing with Orca <https://github.com/JelfsMaterialsGroup/stko/blob/master/examples/orca_example.py>`_
+* `Calculating molecular shape with RDKit <https://github.com/JelfsMaterialsGroup/stko/blob/master/examples/shape_example.py>`_
+* `Extracting stk topology graphs from molecules <https://github.com/JelfsMaterialsGroup/stko/blob/master/examples/topology_extraction_example.py>`_
+* `Analysing torsions <https://github.com/JelfsMaterialsGroup/stko/blob/master/examples/torsion_example.py>`_
+* `Converting molecules to their Zmatrix <https://github.com/JelfsMaterialsGroup/stko/blob/master/examples/zmatrix_example.py>`_
 
 Indices and Tables
 ==================
 
 * :ref:`genindex`
+* :ref:`modindex`
+* :ref:`search`

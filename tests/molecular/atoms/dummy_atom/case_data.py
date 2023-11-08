@@ -14,9 +14,7 @@ class CaseData:
 
     def __init__(self, atom, id):
         """
-        Initialize a :class:`.CaseData` instance.
-
-        Parameters
+        Parameters:
         ----------
         atom : :class:`.Du`
             The atom being tested.

@@ -3,7 +3,7 @@ import stk
 
 
 def a_molecule():
-    return stk.BuildingBlock(smiles='CCCCCC')
+    return stk.BuildingBlock(smiles="CCCCCC")
 
 
 @pytest.fixture
