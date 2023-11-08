@@ -15,44 +15,54 @@ def main():
     else:
         gulp_path = sys.argv[1]
 
-    bb1 = stk.BuildingBlock(
-        smiles="[Cu+2]",
+    iron_atom = stk.BuildingBlock(
+        smiles="[Fe+2]",
         functional_groups=(
-            stk.SingleAtom(stk.Cu(0, charge=2)) for i in range(4)
+            stk.SingleAtom(stk.Fe(0, charge=2)) for i in range(6)
         ),
-        position_matrix=([0, 0, 0],),
+        position_matrix=[[0, 0, 0]],
     )
     bb2 = stk.BuildingBlock(
-        smiles="O=C(O)c1ccc(Br)cc1",
+        smiles="C1=NC(C=NBr)=CC=C1",
         functional_groups=[
             stk.SmartsFunctionalGroupFactory(
-                smarts="[#6]~[#8]~[#1]",
+                smarts="[#6]~[#7X2]~[#35]",
                 bonders=(1,),
-                deleters=(2,),
+                deleters=(),
             ),
             stk.SmartsFunctionalGroupFactory(
-                smarts="[#6]~[#8X1]",
+                smarts="[#6]~[#7X2]~[#6]",
                 bonders=(1,),
                 deleters=(),
             ),
         ],
     )
-    structure = stk.ConstructedMolecule(
-        topology_graph=stk.metal_complex.Paddlewheel(
-            metals=bb1,
+    mcomplex = stk.ConstructedMolecule(
+        topology_graph=stk.metal_complex.OctahedralDelta(
+            metals=iron_atom,
             ligands=bb2,
-            reaction_factory=stk.DativeReactionFactory(
-                stk.GenericReactionFactory(
-                    bond_orders={
-                        frozenset(
-                            {
-                                stk.GenericFunctionalGroup,
-                                stk.SingleAtom,
-                            }
-                        ): 9,
-                    },
-                ),
-            ),
+            optimizer=stk.MCHammer(),
+        ),
+    )
+    # Assign Bromo functional groups to the metal complex.
+    iron_oct_delta = stk.BuildingBlock.init_from_molecule(
+        molecule=mcomplex,
+        functional_groups=[stk.BromoFactory()],
+    )
+
+    # Define building blocks.
+    bb3 = stk.BuildingBlock(
+        smiles=("C1=CC(=CC=C1C2=CC=C(C=C2)Br)Br"),
+        functional_groups=[stk.BromoFactory()],
+    )
+
+    cage = stk.ConstructedMolecule(
+        topology_graph=stk.cage.M4L6TetrahedronSpacer(
+            building_blocks={
+                iron_oct_delta: (0, 1, 2, 3),
+                bb3: (4, 5, 6, 7, 8, 9),
+            },
+            optimizer=stk.MCHammer(),
         ),
     )
 
@@ -62,20 +72,20 @@ def main():
     gulp_opt = stko.GulpUFFOptimizer(
         gulp_path=gulp_path,
         output_dir="gulp_test_output",
-        metal_FF={29: "Cu4+2"},
+        metal_FF={26: "Fe4+2"},
         conjugate_gradient=True,
         maxcyc=500,
     )
     # Assign the force field.
-    gulp_opt.assign_FF(structure)
+    gulp_opt.assign_FF(cage)
     # Run optimization.
-    structure = gulp_opt.optimize(mol=structure)
+    structure = gulp_opt.optimize(mol=cage)
     structure.write(os.path.join("gulp_test_output", "opt_structure.mol"))
 
     target_num_confs = 40
     gulp_MD = stko.GulpUFFMDOptimizer(
         gulp_path=gulp_path,
-        metal_FF={29: "Cu4+2"},
+        metal_FF={26: "Fe4+2"},
         output_dir="gulp_test_output_MD",
         temperature=300,
         equilbration=0.2,

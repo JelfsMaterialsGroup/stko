@@ -65,6 +65,7 @@ These cover:
 * `Molecule alignment <https://github.com/JelfsMaterialsGroup/stko/blob/master/examples/aligner_example.py>`_
 * `Using calculators <https://github.com/JelfsMaterialsGroup/stko/blob/master/examples/calculators_example.py>`_
 * `Cage analysis <https://github.com/JelfsMaterialsGroup/stko/blob/master/examples/cage_analysis_example.py>`_
+* `Using Gulp <https://github.com/JelfsMaterialsGroup/stko/blob/master/examples/gulp_test_example.py>`_
 * `Splitting molecules <https://github.com/JelfsMaterialsGroup/stko/blob/master/examples/molecule_splitter_example.py>`_
 * `Interfacing with MDAnalysis <https://github.com/JelfsMaterialsGroup/stko/blob/master/examples/mdanalysis_example.py>`_
 * `Interfacing with OpenBabel <https://github.com/JelfsMaterialsGroup/stko/blob/master/examples/obabel_example.py>`_

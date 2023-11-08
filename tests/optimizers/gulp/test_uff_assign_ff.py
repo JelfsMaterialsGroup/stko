@@ -1,6 +1,6 @@
 import pytest
 import stk
-from stko.utilities.exceptions import ExpectedMetalError
+from stko._internal.utilities.exceptions import ExpectedMetalError
 
 from .test_gulp import FakeGulpUFFOptimizer
 

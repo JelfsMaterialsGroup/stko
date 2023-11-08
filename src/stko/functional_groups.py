@@ -1,4 +1,4 @@
-from stko.molecular.functional_groups.three_site import (
+from stko._internal.molecular.functional_groups.three_site import (
     CNCFactory,
     CNNFactory,
     NNNFactory,

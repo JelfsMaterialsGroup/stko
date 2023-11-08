@@ -1,3 +1,4 @@
+import logging
 from collections import defaultdict
 
 import numpy as np
@@ -6,6 +7,11 @@ import stko
 
 
 def main():
+    logging.warning(
+        "This code is only present in the latest versions of stko that "
+        "require Python 3.11!"
+    )
+
     pd = stk.BuildingBlock(
         smiles="[Pd+2]",
         functional_groups=(

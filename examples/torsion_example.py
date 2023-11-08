@@ -41,7 +41,7 @@ def main():
         )
     print(tors_results.get_torsion_infos_by_building_block())
     for t in tors_results.get_torsion_infos():
-        print(stko.utilities.utilities.get_torsion_info_angles(polymer, t))
+        print(stko.get_torsion_info_angles(polymer, t))
 
 
 if __name__ == "__main__":

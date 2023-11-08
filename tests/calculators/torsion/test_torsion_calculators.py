@@ -20,7 +20,7 @@ def _polymer_angles_match(bb1, bb2, torsion_index=0):
     tors_calculator = stko.MatchedTorsionCalculator()
     tors_results = tors_calculator.get_results(polymer)
 
-    angles = stko.utilities.utilities.get_torsion_info_angles(
+    angles = stko.get_torsion_info_angles(
         polymer, list(tors_results.get_torsion_infos())[torsion_index]
     )
     return angles[0] == approx(angles[1])
