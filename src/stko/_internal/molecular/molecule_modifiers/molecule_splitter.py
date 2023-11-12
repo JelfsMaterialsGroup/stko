@@ -1,5 +1,5 @@
 import logging
-import typing
+from collections import abc
 from itertools import combinations
 
 import stk
@@ -55,7 +55,7 @@ class MoleculeSplitter:
     def split(
         self,
         molecule: stk.Molecule,
-    ) -> typing.Iterable[stk.BuildingBlock]:
+    ) -> abc.Iterable[stk.BuildingBlock]:
         """
         Split a molecule.
 

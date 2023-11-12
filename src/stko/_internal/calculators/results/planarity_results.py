@@ -1,4 +1,4 @@
-import typing
+from collections import abc
 
 
 class PlanarityResults:
@@ -7,7 +7,7 @@ class PlanarityResults:
 
     """
 
-    def __init__(self, generator: typing.Iterable) -> None:
+    def __init__(self, generator: abc.Iterable) -> None:
         self._values = next(generator)  # type: ignore[call-overload]
 
     def get_planarity_parameter(self) -> float:

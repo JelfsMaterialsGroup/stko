@@ -1,5 +1,5 @@
 import logging
-import typing
+from collections import abc
 
 import numpy as np
 import stk
@@ -55,7 +55,7 @@ class PlanarityCalculator:
     def _get_plane_of_best_fit(
         self,
         mol: stk.Molecule,
-        plane_atom_ids: typing.Iterable[int],
+        plane_atom_ids: abc.Iterable[int],
     ) -> np.ndarray:
         centroid = mol.get_centroid(atom_ids=plane_atom_ids)
         normal = mol.get_plane_normal(atom_ids=plane_atom_ids)
@@ -87,7 +87,7 @@ class PlanarityCalculator:
         self,
         mol: stk.Molecule,
         atom_plane: np.ndarray,
-        deviation_atom_ids: typing.Iterable[int],
+        deviation_atom_ids: abc.Iterable[int],
     ) -> list[float]:
         return [
             self._shortest_distance_to_plane(
@@ -117,9 +117,9 @@ class PlanarityCalculator:
     def calculate(
         self,
         mol: stk.Molecule,
-        plane_atom_ids: typing.Iterable[int] | None = None,
-        deviation_atom_ids: typing.Iterable[int] | None = None,
-    ) -> typing.Iterable[dict]:
+        plane_atom_ids: abc.Iterable[int] | None = None,
+        deviation_atom_ids: abc.Iterable[int] | None = None,
+    ) -> abc.Iterable[dict]:
         """
         Perform calculation on `mol`.
 
@@ -165,8 +165,8 @@ class PlanarityCalculator:
     def get_results(
         self,
         mol: stk.Molecule,
-        plane_atom_ids: typing.Iterable[int] | None = None,
-        deviation_atom_ids: typing.Iterable[int] | None = None,
+        plane_atom_ids: abc.Iterable[int] | None = None,
+        deviation_atom_ids: abc.Iterable[int] | None = None,
     ) -> PlanarityResults:
         """
         Calculate the planarity of `mol`.

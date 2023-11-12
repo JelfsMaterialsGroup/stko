@@ -1,5 +1,5 @@
 import logging
-import typing
+from typing import Self
 
 import numpy as np
 from stk import PeriodicInfo
@@ -24,7 +24,7 @@ class UnitCell(PeriodicInfo):
         vector_1: np.ndarray,
         vector_2: np.ndarray,
         vector_3: np.ndarray,
-    ) -> typing.Self:
+    ) -> Self:
         """
         Return clone of :class:`.UnitCell` with new parameters.
 
@@ -41,8 +41,11 @@ class UnitCell(PeriodicInfo):
         return clone
 
     def with_cell_from_vectors(
-        self, vector_1: np.ndarray, vector_2: np.ndarray, vector_3: np.ndarray
-    ) -> typing.Self:
+        self,
+        vector_1: np.ndarray,
+        vector_2: np.ndarray,
+        vector_3: np.ndarray,
+    ) -> Self:
         """
         Update cell.
 
@@ -72,7 +75,7 @@ class UnitCell(PeriodicInfo):
             vector_3=vector_3,
         )
 
-    def with_cell_from_turbomole(self, filename: str) -> typing.Self:
+    def with_cell_from_turbomole(self, filename: str) -> Self:
         """
         Update cell from structure in Turbomole coord file.
 
@@ -180,7 +183,7 @@ class UnitCell(PeriodicInfo):
         # Update the cell.
         return self._update_periodic_info(vector_1, vector_2, vector_3)
 
-    def with_cell_from_cif(self, filename: str) -> typing.Self:
+    def with_cell_from_cif(self, filename: str) -> Self:
         """
         Update cell from structure in CIF.
 

@@ -1,5 +1,6 @@
 import logging
-import typing
+from collections import abc
+from typing import Self
 
 import stk
 
@@ -67,7 +68,7 @@ class ThreeSiteFG:
     def get_binder(self) -> stk.Atom:
         return self._binder
 
-    def clone(self) -> typing.Self:
+    def clone(self) -> Self:
         clone = self.__class__.__new__(self.__class__)
         clone._neigh1 = self._neigh1
         clone._binder = self._binder
@@ -75,34 +76,34 @@ class ThreeSiteFG:
         clone._functional_group = self._functional_group.clone()
         return clone
 
-    def get_bonders(self) -> typing.Iterator[stk.Atom]:
+    def get_bonders(self) -> abc.Iterator[stk.Atom]:
         yield from self._functional_group._bonders
 
     def get_num_bonders(self) -> int:
         return len(self._functional_group._bonders)
 
-    def get_bonder_ids(self) -> typing.Iterator[int]:
+    def get_bonder_ids(self) -> abc.Iterator[int]:
         yield from (a.get_id() for a in self._functional_group._bonders)
 
-    def get_deleters(self) -> typing.Iterator[stk.Atom]:
+    def get_deleters(self) -> abc.Iterator[stk.Atom]:
         yield from self._functional_group._deleters
 
-    def get_deleter_ids(self) -> typing.Iterator[int]:
+    def get_deleter_ids(self) -> abc.Iterator[int]:
         yield from (a.get_id() for a in self._functional_group._deleters)
 
-    def get_atoms(self) -> typing.Iterator[stk.Atom]:
+    def get_atoms(self) -> abc.Iterator[stk.Atom]:
         yield from self._functional_group._atoms
 
-    def get_atom_ids(self) -> typing.Iterator[int]:
+    def get_atom_ids(self) -> abc.Iterator[int]:
         yield from (a.get_id() for a in self._functional_group._atoms)
 
-    def get_placer_ids(self) -> typing.Iterator[int]:
+    def get_placer_ids(self) -> abc.Iterator[int]:
         yield from (a.get_id() for a in self._functional_group._placers)
 
-    def get_core_atom_ids(self) -> typing.Iterator[int]:
+    def get_core_atom_ids(self) -> abc.Iterator[int]:
         yield from (a.get_id() for a in self._functional_group._core_atoms)
 
-    def with_atoms(self, atom_map: dict[int, stk.Atom]) -> typing.Self:
+    def with_atoms(self, atom_map: dict[int, stk.Atom]) -> Self:
         clone = self.__class__.__new__(self.__class__)
         clone._functional_group = stk.GenericFunctionalGroup(
             atoms=tuple(
@@ -127,10 +128,7 @@ class ThreeSiteFG:
         clone._neigh2 = atom_map.get(self._neigh2.get_id(), self._neigh2)
         return clone
 
-    def with_ids(
-        self,
-        id_map: dict[int, int],
-    ) -> typing.Self:
+    def with_ids(self, id_map: dict[int, int]) -> Self:
         clone = self.__class__.__new__(self.__class__)
         clone._functional_group = self._functional_group.with_ids(id_map)
         clone._neigh1 = self._neigh1.with_id(
@@ -190,7 +188,7 @@ class ThreeSiteFactory(stk.FunctionalGroupFactory):
     def get_functional_groups(
         self,
         molecule: stk.Molecule,
-    ) -> typing.Iterable[ThreeSiteFG]:
+    ) -> abc.Iterable[ThreeSiteFG]:
         generic_functional_groups = stk.SmartsFunctionalGroupFactory(
             smarts=self._smarts,
             bonders=self._bonders,

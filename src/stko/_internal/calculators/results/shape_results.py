@@ -1,4 +1,4 @@
-import typing
+from collections import abc
 
 
 class ShapeResults:
@@ -7,7 +7,7 @@ class ShapeResults:
 
     """
 
-    def __init__(self, generator: typing.Iterable):
+    def __init__(self, generator: abc.Iterable):
         self._values = next(generator)  # type: ignore[call-overload]
 
     def get_pmi1(self) -> float:

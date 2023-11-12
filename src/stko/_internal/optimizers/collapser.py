@@ -2,8 +2,7 @@ import logging
 import os
 import random
 import shutil
-import typing
-from collections import defaultdict
+from collections import abc, defaultdict
 from itertools import combinations
 
 import matplotlib.pyplot as plt
@@ -95,7 +94,7 @@ class Collapser(Optimizer):
     def _get_inter_bb_distance(
         self,
         mol: stk.Molecule,
-    ) -> typing.Iterable[float]:
+    ) -> abc.Iterable[float]:
         """
         Yield The distances between building blocks in mol.
 
@@ -736,10 +735,10 @@ class CollapserMC(Collapser):
 
     def _plot_progess(
         self,
-        steps: typing.Iterable,
-        maxds: typing.Iterable,
-        spots: typing.Iterable,
-        npots: typing.Iterable,
+        steps: abc.Iterable,
+        maxds: abc.Iterable,
+        spots: abc.Iterable,
+        npots: abc.Iterable,
         output_dir: str,
     ) -> None:
         fig, ax = plt.subplots(figsize=(8, 5))

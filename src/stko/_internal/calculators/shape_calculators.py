@@ -1,5 +1,5 @@
 import logging
-import typing
+from collections import abc
 
 import stk
 from rdkit.Chem import Descriptors3D as D3D
@@ -33,7 +33,7 @@ class ShapeCalculator:
 
     """
 
-    def calculate(self, mol: stk.Molecule) -> typing.Iterable[dict]:
+    def calculate(self, mol: stk.Molecule) -> abc.Iterable[dict]:
         rdkit_mol = mol.to_rdkit_mol()
         results_dict = {
             "pmi1": D3D.PMI1(rdkit_mol),

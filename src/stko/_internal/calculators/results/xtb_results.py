@@ -1,4 +1,4 @@
-import typing
+from collections import abc
 
 from stko._internal.calculators.extractors.xtb_extractor import XTBExtractor
 
@@ -11,7 +11,7 @@ class XTBResults:
 
     def __init__(
         self,
-        generator: typing.Generator,
+        generator: abc.Generator,
         output_file: str,
         extractor: type = XTBExtractor,
     ) -> None:

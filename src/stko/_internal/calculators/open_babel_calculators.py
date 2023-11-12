@@ -1,6 +1,6 @@
 import logging
 import os
-import typing
+from collections import abc
 
 import stk
 
@@ -68,7 +68,7 @@ class OpenBabelEnergy:
 
         self._forcefield = forcefield
 
-    def calculate(self, mol: stk.Molecule) -> typing.Iterable[float]:
+    def calculate(self, mol: stk.Molecule) -> abc.Iterable[float]:
         temp_file = "temp.mol"
         mol.write(temp_file)
         try:

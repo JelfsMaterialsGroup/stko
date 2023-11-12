@@ -1,4 +1,4 @@
-import typing
+from collections import abc
 
 
 class EnergyResults:
@@ -7,7 +7,7 @@ class EnergyResults:
 
     """
 
-    def __init__(self, generator: typing.Iterable, unit_string: str):
+    def __init__(self, generator: abc.Iterable, unit_string: str):
         self._value = next(generator)  # type: ignore[call-overload]
         self._unit_string = unit_string
 

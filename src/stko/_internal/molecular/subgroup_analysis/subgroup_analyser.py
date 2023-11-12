@@ -1,5 +1,5 @@
 import logging
-import typing
+from collections import abc
 
 import numpy as np
 import stk
@@ -23,7 +23,7 @@ class Subgroup:
     def _find_subgroup(
         self,
         molecule: stk.Molecule,
-    ) -> typing.Iterable[stk.FunctionalGroup]:
+    ) -> abc.Iterable[stk.FunctionalGroup]:
         raise NotImplementedError()
 
     def _calculate_measure(
@@ -70,7 +70,7 @@ class C6Planarity(Subgroup):
     def _find_subgroup(
         self,
         molecule: stk.Molecule,
-    ) -> typing.Iterable[stk.FunctionalGroup]:
+    ) -> abc.Iterable[stk.FunctionalGroup]:
         smarts = "[#6X3]1@[#6X3]@[#6X3]@[#6X3]@[#6X3]@[#6X3]1"
         with_fgs = stk.BuildingBlock.init_from_molecule(
             molecule=molecule,
@@ -114,7 +114,7 @@ class C5N1Planarity(C6Planarity):
     def _find_subgroup(
         self,
         molecule: stk.Molecule,
-    ) -> typing.Iterable[stk.FunctionalGroup]:
+    ) -> abc.Iterable[stk.FunctionalGroup]:
         smarts = "[#6X3]1@[#7X2]@[#6X3]@[#6X3]@[#6X3]@[#6X3]1"
         with_fgs = stk.BuildingBlock.init_from_molecule(
             molecule=molecule,
@@ -142,7 +142,7 @@ class X5Planarity(C6Planarity):
     def _find_subgroup(
         self,
         molecule: stk.Molecule,
-    ) -> typing.Iterable[stk.FunctionalGroup]:
+    ) -> abc.Iterable[stk.FunctionalGroup]:
         smarts = "[*]1@[*]@[*]@[*]@[*]1"
         with_fgs = stk.BuildingBlock.init_from_molecule(
             molecule=molecule,
@@ -170,7 +170,7 @@ class AlkyneAngle(Subgroup):
     def _find_subgroup(
         self,
         molecule: stk.Molecule,
-    ) -> typing.Iterable[stk.FunctionalGroup]:
+    ) -> abc.Iterable[stk.FunctionalGroup]:
         smarts = "[#6][#6]#[#6][#6]"
         with_fgs = stk.BuildingBlock.init_from_molecule(
             molecule=molecule,

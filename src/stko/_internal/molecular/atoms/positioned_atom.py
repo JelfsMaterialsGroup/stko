@@ -1,5 +1,5 @@
 import logging
-import typing
+from typing import Self
 
 import stk
 
@@ -47,7 +47,7 @@ class PositionedAtom:
     def get_position(self) -> tuple[float, ...]:
         return self._position
 
-    def _with_id(self, id: int) -> typing.Self:
+    def _with_id(self, id: int) -> Self:
         """
         Modify the atom id.
 
@@ -56,7 +56,7 @@ class PositionedAtom:
         self._atom = self._atom.with_id(id)
         return self
 
-    def with_id(self, id: int) -> typing.Self:
+    def with_id(self, id: int) -> Self:
         """
         Get a clone but with a different id.
 
@@ -69,7 +69,7 @@ class PositionedAtom:
 
         return self.clone()._with_id(id)
 
-    def clone(self) -> typing.Self:
+    def clone(self) -> Self:
         """
         Return a clone.
 

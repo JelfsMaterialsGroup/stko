@@ -1,5 +1,6 @@
 import logging
-import typing
+from collections import abc
+from typing import Self
 
 import networkx as nx
 import stk
@@ -52,7 +53,7 @@ class Network:
         self._graph = graph
 
     @classmethod
-    def init_from_molecule(cls, molecule: stk.Molecule) -> typing.Self:
+    def init_from_molecule(cls, molecule: stk.Molecule) -> Self:
         """
         Parameters:
 
@@ -98,7 +99,7 @@ class Network:
 
         return self._graph
 
-    def get_nodes(self) -> typing.Iterator[PositionedAtom]:
+    def get_nodes(self) -> abc.Iterator[PositionedAtom]:
         """
         Yield nodes of :class:`networkx.Graph` (:class:`PositionAtom`).
 
@@ -107,7 +108,7 @@ class Network:
         for i in self._graph.nodes:
             yield i
 
-    def clone(self) -> typing.Self:
+    def clone(self) -> Self:
         """
         Return a clone.
 
@@ -119,8 +120,8 @@ class Network:
 
     def _with_deleted_bonds(
         self,
-        atom_ids: typing.Iterable[tuple[int, int]],
-    ) -> typing.Self:
+        atom_ids: abc.Iterable[tuple[int, int]],
+    ) -> Self:
         sorted_set = {tuple(sorted(i)) for i in atom_ids}
         to_delete = []
         for edge in self._graph.edges:
@@ -137,8 +138,8 @@ class Network:
 
     def with_deleted_bonds(
         self,
-        atom_ids: typing.Iterable[tuple[int, int]],
-    ) -> typing.Self:
+        atom_ids: abc.Iterable[tuple[int, int]],
+    ) -> Self:
         """
         Return a clone with edges between `atom_ids` deleted.
 
@@ -146,10 +147,7 @@ class Network:
 
         return self.clone()._with_deleted_bonds(atom_ids)
 
-    def _with_deleted_elements(
-        self,
-        atomic_numbers: tuple[int],
-    ) -> typing.Self:
+    def _with_deleted_elements(self, atomic_numbers: tuple[int]) -> Self:
         to_delete = []
         deleted_atom_ids = set()
         for node in self._graph.nodes:
@@ -172,10 +170,7 @@ class Network:
 
         return self
 
-    def with_deleted_elements(
-        self,
-        atomic_numbers: tuple[int],
-    ) -> typing.Self:
+    def with_deleted_elements(self, atomic_numbers: tuple[int]) -> Self:
         """
         Return a clone with nodes with `atomic numbers` deleted.
 

@@ -1,5 +1,5 @@
 import logging
-import typing
+from collections import abc
 
 import stk
 
@@ -59,7 +59,7 @@ class Torsion:
             for atom in self.get_atoms()
         )
 
-    def __iter__(self) -> typing.Iterable[stk.Atom | None]:
+    def __iter__(self) -> abc.Iterable[stk.Atom | None]:
         return iter(self.get_atoms())
 
     def __str__(self) -> str:

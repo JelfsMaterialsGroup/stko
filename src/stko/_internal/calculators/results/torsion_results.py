@@ -1,5 +1,4 @@
-import typing
-from collections import defaultdict
+from collections import abc, defaultdict
 
 import stk
 from stko._internal.molecular.torsion.torsion import Torsion
@@ -13,17 +12,17 @@ class TorsionResults:
 
     """
 
-    def __init__(self, generator: typing.Generator, mol: stk.Molecule):
+    def __init__(self, generator: abc.Generator, mol: stk.Molecule):
         self._torsions = next(generator)
         self._mol = mol
 
-    def get_torsions(self) -> typing.Iterable[Torsion]:
+    def get_torsions(self) -> abc.Iterable[Torsion]:
         return self._torsions
 
     def get_molecule(self) -> stk.Molecule:
         return self._mol
 
-    def get_torsion_angles(self) -> typing.Iterable[tuple[Torsion, float]]:
+    def get_torsion_angles(self) -> abc.Iterable[tuple[Torsion, float]]:
         for torsion in self._torsions:
             yield (
                 torsion,
@@ -60,7 +59,7 @@ class ConstructedMoleculeTorsionResults(TorsionResults):
 
     def __init__(
         self,
-        generator: typing.Generator,
+        generator: abc.Generator,
         mol: stk.ConstructedMolecule,
     ) -> None:
         self._torsions = next(generator)
@@ -82,7 +81,7 @@ class ConstructedMoleculeTorsionResults(TorsionResults):
                 ].append(torsion_info)
         return torsion_infos_by_building_block
 
-    def get_torsion_infos(self) -> typing.Iterable[TorsionInfo]:
+    def get_torsion_infos(self) -> abc.Iterable[TorsionInfo]:
         for torsion in self._torsions:
             atom_infos = list(
                 self._mol.get_atom_infos(

@@ -1,5 +1,5 @@
 import logging
-import typing
+from collections import abc
 
 import stk
 from rdkit.Chem import AllChem as rdkit
@@ -36,7 +36,7 @@ class MMFFEnergy:
     def __init__(self, ignore_inter_interactions: bool = True) -> None:
         self._ignore_inter_interactions = ignore_inter_interactions
 
-    def calculate(self, mol: stk.Molecule) -> typing.Iterable[float]:
+    def calculate(self, mol: stk.Molecule) -> abc.Iterable[float]:
         rdkit_mol = mol.to_rdkit_mol()
         rdkit.SanitizeMol(rdkit_mol)
         rdkit.GetSSSR(rdkit_mol)
@@ -113,7 +113,7 @@ class UFFEnergy:
     def __init__(self, ignore_inter_interactions: bool = True) -> None:
         self._ignore_inter_interactions = ignore_inter_interactions
 
-    def calculate(self, mol: stk.Molecule) -> typing.Iterable[float]:
+    def calculate(self, mol: stk.Molecule) -> abc.Iterable[float]:
         rdkit_mol = mol.to_rdkit_mol()
         rdkit.SanitizeMol(rdkit_mol)
         # RingInfo needs to be initialized, else rdkit may raise an

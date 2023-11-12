@@ -1,5 +1,5 @@
 import logging
-import typing
+from collections import abc
 
 import stk
 from rdkit.Chem import TorsionFingerprints
@@ -48,7 +48,7 @@ class TorsionCalculator:
     def calculate(
         self,
         mol: stk.Molecule,
-    ) -> typing.Generator:
+    ) -> abc.Generator:
         yield tuple(
             Torsion(*mol.get_atoms(atoms[0]))
             for atoms, _ in (
@@ -128,7 +128,7 @@ class ConstructedMoleculeTorsionCalculator:
     def calculate(
         self,
         mol: stk.ConstructedMolecule,
-    ) -> typing.Generator:
+    ) -> abc.Generator:
         yield tuple(
             Torsion(*mol.get_atoms(atoms[0]))
             for atoms, _ in (
@@ -171,7 +171,7 @@ class MatchedTorsionCalculator(ConstructedMoleculeTorsionCalculator):
     def calculate(
         self,
         mol: stk.ConstructedMolecule,
-    ) -> typing.Generator:
+    ) -> abc.Generator:
         """
         Extract torsions with rdkit, then match to building blocks.
 

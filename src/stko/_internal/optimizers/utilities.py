@@ -2,8 +2,7 @@ import gzip
 import os
 import re
 import shutil
-import typing
-from collections import deque
+from collections import abc, deque
 from glob import iglob
 from itertools import chain
 
@@ -374,7 +373,7 @@ def has_metal_atom(bond: stk.Bond, metal_atoms: list[stk.Atom]) -> bool:
     return False
 
 
-def metal_atomic_numbers() -> typing.Iterable:
+def metal_atomic_numbers() -> abc.Iterable:
     return chain(range(21, 31), range(39, 49), range(72, 81))
 
 

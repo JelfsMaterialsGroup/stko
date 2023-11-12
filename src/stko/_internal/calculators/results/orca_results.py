@@ -1,4 +1,4 @@
-import typing
+from collections import abc
 
 from stko._internal.calculators.extractors.orca_extractor import OrcaExtractor
 
@@ -11,7 +11,7 @@ class OrcaResults:
 
     def __init__(
         self,
-        generator: typing.Iterable,
+        generator: abc.Iterable,
         output_file: str,
         extractor: type = OrcaExtractor,
     ):

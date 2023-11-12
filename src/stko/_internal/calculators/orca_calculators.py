@@ -3,8 +3,8 @@ import logging
 import os
 import shutil
 import subprocess as sp
-import typing
 import uuid
+from collections import abc
 
 import stk
 from stko._internal.calculators.results.orca_results import OrcaResults
@@ -269,7 +269,7 @@ class OrcaEnergy:
         finally:
             os.chdir(init_dir)
 
-    def calculate(self, mol: stk.Molecule) -> typing.Generator:
+    def calculate(self, mol: stk.Molecule) -> abc.Generator:
         if self._output_dir is None:
             output_dir = str(uuid.uuid4().int)
         else:

@@ -1,5 +1,5 @@
 import logging
-import typing
+from collections import abc
 
 import stk
 from rdkit.Chem import AllChem as rdkit
@@ -43,7 +43,7 @@ class MoleculeTransformer:
     def __init__(
         self,
         replacer_smarts: str,
-        functional_groups: typing.Iterable[stk.FunctionalGroupFactory],
+        functional_groups: abc.Iterable[stk.FunctionalGroupFactory],
     ) -> None:
         """
         Parameters:

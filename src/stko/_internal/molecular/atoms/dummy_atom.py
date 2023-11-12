@@ -1,5 +1,5 @@
 import logging
-import typing
+from typing import Self
 
 import stk
 
@@ -38,7 +38,7 @@ class Du:
     def get_charge(self) -> int:
         return self._charge
 
-    def clone(self) -> typing.Self:
+    def clone(self) -> Self:
         return type(self)(self._stk_atom.get_id())
 
     def __repr__(self) -> str:

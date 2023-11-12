@@ -1,5 +1,5 @@
 import logging
-import typing
+from collections import abc
 
 import stk
 from stko._internal.molecular.networkx.network import Network
@@ -65,7 +65,7 @@ class TopologyExtractor:
     def extract_topology(
         self,
         molecule: stk.Molecule,
-        broken_bonds_by_id: typing.Iterable[tuple[int, int]],
+        broken_bonds_by_id: abc.Iterable[tuple[int, int]],
         disconnectors: set,
     ) -> TopologyInfo:
         """
@@ -120,7 +120,7 @@ class TopologyExtractor:
     def get_connected_graphs(
         self,
         molecule: stk.Molecule,
-        atom_ids_to_disconnect: typing.Iterable[tuple[int, int]],
+        atom_ids_to_disconnect: abc.Iterable[tuple[int, int]],
     ) -> list:
         graph = Network.init_from_molecule(molecule)
         graph = graph.with_deleted_bonds(atom_ids_to_disconnect)

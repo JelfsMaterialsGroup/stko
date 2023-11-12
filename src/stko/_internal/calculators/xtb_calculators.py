@@ -2,8 +2,8 @@ import logging
 import os
 import shutil
 import subprocess as sp
-import typing
 import uuid
+from collections import abc
 
 import stk
 from stko._internal.calculators.results.xtb_results import XTBResults
@@ -350,7 +350,7 @@ class XTBEnergy:
         finally:
             os.chdir(init_dir)
 
-    def calculate(self, mol: stk.Molecule) -> typing.Generator:
+    def calculate(self, mol: stk.Molecule) -> abc.Generator:
         if self._output_dir is None:
             output_dir = str(uuid.uuid4().int)
         else:
