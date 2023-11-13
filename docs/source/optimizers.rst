@@ -30,3 +30,4 @@ Optimizers
 
   GulpUFFMDOptimizer <_autosummary/stko.GulpUFFMDOptimizer>
   MacroModelMD <_autosummary/stko.MacroModelMD>
+  MAEExtractor <_autosummary/stko.MAEExtractor>

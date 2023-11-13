@@ -79,6 +79,7 @@ from stko._internal.optimizers.optimizers import (
     TryCatchOptimizer,
 )
 from stko._internal.optimizers.rdkit import ETKDG, MMFF, UFF, MetalOptimizer
+from stko._internal.optimizers.utilities import MAEExtractor
 from stko._internal.optimizers.xtb import XTB, XTBCREST, XTBFF, XTBFFCREST
 from stko._internal.utilities.exceptions import (
     CalculatorError,
@@ -141,6 +142,7 @@ __all__ = [
     "XTBCREST",
     "XTBFF",
     "XTBFFCREST",
+    "MAEExtractor",
     "PositionedAtom",
     "Du",
     "MDAnalysis",
