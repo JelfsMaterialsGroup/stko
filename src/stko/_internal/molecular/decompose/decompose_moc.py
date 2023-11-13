@@ -60,7 +60,7 @@ class DecomposeMOC:
             atom_ids = tuple(i.get_id() for i in atoms)
 
             # Sort both by atom id.
-            atom_ids, atoms = zip(
+            atom_ids, atoms = zip(  # type: ignore[assignment]
                 *sorted(zip(atom_ids, atoms, strict=True)), strict=True
             )
 
