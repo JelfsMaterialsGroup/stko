@@ -1,5 +1,5 @@
-import stk
 import rdkit.Chem.AllChem as rdkit
+import stk
 
 
 def is_equivalent_atom(atom1, atom2):
@@ -13,7 +13,8 @@ def is_equivalent_atom(atom1, atom2):
 _periodic_table = rdkit.GetPeriodicTable()
 
 atomic_numbers = {
-    stk.__dict__[_periodic_table.GetElementSymbol(atomic_number)]:
-        atomic_number
+    stk.__dict__[
+        _periodic_table.GetElementSymbol(atomic_number)
+    ]: atomic_number
     for atomic_number in range(1, 119)
 }

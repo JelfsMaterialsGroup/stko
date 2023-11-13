@@ -24,8 +24,6 @@ class CaseData:
 
     def __init__(self, atom, id, charge, atomic_number, position):
         """
-        Initialize a :class:`.CaseData` instance.
-
         Parameters
         ----------
         atom : :class:`.PositionedAtom`

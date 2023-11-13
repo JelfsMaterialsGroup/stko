@@ -1,52 +1,48 @@
-name: tests
-
-on: [push, pull_request]
-
+name: Tests
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+  workflow_dispatch:
 jobs:
-    lint:
-        runs-on: ubuntu-latest
-
-        steps:
-            - name: Git checkout
-              uses: actions/checkout@v2
-
-            - name: Add conda to system path
-              run: |
-                # $CONDA is an environment variable pointing to the
-                # root of the miniconda directory
-                echo $CONDA/bin >> $GITHUB_PATH
-
-            - name: Install dependencies
-              run: |
-                conda install flake8
-
-            - name: Lint with flake8
-              run: |
-                flake8 . \
-                    --count \
-                    --show-source \
-                    --max-line-length=71 \
-                    --statistics
-
-    pytest-stable-linux:
-        runs-on: ubuntu-latest
-
-        steps:
-            - name: Git checkout
-              uses: actions/checkout@v2
-
-            - name: Add conda to system path
-              run: |
-                # $CONDA is an environment variable pointing to the
-                # root of the miniconda directory
-                echo $CONDA/bin >> $GITHUB_PATH
-
-            - name: Install dependencies
-              run: |
-                conda env update \
-                    --name base \
-                    --file tests/environment.yml
-
-            - name: Run pytest
-              run: |
-                pytest
+  ruff:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+          cache: "pip"
+      - run: "pip install '.[dev]'"
+      - run: ruff .
+  mypy:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+          cache: "pip"
+      - run: "pip install -e '.[dev]'"
+      - run: mypy src
+  black:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+          cache: "pip"
+      - run: "pip install -e '.[dev]'"
+      - run: black --check .
+  pytest:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+          cache: "pip"
+      - run: "pip install -e '.[dev]'"
+      - run: pytest

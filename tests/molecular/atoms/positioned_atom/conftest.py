@@ -1,7 +1,7 @@
 import pytest
-from pytest_lazyfixture import lazy_fixture
 import stk
 import stko
+from pytest_lazyfixture import lazy_fixture
 
 from .case_data import CaseData
 
@@ -29,11 +29,7 @@ def case_data_1(atomic_number, id, charge, position):
     )
 
 
-@pytest.fixture(
-    params=(
-        lazy_fixture('case_data_1'),
-    )
-)
+@pytest.fixture(params=(lazy_fixture("case_data_1"),))
 def case_data(request):
     """
     A :class:`.CaseData` instance.
@@ -91,10 +87,11 @@ def position(request):
 
 @pytest.fixture(
     params=[
-        cls for cls in stk.__dict__.values()
+        cls
+        for cls in stk.__dict__.values()
         if isinstance(cls, type)
-        and issubclass(cls, stk.AtomImpl)
-        and cls is not stk.AtomImpl
+        and issubclass(cls, stk._internal.elements.AtomImpl)
+        and cls is not stk._internal.elements.AtomImpl
     ],
 )
 def cls(request):
