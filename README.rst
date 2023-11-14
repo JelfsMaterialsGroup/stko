@@ -1,6 +1,4 @@
 :maintainers:
-    `stevenkbennett <https://github.com/stevenkbennett>`_,
-    `lukasturcani <https://github.com/lukasturcani/>`_,
     `andrewtarzia <https://github.com/andrewtarzia/>`_
 :documentation: https://stko-docs.readthedocs.io
 :discord: https://discord.gg/zbCUzuxe2B
