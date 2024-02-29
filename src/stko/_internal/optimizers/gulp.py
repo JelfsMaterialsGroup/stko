@@ -644,11 +644,11 @@ class GulpUFFOptimizer(Optimizer):
             if self.atom_labels[atomid][1] == "metal":
                 (atom,) = mol.get_atoms(atomid)
                 atom_no = atom.get_atomic_number()
-                self.atom_labels[atomid][
-                    0
-                ] = self._metal_FF[  # type:ignore[index]
-                    atom_no
-                ]
+                self.atom_labels[atomid][0] = (
+                    self._metal_FF[  # type:ignore[index]
+                        atom_no
+                    ]
+                )
 
     def _run_gulp(self, in_file: str, out_file: str) -> None:
         cmd = f"{self._gulp_path} < {in_file}"

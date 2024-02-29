@@ -626,10 +626,10 @@ class CollapserMC(Collapser):
             cent = bb_centroids[bb]
             for b_atom_ids, bond_info in long_bond_infos.items():
                 for atom_id in b_atom_ids:
-                    (
-                        atom_info,
-                    ) = mol.get_atom_infos(  # type: ignore[attr-defined]
-                        atom_id
+                    (atom_info,) = (
+                        mol.get_atom_infos(  # type: ignore[attr-defined]
+                            atom_id
+                        )
                     )
                     atom_pos = position_matrix[atom_id]
                     if atom_info.get_building_block_id() == bb:
