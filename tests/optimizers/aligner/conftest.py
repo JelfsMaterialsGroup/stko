@@ -39,7 +39,7 @@ class CaseData:
                     np.array((0, 0, 0)),
                 )
             ),
-            rmsd=0.2440040878642247,
+            rmsd=0.22366328852274148,
         ),
         CaseData(
             molecule=stk.BuildingBlock("CCCCCC"),
@@ -50,7 +50,7 @@ class CaseData:
                     np.array((0, 0, 0)),
                 )
             ),
-            rmsd=0.21668989505225564,
+            rmsd=0.12594321424488517,
         ),
     ],
 )

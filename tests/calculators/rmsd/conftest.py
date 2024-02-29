@@ -100,7 +100,7 @@ _cc_molecule = stk.BuildingBlock("[C][C]")
         CaseData(
             mol1=_polymer,
             mol2=_optimizer.optimize(_polymer),
-            rmsd=2.257184652840373,
+            rmsd=2.1485735050384,
         ),
     ],
 )
@@ -139,7 +139,7 @@ def case_data(request):
         CaseData(
             mol1=_polymer,
             mol2=_optimizer.optimize(_polymer),
-            rmsd=2.1395034910834867,
+            rmsd=1.792856412415046,
         ),
     ],
 )

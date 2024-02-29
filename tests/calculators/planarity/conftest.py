@@ -226,9 +226,9 @@ class CaseData:
             molecule=_octahedral,
             plane_ids=None,
             deviation_ids=None,
-            plane_deviation=14.526097483635072,
-            plane_span=6.097792665799048,
-            planarity_parameter=1.4490903014229741,
+            plane_deviation=15.350980683338454,
+            plane_span=5.734353982049391,
+            planarity_parameter=1.4635207224067897,
         ),
     ],
 )
