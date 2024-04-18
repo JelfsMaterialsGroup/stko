@@ -20,7 +20,7 @@ check:
   trap error=1 ERR
 
   echo
-  (set -x; ruff . )
+  (set -x; ruff check . )
 
   echo
   ( set -x; black --check . )
@@ -36,4 +36,4 @@ check:
 # Auto-fix code issues.
 fix:
   black .
-  ruff --fix .
+  ruff check --fix .
