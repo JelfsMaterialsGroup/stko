@@ -1,11 +1,16 @@
+# TODO: check sections in optimizer docstring
+
 import logging
+from typing import Protocol, TypeVar
 
 import stk
 
 logger = logging.getLogger(__name__)
 
+T = TypeVar("T", bound=stk.Molecule)
 
-class Optimizer:
+
+class Optimizer(Protocol):
     """A base class for optimizers.
 
     Optimizers are objects used to optimize molecules. Each optimizer is
@@ -51,9 +56,8 @@ class Optimizer:
     Making New Optimizers:
     ----------------------
 
-    New optimizers can be made by simply making a class which inherits the
-    :class:`.Optimizer` class. In addition to this, the new class must
-    define a :meth:`~.Optimizer.optimize` method. The method must take 1
+    New optimizers can be made by simply making a class which defines a
+    :meth:`~.Optimizer.optimize` method. The method must take 1
     mandatory `mol` parameter. :meth:`~.Optimizer.optimize` will take the
     `mol` and change its structure in whatever way it likes. Beyond this
     there are no requirements. New optimizers can be added into the
@@ -61,21 +65,14 @@ class Optimizer:
 
     """
 
-    def _check_path(self, path: str) -> None:
-        raise NotImplementedError
-
-    def optimize(self, mol: stk.Molecule) -> stk.Molecule:
+    def optimize(self, mol: T) -> T:
         """Optimize `mol`.
 
-        Parameters
-        ----------
-            mol:
-                The molecule to be optimized.
+        Parameters:
+            mol: The molecule to be optimized.
 
         Returns:
-        -------
-            mol:
-                The optimized molecule.
+            The optimized molecule.
 
         """
         raise NotImplementedError
@@ -84,8 +81,12 @@ class Optimizer:
 class OptimizerSequence(Optimizer):
     """Applies optimizers in sequence.
 
+    Parameters:
+        optimizers:
+            A number of optimizers, each of which gets applied to a
+            molecule, based on the order given.
+
     Examples:
-    --------
         Let's say we want to embed a molecule with ETKDG first and then
         minimize it with the MMFF force field.
 
@@ -101,18 +102,13 @@ class OptimizerSequence(Optimizer):
     """
 
     def __init__(self, *optimizers: Optimizer) -> None:
-        """Parameters
-        *optimizers:
-            A number of optimizers, each of which gets applied to a
-            molecule, based on the order given.
-
-        """
         self._optimizers = optimizers
 
-    def optimize(self, mol: stk.Molecule) -> stk.Molecule:
+    def optimize(self, mol: T) -> T:
         for optimizer in self._optimizers:
             cls_name = optimizer.__class__.__name__
-            logger.info(f'Using {cls_name} on "{mol}".')
+            msg = f'Using {cls_name} on "{mol}".'
+            logger.info(msg)
             mol = optimizer.optimize(mol)
 
         return mol
@@ -121,8 +117,17 @@ class OptimizerSequence(Optimizer):
 class TryCatchOptimizer(Optimizer):
     """Try to optimize with a Optimizer, use another on failure.
 
+    Parameters:
+        try_optimizer
+            The optimizer which is used initially to try and optimize a
+            :class:`stk.Molecule`.
+
+        catch_optimizer:
+            If `try_optimizer` raises an error, this optimizer is
+            run on the :class:`stk.Molecule` instead.
+
+
     Examples:
-    --------
         .. code-block:: python
 
             import stk
@@ -159,31 +164,17 @@ class TryCatchOptimizer(Optimizer):
         try_optimizer: Optimizer,
         catch_optimizer: Optimizer,
     ) -> None:
-        """Parameters
-        try_optimizer
-            The optimizer which is used initially to try and optimize a
-            :class:`stk.Molecule`.
-
-        catch_optimizer:
-            If `try_optimizer` raises an error, this optimizer is
-            run on the :class:`stk.Molecule` instead.
-
-        """
         self._try_optimizer = try_optimizer
         self._catch_optimizer = catch_optimizer
 
-    def optimize(self, mol: stk.Molecule) -> stk.Molecule:
+    def optimize(self, mol: T) -> T:
         """Optimize `mol`.
 
-        Parameters
-        ----------
-            mol:
-                The molecule to be optimized.
+        Parameters:
+            mol: The molecule to be optimized.
 
         Returns:
-        -------
-            mol:
-                The molecule to be optimized.
+            The molecule to be optimized.
 
         """
         try:
@@ -191,7 +182,6 @@ class TryCatchOptimizer(Optimizer):
         except Exception:
             try_name = self._try_optimizer.__class__.__name__
             catch_name = self._catch_optimizer.__class__.__name__
-            logger.error(
-                f"{try_name} failed, trying {catch_name}.", exc_info=True
-            )
+            msg = f"{try_name} failed, trying {catch_name}."
+            logger.exception(msg)
             return self._catch_optimizer.optimize(mol)
