@@ -26,7 +26,7 @@ check:
   ( set -x; ruff format --check . )
 
   echo
-  ( set -x; mypy src )
+  ( set -x; mypy src examples )
 
   echo
   ( set -x; pytest --cov=stko --cov-report term-missing )

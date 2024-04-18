@@ -96,7 +96,7 @@ class Aligner(Optimizer):
     def __init__(
         self,
         initial_molecule: stk.Molecule,
-        matching_pairs: tuple[tuple[str]],
+        matching_pairs: tuple[tuple[str, ...]],
     ) -> None:
         """Parameters
         initial_molecule:

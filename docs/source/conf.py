@@ -9,7 +9,7 @@
 # -- Project information ----------------------------------------------
 
 project = "stko"
-copyright = "2023, Steven Bennett, Andrew Tarzia, Lukas Turcani"
+project_copyright = "2023, Steven Bennett, Andrew Tarzia, Lukas Turcani"
 author = "Steven Bennett, Andrew Tarzia, Lukas Turcani"
 
 # -- General configuration ---------------------------------------------------

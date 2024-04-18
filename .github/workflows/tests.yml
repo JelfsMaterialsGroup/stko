@@ -25,7 +25,7 @@ jobs:
           python-version: "3.11"
           cache: "pip"
       - run: "pip install -e '.[dev]'"
-      - run: mypy src
+      - run: mypy src examples
   ruff-format:
     runs-on: ubuntu-22.04
     steps:
