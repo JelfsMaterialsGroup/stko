@@ -1,3 +1,5 @@
+"""Molecular optimisers and property calculators for use with ``stk``."""
+
 from stko import functional_groups, molecule_analysis
 from stko._internal.calculators.extractors.orca_extractor import OrcaExtractor
 from stko._internal.calculators.extractors.xtb_extractor import XTBExtractor
