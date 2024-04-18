@@ -1,7 +1,7 @@
 class CaseData:
     """A test case.
 
-    Attributes
+    Attributes:
     ----------
     molecule : :class:`stk.Molecule`
         The molecule to test.

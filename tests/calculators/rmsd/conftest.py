@@ -7,7 +7,7 @@ import stko
 class CaseData:
     """A test case.
 
-    Attributes
+    Attributes:
     ----------
         mol1:
             The first molecule to be tested.
@@ -105,9 +105,7 @@ _cc_molecule = stk.BuildingBlock("[C][C]")
     ],
 )
 def case_data(request):
-    """A pair of :class:`stk.Molecule` instances and an RMSD.
-
-    """
+    """A pair of :class:`stk.Molecule` instances and an RMSD."""
     return request.param
 
 
@@ -142,9 +140,7 @@ def case_data(request):
     ],
 )
 def ignore_h_case_data(request):
-    """A pair of :class:`stk.Molecule` instances and an RMSD.
-
-    """
+    """A pair of :class:`stk.Molecule` instances and an RMSD."""
     return request.param
 
 
@@ -164,9 +160,7 @@ def ignore_h_case_data(request):
     ],
 )
 def different_case_data(request):
-    """A pair of :class:`stk.Molecule` instances and an RMSD.
-
-    """
+    """A pair of :class:`stk.Molecule` instances and an RMSD."""
     return request.param
 
 
@@ -196,9 +190,7 @@ def different_case_data(request):
     ],
 )
 def ordering_case_data(request):
-    """A pair of :class:`stk.Molecule` instances and an RMSD.
-
-    """
+    """A pair of :class:`stk.Molecule` instances and an RMSD."""
     return request.param
 
 
@@ -268,7 +260,5 @@ def ordering_case_data(request):
     ],
 )
 def aligned_case_data(request):
-    """A pair of :class:`stk.Molecule` instances and an RMSD.
-
-    """
+    """A pair of :class:`stk.Molecule` instances and an RMSD."""
     return request.param

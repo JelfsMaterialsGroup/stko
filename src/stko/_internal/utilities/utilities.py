@@ -20,11 +20,11 @@ def is_valid_xtb_solvent(
         solvent:
             Solvent being tested.
 
-    Returns
+    Returns:
     -------
         ``True`` if solvent is valid.
 
-    References
+    References:
     ----------
         .. [#] https://xtb-docs.readthedocs.io/en/latest/gbsa.html
 
@@ -126,9 +126,7 @@ def get_atom_distance(
     atom1_id: int,
     atom2_id: int,
 ) -> float:
-    """Return the distance between two atoms.
-
-    """
+    """Return the distance between two atoms."""
     distance = euclidean(
         u=position_matrix[atom1_id],
         v=position_matrix[atom2_id],
@@ -180,9 +178,7 @@ def calculate_dihedral(
 
 
 def unit_vector(vector: np.ndarray) -> np.ndarray:
-    """Returns the unit vector of the vector.
-
-    """
+    """Returns the unit vector of the vector."""
     return vector / np.linalg.norm(vector)
 
 
@@ -199,7 +195,7 @@ def vector_angle(vector1: np.ndarray, vector2: np.ndarray) -> float:
         vector2:
             The second vector.
 
-    Returns
+    Returns:
     -------
         The angle between `vector1` and `vector2` in radians.
 
@@ -215,9 +211,7 @@ def calculate_angle(
     pt2: np.ndarray,
     pt3: np.ndarray,
 ) -> float:
-    """Calculate the angle between three points in degrees.
-
-    """
+    """Calculate the angle between three points in degrees."""
     v1 = pt1 - pt2
     v2 = pt3 - pt2
     return np.degrees(vector_angle(v1, v2))
@@ -246,7 +240,7 @@ def get_torsion_info_angles(  # type: ignore[no-untyped-def]
         torsion_info:
             Specifies the torsion for which angles will be computed.
 
-    Returns
+    Returns:
     -------
         The angle and the bb_angle in degrees.
 

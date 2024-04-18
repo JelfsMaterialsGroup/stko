@@ -43,7 +43,7 @@ class Subgroup:
             molecule:
                 The molecule to analyse.
 
-        Returns
+        Returns:
         -------
             List of measures.
 
@@ -215,9 +215,7 @@ class SubgroupAnalyser:
     """
 
     def calculate(self, molecule: stk.Molecule) -> dict[str, list[float]]:
-        """Calculate the all possible fg values in molecule.
-
-        """
+        """Calculate the all possible fg values in molecule."""
         fg_definitions = {
             "c6_planarity": C6Planarity(),
             "c5n1_planarity": C5N1Planarity(),

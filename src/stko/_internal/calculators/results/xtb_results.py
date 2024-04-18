@@ -4,9 +4,7 @@ from stko._internal.calculators.extractors.xtb_extractor import XTBExtractor
 
 
 class XTBResults:
-    """Results class containing molecule xTB properties.
-
-    """
+    """Results class containing molecule xTB properties."""
 
     def __init__(
         self,

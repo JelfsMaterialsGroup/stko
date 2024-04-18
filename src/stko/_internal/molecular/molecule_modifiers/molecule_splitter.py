@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 class MoleculeSplitter:
     """Split an stk.molecule into many with dummy atoms.
 
-    Examples
+    Examples:
     --------
         Given a molecule, this class allows you to break bonds based on
         `breaker_smarts` between the atoms in `bond_deleter_ids`.
@@ -59,7 +59,7 @@ class MoleculeSplitter:
             molecule:
                 Molecule to modify.
 
-        Returns
+        Returns:
         -------
             molecules:
                 The resulting list of molecules.

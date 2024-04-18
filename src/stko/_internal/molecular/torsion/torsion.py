@@ -7,9 +7,7 @@ logger = logging.getLogger(__name__)
 
 
 class Torsion:
-    """Represents a torsion angle in a molecule.
-
-    """
+    """Represents a torsion angle in a molecule."""
 
     def __init__(
         self,

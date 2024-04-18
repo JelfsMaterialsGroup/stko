@@ -4,9 +4,7 @@ from stko._internal.calculators.extractors.orca_extractor import OrcaExtractor
 
 
 class OrcaResults:
-    """Results class containing molecule Orca properties.
-
-    """
+    """Results class containing molecule Orca properties."""
 
     def __init__(
         self,

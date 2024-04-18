@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 class MMFFEnergy:
     """Uses the MMFF force field to calculate energies.
 
-    Examples
+    Examples:
     --------
         .. code-block:: python
 
@@ -54,7 +54,7 @@ class MMFFEnergy:
             mol:
                 The :class:`stk.Molecule` whose energy is to be calculated.
 
-        Returns
+        Returns:
         -------
             The energy and units of the energy.
 
@@ -72,7 +72,7 @@ class MMFFEnergy:
             mol:
                 The :class:`stk.Molecule` whose energy is to be calculated.
 
-        Returns
+        Returns:
         -------
             The energy.
 
@@ -83,7 +83,7 @@ class MMFFEnergy:
 class UFFEnergy:
     """Uses the UFF force field to calculate energies.
 
-    Examples
+    Examples:
     --------
         .. code-block:: python
 
@@ -127,7 +127,7 @@ class UFFEnergy:
             mol:
                 The :class:`stk.Molecule` whose energy is to be calculated.
 
-        Returns
+        Returns:
         -------
             The energy and units of the energy.
 
@@ -145,7 +145,7 @@ class UFFEnergy:
             mol:
                 The :class:`stk.Molecule` whose energy is to be calculated.
 
-        Returns
+        Returns:
         -------
             The energy.
 

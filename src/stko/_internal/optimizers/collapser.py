@@ -51,7 +51,7 @@ class Collapser(Optimizer):
         )
         cage1 = optimizer.optimize(mol=cage1)
 
-    References
+    References:
     ----------
         .. [1] https://github.com/andrewtarzia/MCHammer
 
@@ -119,9 +119,7 @@ class Collapser(Optimizer):
                 yield dist
 
     def _has_short_contacts(self, mol: stk.Molecule) -> bool:
-        """Calculate if there are short contants in mol.
-
-        """
+        """Calculate if there are short contants in mol."""
         return any(
             dist < self._distance_cut
             for dist in self._get_inter_bb_distance(mol)
@@ -134,9 +132,7 @@ class Collapser(Optimizer):
         vectors: dict[int, np.ndarray],
         scales: dict,
     ) -> np.ndarray:
-        """Get the position matrix of the mol after translation.
-
-        """
+        """Get the position matrix of the mol after translation."""
         new_position_matrix = mol.get_position_matrix()
         for atom in mol.get_atom_infos():  # type:ignore[attr-defined]
             bb_id = atom.get_building_block_id()
@@ -154,9 +150,7 @@ class Collapser(Optimizer):
         step: float,
         scales: dict,
     ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
-        """Get the unit cell vectors after collapse step.
-
-        """
+        """Get the unit cell vectors after collapse step."""
         vector_1 = unit_cell.get_vector_1()
         vector_2 = unit_cell.get_vector_2()
         vector_3 = unit_cell.get_vector_3()
@@ -186,7 +180,7 @@ class Collapser(Optimizer):
                 atom ids (values) in each distinct building block in the
                 molecule.
 
-        Returns
+        Returns:
         -------
             bb_cent_vectors:
                 Dictionary mapping building block ids (keys) to centroid
@@ -312,7 +306,7 @@ class Collapser(Optimizer):
             unit_cell:
                 The cell to be optimized.
 
-        Returns
+        Returns:
         -------
             mol:
                 The optimized molecule.
@@ -450,7 +444,7 @@ class CollapserMC(Collapser):
     Smarter optimisation than Collapser using simple Monte Carlo
     algorithm to perform rigid translations of building blocks.
 
-    References
+    References:
     ----------
         .. [2] https://github.com/andrewtarzia/MCHammer
 
@@ -558,9 +552,7 @@ class CollapserMC(Collapser):
         self,
         mol: stk.Molecule,
     ) -> dict[tuple[int, int], stk.BondInfo]:
-        """Returns dict of long bond infos.
-
-        """
+        """Returns dict of long bond infos."""
         long_bond_infos: dict[tuple[int, int], stk.BondInfo] = {}
         for bond_infos in mol.get_bond_infos():  # type: ignore[attr-defined]
             if bond_infos.get_building_block() is None:
@@ -577,9 +569,7 @@ class CollapserMC(Collapser):
         mol: stk.Molecule,
         bb_atom_ids: dict[int, tuple[int, ...]],
     ) -> dict[int, np.ndarray]:
-        """Returns dict of building block centroids.
-
-        """
+        """Returns dict of building block centroids."""
         bb_centroids = {
             i: mol.get_centroid(atom_ids=bb_atom_ids[i]) for i in bb_atom_ids
         }
@@ -592,19 +582,15 @@ class CollapserMC(Collapser):
         bb_centroids: dict[int, np.ndarray],
         long_bond_infos: dict[tuple, stk.BondInfo],
     ) -> dict[tuple[int, int], tuple[float]]:
-        """Returns dict of long bond atom to bb centroid vectors.
-
-        """
+        """Returns dict of long bond atom to bb centroid vectors."""
         position_matrix = mol.get_position_matrix()
         centroid_to_lb_vectors: dict[tuple[int, int], tuple[float]] = {}
         for bb in bb_centroids:
             cent = bb_centroids[bb]
             for b_atom_ids, bond_info in long_bond_infos.items():
                 for atom_id in b_atom_ids:
-                    (atom_info,) = (
-                        mol.get_atom_infos(  # type: ignore[attr-defined]
-                            atom_id
-                        )
+                    (atom_info,) = mol.get_atom_infos(  # type: ignore[attr-defined]
+                        atom_id
                     )
                     atom_pos = position_matrix[atom_id]
                     if atom_info.get_building_block_id() == bb:

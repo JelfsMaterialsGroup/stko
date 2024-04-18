@@ -28,7 +28,7 @@ class OrcaEnergy:
     like more customization or to run outside of the Python
     environment.
 
-    Notes
+    Notes:
     -----
         When running :meth:`calculate`, this calculator changes the
         present working directory with :func:`os.chdir`. The original
@@ -43,7 +43,7 @@ class OrcaEnergy:
         Note that this does not have any impact on multi-processing,
         which should always be safe.
 
-    Examples
+    Examples:
     --------
         .. code-block:: python
 
@@ -99,7 +99,7 @@ class OrcaEnergy:
 
             orca.get_results(polymer)
 
-    References
+    References:
     ----------
         .. [#] https://orcaforum.kofo.mpg.de/app.php/portal
 
@@ -296,7 +296,7 @@ class OrcaEnergy:
             mol:
                 The :class:`stk.Molecule` whose energy is to be calculated.
 
-        Returns
+        Returns:
         -------
             The properties, with units, from Orca calculations or `None`
             if `write_input_only` mode.
@@ -327,7 +327,7 @@ class OrcaEnergy:
             mol:
                 The :class:`stk.Molecule` whose energy is to be calculated.
 
-        Returns
+        Returns:
         -------
             The energy or `None` if `write_input_only` mode.
 

@@ -7,7 +7,7 @@ def test_get_position(case_data):
         A test case, containing the atom to test and its correct atomic
         number.
 
-    Returns
+    Returns:
     -------
     None : :class:`NoneType`
 
@@ -27,7 +27,7 @@ def _test_get_position(atom, position):
         The position (`x`, `y`, `z`) of the atom in cartesian
         coordinates.
 
-    Returns
+    Returns:
     -------
     None : :class:`NoneType`
 

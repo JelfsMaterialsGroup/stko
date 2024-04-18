@@ -6,7 +6,7 @@ import stk
 class CaseData:
     """A test case.
 
-    Attributes
+    Attributes:
     ----------
         molecule:
             The molecule to be tested.
@@ -55,16 +55,14 @@ class CaseData:
     ],
 )
 def case_molecule(request):
-    """A :class:`stk.Molecule` instance.
-
-    """
+    """A :class:`stk.Molecule` instance."""
     return request.param
 
 
 class CasePotential:
     """A test case.
 
-    Attributes
+    Attributes:
     ----------
         molecule:
             The molecule to be tested.
@@ -143,7 +141,5 @@ class CasePotential:
     ],
 )
 def case_potential(request):
-    """A :class:`stk.Molecule` instance.
-
-    """
+    """A :class:`stk.Molecule` instance."""
     return request.param

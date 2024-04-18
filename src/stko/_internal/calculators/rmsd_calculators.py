@@ -23,7 +23,7 @@ class RmsdCalculator:
     No alignment of the two molecules occurs. However, both molecules
     are moved to a centroid position of (0, 0, 0).
 
-    Examples
+    Examples:
     --------
         .. code-block:: python
 
@@ -122,7 +122,7 @@ class RmsdCalculator:
             mol:
                 The :class:`stk.Molecule` to calculate RMSD to.
 
-        Returns
+        Returns:
         -------
             The RMSD between the molecules.
 
@@ -142,7 +142,7 @@ class RmsdMappedCalculator(RmsdCalculator):
     Warning: the RMSD depends on the order, i.e. it is not guaranteed
     to be the same when you switch the initial and test molecule.
 
-    Examples
+    Examples:
     --------
         .. code-block:: python
 

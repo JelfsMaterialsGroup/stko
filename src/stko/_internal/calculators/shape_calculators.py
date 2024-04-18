@@ -14,7 +14,7 @@ class ShapeCalculator:
     Uses :mod:`rdkit` 3D Descriptors [#]_ module to calculate all
     measures.
 
-    Examples
+    Examples:
     --------
         .. code-block:: python
 
@@ -26,7 +26,7 @@ class ShapeCalculator:
             shape_results = shape_calc.get_results(bb1)
             eccentricity  = shape_results.get_eccentricity()
 
-    References
+    References:
     ----------
         .. [#] https://www.rdkit.org/docs/source/rdkit.Chem.Descriptors3D.html
 
@@ -57,7 +57,7 @@ class ShapeCalculator:
             mol:
                 The :class:`stk.Molecule` whose energy is to be calculated.
 
-        Returns
+        Returns:
         -------
             The shape measures of the molecule.
 

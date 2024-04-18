@@ -21,7 +21,7 @@ class MMFF(Optimizer):
     Warning: this optimizer seems to be machine dependant, producing
     different energies after optimisation on Ubunut 18 vs. Ubuntu 20.
 
-    Examples
+    Examples:
     --------
         .. code-block:: python
 
@@ -32,7 +32,7 @@ class MMFF(Optimizer):
             mmff = stko.MMFF()
             mol = mmff.optimize(mol)
 
-    References
+    References:
     ----------
         .. [1] https://www.rdkit.org/
 
@@ -62,7 +62,7 @@ class UFF(Optimizer):
     Warning: this optimizer seems to be machine dependant, producing
     different energies after optimisation on Ubunut 18 vs. Ubuntu 20.
 
-    Examples
+    Examples:
     --------
         .. code-block:: python
 
@@ -73,7 +73,7 @@ class UFF(Optimizer):
             uff = stko.UFF()
             mol = uff.optimize(mol)
 
-    References
+    References:
     ----------
         .. [2] https://www.rdkit.org/
 
@@ -100,7 +100,7 @@ class UFF(Optimizer):
 class ETKDG(Optimizer):
     """Uses ETKDG [3]_ v2 algorithm in :mod:`rdkit` [4]_ to optimize a structure.
 
-    Examples
+    Examples:
     --------
         .. code-block:: python
 
@@ -111,7 +111,7 @@ class ETKDG(Optimizer):
             etkdg = stko.ETKDG()
             mol = etkdg.optimize(mol)
 
-    References
+    References:
     ----------
         .. [3] http://pubs.acs.org/doi/pdf/10.1021/acs.jcim.5b00654
         .. [4] https://www.rdkit.org/
@@ -143,7 +143,7 @@ class ETKDG(Optimizer):
 class MetalOptimizer(Optimizer):
     """Applies forcefield optimizers in :mod:`rdkit` [5]_ that can handle metals.
 
-    Notes
+    Notes:
     -----
         By default, :meth:`optimize` will run a restricted optimization
         using constraints and the UFF. To implement this, metal atoms are
@@ -156,7 +156,7 @@ class MetalOptimizer(Optimizer):
         Warning: this optimizer seems to be machine dependant, producing
         different energies after optimisation on Ubunut 18 vs. Ubuntu 20.
 
-    Examples
+    Examples:
     --------
         :class:`MetalOptimizer` allows for the restricted optimization of
         :class:`ConstructedMolecule` instances containing metals. Note that
@@ -220,7 +220,7 @@ class MetalOptimizer(Optimizer):
             # Optimize.
             cage1 = optimizer.optimize(mol=cage1)
 
-    References
+    References:
     ----------
         .. [5] https://www.rdkit.org/
 

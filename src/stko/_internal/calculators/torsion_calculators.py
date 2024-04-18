@@ -20,7 +20,7 @@ class TorsionCalculator:
     one torsion for each rotatable bond. We use the
     `TorsionFingerprints.CalculateTorsionLists` method.
 
-    Examples
+    Examples:
     --------
         .. code-block:: python
 
@@ -38,7 +38,7 @@ class TorsionCalculator:
             for t, ang in tc_results.get_torsion_angles():
                 print(t, ang, t.get_atom_ids())
 
-    References
+    References:
     ----------
         .. [1] http://rdkit.org/docs/source/rdkit.Chem.TorsionFingerprints.html
 
@@ -65,7 +65,7 @@ class TorsionCalculator:
             mol:
                 The :class:`stk.Molecule` whose torsions are to be calculated.
 
-        Returns
+        Returns:
         -------
             The torsions of the molecule.
 
@@ -80,7 +80,7 @@ class ConstructedMoleculeTorsionCalculator:
     one torsion for each rotatable bond. We use the
     `TorsionFingerprints.CalculateTorsionLists` method.
 
-    Examples
+    Examples:
     --------
         .. code-block:: python
 
@@ -115,7 +115,7 @@ class ConstructedMoleculeTorsionCalculator:
                     t.get_building_block_torsion(),
                 )
 
-    References
+    References:
     ----------
         .. [2] http://rdkit.org/docs/source/rdkit.Chem.TorsionFingerprints.html
 
@@ -145,7 +145,7 @@ class ConstructedMoleculeTorsionCalculator:
             mol:
                 The molecule whose torsions are to be calculated.
 
-        Returns
+        Returns:
         -------
             The torsions of the molecule.
 
@@ -157,9 +157,7 @@ class ConstructedMoleculeTorsionCalculator:
 
 
 class MatchedTorsionCalculator(ConstructedMoleculeTorsionCalculator):
-    """Matches rdkit generated torsions with building block torsions.
-
-    """
+    """Matches rdkit generated torsions with building block torsions."""
 
     def calculate(
         self,

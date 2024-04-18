@@ -72,7 +72,7 @@ class Optimizer:
             mol:
                 The molecule to be optimized.
 
-        Returns
+        Returns:
         -------
             mol:
                 The optimized molecule.
@@ -84,7 +84,7 @@ class Optimizer:
 class OptimizerSequence(Optimizer):
     """Applies optimizers in sequence.
 
-    Examples
+    Examples:
     --------
         Let's say we want to embed a molecule with ETKDG first and then
         minimize it with the MMFF force field.
@@ -121,7 +121,7 @@ class OptimizerSequence(Optimizer):
 class TryCatchOptimizer(Optimizer):
     """Try to optimize with a Optimizer, use another on failure.
 
-    Examples
+    Examples:
     --------
         .. code-block:: python
 
@@ -180,7 +180,7 @@ class TryCatchOptimizer(Optimizer):
             mol:
                 The molecule to be optimized.
 
-        Returns
+        Returns:
         -------
             mol:
                 The molecule to be optimized.

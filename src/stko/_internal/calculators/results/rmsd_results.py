@@ -1,7 +1,5 @@
 class RmsdResults:
-    """Results class containing RMSD measures.
-
-    """
+    """Results class containing RMSD measures."""
 
     def __init__(self, value: float) -> None:
         self._value = value

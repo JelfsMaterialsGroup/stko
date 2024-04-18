@@ -7,9 +7,7 @@ logger = logging.getLogger(__name__)
 
 
 class Du:
-    """Dummy of an stk.Atom.
-
-    """
+    """Dummy of an stk.Atom."""
 
     def __init__(self, id: int) -> None:
         """Parameters

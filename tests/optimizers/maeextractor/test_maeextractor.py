@@ -4,9 +4,7 @@ from stko import MAEExtractor
 
 
 def test_maeextractor(case_data):
-    """Test :class:`.MAEExtractor`.
-
-    """
+    """Test :class:`.MAEExtractor`."""
     dir_path = os.path.dirname(os.path.realpath(__file__))
     # Extract the lowest energy conformer into its own .mae file.
     extractor = MAEExtractor(

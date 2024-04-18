@@ -9,7 +9,7 @@ def test_zmatrix(case_data):
     case_data : :class:`.CaseData`
         The test case.
 
-    Returns
+    Returns:
     -------
     None : :class:`NoneType`
 
@@ -28,7 +28,7 @@ def _test_zmatrix(molecule, zmatrix):
     zmatrix : :class:`str`
         The correct Z-matrix string.
 
-    Returns
+    Returns:
     -------
     None : :class:`NoneType`
 

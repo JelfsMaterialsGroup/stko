@@ -58,7 +58,7 @@ _octahedral = stk.ConstructedMolecule(
 class CaseData:
     """A test case.
 
-    Attributes
+    Attributes:
     ----------
         molecule:
             The molecule to be tested.

@@ -1,7 +1,7 @@
 class CaseData:
     """An :class:`.PositionedAtom` test case.
 
-    Attributes
+    Attributes:
     ----------
     atom : :class:`.PositionedAtom`
         The atom being tested.

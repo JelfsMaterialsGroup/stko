@@ -24,9 +24,7 @@ class UnitCell(PeriodicInfo):
         vector_2: np.ndarray,
         vector_3: np.ndarray,
     ) -> Self:
-        """Return clone of :class:`.UnitCell` with new parameters.
-
-        """
+        """Return clone of :class:`.UnitCell` with new parameters."""
         clone = cls.__new__(cls)
         UnitCell.__init__(
             self=clone,
@@ -59,7 +57,7 @@ class UnitCell(PeriodicInfo):
                 Third cell lattice vector of shape (3, ) in
                 Angstrom.
 
-        Returns
+        Returns:
         -------
             Clone with updated cell parameters.
 
@@ -73,7 +71,7 @@ class UnitCell(PeriodicInfo):
     def with_cell_from_turbomole(self, filename: str) -> Self:
         """Update cell from structure in Turbomole coord file.
 
-        Returns
+        Returns:
         -------
             Clone with updated cell parameters.
 
@@ -179,7 +177,7 @@ class UnitCell(PeriodicInfo):
     def with_cell_from_cif(self, filename: str) -> Self:
         """Update cell from structure in CIF.
 
-        Returns
+        Returns:
         -------
             Clone with updated cell parameters.
 

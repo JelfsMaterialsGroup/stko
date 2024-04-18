@@ -34,7 +34,7 @@ complex = stk.ConstructedMolecule(
 class CaseData:
     """A test case.
 
-    Attributes
+    Attributes:
     ----------
     molecule : :class:`stk.Molecule`
         The molecule to be tested.

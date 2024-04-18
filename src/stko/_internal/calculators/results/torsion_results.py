@@ -7,9 +7,7 @@ from stko._internal.utilities.utilities import calculate_dihedral
 
 
 class TorsionResults:
-    """Results class containing molecule torsions.
-
-    """
+    """Results class containing molecule torsions."""
 
     def __init__(self, generator: abc.Generator, mol: stk.Molecule):
         self._torsions = next(generator)
@@ -51,9 +49,7 @@ class TorsionResults:
 
 
 class ConstructedMoleculeTorsionResults(TorsionResults):
-    """Results class containing molecule torsions.
-
-    """
+    """Results class containing molecule torsions."""
 
     def __init__(
         self,
@@ -66,9 +62,7 @@ class ConstructedMoleculeTorsionResults(TorsionResults):
     def get_torsion_infos_by_building_block(
         self,
     ) -> dict[int | None, list[TorsionInfo]]:
-        """Returns dictionary of torsions by building block.
-
-        """
+        """Returns dictionary of torsions by building block."""
         torsion_infos_by_building_block = defaultdict(list)
         for torsion_info in self.get_torsion_infos():
             if torsion_info.get_building_block_id() is not None:

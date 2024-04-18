@@ -7,7 +7,7 @@ def test_get_atomic_number(case_data):
         A test case, containing the atom to test and its correct atomic
         number.
 
-    Returns
+    Returns:
     -------
     None : :class:`NoneType`
 
@@ -26,7 +26,7 @@ def _test_get_atomic_number(atom, atomic_number):
     atomic_number : :class:`int`
         The correct atomic number of `atom`.
 
-    Returns
+    Returns:
     -------
     None : :class:`NoneType`
 

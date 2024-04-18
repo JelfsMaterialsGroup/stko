@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 class MDAnalysis:
     """Converter for :class:`stk.Molecule` to and from MDAnalysis.
 
-    Examples
+    Examples:
     --------
         An stk molecule can be converted into an MDAnalysis Universe.
 
@@ -54,7 +54,7 @@ class MDAnalysis:
             mol:
                 Molecule to convert.
 
-        Returns
+        Returns:
         -------
             :class:`MDAnalysis.Universe`:
                 The MDAnalysis Universe of the molecule.

@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 class MoleculeTransformer:
     """Split an stk.molecule into many with new functional groups.
 
-    Examples
+    Examples:
     --------
         Given a molecule, this class allows you to cap a split molecule
         (see :class:`MoleculeSplitter`) at the broken bond with an atom
@@ -53,7 +53,7 @@ class MoleculeTransformer:
                 Functional group factories to use to define new building
                 block.
 
-        Raises
+        Raises:
         ------
             :class:`ValueError` If `replacer_smarts` does not correspond
             to a single atom.
@@ -84,7 +84,7 @@ class MoleculeTransformer:
             molecule:
                 Molecule to modify.
 
-        Returns
+        Returns:
         -------
             molecule:
                 The resulting molecule.

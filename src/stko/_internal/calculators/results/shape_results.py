@@ -2,9 +2,7 @@ from collections import abc
 
 
 class ShapeResults:
-    """Results class containing molecule shape measures.
-
-    """
+    """Results class containing molecule shape measures."""
 
     def __init__(self, generator: abc.Iterable):
         self._values = next(generator)  # type: ignore[call-overload]

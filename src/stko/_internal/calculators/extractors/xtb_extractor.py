@@ -8,7 +8,7 @@ class XTBExtractor:
 
     All formatting based on the 190418 version of xTB.
 
-    Attributes
+    Attributes:
     ----------
         output_file:
             Output file to extract properties from.
@@ -73,7 +73,7 @@ class XTBExtractor:
             The vertical electron affinity in the :attr:`output_file`.
             Corresponds to the delta SCC EA.
 
-    Examples
+    Examples:
     --------
         .. code-block:: python
 
@@ -324,9 +324,7 @@ class XTBExtractor:
         )
 
     def _extract_frequencies(self) -> None:
-        """Updates :attr:`frequencies`.
-
-        """
+        """Updates :attr:`frequencies`."""
         test = "|               Frequency Printout                |"
 
         # Use a switch to make sure we are extracting values after the

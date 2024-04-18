@@ -96,9 +96,7 @@ def atom_types():
 
 @pytest.fixture()
 def trajectory():
-    """Defines output of the trajectory properties ignoring coords.
-
-    """
+    """Defines output of the trajectory properties ignoring coords."""
     return {
         0: {
             "time": 2.99999999999978,

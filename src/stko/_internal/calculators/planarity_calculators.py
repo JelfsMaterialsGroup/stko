@@ -24,7 +24,7 @@ class PlanarityCalculator:
     Planarity parameter: defined as
     sqrt((1/num_atoms) * (sum d_i ** 2)) (MPP in [2]_)
 
-    Examples
+    Examples:
     --------
         .. code-block:: python
 
@@ -43,7 +43,7 @@ class PlanarityCalculator:
             plane_deviation_span = pc_results.get_plane_deviation_span()
             planarity_parameter = pc_results.get_planarity_parameter()
 
-    References
+    References:
     ----------
         .. [1] https://onlinelibrary.wiley.com/doi/10.1002/anie.202106721
 
@@ -67,9 +67,7 @@ class PlanarityCalculator:
         plane: np.ndarray,
         point: np.ndarray,
     ) -> float:
-        """Calculate the perpendicular distance from a point and a plane.
-
-        """
+        """Calculate the perpendicular distance from a point and a plane."""
         top = (
             plane[0] * point[0]
             + plane[1] * point[1]
@@ -130,7 +128,7 @@ class PlanarityCalculator:
             deviation_atom_ids:
                 The atom ids to use to calculate planarity.
 
-        Yields
+        Yields:
         ------
             Dictionary of results.
 
@@ -176,7 +174,7 @@ class PlanarityCalculator:
             deviation_atom_ids:
                 The atom ids to use to calculate planarity.
 
-        Returns
+        Returns:
         -------
             The planarity measures of the molecule.
 

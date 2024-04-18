@@ -2,9 +2,7 @@ from collections import abc
 
 
 class PlanarityResults:
-    """Results class containing molecule planarity measures.
-
-    """
+    """Results class containing molecule planarity measures."""
 
     def __init__(self, generator: abc.Iterable) -> None:
         self._values = next(generator)  # type: ignore[call-overload]

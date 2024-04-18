@@ -4,7 +4,7 @@ import stk
 class CaseData:
     """A test case.
 
-    Attributes
+    Attributes:
     ----------
         cage:
             The cage to decompose.

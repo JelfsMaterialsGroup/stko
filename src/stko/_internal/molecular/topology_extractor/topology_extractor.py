@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 class TopologyExtractor:
     """Extractor of topology definitions from a molecule.
 
-    Examples
+    Examples:
     --------
         Using a SMARTS string and the
         :class:`stk.SmartsFunctionalGroupFactory`, you can split a molecule
@@ -80,7 +80,7 @@ class TopologyExtractor:
             disconnectors:
                 Atom ids of disconnection points.
 
-        Returns
+        Returns:
         -------
             Information of the underlying topology.
 

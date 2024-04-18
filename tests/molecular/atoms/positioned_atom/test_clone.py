@@ -9,7 +9,7 @@ def test_clone(positioned_atom):
     atom : :class:`.PositionedAtom`
         The atom to be cloned.
 
-    Returns
+    Returns:
     -------
     None : :class:`NoneType`
 

@@ -50,7 +50,7 @@ class GeometryAnalyser:
                 The atomic numbers to delete. Can be a tuple of one or
                 any element on periodic table.
 
-        Returns
+        Returns:
         -------
             The distances and associated metal atom ids.
 
@@ -84,7 +84,7 @@ class GeometryAnalyser:
                 The atomic numbers to delete. Can be a tuple of one or
                 any element on periodic table.
 
-        Returns
+        Returns:
         -------
             The angles in degrees and associated metal atom ids.
 
@@ -114,7 +114,7 @@ class GeometryAnalyser:
             molecule:
                 The molecule to analyse.
 
-        Returns
+        Returns:
         -------
             The minimum centroid to atom distance.
 
@@ -137,7 +137,7 @@ class GeometryAnalyser:
             molecule:
                 The molecule to analyse.
 
-        Returns
+        Returns:
         -------
             The average and std. deviation of centroid to atom distances.
 
@@ -172,7 +172,7 @@ class GeometryAnalyser:
             molecule:
                 The molecule to analyse.
 
-        Returns
+        Returns:
         -------
             The minimum distance.
 
@@ -188,7 +188,7 @@ class GeometryAnalyser:
             molecule:
                 The molecule to analyse.
 
-        Returns
+        Returns:
         -------
             R_g in Angstrom.
 
@@ -208,7 +208,7 @@ class GeometryAnalyser:
             molecule:
                 The molecule to analyse.
 
-        Returns
+        Returns:
         -------
             The maximum diameter in Angstrom.
 
@@ -226,7 +226,7 @@ class GeometryAnalyser:
             molecule:
                 The molecule to analyse.
 
-        Returns
+        Returns:
         -------
             Dictionary of bonds organised by element pair.
 
@@ -261,7 +261,7 @@ class GeometryAnalyser:
             molecule:
                 The molecule to analyse.
 
-        Returns
+        Returns:
         -------
             Dictionary of angles organised by element triplet.
 
@@ -323,7 +323,7 @@ class GeometryAnalyser:
             molecule:
                 The molecule to analyse.
 
-        Returns
+        Returns:
         -------
             Dictionary of torsions organised by elements.
 

@@ -70,7 +70,7 @@ class AlignmentPotential(spd.Potential):
 class Aligner(Optimizer):
     """Use SpinDry to align two molecules. [#]_
 
-    Examples
+    Examples:
     --------
         .. code-block:: python
 
@@ -87,7 +87,7 @@ class Aligner(Optimizer):
             aligner = stko.Aligner(mol2, (('N', 'N'), ))
             mol = aligner.optimize(mol)
 
-    References
+    References:
     ----------
         .. [#] https://github.com/andrewtarzia/SpinDry
 

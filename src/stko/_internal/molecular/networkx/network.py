@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 class Network:
     """Definition of a :mod:`networkx` graph of an :class:`stk.Molecule`.
 
-    Examples
+    Examples:
     --------
         An stk molecule can be converted into a NetworkX object. This allows
         for the disconnection and manipulation of the molecular graph.
@@ -85,22 +85,16 @@ class Network:
         return cls(g)
 
     def get_graph(self) -> nx.Graph:
-        """Return a :class:`networkx.Graph`.
-
-        """
+        """Return a :class:`networkx.Graph`."""
         return self._graph
 
     def get_nodes(self) -> abc.Iterator[PositionedAtom]:
-        """Yield nodes of :class:`networkx.Graph` (:class:`PositionAtom`).
-
-        """
+        """Yield nodes of :class:`networkx.Graph` (:class:`PositionAtom`)."""
         for i in self._graph.nodes:
             yield i
 
     def clone(self) -> Self:
-        """Return a clone.
-
-        """
+        """Return a clone."""
         clone = self.__class__.__new__(self.__class__)
         Network.__init__(self=clone, graph=self._graph)
         return clone
@@ -127,9 +121,7 @@ class Network:
         self,
         atom_ids: abc.Iterable[tuple[int, int]],
     ) -> Self:
-        """Return a clone with edges between `atom_ids` deleted.
-
-        """
+        """Return a clone with edges between `atom_ids` deleted."""
         return self.clone()._with_deleted_bonds(atom_ids)
 
     def _with_deleted_elements(self, atomic_numbers: tuple[int]) -> Self:
@@ -167,7 +159,7 @@ class Network:
     def get_connected_components(self) -> list[nx.Graph]:
         """Get connected components within full graph.
 
-        Returns
+        Returns:
         -------
             List of connected components of graph.
 

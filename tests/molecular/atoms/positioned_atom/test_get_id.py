@@ -6,7 +6,7 @@ def test_get_id(case_data):
     case_data : :class:`case_data`
         A test case. Holds the atom to test and its correct id.
 
-    Returns
+    Returns:
     -------
     None : :class:`NoneType`
 

@@ -24,7 +24,7 @@ class DitopicThreeSiteAnalyser:
     def _check_functional_groups(self, molecule: stk.BuildingBlock) -> None:
         """Check if the molecule has two ditopic functional groups.
 
-        Raises
+        Raises:
         ------
             NotDitopicThreeSiteError: if does not have two ThreeSiteFG.
 
@@ -47,7 +47,7 @@ class DitopicThreeSiteAnalyser:
             molecule:
                 Molecule to analyse.
 
-        Raises
+        Raises:
         ------
             NotDitopicThreeSiteError: if does not have two ThreeSiteFG.
 
@@ -75,7 +75,7 @@ class DitopicThreeSiteAnalyser:
             molecule:
                 Molecule to analyse.
 
-        Raises
+        Raises:
         ------
             NotDitopicThreeSiteError: if does not have two ThreeSiteFG.
 
@@ -99,7 +99,7 @@ class DitopicThreeSiteAnalyser:
             molecule:
                 Molecule to analyse.
 
-        Raises
+        Raises:
         ------
             NotDitopicThreeSiteError: if does not have two ThreeSiteFG.
 
@@ -133,7 +133,7 @@ class DitopicThreeSiteAnalyser:
             molecule:
                 Molecule to analyse.
 
-        Raises
+        Raises:
         ------
             NotDitopicThreeSiteError: if does not have two ThreeSiteFG.
 
@@ -162,7 +162,7 @@ class DitopicThreeSiteAnalyser:
             molecule:
                 Molecule to analyse.
 
-        Raises
+        Raises:
         ------
             NotDitopicThreeSiteError: if does not have two ThreeSiteFG.
 
@@ -208,7 +208,7 @@ class DitopicThreeSiteAnalyser:
             molecule:
                 Molecule to analyse.
 
-        Raises
+        Raises:
         ------
             NotDitopicThreeSiteError: if does not have two ThreeSiteFG.
 
@@ -226,7 +226,7 @@ class DitopicThreeSiteAnalyser:
             molecule:
                 Molecule to analyse.
 
-        Raises
+        Raises:
         ------
             NotDitopicThreeSiteError: if does not have two ThreeSiteFG.
 

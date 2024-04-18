@@ -41,7 +41,7 @@ class DecomposeMOC:
                 The atomic numbers to delete. Can be a tuple of one or
                 any element on periodic table.
 
-        Returns
+        Returns:
         -------
             The ligands as distinct, connected molecules.
 

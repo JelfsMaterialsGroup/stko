@@ -12,7 +12,7 @@ def test_repr(positioned_atom):
     atom : :class:`.PositionedAtom`
         The atom, whose representation should be tested.
 
-    Returns
+    Returns:
     -------
     None : :class:`NoneType`
 

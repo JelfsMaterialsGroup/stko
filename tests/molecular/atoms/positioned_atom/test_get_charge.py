@@ -6,7 +6,7 @@ def test_get_charge(case_data):
     case_data : :class:`.CaseData`
         The test case. Holds the atom to test and its correct charge.
 
-    Returns
+    Returns:
     -------
     None : :class:`NoneType`
 

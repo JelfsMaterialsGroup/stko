@@ -4,9 +4,7 @@ from pytest import approx
 
 
 def _polymer_angles_match(bb1, bb2, torsion_index=0):
-    """Attach bb1 to bb2, and test torsion mapping.
-
-    """
+    """Attach bb1 to bb2, and test torsion mapping."""
     polymer = stk.ConstructedMolecule(
         stk.polymer.Linear(
             building_blocks=(bb1, bb2),

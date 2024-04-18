@@ -12,7 +12,7 @@ def test_with_id(positioned_atom, id):
     id : :class:`int`
         The correct id of the new atom.
 
-    Returns
+    Returns:
     -------
     None : :class:`NoneType`
 
@@ -34,7 +34,7 @@ def _test_with_id(positioned_atom, id):
     id : :class:`int`
         The correct id of the new atom.
 
-    Returns
+    Returns:
     -------
     None : :class:`NoneType`
 

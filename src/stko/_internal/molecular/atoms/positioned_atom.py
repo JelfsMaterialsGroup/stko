@@ -7,9 +7,7 @@ logger = logging.getLogger(__name__)
 
 
 class PositionedAtom:
-    """A container for stk.Atom and a coordinate.
-
-    """
+    """A container for stk.Atom and a coordinate."""
 
     def __init__(
         self,
@@ -44,16 +42,14 @@ class PositionedAtom:
         return self._position
 
     def _with_id(self, id: int) -> Self:
-        """Modify the atom id.
-
-        """
+        """Modify the atom id."""
         self._atom = self._atom.with_id(id)
         return self
 
     def with_id(self, id: int) -> Self:
         """Get a clone but with a different id.
 
-        Returns
+        Returns:
         -------
             A clone with a new id. Has the same type as the original
             atom.
@@ -64,7 +60,7 @@ class PositionedAtom:
     def clone(self) -> Self:
         """Return a clone.
 
-        Returns
+        Returns:
         -------
             The clone. It has the same type as the original atom.
 

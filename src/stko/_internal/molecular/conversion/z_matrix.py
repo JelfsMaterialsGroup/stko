@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 class ZMatrix:
     """Converter for :class:`stk.Molecule` to Z-Matrix.
 
-    Examples
+    Examples:
     --------
         The Z-matrix is returned as a string.
 
@@ -37,7 +37,7 @@ class ZMatrix:
             molecule:
                 Molecule to convert.
 
-        Returns
+        Returns:
         -------
             zmatrix:
                 The Z-matrix of the molecule.

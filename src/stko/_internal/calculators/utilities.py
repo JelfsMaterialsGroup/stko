@@ -27,9 +27,9 @@ def get_atom_maps(mol: stk.ConstructedMolecule) -> dict:
         if atom_info is not None:
             bb_atom = atom_info.get_building_block_atom()
             bb_atom_id = bb_atom.get_id()  # type: ignore[union-attr]
-            atom_maps[atom_info.get_building_block_id()][
-                bb_atom_id
-            ] = atom_info.get_atom()
+            atom_maps[atom_info.get_building_block_id()][bb_atom_id] = (
+                atom_info.get_atom()
+            )
     return atom_maps
 
 

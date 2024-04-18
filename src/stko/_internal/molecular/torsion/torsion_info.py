@@ -7,9 +7,7 @@ logger = logging.getLogger(__name__)
 
 
 class TorsionInfo:
-    """Holds additional info about ConstructedMoleculeTorsioned torsions.
-
-    """
+    """Holds additional info about ConstructedMoleculeTorsioned torsions."""
 
     def __init__(
         self,
@@ -48,18 +46,14 @@ class TorsionInfo:
         self._building_block_torsion = building_block_torsion
 
     def get_torsion(self) -> Torsion:
-        """Torsion of atoms in constructed molecule.
-
-        """
+        """Torsion of atoms in constructed molecule."""
         return self._torsion
 
     def get_building_block(self) -> stk.Molecule | None:
         return self._building_block
 
     def get_building_block_torsion(self) -> Torsion | None:
-        """Torsion of atoms in building block.
-
-        """
+        """Torsion of atoms in building block."""
         return self._building_block_torsion
 
     def get_building_block_id(self) -> int | None:

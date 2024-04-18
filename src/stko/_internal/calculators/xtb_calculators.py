@@ -20,7 +20,7 @@ class XTBEnergy:
     the :class:`stk.Molecule` passed to :meth:`calculate`, which
     will be saved in the attributes of :class:`stko.XTBResults`.
 
-    Notes
+    Notes:
     -----
         When running :meth:`calculate`, this calculator changes the
         present working directory with :func:`os.chdir`. The original
@@ -38,7 +38,7 @@ class XTBEnergy:
         We thank Andrew Tarzia and Alejandro Santana-Bonilla for their
         contributions to this code.
 
-    Examples
+    Examples:
     --------
         .. code-block:: python
 
@@ -146,7 +146,7 @@ class XTBEnergy:
             ip = xtb_results.get_ionisation_potential()
             ea = xtb_results.get_electron_affinity()
 
-    References
+    References:
     ----------
         .. [1] https://xtb-docs.readthedocs.io/en/latest/setup.html
 
@@ -375,7 +375,7 @@ class XTBEnergy:
             mol:
                 The :class:`stk.Molecule` whose energy is to be calculated.
 
-        Returns
+        Returns:
         -------
             The properties, with units, from xTB calculations.
 
@@ -401,7 +401,7 @@ class XTBEnergy:
             mol:
                 The :class:`stk.Molecule` whose energy is to be calculated.
 
-        Returns
+        Returns:
         -------
             The energy.
 

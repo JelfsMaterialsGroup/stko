@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 class OpenBabelEnergy:
     """Uses OpenBabel to calculate forcefield energies. [#]_
 
-    Examples
+    Examples:
     --------
         .. code-block:: python
 
@@ -40,7 +40,7 @@ class OpenBabelEnergy:
             energy = results.get_energy()
             unit_string = results.get_unit_string()
 
-    References
+    References:
     ----------
         .. [#] https://github.com/openbabel/openbabel
 
@@ -52,7 +52,7 @@ class OpenBabelEnergy:
                 Forcefield to use. Options include `uff`, `gaff`,
                 `ghemical`, `mmff94`.
 
-        Raises
+        Raises:
         ------
             :class:`WrapperNotInstalledError` if `openbabel` not installed.
 
@@ -93,7 +93,7 @@ class OpenBabelEnergy:
             mol
                 The :class:`stk.Molecule` whose energy is to be calculated.
 
-        Returns
+        Returns:
         -------
             The energy and units of the energy.
 
@@ -111,7 +111,7 @@ class OpenBabelEnergy:
             mol:
                 The :class:`stk.Molecule` whose energy is to be calculated.
 
-        Returns
+        Returns:
         -------
             The energy.
 

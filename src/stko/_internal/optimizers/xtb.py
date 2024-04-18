@@ -24,7 +24,7 @@ logger = logging.getLogger(__name__)
 class XTB(Optimizer):
     """Uses GFN-xTB [#1]_ to optimize molecules.
 
-    Notes
+    Notes:
     -----
         When running :meth:`optimize`, this calculator changes the
         present working directory with :func:`os.chdir`. The original
@@ -46,13 +46,13 @@ class XTB(Optimizer):
         We thank Andrew Tarzia and Alejandro Santana-Bonilla for their
         contributions to this code.
 
-    Attributes
+    Attributes:
     ----------
         incomplete:
             A :class:`set` of molecules passed to :meth:`optimize` whose
             optimzation was incomplete.
 
-    Examples
+    Examples:
     --------
         Note that for :class:`.ConstructedMolecule` objects constructed by
         ``stk``, :class:`XTB` should usually be used in a
@@ -134,7 +134,7 @@ class XTB(Optimizer):
                 if polymer not in optimizer.incomplete:
                     break
 
-    References
+    References:
     ----------
         .. [#1] https://xtb-docs.readthedocs.io/en/latest/setup.html
 
@@ -286,7 +286,7 @@ class XTB(Optimizer):
             output_file:
                 Name of output file with xTB results.
 
-        Returns
+        Returns:
         -------
             Returns ``True`` if a negative frequency is present.
 
@@ -304,11 +304,11 @@ class XTB(Optimizer):
             output_file:
                 Name of xTB output file.
 
-        Returns
+        Returns:
         -------
             Returns ``False`` if a negative frequency is present.
 
-        Raises
+        Raises:
         ------
             :class:`XTBOptimizerError` if the optimization failed.
 
@@ -403,7 +403,7 @@ class XTB(Optimizer):
             mol:
                 The molecule to be optimized.
 
-        Returns
+        Returns:
         -------
             mol:
                 The optimized molecule.
@@ -455,7 +455,7 @@ class XTB(Optimizer):
             mol:
                 The molecule to be optimized.
 
-        Returns
+        Returns:
         -------
             mol:
                 The optimized molecule.
@@ -493,7 +493,7 @@ class XTB(Optimizer):
 class XTBCREST(Optimizer):
     """Uses GFN-n [#2]_ to run CREST [#3]_ on molecules.
 
-    Notes
+    Notes:
     -----
         Requires version > 6.2 of xtb.
 
@@ -508,7 +508,7 @@ class XTBCREST(Optimizer):
         cannot have their atom ordering changed by an external program at
         this stage.
 
-    Examples
+    Examples:
     --------
         Note that for :class:`.ConstructedMolecule` objects constructed by
         ``stk``, :class:`XTBCREST` should usually be used in a
@@ -567,7 +567,7 @@ class XTBCREST(Optimizer):
             | gfn_topo: GFN-FF binary topology file.
             |    Defines the molecules force field topology.
 
-    References
+    References:
     ----------
         .. [#2] https://xtb-docs.readthedocs.io/en/latest/setup.html
         .. [#3] https://xtb-docs.readthedocs.io/en/latest/crestcmd.html
@@ -743,11 +743,11 @@ class XTBCREST(Optimizer):
                 crest_conformers.xyz > All conformers,
                     exists throughout run.
 
-        Returns
+        Returns:
         -------
             Returns ``False`` if a negative frequency is present.
 
-        Raises
+        Raises:
         ------
             :class:`CRESTNotStartedError` if the CREST run failed to start.
 
@@ -834,7 +834,7 @@ class XTBCREST(Optimizer):
             mol:
                 The molecule to be optimized.
 
-        Returns
+        Returns:
         -------
             mol:
                 The optimized molecule.
@@ -867,7 +867,7 @@ class XTBCREST(Optimizer):
             mol:
                 The molecule to be optimized.
 
-        Returns
+        Returns:
         -------
             mol:
                 The optimized molecule.
@@ -900,7 +900,7 @@ class XTBCREST(Optimizer):
 class XTBFF(Optimizer):
     """Uses GFN-FF [#4]_ to optimize molecules.
 
-    Notes
+    Notes:
     -----
         GFN-FF requires >= version 6.3 of xtb.
 
@@ -914,7 +914,7 @@ class XTBFF(Optimizer):
         specifically the charge of the system. Other electronic properties
         of the molecule are not relavent to a forcefield optimisation.
 
-    Examples
+    Examples:
     --------
         Note that for :class:`.ConstructedMolecule` objects constructed by
         ``stk``, :class:`XTBFF` should usually be used in a
@@ -948,7 +948,7 @@ class XTBFF(Optimizer):
             )
             polymer = xtb.optimize(polymer)
 
-    References
+    References:
     ----------
         .. [#4] https://xtb-docs.readthedocs.io/en/latest/gfnff.html
 
@@ -1014,11 +1014,11 @@ class XTBFF(Optimizer):
             output_file:
                 Name of xTB output file.
 
-        Returns
+        Returns:
         -------
             Returns ``False`` if a negative frequency is present.
 
-        Raises
+        Raises:
         ------
             :class:`XTBOptimizerError` if the optimization failed.
 
@@ -1088,7 +1088,7 @@ class XTBFF(Optimizer):
             mol:
             The molecule to be optimized.
 
-        Returns
+        Returns:
         -------
             mol:
             The optimized molecule.
@@ -1118,7 +1118,7 @@ class XTBFF(Optimizer):
             mol:
             The molecule to be optimized.
 
-        Returns
+        Returns:
         -------
             mol:
             The optimized molecule.
@@ -1151,7 +1151,7 @@ class XTBFF(Optimizer):
 class XTBFFCREST(Optimizer):
     """Uses GFN-FF [#5]_ to run CREST [#6]_ on molecules.
 
-    Notes
+    Notes:
     -----
         GFN-FF requires version 6.3 of xtb.
 
@@ -1171,7 +1171,7 @@ class XTBFFCREST(Optimizer):
         cannot have their atom ordering changed by an external program at
         this stage.
 
-    Examples
+    Examples:
     --------
         Note that for :class:`.ConstructedMolecule` objects constructed by
         ``stk``, :class:`XTBFFCREST` should usually be used in a
@@ -1230,7 +1230,7 @@ class XTBFFCREST(Optimizer):
             | gfn_topo: GFN-FF binary topology file.
             |    Defines the molecules force field topology.
 
-    References
+    References:
     ----------
         .. [#5] https://xtb-docs.readthedocs.io/en/latest/gfnff.html
         .. [#6] https://xtb-docs.readthedocs.io/en/latest/crestcmd.html
@@ -1357,11 +1357,11 @@ class XTBFFCREST(Optimizer):
                 crest_conformers.xyz > All conformers,
                     exists throughout run.
 
-        Returns
+        Returns:
         -------
             Returns ``False`` if a negative frequency is present.
 
-        Raises
+        Raises:
         ------
             :class:`CRESTNotStartedError` if the CREST run failed to start.
 
@@ -1441,7 +1441,7 @@ class XTBFFCREST(Optimizer):
             mol:
                 The molecule to be optimized.
 
-        Returns
+        Returns:
         -------
             mol:
                 The optimized molecule.
@@ -1474,7 +1474,7 @@ class XTBFFCREST(Optimizer):
             mol:
                 The molecule to be optimized.
 
-        Returns
+        Returns:
         -------
             mol:
                 The optimized molecule.

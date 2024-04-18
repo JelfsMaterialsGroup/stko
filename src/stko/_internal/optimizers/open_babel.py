@@ -24,7 +24,7 @@ class OpenBabel(Optimizer):
     Warning: this optimizer seems to be machine dependant, producing
     different energies after optimisation on Ubunut 18 vs. Ubuntu 20.
 
-    Examples
+    Examples:
     --------
         .. code-block:: python
 
@@ -35,7 +35,7 @@ class OpenBabel(Optimizer):
             openbabel = stko.OpenBabel('uff')
             mol = openbabel.optimize(mol)
 
-    References
+    References:
     ----------
         .. [#] https://github.com/openbabel/openbabel
 
@@ -64,7 +64,7 @@ class OpenBabel(Optimizer):
             cg_steps:
                 Number of conjugate gradient steps per optimisations.
 
-        Raises
+        Raises:
         ------
             :class:`WrapperNotInstalledError` if `openbabel` not installed.
 

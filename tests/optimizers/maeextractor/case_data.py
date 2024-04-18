@@ -1,7 +1,5 @@
 class CaseData:
-    """A test case.
-
-    """
+    """A test case."""
 
     def __init__(
         self,

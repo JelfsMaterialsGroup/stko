@@ -30,7 +30,7 @@ logger = logging.getLogger(__name__)
 class GulpUFFOptimizer(Optimizer):
     """Applies forcefield optimizers that can handle metal centres.
 
-    Notes
+    Notes:
     -----
         By default, :meth:`optimize` will run an optimisation using the
         UFF4MOF. This forcefield requires some explicit metal atom
@@ -40,7 +40,7 @@ class GulpUFFOptimizer(Optimizer):
         not been officially tested on other versions and operating systems.
         Make sure to sanity check the output.
 
-    Examples
+    Examples:
     --------
         While metal atoms are not required, UFF4MOF is useful because it
         encompasses almost all chemical environments commonly found in
@@ -579,11 +579,9 @@ class GulpUFFOptimizer(Optimizer):
             if self.atom_labels[atomid][1] == "metal":
                 (atom,) = mol.get_atoms(atomid)
                 atom_no = atom.get_atomic_number()
-                self.atom_labels[atomid][0] = (
-                    self._metal_FF[  # type:ignore[index]
-                        atom_no
-                    ]
-                )
+                self.atom_labels[atomid][0] = self._metal_FF[  # type:ignore[index]
+                    atom_no
+                ]
 
     def _run_gulp(self, in_file: str, out_file: str) -> None:
         cmd = f"{self._gulp_path} < {in_file}"
@@ -667,7 +665,7 @@ class GulpUFFOptimizer(Optimizer):
             unit_cell:
                 The unit_cell to be optimized if optimization is periodic.
 
-        Returns
+        Returns:
         -------
             mol:
                 The optimized molecule.
@@ -722,7 +720,7 @@ class GulpUFFOptimizer(Optimizer):
 class GulpUFFMDOptimizer(GulpUFFOptimizer):
     """Applies forcefield MD that can handle metal centres.
 
-    Notes
+    Notes:
     -----
         By default, :meth:`optimize` will run a MD run using the UFF4MOF.
         This forcefield requires some explicit metal atom definitions,
@@ -733,7 +731,7 @@ class GulpUFFMDOptimizer(GulpUFFOptimizer):
         systems. Make sure to sanity check the output.
 
 
-    Examples
+    Examples:
     --------
         Conformer searching is often useful, so we have provided an interface
         to MD simulations using GULP and UFF4MOF. A conformer search can be
@@ -1205,7 +1203,7 @@ class GulpUFFMDOptimizer(GulpUFFOptimizer):
             unit_cell:
                 The unit_cell to be optimized if optimization is periodic.
 
-        Returns
+        Returns:
         -------
             mol:
                 The optimized molecule.

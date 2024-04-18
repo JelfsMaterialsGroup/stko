@@ -14,7 +14,7 @@ def check_line(line: str, option: str, options_dict: dict[str, str]) -> bool:
         options_dict:
             The :meth:`_properties_dict` of the Extractor.
 
-    Returns
+    Returns:
     -------
         Returns ``True`` if the desired string is present.
 

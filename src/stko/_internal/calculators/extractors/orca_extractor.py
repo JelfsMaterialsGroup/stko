@@ -8,7 +8,7 @@ class OrcaExtractor:
 
     Limited to final single point energy for now.
 
-    Attributes
+    Attributes:
     ----------
         output_file:
             Output file to extract properties from.
@@ -20,7 +20,7 @@ class OrcaExtractor:
             The total energy in the :attr:`output_file`.
             The energy is in units of a.u..
 
-    Examples
+    Examples:
     --------
         .. code-block:: python
 
@@ -47,9 +47,7 @@ class OrcaExtractor:
         self._extract_values()
 
     def _extract_values(self) -> None:
-        """Updates all properties by extracting from Orca output file.
-
-        """
+        """Updates all properties by extracting from Orca output file."""
         for i, line in enumerate(self.output_lines):
             if check_line(line, "total_energy", self._properties_dict()):
                 self._extract_total_energy(line)

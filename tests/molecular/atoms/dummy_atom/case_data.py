@@ -1,7 +1,7 @@
 class CaseData:
     """An :class:`.Du` test case.
 
-    Attributes
+    Attributes:
     ----------
     atom : :class:`.Du`
         The atom being tested.

@@ -28,7 +28,7 @@ def get_approximate_cell_size(
         vector_3:
             Third cell lattice vector of shape (3, ) in Angstrom.
 
-    Returns
+    Returns:
     -------
         max_extent: :class:`float`
             Get maximum multiplier of cell vectors required to fit
@@ -37,9 +37,7 @@ def get_approximate_cell_size(
     """
 
     def get_projection(start: np.ndarray, target: np.ndarray) -> np.ndarray:
-        """Get the projection of `start` onto `target`.
-
-        """
+        """Get the projection of `start` onto `target`."""
         return (
             target
             * np.dot(
@@ -53,9 +51,7 @@ def get_approximate_cell_size(
         atom_pos: np.ndarray,
         vector: np.ndarray,
     ) -> float:
-        """Get magnitude of atom position along vector.
-
-        """
+        """Get magnitude of atom position along vector."""
         projection = get_projection(start=atom_pos, target=vector)
 
         return float(
@@ -119,11 +115,11 @@ def get_from_parameters(
             *gamma* angle in degrees.
 
 
-    Returns
+    Returns:
     -------
         Tuple of cell lattice vectors of shape (3, ) in Angstrom.
 
-    References
+    References:
     ----------
         .. [1] https://pymatgen.org/pymatgen.util.num.html
 
@@ -167,11 +163,11 @@ def cap_absolute_value(value: float, max_absolute_value: float = 1) -> float:
         max_absolute_value:
             Absolute value to cap `value` at. Defaults to 1.
 
-    Returns
+    Returns:
     -------
         `value` capped at `max_absolute_value` with sign preserved.
 
-    References
+    References:
     ----------
         .. [2] https://pymatgen.org/pymatgen.util.num.html
 
