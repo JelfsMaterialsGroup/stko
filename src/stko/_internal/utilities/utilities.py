@@ -7,11 +7,10 @@ def is_valid_xtb_solvent(
     solvent_model: str,
     solvent: str,
 ) -> bool:
-    """
-    Check if solvent is valid [#]_ for the given GFN version.
+    """Check if solvent is valid [#]_ for the given GFN version.
 
-    Parameters:
-
+    Parameters
+    ----------
         gfn_version:
             GFN parameterization version. Can be: ``0``, ``1`` or ``2``.
 
@@ -21,16 +20,15 @@ def is_valid_xtb_solvent(
         solvent:
             Solvent being tested.
 
-    Returns:
-
+    Returns
+    -------
         ``True`` if solvent is valid.
 
-    References:
-
+    References
+    ----------
         .. [#] https://xtb-docs.readthedocs.io/en/latest/gbsa.html
 
     """
-
     if gfn_version == 0:
         return False
     elif gfn_version == 1 and solvent_model == "gbsa":
@@ -128,11 +126,9 @@ def get_atom_distance(
     atom1_id: int,
     atom2_id: int,
 ) -> float:
-    """
-    Return the distance between two atoms.
+    """Return the distance between two atoms.
 
     """
-
     distance = euclidean(
         u=position_matrix[atom1_id],
         v=position_matrix[atom2_id],
@@ -147,8 +143,7 @@ def calculate_dihedral(
     pt3: np.ndarray,
     pt4: np.ndarray,
 ) -> float:
-    """
-    Calculate the dihedral between four points in degrees.
+    """Calculate the dihedral between four points in degrees.
 
     Uses Praxeolitic formula --> 1 sqrt, 1 cross product
     Output in range (-180 to 180).
@@ -156,7 +151,6 @@ def calculate_dihedral(
     From: https://stackoverflow.com/a/34245697
 
     """
-
     p0 = np.asarray(pt1)
     p1 = np.asarray(pt2)
     p2 = np.asarray(pt3)
@@ -186,33 +180,30 @@ def calculate_dihedral(
 
 
 def unit_vector(vector: np.ndarray) -> np.ndarray:
-    """
-    Returns the unit vector of the vector.
+    """Returns the unit vector of the vector.
 
     """
     return vector / np.linalg.norm(vector)
 
 
 def vector_angle(vector1: np.ndarray, vector2: np.ndarray) -> float:
-    """
-    Returns the angle between two vectors in radians.
+    """Returns the angle between two vectors in radians.
 
     From: https://stackoverflow.com/a/13849249
 
-    Parameters:
-
+    Parameters
+    ----------
         vector1:
             The first vector.
 
         vector2:
             The second vector.
 
-    Returns:
-
+    Returns
+    -------
         The angle between `vector1` and `vector2` in radians.
 
     """
-
     v1_u = unit_vector(vector1)
     v2_u = unit_vector(vector2)
     angle = np.arccos(np.clip(np.dot(v1_u, v2_u), -1.0, 1.0))
@@ -224,11 +215,9 @@ def calculate_angle(
     pt2: np.ndarray,
     pt3: np.ndarray,
 ) -> float:
-    """
-    Calculate the angle between three points in degrees.
+    """Calculate the angle between three points in degrees.
 
     """
-
     v1 = pt1 - pt2
     v2 = pt3 - pt2
     return np.degrees(vector_angle(v1, v2))
@@ -238,8 +227,7 @@ def get_torsion_info_angles(  # type: ignore[no-untyped-def]
     mol,
     torsion_info,
 ) -> tuple[float, float | None]:
-    """
-    Get the angles for torsion_info in mol.
+    """Get the angles for torsion_info in mol.
 
     The first angle returned is torsion angle in the
     :class:`stk.ConstructedMolecule`.
@@ -249,8 +237,8 @@ def get_torsion_info_angles(  # type: ignore[no-untyped-def]
     A :class:`stko.MatchedTorsionCalculator` should yield torsions
     such that the two angles returned are the same.
 
-    Parameters:
-
+    Parameters
+    ----------
         mol:
             The :class:`.ConstructedMolecule` for which angles are
             computed.
@@ -258,12 +246,11 @@ def get_torsion_info_angles(  # type: ignore[no-untyped-def]
         torsion_info:
             Specifies the torsion for which angles will be computed.
 
-    Returns:
-
+    Returns
+    -------
         The angle and the bb_angle in degrees.
 
     """
-
     torsion = torsion_info.get_torsion()
     angle = calculate_dihedral(
         pt1=tuple(mol.get_atomic_positions(torsion.get_atom_ids()[0]))[0],

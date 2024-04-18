@@ -2,8 +2,7 @@ from collections import abc
 
 
 class PlanarityResults:
-    """
-    Results class containing molecule planarity measures.
+    """Results class containing molecule planarity measures.
 
     """
 

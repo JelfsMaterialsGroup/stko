@@ -36,8 +36,6 @@ _complex = stk.ConstructedMolecule(
     ),
 )
 def molecule(request):
+    """A :class:`.CaseData` instance.
     """
-    A :class:`.CaseData` instance.
-    """
-
     return request.param

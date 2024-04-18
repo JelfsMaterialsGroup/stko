@@ -3,16 +3,14 @@ import stko
 
 
 def test_get_radius_gyration(case_data):
-    """
-    Test :class:`.GeometryAnalyser.get_radius_gyration`.
+    """Test :class:`.GeometryAnalyser.get_radius_gyration`.
 
-    Parameters:
-
+    Parameters
+    ----------
         case_data:
             A test case.
 
     """
-
     analyser = stko.molecule_analysis.GeometryAnalyser()
 
     result = analyser.get_radius_gyration(case_data.molecule)

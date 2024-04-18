@@ -16,8 +16,7 @@ logger = logging.getLogger(__name__)
 
 
 class GeometryAnalyser:
-    """
-    Tools for analysing the geometry of molecules.
+    """Tools for analysing the geometry of molecules.
 
     WARNING: This code is only present in the latest versions of stko
     that require Python 3.11!
@@ -40,11 +39,10 @@ class GeometryAnalyser:
         molecule: stk.Molecule,
         metal_atom_nos: tuple[int],
     ) -> dict[tuple[int, int], float]:
-        """
-        Get all metal atom pair distances.
+        """Get all metal atom pair distances.
 
-        Parameters:
-
+        Parameters
+        ----------
             molecule:
                 The molecule to analyse.
 
@@ -52,12 +50,11 @@ class GeometryAnalyser:
                 The atomic numbers to delete. Can be a tuple of one or
                 any element on periodic table.
 
-        Returns:
-
+        Returns
+        -------
             The distances and associated metal atom ids.
 
         """
-
         metal_atom_ids = self._get_metal_atom_ids(molecule, metal_atom_nos)
         position_matrix = molecule.get_position_matrix()
 
@@ -76,11 +73,10 @@ class GeometryAnalyser:
         molecule: stk.Molecule,
         metal_atom_nos: tuple[int],
     ) -> dict[tuple[int, int], float]:
-        """
-        Get all metal-centroid-metal angles.
+        """Get all metal-centroid-metal angles.
 
-        Parameters:
-
+        Parameters
+        ----------
             molecule:
                 The molecule to analyse.
 
@@ -88,12 +84,11 @@ class GeometryAnalyser:
                 The atomic numbers to delete. Can be a tuple of one or
                 any element on periodic table.
 
-        Returns:
-
+        Returns
+        -------
             The angles in degrees and associated metal atom ids.
 
         """
-
         metal_atom_ids = self._get_metal_atom_ids(molecule, metal_atom_nos)
         position_matrix = molecule.get_position_matrix()
         centroid = molecule.get_centroid()
@@ -110,22 +105,20 @@ class GeometryAnalyser:
         self,
         molecule: stk.Molecule,
     ) -> float:
-        """
-        Get the minimum distance between the molecule and centroid.
+        """Get the minimum distance between the molecule and centroid.
 
         This is nearly equivalent to a pore radius.
 
-        Parameters:
-
+        Parameters
+        ----------
             molecule:
                 The molecule to analyse.
 
-        Returns:
-
+        Returns
+        -------
             The minimum centroid to atom distance.
 
         """
-
         pair_dists = cdist(
             molecule.get_position_matrix(),
             molecule.get_centroid().reshape(1, 3),
@@ -137,20 +130,18 @@ class GeometryAnalyser:
         self,
         molecule: stk.Molecule,
     ) -> tuple[float, float]:
-        """
-        Get the average distance between the molecule and centroid.
+        """Get the average distance between the molecule and centroid.
 
-        Parameters:
-
+        Parameters
+        ----------
             molecule:
                 The molecule to analyse.
 
-        Returns:
-
+        Returns
+        -------
             The average and std. deviation of centroid to atom distances.
 
         """
-
         pair_dists = cdist(
             molecule.get_position_matrix(),
             molecule.get_centroid().reshape(1, 3),
@@ -172,18 +163,17 @@ class GeometryAnalyser:
         )
 
     def get_min_atom_atom_distance(self, molecule: stk.Molecule) -> float:
-        """
-        Get the minimum distance between atoms in molecule.
+        """Get the minimum distance between atoms in molecule.
 
         This does not consider bonding.
 
-        Parameters:
-
+        Parameters
+        ----------
             molecule:
                 The molecule to analyse.
 
-        Returns:
-
+        Returns
+        -------
             The minimum distance.
 
         """
@@ -191,16 +181,15 @@ class GeometryAnalyser:
         return np.min(pair_dists.flatten())
 
     def get_radius_gyration(self, molecule: stk.Molecule) -> float:
-        """
-        Get the radius of gyration of the molecule.
+        """Get the radius of gyration of the molecule.
 
-        Parameters:
-
+        Parameters
+        ----------
             molecule:
                 The molecule to analyse.
 
-        Returns:
-
+        Returns
+        -------
             R_g in Angstrom.
 
         """
@@ -212,16 +201,15 @@ class GeometryAnalyser:
         return np.sqrt(rg2)
 
     def get_max_diameter(self, molecule: stk.Molecule) -> float:
-        """
-        Get the maximum diameter of the molecule (defined in stk).
+        """Get the maximum diameter of the molecule (defined in stk).
 
-        Parameters:
-
+        Parameters
+        ----------
             molecule:
                 The molecule to analyse.
 
-        Returns:
-
+        Returns
+        -------
             The maximum diameter in Angstrom.
 
         """
@@ -231,20 +219,18 @@ class GeometryAnalyser:
         self,
         molecule: stk.Molecule,
     ) -> dict[tuple[str, ...], list[float]]:
-        """
-        Calculate bond lengths for all `stk.Molecule.get_bonds()`.
+        """Calculate bond lengths for all `stk.Molecule.get_bonds()`.
 
-        Parameters:
-
+        Parameters
+        ----------
             molecule:
                 The molecule to analyse.
 
-        Returns:
-
+        Returns
+        -------
             Dictionary of bonds organised by element pair.
 
         """
-
         position_matrix = molecule.get_position_matrix()
         lengths = defaultdict(list)
         for bond in molecule.get_bonds():
@@ -268,20 +254,18 @@ class GeometryAnalyser:
         self,
         molecule: stk.Molecule,
     ) -> dict[tuple[str, ...], list[float]]:
-        """
-        Calculate angles for all angles defined by molecule bonding.
+        """Calculate angles for all angles defined by molecule bonding.
 
-        Parameters:
-
+        Parameters
+        ----------
             molecule:
                 The molecule to analyse.
 
-        Returns:
-
+        Returns
+        -------
             Dictionary of angles organised by element triplet.
 
         """
-
         position_matrix = molecule.get_position_matrix()
         angles = defaultdict(list)
         for a_ids in self._get_paths(molecule, 3):
@@ -332,16 +316,15 @@ class GeometryAnalyser:
         self,
         molecule: stk.Molecule,
     ) -> dict[tuple[str, ...], list[float]]:
-        """
-        Calculate torsion values for all torsions defined by molecule bonding.
+        """Calculate torsion values for all torsions defined by molecule bonding.
 
-        Parameters:
-
+        Parameters
+        ----------
             molecule:
                 The molecule to analyse.
 
-        Returns:
-
+        Returns
+        -------
             Dictionary of torsions organised by elements.
 
         """

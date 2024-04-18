@@ -9,7 +9,7 @@ import stko
 
 def main():
     first_line = f"Usage: {__file__}.py"
-    if not len(sys.argv) == 2:
+    if len(sys.argv) != 2:
         logging.info(f"{first_line} gulp_path")
         sys.exit()
     else:

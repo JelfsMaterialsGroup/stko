@@ -7,8 +7,7 @@ logger = logging.getLogger(__name__)
 
 
 class Torsion:
-    """
-    Represents a torsion angle in a molecule.
+    """Represents a torsion angle in a molecule.
 
     """
 
@@ -19,11 +18,10 @@ class Torsion:
         atom3: stk.Atom | None,
         atom4: stk.Atom | None,
     ) -> None:
-        """
-        Defines a torsion.
+        """Defines a torsion.
 
-        Parameters:
-
+        Parameters
+        ----------
             atom1:
                 First atom in torsion.
 
@@ -37,7 +35,6 @@ class Torsion:
                 Fourth atom in torsion.
 
         """
-
         self._atom1 = atom1
         self._atom2 = atom2
         self._atom3 = atom3

@@ -31,13 +31,13 @@ class TestMacroModelFF:
         macromodel_forcefield._generate_com(
             benzene_build, str(tmp_path / run_name)
         )
-        with open(str(tmp_path / (run_name + ".com")), "r") as f:
+        with open(str(tmp_path / (run_name + ".com"))) as f:
             com = f.readlines()
         com_path = (
             "/home/sbennett/PhD/stko/tests/optimizers/"
             "macromodel_optimizers/benzene_test.com"
         )
-        with open(com_path, "r") as f:
+        with open(com_path) as f:
             test_com = f.readlines()[2:]
 
         # Do not compare first two lines, as these correspond

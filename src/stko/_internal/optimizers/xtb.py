@@ -22,11 +22,10 @@ logger = logging.getLogger(__name__)
 
 
 class XTB(Optimizer):
-    """
-    Uses GFN-xTB [#1]_ to optimize molecules.
+    """Uses GFN-xTB [#1]_ to optimize molecules.
 
-    Notes:
-
+    Notes
+    -----
         When running :meth:`optimize`, this calculator changes the
         present working directory with :func:`os.chdir`. The original
         working directory will be restored even if an error is raised, so
@@ -47,14 +46,14 @@ class XTB(Optimizer):
         We thank Andrew Tarzia and Alejandro Santana-Bonilla for their
         contributions to this code.
 
-    Attributes:
-
+    Attributes
+    ----------
         incomplete:
             A :class:`set` of molecules passed to :meth:`optimize` whose
             optimzation was incomplete.
 
-    Examples:
-
+    Examples
+    --------
         Note that for :class:`.ConstructedMolecule` objects constructed by
         ``stk``, :class:`XTB` should usually be used in a
         :class:`.OptimizerSequence`. This is because xTB only uses
@@ -135,8 +134,8 @@ class XTB(Optimizer):
                 if polymer not in optimizer.incomplete:
                     break
 
-    References:
-
+    References
+    ----------
         .. [#1] https://xtb-docs.readthedocs.io/en/latest/setup.html
 
     """
@@ -160,82 +159,79 @@ class XTB(Optimizer):
         num_unpaired_electrons: int = 0,
         unlimited_memory: bool = False,
     ) -> None:
-        """
-        Parameters:
+        """Parameters
+        xtb_path:
+            The path to the xTB executable.
 
-            xtb_path:
-                The path to the xTB executable.
+        gfn_version:
+            Parameterization of GFN to use in xTB.
+            For details see
+            https://xtb-docs.readthedocs.io/en/latest/basics.html.
 
-            gfn_version:
-                Parameterization of GFN to use in xTB.
-                For details see
-                https://xtb-docs.readthedocs.io/en/latest/basics.html.
+        output_dir:
+            The name of the directory into which files generated during
+            the optimization are written, if ``None`` then
+            :func:`uuid.uuid4` is used.
 
-            output_dir:
-                The name of the directory into which files generated during
-                the optimization are written, if ``None`` then
-                :func:`uuid.uuid4` is used.
+        opt_level:
+            Optimization level to use.
+            Can be one of ``'crude'``, ``'sloppy'``, ``'loose'``,
+            ``'lax'``, ``'normal'``, ``'tight'``, ``'vtight'``
+            or ``'extreme'``.
+            For details see
+            https://xtb-docs.readthedocs.io/en/latest/optimization.html
+            .
 
-            opt_level:
-                Optimization level to use.
-                Can be one of ``'crude'``, ``'sloppy'``, ``'loose'``,
-                ``'lax'``, ``'normal'``, ``'tight'``, ``'vtight'``
-                or ``'extreme'``.
-                For details see
-                https://xtb-docs.readthedocs.io/en/latest/optimization.html
-                .
+        max_runs:
+            Maximum number of optimizations to attempt in a row.
 
-            max_runs:
-                Maximum number of optimizations to attempt in a row.
+        calculate_hessian:
+            Toggle calculation of the hessian and vibrational
+            frequencies after optimization. ``True`` is required to
+            check that the structure is completely optimized.
+            ``False`` will drastically speed up the calculation but
+            potentially provide incomplete optimizations and forces
+            :attr:`max_runs` to be ``1``.
 
-            calculate_hessian:
-                Toggle calculation of the hessian and vibrational
-                frequencies after optimization. ``True`` is required to
-                check that the structure is completely optimized.
-                ``False`` will drastically speed up the calculation but
-                potentially provide incomplete optimizations and forces
-                :attr:`max_runs` to be ``1``.
+        num_cores:
+            The number of cores xTB should use.
 
-            num_cores:
-                The number of cores xTB should use.
+        electronic_temperature:
+            Electronic temperature in Kelvin.
 
-            electronic_temperature:
-                Electronic temperature in Kelvin.
+        solvent_model:
+            Solvent model to use out of older `gbsa` and newer `alpb`.
+            `gbsa` is default for backwards compatability, but `alpb`
+            is recommended.
+            For details see
+            https://xtb-docs.readthedocs.io/en/latest/gbsa.html.
 
-            solvent_model:
-                Solvent model to use out of older `gbsa` and newer `alpb`.
-                `gbsa` is default for backwards compatability, but `alpb`
-                is recommended.
-                For details see
-                https://xtb-docs.readthedocs.io/en/latest/gbsa.html.
+        solvent:
+            Solvent to use in GBSA implicit solvation method.
+            For details see
+            https://xtb-docs.readthedocs.io/en/latest/gbsa.html.
 
-            solvent:
-                Solvent to use in GBSA implicit solvation method.
-                For details see
-                https://xtb-docs.readthedocs.io/en/latest/gbsa.html.
+        solvent_grid:
+            Grid level to use in SASA calculations for GBSA implicit
+            solvent.
+            Can be one of ``'normal'``, ``'tight'``, ``'verytight'``
+            or ``'extreme'``.
+            For details see
+            https://xtb-docs.readthedocs.io/en/latest/gbsa.html.
 
-            solvent_grid:
-                Grid level to use in SASA calculations for GBSA implicit
-                solvent.
-                Can be one of ``'normal'``, ``'tight'``, ``'verytight'``
-                or ``'extreme'``.
-                For details see
-                https://xtb-docs.readthedocs.io/en/latest/gbsa.html.
+        charge:
+            Formal molecular charge.
 
-            charge:
-                Formal molecular charge.
+        num_unpaired_electrons:
+            Number of unpaired electrons.
 
-            num_unpaired_electrons:
-                Number of unpaired electrons.
-
-            unlimited_memory:
-                If ``True`` :meth:`optimize` will be run without
-                constraints on the stack size. If memory issues are
-                encountered, this should be ``True``, however this may
-                raise issues on clusters.
+        unlimited_memory:
+            If ``True`` :meth:`optimize` will be run without
+            constraints on the stack size. If memory issues are
+            encountered, this should be ``True``, however this may
+            raise issues on clusters.
 
         """
-
         if solvent is not None:
             solvent = solvent.lower()
             if gfn_version == 0:
@@ -283,16 +279,15 @@ class XTB(Optimizer):
             raise PathError(f"XTB not found at {path}")
 
     def _has_neg_frequencies(self, output_file: str) -> bool:
-        """
-        Check for negative frequencies.
+        """Check for negative frequencies.
 
-        Parameters:
-
+        Parameters
+        ----------
             output_file:
                 Name of output file with xTB results.
 
-        Returns:
-
+        Returns
+        -------
             Returns ``True`` if a negative frequency is present.
 
         """
@@ -302,26 +297,24 @@ class XTB(Optimizer):
         return any(x < 0 for x in xtbext.frequencies[6:])
 
     def _is_complete(self, output_file: str) -> bool:
-        """
-        Check if xTB optimization has completed and converged.
+        """Check if xTB optimization has completed and converged.
 
-        Parameters:
-
+        Parameters
+        ----------
             output_file:
                 Name of xTB output file.
 
-        Returns:
-
+        Returns
+        -------
             Returns ``False`` if a negative frequency is present.
 
-        Raises:
-
+        Raises
+        ------
             :class:`XTBOptimizerError` if the optimization failed.
 
             :class:`XTBConvergenceError` if the optimization did not converge.
 
         """
-
         if not os.path.exists(output_file):
             # No simulation has been run.
             raise OptimizerError("XTB: Optimization failed to start")
@@ -342,11 +335,10 @@ class XTB(Optimizer):
             raise OptimizerError("XTB: Optimization failed to complete")
 
     def _run_xtb(self, xyz: str, out_file: str) -> None:
-        """
-        Run GFN-xTB.
+        """Run GFN-xTB.
 
-        Parameters:
-
+        Parameters
+        ----------
             xyz:
                 The name of the input structure ``.xyz`` file.
 
@@ -354,7 +346,6 @@ class XTB(Optimizer):
                 The name of output file with xTB results.
 
         """
-
         # Modify the memory limit.
         if self._unlimited_memory:
             memory = "ulimit -s unlimited ;"
@@ -405,16 +396,15 @@ class XTB(Optimizer):
         self,
         mol: stk.Molecule,
     ) -> tuple[stk.Molecule, bool]:
-        """
-        Run loop of optimizations on `mol` using xTB.
+        """Run loop of optimizations on `mol` using xTB.
 
-        Parameters:
-
+        Parameters
+        ----------
             mol:
                 The molecule to be optimized.
 
-        Returns:
-
+        Returns
+        -------
             mol:
                 The optimized molecule.
 
@@ -423,7 +413,6 @@ class XTB(Optimizer):
                 ``False`` if the calculation is incomplete.
 
         """
-
         for run in range(self._max_runs):
             xyz = f"input_structure_{run+1}.xyz"
             out_file = f"optimization_{run+1}.output"
@@ -459,21 +448,19 @@ class XTB(Optimizer):
         return mol, opt_complete
 
     def optimize(self, mol: stk.Molecule) -> stk.Molecule:
-        """
-        Optimize `mol`.
+        """Optimize `mol`.
 
-        Parameters:
-
+        Parameters
+        ----------
             mol:
                 The molecule to be optimized.
 
-        Returns:
-
+        Returns
+        -------
             mol:
                 The optimized molecule.
 
         """
-
         # Remove mol from self.incomplete if present.
         if mol in self.incomplete:
             self.incomplete.remove(mol)
@@ -504,11 +491,10 @@ class XTB(Optimizer):
 
 
 class XTBCREST(Optimizer):
-    """
-    Uses GFN-n [#2]_ to run CREST [#3]_ on molecules.
+    """Uses GFN-n [#2]_ to run CREST [#3]_ on molecules.
 
-    Notes:
-
+    Notes
+    -----
         Requires version > 6.2 of xtb.
 
         When running :meth:`optimize`, this calculator changes the
@@ -522,8 +508,8 @@ class XTBCREST(Optimizer):
         cannot have their atom ordering changed by an external program at
         this stage.
 
-    Examples:
-
+    Examples
+    --------
         Note that for :class:`.ConstructedMolecule` objects constructed by
         ``stk``, :class:`XTBCREST` should usually be used in a
         :class:`.OptimizerSequence`. This is because xTB only uses
@@ -581,8 +567,8 @@ class XTBCREST(Optimizer):
             | gfn_topo: GFN-FF binary topology file.
             |    Defines the molecules force field topology.
 
-    References:
-
+    References
+    ----------
         .. [#2] https://xtb-docs.readthedocs.io/en/latest/setup.html
         .. [#3] https://xtb-docs.readthedocs.io/en/latest/crestcmd.html
 
@@ -608,97 +594,94 @@ class XTBCREST(Optimizer):
         num_unpaired_electrons: int = 0,
         unlimited_memory: bool = False,
     ):
-        """
-        Parameters:
+        """Parameters
+        crest_path:
+            The path to the CREST executable.
 
-            crest_path:
-                The path to the CREST executable.
+        xtb_path:
+            The path to the xTB executable.
+            Version >6.3.0 is required.
 
-            xtb_path:
-                The path to the xTB executable.
-                Version >6.3.0 is required.
+        gfn_version:
+            Parameterization of GFN to use in xTB.
+            For details see
+            https://xtb-docs.readthedocs.io/en/latest/basics.html.
 
-            gfn_version:
-                Parameterization of GFN to use in xTB.
-                For details see
-                https://xtb-docs.readthedocs.io/en/latest/basics.html.
+        output_dir:
+            The name of the directory into which files generated during
+            the optimization are written, if ``None`` then
+            :func:`uuid.uuid4` is used.
 
-            output_dir:
-                The name of the directory into which files generated during
-                the optimization are written, if ``None`` then
-                :func:`uuid.uuid4` is used.
+        opt_level:
+            Optimization level to use.
+            Can be one of ``'crude'``, ``'sloppy'``, ``'loose'``,
+            ``'lax'``, ``'normal'``, ``'tight'``, ``'vtight'``
+            or ``'extreme'``.
+            For details see
+            https://xtb-docs.readthedocs.io/en/latest/optimization.html
+            .
 
-            opt_level:
-                Optimization level to use.
-                Can be one of ``'crude'``, ``'sloppy'``, ``'loose'``,
-                ``'lax'``, ``'normal'``, ``'tight'``, ``'vtight'``
-                or ``'extreme'``.
-                For details see
-                https://xtb-docs.readthedocs.io/en/latest/optimization.html
-                .
+        md_len:
+            Set length of the meta-dynamics simulations (MTD) in ps.
+            Default is chosen based on size and flexibility of the
+            system.
 
-            md_len:
-                Set length of the meta-dynamics simulations (MTD) in ps.
-                Default is chosen based on size and flexibility of the
-                system.
+        ewin:
+            Set the energy threshold in kcal/mol for conformer
+            selection. Double this is used in crude optimization.
+            Defaults ot 5 kcal/mol and is overridden by
+            :attr:`speed_setting`.
 
-            ewin:
-                Set the energy threshold in kcal/mol for conformer
-                selection. Double this is used in crude optimization.
-                Defaults ot 5 kcal/mol and is overridden by
-                :attr:`speed_setting`.
+        speed_setting:
+            Conformer search speed setting. Fast methods turn off
+            parts of the calculations and alter MD run times.
+            Defaults to no modification of iMTD-GC algorithm: `None`.
+            Can be one of ``'norotmd'``, ``'quick'``, ``'squick'``
+            or ``'mquick'``.
+            Overrides :attr:`ewin` with chosen parameters.
+            For details see
+            https://xtb-docs.readthedocs.io/en/latest/crestcmd.html.
 
-            speed_setting:
-                Conformer search speed setting. Fast methods turn off
-                parts of the calculations and alter MD run times.
-                Defaults to no modification of iMTD-GC algorithm: `None`.
-                Can be one of ``'norotmd'``, ``'quick'``, ``'squick'``
-                or ``'mquick'``.
-                Overrides :attr:`ewin` with chosen parameters.
-                For details see
-                https://xtb-docs.readthedocs.io/en/latest/crestcmd.html.
+        keepdir:
+            `True` to keep subdirectories from MD runs.
+            Defaults to `False`.
+            For details see
+            https://xtb-docs.readthedocs.io/en/latest/crestcmd.html.
 
-            keepdir:
-                `True` to keep subdirectories from MD runs.
-                Defaults to `False`.
-                For details see
-                https://xtb-docs.readthedocs.io/en/latest/crestcmd.html.
+        num_cores:
+            The number of cores CREST should use.
 
-            num_cores:
-                The number of cores CREST should use.
+        charge:
+            Formal molecular charge.
 
-            charge:
-                Formal molecular charge.
+        electronic_temperature:
+            Electronic temperature in Kelvin.
 
-            electronic_temperature:
-                Electronic temperature in Kelvin.
+        solvent_model:
+            Solvent model to use out of older `gbsa` and newer `alpb`.
+            `gbsa` is default for backwards compatability, but `alpb`
+            is recommended.
+            For details see
+            https://xtb-docs.readthedocs.io/en/latest/gbsa.html.
 
-            solvent_model:
-                Solvent model to use out of older `gbsa` and newer `alpb`.
-                `gbsa` is default for backwards compatability, but `alpb`
-                is recommended.
-                For details see
-                https://xtb-docs.readthedocs.io/en/latest/gbsa.html.
+        solvent:
+            Solvent to use in GBSA implicit solvation method.
+            For details see
+            https://xtb-docs.readthedocs.io/en/latest/gbsa.html.
 
-            solvent:
-                Solvent to use in GBSA implicit solvation method.
-                For details see
-                https://xtb-docs.readthedocs.io/en/latest/gbsa.html.
+        num_unpaired_electrons:
+            Number of unpaired electrons.
 
-            num_unpaired_electrons:
-                Number of unpaired electrons.
+        cross:
+            Whether or not structure crossing is performed.
 
-            cross:
-                Whether or not structure crossing is performed.
-
-            unlimited_memory:
-                If ``True`` :meth:`optimize` will be run without
-                constraints on the stack size. If memory issues are
-                encountered, this should be ``True``, however this may
-                raise issues on clusters.
+        unlimited_memory:
+            If ``True`` :meth:`optimize` will be run without
+            constraints on the stack size. If memory issues are
+            encountered, this should be ``True``, however this may
+            raise issues on clusters.
 
         """
-
         if solvent is not None:
             solvent = solvent.lower()
             if gfn_version == 0:
@@ -747,11 +730,10 @@ class XTBCREST(Optimizer):
             raise PathError(f"XTB or CREST not found at {path}")
 
     def _is_complete(self, output_file: str, output_xyzs: list[str]) -> bool:
-        """
-        Check if CREST run has completed.
+        """Check if CREST run has completed.
 
-        Parameters:
-
+        Parameters
+        ----------
             output_file:
                 Name of CREST output file.
 
@@ -761,19 +743,18 @@ class XTBCREST(Optimizer):
                 crest_conformers.xyz > All conformers,
                     exists throughout run.
 
-        Returns:
-
+        Returns
+        -------
             Returns ``False`` if a negative frequency is present.
 
-        Raises:
-
+        Raises
+        ------
             :class:`CRESTNotStartedError` if the CREST run failed to start.
 
             :class:`CRESTNotCompletedError` if the CREST run failed to
             complete.
 
         """
-
         if not os.path.exists(output_file):
             # No simulation has been run.
             raise NotStartedError("CREST run did not start")
@@ -785,11 +766,10 @@ class XTBCREST(Optimizer):
         return True
 
     def _run_crest(self, xyz: str, out_file: str) -> None:
-        """
-        Run CREST along side GFN-xTB.
+        """Run CREST along side GFN-xTB.
 
-        Parameters:
-
+        Parameters
+        ----------
             xyz:
                 The name of the input structure ``.xyz`` file.
 
@@ -797,7 +777,6 @@ class XTBCREST(Optimizer):
                 The name of output file with xTB results.
 
         """
-
         # Modify the memory limit.
         if self._unlimited_memory:
             memory = "ulimit -s unlimited ;"
@@ -848,16 +827,15 @@ class XTBCREST(Optimizer):
         self,
         mol: stk.Molecule,
     ) -> tuple[stk.Molecule, bool]:
-        """
-        Run loop of optimizations on `mol` using xTB.
+        """Run loop of optimizations on `mol` using xTB.
 
-        Parameters:
-
+        Parameters
+        ----------
             mol:
                 The molecule to be optimized.
 
-        Returns:
-
+        Returns
+        -------
             mol:
                 The optimized molecule.
 
@@ -866,7 +844,6 @@ class XTBCREST(Optimizer):
                 ``False`` if the calculation is incomplete.
 
         """
-
         xyz = "input_structure.xyz"
         out_file = "crest.output"
         mol.write(xyz)
@@ -883,21 +860,19 @@ class XTBCREST(Optimizer):
         return mol, opt_complete
 
     def optimize(self, mol: stk.Molecule) -> stk.Molecule:
-        """
-        Optimize `mol`.
+        """Optimize `mol`.
 
-        Parameters:
-
+        Parameters
+        ----------
             mol:
                 The molecule to be optimized.
 
-        Returns:
-
+        Returns
+        -------
             mol:
                 The optimized molecule.
 
         """
-
         if self._output_dir is None:
             output_dir = str(uuid.uuid4().int)
         else:
@@ -923,11 +898,10 @@ class XTBCREST(Optimizer):
 
 
 class XTBFF(Optimizer):
-    """
-    Uses GFN-FF [#4]_ to optimize molecules.
+    """Uses GFN-FF [#4]_ to optimize molecules.
 
-    Notes:
-
+    Notes
+    -----
         GFN-FF requires >= version 6.3 of xtb.
 
         When running :meth:`optimize`, this calculator changes the
@@ -940,8 +914,8 @@ class XTBFF(Optimizer):
         specifically the charge of the system. Other electronic properties
         of the molecule are not relavent to a forcefield optimisation.
 
-    Examples:
-
+    Examples
+    --------
         Note that for :class:`.ConstructedMolecule` objects constructed by
         ``stk``, :class:`XTBFF` should usually be used in a
         :class:`.OptimizerSequence`. This is because xTB only uses
@@ -974,8 +948,8 @@ class XTBFF(Optimizer):
             )
             polymer = xtb.optimize(polymer)
 
-    References:
-
+    References
+    ----------
         .. [#4] https://xtb-docs.readthedocs.io/en/latest/gfnff.html
 
     """
@@ -989,40 +963,37 @@ class XTBFF(Optimizer):
         charge: int = 0,
         unlimited_memory: bool = False,
     ):
-        """
-        Parameters:
+        """Parameters
+        xtb_path:
+            The path to the xTB executable.
 
-            xtb_path:
-                The path to the xTB executable.
+        output_dir:
+            The name of the directory into which files generated during
+            the optimization are written, if ``None`` then
+            :func:`uuid.uuid4` is used.
 
-            output_dir:
-                The name of the directory into which files generated during
-                the optimization are written, if ``None`` then
-                :func:`uuid.uuid4` is used.
+        opt_level:
+            Optimization level to use.
+            Can be one of ``'crude'``, ``'sloppy'``, ``'loose'``,
+            ``'lax'``, ``'normal'``, ``'tight'``, ``'vtight'``
+            or ``'extreme'``.
+            For details see
+            https://xtb-docs.readthedocs.io/en/latest/optimization.html
+            .
 
-            opt_level:
-                Optimization level to use.
-                Can be one of ``'crude'``, ``'sloppy'``, ``'loose'``,
-                ``'lax'``, ``'normal'``, ``'tight'``, ``'vtight'``
-                or ``'extreme'``.
-                For details see
-                https://xtb-docs.readthedocs.io/en/latest/optimization.html
-                .
+        num_cores:
+            The number of cores xTB should use.
 
-            num_cores:
-                The number of cores xTB should use.
+        charge:
+            Formal molecular charge.
 
-            charge:
-                Formal molecular charge.
-
-            unlimited_memory:
-                If ``True`` :meth:`optimize` will be run without
-                constraints on the stack size. If memory issues are
-                encountered, this should be ``True``, however this may
-                raise issues on clusters.
+        unlimited_memory:
+            If ``True`` :meth:`optimize` will be run without
+            constraints on the stack size. If memory issues are
+            encountered, this should be ``True``, however this may
+            raise issues on clusters.
 
         """
-
         self._check_path(xtb_path)
         self._xtb_path = xtb_path
         self._output_dir = output_dir
@@ -1036,20 +1007,19 @@ class XTBFF(Optimizer):
             raise PathError(f"XTB not found at {path}")
 
     def _is_complete(self, output_file: str) -> bool:
-        """
-        Check if xTB optimization has completed and converged.
+        """Check if xTB optimization has completed and converged.
 
-        Parameters:
-
+        Parameters
+        ----------
             output_file:
                 Name of xTB output file.
 
-        Returns:
-
+        Returns
+        -------
             Returns ``False`` if a negative frequency is present.
 
-        Raises:
-
+        Raises
+        ------
             :class:`XTBOptimizerError` if the optimization failed.
 
             :class:`XTBConvergenceError` if the optimization did not converge.
@@ -1067,11 +1037,10 @@ class XTBFF(Optimizer):
             raise OptimizerError("XTB: Optimization failed to complete")
 
     def _run_xtb(self, xyz: str, out_file: str) -> None:
-        """
-        Run GFN-xTB.
+        """Run GFN-xTB.
 
-        Parameters:
-
+        Parameters
+        ----------
             xyz:
                 The name of the input structure ``.xyz`` file.
 
@@ -1080,7 +1049,6 @@ class XTBFF(Optimizer):
 
 
         """
-
         # Modify the memory limit.
         if self._unlimited_memory:
             memory = "ulimit -s unlimited ;"
@@ -1113,16 +1081,15 @@ class XTBFF(Optimizer):
         self,
         mol: stk.Molecule,
     ) -> tuple[stk.Molecule, bool]:
-        """
-        Run loop of optimizations on `mol` using xTB.
+        """Run loop of optimizations on `mol` using xTB.
 
-        Parameters:
-
+        Parameters
+        ----------
             mol:
             The molecule to be optimized.
 
-        Returns:
-
+        Returns
+        -------
             mol:
             The optimized molecule.
 
@@ -1131,7 +1098,6 @@ class XTBFF(Optimizer):
                 ``False`` if the calculation is incomplete.
 
         """
-
         xyz = "input_structure_ff.xyz"
         out_file = "optimization_ff.output"
         mol.write(xyz)
@@ -1145,21 +1111,19 @@ class XTBFF(Optimizer):
         return mol, opt_complete
 
     def optimize(self, mol: stk.Molecule) -> stk.Molecule:
-        """
-        Optimize `mol`.
+        """Optimize `mol`.
 
-        Parameters:
-
+        Parameters
+        ----------
             mol:
             The molecule to be optimized.
 
-        Returns:
-
+        Returns
+        -------
             mol:
             The optimized molecule.
 
         """
-
         if self._output_dir is None:
             output_dir = str(uuid.uuid4().int)
         else:
@@ -1185,11 +1149,10 @@ class XTBFF(Optimizer):
 
 
 class XTBFFCREST(Optimizer):
-    """
-    Uses GFN-FF [#5]_ to run CREST [#6]_ on molecules.
+    """Uses GFN-FF [#5]_ to run CREST [#6]_ on molecules.
 
-    Notes:
-
+    Notes
+    -----
         GFN-FF requires version 6.3 of xtb.
 
         When running :meth:`optimize`, this calculator changes the
@@ -1208,8 +1171,8 @@ class XTBFFCREST(Optimizer):
         cannot have their atom ordering changed by an external program at
         this stage.
 
-    Examples:
-
+    Examples
+    --------
         Note that for :class:`.ConstructedMolecule` objects constructed by
         ``stk``, :class:`XTBFFCREST` should usually be used in a
         :class:`.OptimizerSequence`. This is because xTB only uses
@@ -1267,8 +1230,8 @@ class XTBFFCREST(Optimizer):
             | gfn_topo: GFN-FF binary topology file.
             |    Defines the molecules force field topology.
 
-    References:
-
+    References
+    ----------
         .. [#5] https://xtb-docs.readthedocs.io/en/latest/gfnff.html
         .. [#6] https://xtb-docs.readthedocs.io/en/latest/crestcmd.html
 
@@ -1289,74 +1252,71 @@ class XTBFFCREST(Optimizer):
         cross: bool = True,
         unlimited_memory: bool = False,
     ) -> None:
-        """
-        Parameters:
+        """Parameters
+        crest_path:
+            The path to the CREST executable.
 
-            crest_path:
-                The path to the CREST executable.
+        xtb_path:
+            The path to the xTB executable.
+            Version >6.3.0 is required.
 
-            xtb_path:
-                The path to the xTB executable.
-                Version >6.3.0 is required.
+        output_dir:
+            The name of the directory into which files generated during
+            the optimization are written, if ``None`` then
+            :func:`uuid.uuid4` is used.
 
-            output_dir:
-                The name of the directory into which files generated during
-                the optimization are written, if ``None`` then
-                :func:`uuid.uuid4` is used.
+        opt_level:
+            Optimization level to use.
+            Can be one of ``'crude'``, ``'sloppy'``, ``'loose'``,
+            ``'lax'``, ``'normal'``, ``'tight'``, ``'vtight'``
+            or ``'extreme'``.
+            For details see
+            https://xtb-docs.readthedocs.io/en/latest/optimization.html
+            .
 
-            opt_level:
-                Optimization level to use.
-                Can be one of ``'crude'``, ``'sloppy'``, ``'loose'``,
-                ``'lax'``, ``'normal'``, ``'tight'``, ``'vtight'``
-                or ``'extreme'``.
-                For details see
-                https://xtb-docs.readthedocs.io/en/latest/optimization.html
-                .
+        md_len:
+            Set length of the meta-dynamics simulations (MTD) in ps.
+            Default is chosen based on size and flexibility of the
+            system.
 
-            md_len:
-                Set length of the meta-dynamics simulations (MTD) in ps.
-                Default is chosen based on size and flexibility of the
-                system.
+        ewin:
+            Set the energy threshold in kcal/mol for conformer
+            selection. Double this is used in crude optimization.
+            Defaults ot 5 kcal/mol and is overridden by
+            :attr:`speed_setting`.
 
-            ewin:
-                Set the energy threshold in kcal/mol for conformer
-                selection. Double this is used in crude optimization.
-                Defaults ot 5 kcal/mol and is overridden by
-                :attr:`speed_setting`.
+        speed_setting:
+            Conformer search speed setting. Fast methods turn off
+            parts of the calculations and alter MD run times.
+            Defaults to no modification of iMTD-GC algorithm: `None`.
+            Can be one of ``'norotmd'``, ``'quick'``, ``'squick'``
+            or ``'mquick'``.
+            Overrides :attr:`ewin` with chosen parameters.
+            For details see
+            https://xtb-docs.readthedocs.io/en/latest/crestcmd.html.
 
-            speed_setting:
-                Conformer search speed setting. Fast methods turn off
-                parts of the calculations and alter MD run times.
-                Defaults to no modification of iMTD-GC algorithm: `None`.
-                Can be one of ``'norotmd'``, ``'quick'``, ``'squick'``
-                or ``'mquick'``.
-                Overrides :attr:`ewin` with chosen parameters.
-                For details see
-                https://xtb-docs.readthedocs.io/en/latest/crestcmd.html.
+        keepdir:
+            `True` to keep subdirectories from MD runs.
+            Defaults to `False`.
+            For details see
+            https://xtb-docs.readthedocs.io/en/latest/crestcmd.html.
 
-            keepdir:
-                `True` to keep subdirectories from MD runs.
-                Defaults to `False`.
-                For details see
-                https://xtb-docs.readthedocs.io/en/latest/crestcmd.html.
+        num_cores:
+            The number of cores CREST should use.
 
-            num_cores:
-                The number of cores CREST should use.
+        charge:
+            Formal molecular charge.
 
-            charge:
-                Formal molecular charge.
+        cross:
+            Whether or not structure crossing is performed.
 
-            cross:
-                Whether or not structure crossing is performed.
-
-            unlimited_memory:
-                If ``True`` :meth:`optimize` will be run without
-                constraints on the stack size. If memory issues are
-                encountered, this should be ``True``, however this may
-                raise issues on clusters.
+        unlimited_memory:
+            If ``True`` :meth:`optimize` will be run without
+            constraints on the stack size. If memory issues are
+            encountered, this should be ``True``, however this may
+            raise issues on clusters.
 
         """
-
         self._check_path(crest_path)
         self._check_path(xtb_path)
         self._crest_path = crest_path
@@ -1384,11 +1344,10 @@ class XTBFFCREST(Optimizer):
             raise PathError(f"XTB or CREST not found at {path}")
 
     def _is_complete(self, output_file: str, output_xyzs: list[str]) -> bool:
-        """
-        Check if CREST run has completed.
+        """Check if CREST run has completed.
 
-        Parameters:
-
+        Parameters
+        ----------
             output_file:
                 Name of CREST output file.
 
@@ -1398,19 +1357,18 @@ class XTBFFCREST(Optimizer):
                 crest_conformers.xyz > All conformers,
                     exists throughout run.
 
-        Returns:
-
+        Returns
+        -------
             Returns ``False`` if a negative frequency is present.
 
-        Raises:
-
+        Raises
+        ------
             :class:`CRESTNotStartedError` if the CREST run failed to start.
 
             :class:`CRESTNotCompletedError` if the CREST run failed to
             complete.
 
         """
-
         if not os.path.exists(output_file):
             # No simulation has been run.
             raise NotStartedError("CREST run did not start")
@@ -1422,11 +1380,10 @@ class XTBFFCREST(Optimizer):
         return True
 
     def _run_crest(self, xyz: str, out_file: str) -> None:
-        """
-        Run CREST along side GFN-xTB.
+        """Run CREST along side GFN-xTB.
 
-        Parameters:
-
+        Parameters
+        ----------
             xyz:
                 The name of the input structure ``.xyz`` file.
 
@@ -1434,7 +1391,6 @@ class XTBFFCREST(Optimizer):
                 The name of output file with xTB results.
 
         """
-
         # Modify the memory limit.
         if self._unlimited_memory:
             memory = "ulimit -s unlimited ;"
@@ -1478,16 +1434,15 @@ class XTBFFCREST(Optimizer):
         self,
         mol: stk.Molecule,
     ) -> tuple[stk.Molecule, bool]:
-        """
-        Run loop of optimizations on `mol` using xTB.
+        """Run loop of optimizations on `mol` using xTB.
 
-        Parameters:
-
+        Parameters
+        ----------
             mol:
                 The molecule to be optimized.
 
-        Returns:
-
+        Returns
+        -------
             mol:
                 The optimized molecule.
 
@@ -1496,7 +1451,6 @@ class XTBFFCREST(Optimizer):
                 ``False`` if the calculation is incomplete.
 
         """
-
         xyz = "input_structure_ff.xyz"
         out_file = "crest_ff.output"
         mol.write(xyz)
@@ -1513,21 +1467,19 @@ class XTBFFCREST(Optimizer):
         return mol, opt_complete
 
     def optimize(self, mol: stk.Molecule) -> stk.Molecule:
-        """
-        Optimize `mol`.
+        """Optimize `mol`.
 
-        Parameters:
-
+        Parameters
+        ----------
             mol:
                 The molecule to be optimized.
 
-        Returns:
-
+        Returns
+        -------
             mol:
                 The optimized molecule.
 
         """
-
         if self._output_dir is None:
             output_dir = str(uuid.uuid4().int)
         else:

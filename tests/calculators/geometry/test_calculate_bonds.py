@@ -3,16 +3,14 @@ import stko
 
 
 def test_calculate_bonds(case_data):
-    """
-    Test :class:`.GeometryAnalyser.calculate_bonds`.
+    """Test :class:`.GeometryAnalyser.calculate_bonds`.
 
-    Parameters:
-
+    Parameters
+    ----------
         case_data:
             A test case.
 
     """
-
     analyser = stko.molecule_analysis.GeometryAnalyser()
 
     result = analyser.calculate_bonds(case_data.molecule)

@@ -15,8 +15,7 @@ logger = logging.getLogger(__name__)
 
 
 class RmsdCalculator:
-    """
-    Calculates the root mean square distance between molecules.
+    """Calculates the root mean square distance between molecules.
 
     This calculator will only work if the two molecules are the same
     and have the same atom ordering.
@@ -24,8 +23,8 @@ class RmsdCalculator:
     No alignment of the two molecules occurs. However, both molecules
     are moved to a centroid position of (0, 0, 0).
 
-    Examples:
-
+    Examples
+    --------
         .. code-block:: python
 
             import stk
@@ -43,17 +42,14 @@ class RmsdCalculator:
         initial_molecule: stk.Molecule,
         ignore_hydrogens: bool = False,
     ) -> None:
-        """
-        Parameters:
+        """Parameters
+        initial_molecule:
+            The :class:`stk.Molecule` to calculate RMSD from.
 
-            initial_molecule:
-                The :class:`stk.Molecule` to calculate RMSD from.
-
-            ignore_hydrogens:
-                ``True`` to ignore hydrogen atoms.
+        ignore_hydrogens:
+            ``True`` to ignore hydrogen atoms.
 
         """
-
         self._initial_molecule = initial_molecule
         self._ignore_hydrogens = ignore_hydrogens
 
@@ -74,7 +70,7 @@ class RmsdCalculator:
 
         atoms1 = self._initial_molecule.get_atoms()
         atoms2 = mol.get_atoms()
-        for atom1, atom2 in zip(atoms1, atoms2):
+        for atom1, atom2 in zip(atoms1, atoms2, strict=False):
             if is_inequivalent_atom(atom1, atom2):
                 raise DifferentAtomError(
                     f"{atom1} and {atom2} are not equivalent."
@@ -119,26 +115,23 @@ class RmsdCalculator:
         return self._calculate_rmsd(mol)
 
     def get_results(self, mol: stk.Molecule) -> stko.RmsdResults:
-        """
-        Calculate the RMSD between `mol` and the initial molecule.
+        """Calculate the RMSD between `mol` and the initial molecule.
 
-        Parameters:
-
+        Parameters
+        ----------
             mol:
                 The :class:`stk.Molecule` to calculate RMSD to.
 
-        Returns:
-
+        Returns
+        -------
             The RMSD between the molecules.
 
         """
-
         return RmsdResults(self.calculate(mol))
 
 
 class RmsdMappedCalculator(RmsdCalculator):
-    """
-    Calculates the root mean square distance between molecules.
+    """Calculates the root mean square distance between molecules.
 
     This calculator allows for different molecules but they should be
     aligned, see the example below. It will calculate the RMSD based on
@@ -149,8 +142,8 @@ class RmsdMappedCalculator(RmsdCalculator):
     Warning: the RMSD depends on the order, i.e. it is not guaranteed
     to be the same when you switch the initial and test molecule.
 
-    Examples:
-
+    Examples
+    --------
         .. code-block:: python
 
             import stk

@@ -2,11 +2,10 @@ import stk
 
 
 class CaseData:
-    """
-    A test case.
+    """A test case.
 
-    Attributes:
-
+    Attributes
+    ----------
         building_block:
             The molecule being tested.
 

@@ -3,16 +3,14 @@ import stko
 
 
 def test_get_binder_distance(case_data):
-    """
-    Test :class:`.DitopicThreeSiteAnalyser.get_binder_distance`.
+    """Test :class:`.DitopicThreeSiteAnalyser.get_binder_distance`.
 
-    Parameters:
-
+    Parameters
+    ----------
         case_data:
             A test case.
 
     """
-
     threesite_analysis = stko.molecule_analysis.DitopicThreeSiteAnalyser()
 
     distance = threesite_analysis.get_binder_distance(case_data.building_block)

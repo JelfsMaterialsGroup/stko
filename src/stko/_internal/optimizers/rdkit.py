@@ -16,14 +16,13 @@ logger = logging.getLogger(__name__)
 
 
 class MMFF(Optimizer):
-    """
-    Use the MMFF force field in :mod:`rdkit` [1]_ to optimize molecules.
+    """Use the MMFF force field in :mod:`rdkit` [1]_ to optimize molecules.
 
     Warning: this optimizer seems to be machine dependant, producing
     different energies after optimisation on Ubunut 18 vs. Ubuntu 20.
 
-    Examples:
-
+    Examples
+    --------
         .. code-block:: python
 
             import stk
@@ -33,8 +32,8 @@ class MMFF(Optimizer):
             mmff = stko.MMFF()
             mol = mmff.optimize(mol)
 
-    References:
-
+    References
+    ----------
         .. [1] https://www.rdkit.org/
 
     """
@@ -58,14 +57,13 @@ class MMFF(Optimizer):
 
 
 class UFF(Optimizer):
-    """
-    Use the UFF force field in :mod:`rdkit` [2]_ to optimize molecules.
+    """Use the UFF force field in :mod:`rdkit` [2]_ to optimize molecules.
 
     Warning: this optimizer seems to be machine dependant, producing
     different energies after optimisation on Ubunut 18 vs. Ubuntu 20.
 
-    Examples:
-
+    Examples
+    --------
         .. code-block:: python
 
             import stk
@@ -75,8 +73,8 @@ class UFF(Optimizer):
             uff = stko.UFF()
             mol = uff.optimize(mol)
 
-    References:
-
+    References
+    ----------
         .. [2] https://www.rdkit.org/
 
     """
@@ -100,11 +98,10 @@ class UFF(Optimizer):
 
 
 class ETKDG(Optimizer):
-    """
-    Uses ETKDG [3]_ v2 algorithm in :mod:`rdkit` [4]_ to optimize a structure.
+    """Uses ETKDG [3]_ v2 algorithm in :mod:`rdkit` [4]_ to optimize a structure.
 
-    Examples:
-
+    Examples
+    --------
         .. code-block:: python
 
             import stk
@@ -114,22 +111,19 @@ class ETKDG(Optimizer):
             etkdg = stko.ETKDG()
             mol = etkdg.optimize(mol)
 
-    References:
-
+    References
+    ----------
         .. [3] http://pubs.acs.org/doi/pdf/10.1021/acs.jcim.5b00654
         .. [4] https://www.rdkit.org/
 
     """
 
     def __init__(self, random_seed: int = 12):
-        """
-        Parameters:
-
-            random_seed:
-                The random seed to use.
+        """Parameters
+        random_seed:
+            The random seed to use.
 
         """
-
         self._random_seed = random_seed
 
     def optimize(self, mol: stk.Molecule) -> stk.Molecule:
@@ -147,11 +141,10 @@ class ETKDG(Optimizer):
 
 
 class MetalOptimizer(Optimizer):
-    """
-    Applies forcefield optimizers in :mod:`rdkit` [5]_ that can handle metals.
+    """Applies forcefield optimizers in :mod:`rdkit` [5]_ that can handle metals.
 
-    Notes:
-
+    Notes
+    -----
         By default, :meth:`optimize` will run a restricted optimization
         using constraints and the UFF. To implement this, metal atoms are
         replaced by noninteracting H atoms, and constraints are applied
@@ -163,8 +156,8 @@ class MetalOptimizer(Optimizer):
         Warning: this optimizer seems to be machine dependant, producing
         different energies after optimisation on Ubunut 18 vs. Ubuntu 20.
 
-    Examples:
-
+    Examples
+    --------
         :class:`MetalOptimizer` allows for the restricted optimization of
         :class:`ConstructedMolecule` instances containing metals. Note that
         this optimizer algorithm is not very robust to large bonds and may
@@ -227,8 +220,8 @@ class MetalOptimizer(Optimizer):
             # Optimize.
             cage1 = optimizer.optimize(mol=cage1)
 
-    References:
-
+    References
+    ----------
         .. [5] https://www.rdkit.org/
 
     """
@@ -239,17 +232,15 @@ class MetalOptimizer(Optimizer):
         metal_binder_forceconstant: float = 1.0e2,
         max_iterations: int = 500,
     ):
-        """
-        Parameters:
+        """Parameters
+        metal_binder_distance:
+            Distance in Angstrom.
 
-            metal_binder_distance:
-                Distance in Angstrom.
+        metal_binder_forceconstant:
+            Force constant to use for restricted metal-ligand bonds.
 
-            metal_binder_forceconstant:
-                Force constant to use for restricted metal-ligand bonds.
-
-            max_iterations:
-                Number of iteractions to run.
+        max_iterations:
+            Number of iteractions to run.
 
         """
         self._metal_binder_distance = metal_binder_distance
@@ -262,11 +253,10 @@ class MetalOptimizer(Optimizer):
         ff: rdkit.ForceField,
         metal_bonds: list[stk.Bond],
     ) -> None:
-        """
-        Applies UFF metal centre constraints.
+        """Applies UFF metal centre constraints.
 
-        Parameters:
-
+        Parameters
+        ----------
             mol:
                 The molecule to be optimized.
 
@@ -277,7 +267,6 @@ class MetalOptimizer(Optimizer):
                 List of bonds including metal atoms.
 
         """
-
         # Add constraints to UFF to hold metal geometry in place.
         for bond in metal_bonds:
             idx1 = bond.get_atom1().get_id()

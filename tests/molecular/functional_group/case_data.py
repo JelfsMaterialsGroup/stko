@@ -2,11 +2,10 @@ import stko
 
 
 class CaseData:
-    """
-    A test case.
+    """A test case.
 
-    Attributes:
-
+    Attributes
+    ----------
         smiles:
             The SMILES string of molecule being tested.
 

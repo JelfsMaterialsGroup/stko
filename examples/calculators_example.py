@@ -76,7 +76,7 @@ def main():
             print("Expected fail")
 
         # Try yielded option.
-        calculations.append(xtb.calculate((bb1)))
+        calculations.append(xtb.calculate(bb1))
 
     # Run through yield statements using the `.calculate` method
     # all in once.

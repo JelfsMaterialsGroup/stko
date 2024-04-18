@@ -8,8 +8,7 @@ logger = logging.getLogger(__name__)
 
 
 class DecomposeMOC:
-    """
-    Decompose a metal-organic cage to obtain its organic building blocks.
+    """Decompose a metal-organic cage to obtain its organic building blocks.
 
     WARNING: This code is only present in the latest versions of stko
     that require Python 3.11!
@@ -31,11 +30,10 @@ class DecomposeMOC:
         molecule: stk.Molecule,
         metal_atom_nos: tuple[int],
     ) -> tuple[stk.Molecule, ...]:
-        """
-        Decompose a MOC into ligands by deleting specific metal atoms.
+        """Decompose a MOC into ligands by deleting specific metal atoms.
 
-        Parameters:
-
+        Parameters
+        ----------
             molecule:
                 The molecule to decompose.
 
@@ -43,12 +41,11 @@ class DecomposeMOC:
                 The atomic numbers to delete. Can be a tuple of one or
                 any element on periodic table.
 
-        Returns:
-
+        Returns
+        -------
             The ligands as distinct, connected molecules.
 
         """
-
         connected_graphs = self._get_connected_graphs(
             molecule=molecule,
             metal_atom_nos=metal_atom_nos,

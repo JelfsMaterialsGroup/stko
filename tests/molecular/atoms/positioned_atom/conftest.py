@@ -6,13 +6,11 @@ from pytest_lazyfixture import lazy_fixture
 from .case_data import CaseData
 
 
-@pytest.fixture
+@pytest.fixture()
 def case_data_1(atomic_number, id, charge, position):
-    """
-    A :class:`.CaseData` instance.
+    """A :class:`.CaseData` instance.
 
     """
-
     return CaseData(
         atom=stko.PositionedAtom(
             atom=stk.Atom(
@@ -31,11 +29,9 @@ def case_data_1(atomic_number, id, charge, position):
 
 @pytest.fixture(params=(lazy_fixture("case_data_1"),))
 def case_data(request):
-    """
-    A :class:`.CaseData` instance.
+    """A :class:`.CaseData` instance.
 
     """
-
     return request.param
 
 
@@ -43,11 +39,9 @@ def case_data(request):
     params=[0, 3],
 )
 def id(request):
-    """
-    An atom id.
+    """An atom id.
 
     """
-
     return request.param
 
 
@@ -55,21 +49,17 @@ def id(request):
     params=[0],
 )
 def charge(request):
-    """
-    An atomic charge.
+    """An atomic charge.
 
     """
-
     return request.param
 
 
 @pytest.fixture(params=tuple(range(1, 118)))
 def atomic_number(request):
-    """
-    An atomic number.
+    """An atomic number.
 
     """
-
     return request.param
 
 
@@ -77,11 +67,9 @@ def atomic_number(request):
     params=[(0, 0, 0), (100, 0, -1)],
 )
 def position(request):
-    """
-    A position.
+    """A position.
 
     """
-
     return request.param
 
 
@@ -95,8 +83,7 @@ def position(request):
     ],
 )
 def cls(request):
-    """
-    Return an :class:`.Atom` instance.
+    """Return an :class:`.Atom` instance.
 
     Parameters
     ----------
@@ -112,17 +99,14 @@ def cls(request):
         An atom.
 
     """
-
     return request.param
 
 
-@pytest.fixture
+@pytest.fixture()
 def positioned_atom(cls, position):
-    """
-    An :class:`.PositionedAtom` instance.
+    """An :class:`.PositionedAtom` instance.
 
     """
-
     return stko.PositionedAtom(
         atom=cls(3, -5),
         position=position,

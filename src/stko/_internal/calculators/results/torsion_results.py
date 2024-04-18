@@ -7,8 +7,7 @@ from stko._internal.utilities.utilities import calculate_dihedral
 
 
 class TorsionResults:
-    """
-    Results class containing molecule torsions.
+    """Results class containing molecule torsions.
 
     """
 
@@ -52,8 +51,7 @@ class TorsionResults:
 
 
 class ConstructedMoleculeTorsionResults(TorsionResults):
-    """
-    Results class containing molecule torsions.
+    """Results class containing molecule torsions.
 
     """
 
@@ -68,11 +66,9 @@ class ConstructedMoleculeTorsionResults(TorsionResults):
     def get_torsion_infos_by_building_block(
         self,
     ) -> dict[int | None, list[TorsionInfo]]:
-        """
-        Returns dictionary of torsions by building block.
+        """Returns dictionary of torsions by building block.
 
         """
-
         torsion_infos_by_building_block = defaultdict(list)
         for torsion_info in self.get_torsion_infos():
             if torsion_info.get_building_block_id() is not None:
@@ -90,7 +86,7 @@ class ConstructedMoleculeTorsionResults(TorsionResults):
             )
             # Get atom info and check they are all the same.
             building_block_ids = set(
-                (i.get_building_block_id() for i in atom_infos)
+                i.get_building_block_id() for i in atom_infos
             )
             if len(building_block_ids) > 1:
                 same_building_block = False
@@ -101,7 +97,7 @@ class ConstructedMoleculeTorsionResults(TorsionResults):
                 building_block_id = next(iter(building_block_ids))
 
                 building_block = tuple(
-                    (i.get_building_block() for i in atom_infos)
+                    i.get_building_block() for i in atom_infos
                 )[0]
                 bb_atoms = tuple(
                     i.get_building_block_atom() for i in atom_infos

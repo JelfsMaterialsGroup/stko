@@ -2,8 +2,7 @@ from collections import abc
 
 
 class ShapeResults:
-    """
-    Results class containing molecule shape measures.
+    """Results class containing molecule shape measures.
 
     """
 

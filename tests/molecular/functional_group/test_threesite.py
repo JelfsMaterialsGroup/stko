@@ -2,16 +2,14 @@ import stk
 
 
 def test_threesite(case_data):
-    """
-    Test :class:`.ThreeSiteFactory`.
+    """Test :class:`.ThreeSiteFactory`.
 
-    Parameters:
-
+    Parameters
+    ----------
         case_data:
             A test case.
 
     """
-
     num_fgs = stk.BuildingBlock(
         smiles=case_data.smiles,
         functional_groups=case_data.factory,

@@ -11,8 +11,7 @@ logger = logging.getLogger(__name__)
 
 
 class PlanarityCalculator:
-    """
-    Calculates measures of planarity of a molecule.
+    """Calculates measures of planarity of a molecule.
 
     Measures based on plane deviation from Angew. paper [1]_ and a
     ChemRxiv paper [2]_.
@@ -25,8 +24,8 @@ class PlanarityCalculator:
     Planarity parameter: defined as
     sqrt((1/num_atoms) * (sum d_i ** 2)) (MPP in [2]_)
 
-    Examples:
-
+    Examples
+    --------
         .. code-block:: python
 
             import stk
@@ -44,8 +43,8 @@ class PlanarityCalculator:
             plane_deviation_span = pc_results.get_plane_deviation_span()
             planarity_parameter = pc_results.get_planarity_parameter()
 
-    References:
-
+    References
+    ----------
         .. [1] https://onlinelibrary.wiley.com/doi/10.1002/anie.202106721
 
         .. [2] https://link.springer.com/article/10.1007/s00894-021-04884-0
@@ -68,11 +67,9 @@ class PlanarityCalculator:
         plane: np.ndarray,
         point: np.ndarray,
     ) -> float:
-        """
-        Calculate the perpendicular distance from a point and a plane.
+        """Calculate the perpendicular distance from a point and a plane.
 
         """
-
         top = (
             plane[0] * point[0]
             + plane[1] * point[1]
@@ -120,11 +117,10 @@ class PlanarityCalculator:
         plane_atom_ids: abc.Iterable[int] | None = None,
         deviation_atom_ids: abc.Iterable[int] | None = None,
     ) -> abc.Iterable[dict]:
-        """
-        Perform calculation on `mol`.
+        """Perform calculation on `mol`.
 
-        Parameters:
-
+        Parameters
+        ----------
             mol:
                 The :class:`stk.Molecule` whose planarity is to be calculated.
 
@@ -134,12 +130,11 @@ class PlanarityCalculator:
             deviation_atom_ids:
                 The atom ids to use to calculate planarity.
 
-        Yields:
-
+        Yields
+        ------
             Dictionary of results.
 
         """
-
         if plane_atom_ids is None:
             plane_atom_ids = list(range(len(list(mol.get_atoms()))))
         else:
@@ -168,11 +163,10 @@ class PlanarityCalculator:
         plane_atom_ids: abc.Iterable[int] | None = None,
         deviation_atom_ids: abc.Iterable[int] | None = None,
     ) -> PlanarityResults:
-        """
-        Calculate the planarity of `mol`.
+        """Calculate the planarity of `mol`.
 
-        Parameters:
-
+        Parameters
+        ----------
             mol:
                 The :class:`stk.Molecule` whose planarity is to be calculated.
 
@@ -182,12 +176,11 @@ class PlanarityCalculator:
             deviation_atom_ids:
                 The atom ids to use to calculate planarity.
 
-        Returns:
-
+        Returns
+        -------
             The planarity measures of the molecule.
 
         """
-
         return PlanarityResults(
             self.calculate(
                 mol=mol,

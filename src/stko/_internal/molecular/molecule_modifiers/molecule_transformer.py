@@ -9,11 +9,10 @@ logger = logging.getLogger(__name__)
 
 
 class MoleculeTransformer:
-    """
-    Split an stk.molecule into many with new functional groups.
+    """Split an stk.molecule into many with new functional groups.
 
-    Examples:
-
+    Examples
+    --------
         Given a molecule, this class allows you to cap a split molecule
         (see :class:`MoleculeSplitter`) at the broken bond with an atom
         defined in `replacer_smarts`.
@@ -45,9 +44,7 @@ class MoleculeTransformer:
         replacer_smarts: str,
         functional_groups: abc.Iterable[stk.FunctionalGroupFactory],
     ) -> None:
-        """
-        Parameters:
-
+        """Parameters
             replacer_smarts:
                 SMARTS string of atom to replace dummy atoms with. This
                 must be a single atom.
@@ -56,13 +53,12 @@ class MoleculeTransformer:
                 Functional group factories to use to define new building
                 block.
 
-        Raises:
-
+        Raises
+        ------
             :class:`ValueError` If `replacer_smarts` does not correspond
             to a single atom.
 
         """
-
         # Add replacers bonded to * atoms.
         _atom_list = list(rdkit.MolFromSmarts(replacer_smarts).GetAtoms())
         if len(_atom_list) != 1:
@@ -81,21 +77,19 @@ class MoleculeTransformer:
         self._functional_groups = functional_groups
 
     def transform(self, molecule: stk.Molecule) -> stk.Molecule:
-        """
-        Transform a molecule.
+        """Transform a molecule.
 
-        Parameters:
-
+        Parameters
+        ----------
             molecule:
                 Molecule to modify.
 
-        Returns:
-
+        Returns
+        -------
             molecule:
                 The resulting molecule.
 
         """
-
         rdkit_mol = molecule.to_rdkit_mol()
         rdkit.SanitizeMol(rdkit_mol)
 

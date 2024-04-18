@@ -3,11 +3,10 @@ import stko
 
 
 def test_decomposemoc(case_data):
-    """
-    Test :class:`.DecomposeMOC`.
+    """Test :class:`.DecomposeMOC`.
 
-    Parameters:
-
+    Parameters
+    ----------
         case_data:
             A test case.
 

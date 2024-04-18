@@ -58,7 +58,8 @@ line-length = 79
 line-length = 79
 
 [tool.ruff.lint]
-extend-select = ["I"]
+select = ["ALL"]
+ignore = ["ANN101", "COM812", "ISC001"]
 
 [tool.pytest.ini_options]
 testpaths = [

@@ -3,11 +3,10 @@ import stk
 
 
 class CaseData:
-    """
-    A test case.
+    """A test case.
 
-    Attributes:
-
+    Attributes
+    ----------
         constructed_molecule:
             The molecule being tested.
 

@@ -20,11 +20,10 @@ logger = logging.getLogger(__name__)
 
 
 class OpenBabelEnergy:
-    """
-    Uses OpenBabel to calculate forcefield energies. [#]_
+    """Uses OpenBabel to calculate forcefield energies. [#]_
 
-    Examples:
-
+    Examples
+    --------
         .. code-block:: python
 
             import stk
@@ -41,26 +40,23 @@ class OpenBabelEnergy:
             energy = results.get_energy()
             unit_string = results.get_unit_string()
 
-    References:
-
+    References
+    ----------
         .. [#] https://github.com/openbabel/openbabel
 
     """
 
     def __init__(self, forcefield: str) -> None:
-        """
-        Parameters:
-
+        """Parameters
             forcefield:
                 Forcefield to use. Options include `uff`, `gaff`,
                 `ghemical`, `mmff94`.
 
-        Raises:
-
+        Raises
+        ------
             :class:`WrapperNotInstalledError` if `openbabel` not installed.
 
         """
-
         if openbabel is None:
             raise WrapperNotInstalledError(
                 "openbabel is not installed; see README for " "installation."
@@ -90,38 +86,34 @@ class OpenBabelEnergy:
         yield forcefield.Energy()
 
     def get_results(self, mol: stk.Molecule) -> EnergyResults:
-        """
-        Calculate the energy of `mol`.
+        """Calculate the energy of `mol`.
 
-        Parameters:
-
+        Parameters
+        ----------
             mol
                 The :class:`stk.Molecule` whose energy is to be calculated.
 
-        Returns:
-
+        Returns
+        -------
             The energy and units of the energy.
 
         """
-
         return EnergyResults(
             generator=self.calculate(mol),
             unit_string="kJ mol-1",
         )
 
     def get_energy(self, mol: stk.Molecule) -> float:
-        """
-        Calculate the energy of `mol`.
+        """Calculate the energy of `mol`.
 
-        Parameters:
-
+        Parameters
+        ----------
             mol:
                 The :class:`stk.Molecule` whose energy is to be calculated.
 
-        Returns:
-
+        Returns
+        -------
             The energy.
 
         """
-
         return self.get_results(mol).get_energy()

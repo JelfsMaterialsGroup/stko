@@ -10,11 +10,10 @@ logger = logging.getLogger(__name__)
 
 
 class MoleculeSplitter:
-    """
-    Split an stk.molecule into many with dummy atoms.
+    """Split an stk.molecule into many with dummy atoms.
 
-    Examples:
-
+    Examples
+    --------
         Given a molecule, this class allows you to break bonds based on
         `breaker_smarts` between the atoms in `bond_deleter_ids`.
 
@@ -38,17 +37,14 @@ class MoleculeSplitter:
         breaker_smarts: str,
         bond_deleter_ids: tuple[int, ...],
     ) -> None:
-        """
-        Parameters:
+        """Parameters
+        breaker_smarts:
+            SMARTS string used to find the substructure to break.
 
-            breaker_smarts:
-                SMARTS string used to find the substructure to break.
-
-            bond_deleter_ids:
-                Index of atoms in `breaker_smarts` to break bond between.
+        bond_deleter_ids:
+            Index of atoms in `breaker_smarts` to break bond between.
 
         """
-
         self._breaker_smarts = breaker_smarts
         self._bond_deleter_ids = bond_deleter_ids
 
@@ -56,21 +52,19 @@ class MoleculeSplitter:
         self,
         molecule: stk.Molecule,
     ) -> abc.Iterable[stk.BuildingBlock]:
-        """
-        Split a molecule.
+        """Split a molecule.
 
-        Parameters:
-
+        Parameters
+        ----------
             molecule:
                 Molecule to modify.
 
-        Returns:
-
+        Returns
+        -------
             molecules:
                 The resulting list of molecules.
 
         """
-
         rdkit_mol = molecule.to_rdkit_mol()
         rdkit.SanitizeMol(rdkit_mol)
         bond_pair_ids_to_delete: list[tuple] = []

@@ -1,6 +1,5 @@
 def test_get_charge(case_data):
-    """
-    Test :meth:`.Du.get_charge`.
+    """Test :meth:`.Du.get_charge`.
 
     Parameters
     ----------
@@ -12,5 +11,4 @@ def test_get_charge(case_data):
     None : :class:`NoneType`
 
     """
-
     assert case_data.atom.get_charge() == 0

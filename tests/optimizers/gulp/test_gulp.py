@@ -14,7 +14,7 @@ class FakeGulpUFFOptimizer(GulpUFFOptimizer):
         return
 
     def optimize(self, mol: stk.Molecule) -> stk.Molecule:
-        return a_molecule().with_centroid(np.array(([1, 3, 3])))
+        return a_molecule().with_centroid(np.array([1, 3, 3]))
 
 
 class FakeGulpUFFMDOptimizer(GulpUFFMDOptimizer):
@@ -22,10 +22,10 @@ class FakeGulpUFFMDOptimizer(GulpUFFMDOptimizer):
         return
 
     def optimize(self, mol: stk.Molecule) -> stk.Molecule:
-        return a_molecule().with_centroid(np.array(([1, 3, 3])))
+        return a_molecule().with_centroid(np.array([1, 3, 3]))
 
 
-@pytest.fixture
+@pytest.fixture()
 def position_section():
     return (
         "\ncartesian\n"
@@ -40,7 +40,7 @@ def position_section():
     )
 
 
-@pytest.fixture
+@pytest.fixture()
 def bond_section():
     return (
         "\nconnect 1 2 \n"
@@ -53,7 +53,7 @@ def bond_section():
     )
 
 
-@pytest.fixture
+@pytest.fixture()
 def species_section():
     return "\nspecies\nC1 C_3\nH1 H_\n"
 
@@ -89,18 +89,16 @@ def test_gulp_species_section(unoptimized_mol, species_section):
     assert species_section == test
 
 
-@pytest.fixture
+@pytest.fixture()
 def atom_types():
     return ["C", "C", "H", "H", "H", "H", "H", "H"]
 
 
-@pytest.fixture
+@pytest.fixture()
 def trajectory():
-    """
-    Defines output of the trajectory properties ignoring coords.
+    """Defines output of the trajectory properties ignoring coords.
 
     """
-
     return {
         0: {
             "time": 2.99999999999978,
@@ -135,12 +133,12 @@ def trajectory():
     }
 
 
-@pytest.fixture
+@pytest.fixture()
 def min_energy_time_step():
     return 3
 
 
-@pytest.fixture
+@pytest.fixture()
 def xyz_string():
     return (
         "8\n"
@@ -168,7 +166,7 @@ def test_gulp_convert_traj_to_xyz(atom_types, trajectory):
         output_traj=test_traj,
     )
 
-    for i, t in zip(atom_types, test_atom_types):
+    for i, t in zip(atom_types, test_atom_types, strict=False):
         assert i == t
 
     for ts in trajectory:
@@ -217,7 +215,7 @@ def test_gulp_write_conformer_xyz_file(xyz_string):
     )
 
     test_string = ""
-    with open(test_output, "r") as f:
+    with open(test_output) as f:
         for line in f.readlines():
             print(line)
             test_string += line

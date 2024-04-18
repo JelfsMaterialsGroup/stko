@@ -7,8 +7,7 @@ logger = logging.getLogger(__name__)
 
 
 class PositionedAtom:
-    """
-    A container for stk.Atom and a coordinate.
+    """A container for stk.Atom and a coordinate.
 
     """
 
@@ -17,18 +16,15 @@ class PositionedAtom:
         atom: stk.Atom,
         position: tuple[float, ...],
     ) -> None:
-        """
-        Parameters:
+        """Parameters
+        atom:
+            The atom.
 
-            atom:
-                The atom.
-
-            position:
-                The position (`x`, `y`, `z`) of the atom in cartesian
-                coordinates.
+        position:
+            The position (`x`, `y`, `z`) of the atom in cartesian
+            coordinates.
 
         """
-
         self._atom = atom
         self._position = position
 
@@ -48,37 +44,31 @@ class PositionedAtom:
         return self._position
 
     def _with_id(self, id: int) -> Self:
-        """
-        Modify the atom id.
+        """Modify the atom id.
 
         """
-
         self._atom = self._atom.with_id(id)
         return self
 
     def with_id(self, id: int) -> Self:
-        """
-        Get a clone but with a different id.
+        """Get a clone but with a different id.
 
-        Returns:
-
+        Returns
+        -------
             A clone with a new id. Has the same type as the original
             atom.
 
         """
-
         return self.clone()._with_id(id)
 
     def clone(self) -> Self:
-        """
-        Return a clone.
+        """Return a clone.
 
-        Returns:
-
+        Returns
+        -------
             The clone. It has the same type as the original atom.
 
         """
-
         clone = self.__class__.__new__(self.__class__)
         clone._atom = self._atom
         clone._position = self._position

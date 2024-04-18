@@ -3,16 +3,14 @@ import stko
 
 
 def test_get_binder_adjacent_torsion(case_data):
-    """
-    Test :class:`.DitopicThreeSiteAnalyser.get_binder_adjacent_torsion`.
+    """Test :class:`.DitopicThreeSiteAnalyser.get_binder_adjacent_torsion`.
 
-    Parameters:
-
+    Parameters
+    ----------
         case_data:
             A test case.
 
     """
-
     threesite_analysis = stko.molecule_analysis.DitopicThreeSiteAnalyser()
 
     result = threesite_analysis.get_binder_adjacent_torsion(

@@ -14,8 +14,7 @@ logger = logging.getLogger(__name__)
 
 
 class OrcaEnergy:
-    """
-    Uses Orca [#]_ to calculate energy and other properties.
+    """Uses Orca [#]_ to calculate energy and other properties.
 
     By default, :meth:`get_results` will extract other properties of
     the :class:`stk.Molecule` passed to :meth:`calculate`, which
@@ -29,8 +28,8 @@ class OrcaEnergy:
     like more customization or to run outside of the Python
     environment.
 
-    Notes:
-
+    Notes
+    -----
         When running :meth:`calculate`, this calculator changes the
         present working directory with :func:`os.chdir`. The original
         working directory will be restored even if an error is raised, so
@@ -44,8 +43,8 @@ class OrcaEnergy:
         Note that this does not have any impact on multi-processing,
         which should always be safe.
 
-    Examples:
-
+    Examples
+    --------
         .. code-block:: python
 
             import stk
@@ -100,8 +99,8 @@ class OrcaEnergy:
 
             orca.get_results(polymer)
 
-    References:
-
+    References
+    ----------
         .. [#] https://orcaforum.kofo.mpg.de/app.php/portal
 
     """
@@ -118,47 +117,44 @@ class OrcaEnergy:
         write_input_only: bool = False,
         discard_output: bool = True,
     ):
-        """
-        Parameters:
+        """Parameters
+        orca_path:
+            The path to the Orca executable.
 
-            orca_path:
-                The path to the Orca executable.
+        topline:
+            Top line designating the type of calculation. Should start
+            with `! `.
 
-            topline:
-                Top line designating the type of calculation. Should start
-                with `! `.
+        basename:
+            Base name of Orca output files.
 
-            basename:
-                Base name of Orca output files.
+        output_dir:
+            The name of the directory into which files generated during
+            the calculation are written, if ``None`` then
+            :func:`uuid.uuid4` is used.
 
-            output_dir:
-                The name of the directory into which files generated during
-                the calculation are written, if ``None`` then
-                :func:`uuid.uuid4` is used.
+        num_cores:
+            The number of cores Orca should use.
 
-            num_cores:
-                The number of cores Orca should use.
+        charge:
+            Formal molecular charge.
 
-            charge:
-                Formal molecular charge.
+        multiplicity:
+            Multiplicity of system (2S+1), where S is the spin.
 
-            multiplicity:
-                Multiplicity of system (2S+1), where S is the spin.
+        write_input_only:
+            `True` if you only want the input file written and to not
+            have the Orca job run.
 
-            write_input_only:
-                `True` if you only want the input file written and to not
-                have the Orca job run.
-
-            discard_output:
-                `True` if you want to delete auxillary Orca output files
-                such as the `.gbw` file.
+        discard_output:
+            `True` if you want to delete auxillary Orca output files
+            such as the `.gbw` file.
 
         """
-
         self._check_path(orca_path)
         self._orca_path = orca_path
         if basename is None:
-            self._basename = f"_{str(uuid.uuid4().int)}"
+            self._basename = f"_{uuid.uuid4().int!s}"
         else:
             self._basename = basename
         self._output_dir = output_dir
@@ -197,7 +193,7 @@ class OrcaEnergy:
                 "not run."
             )
 
-        with open(out_file, "r") as f:
+        with open(out_file) as f:
             lines = f.readlines()
             if "****ORCA TERMINATED NORMALLY****" not in lines[-2]:
                 raise OptimizerError(
@@ -223,11 +219,10 @@ class OrcaEnergy:
         init_dir: str,
         output_dir: str,
     ) -> None:
-        """
-        Runs Orca.
+        """Runs Orca.
 
-        Parameters:
-
+        Parameters
+        ----------
             xyz_file:
                 The name of the input structure ``.xyz`` file.
 
@@ -245,7 +240,6 @@ class OrcaEnergy:
                 the calculation are written.
 
         """
-
         cmd = f"{self._orca_path} {input_file}"
 
         try:
@@ -295,21 +289,19 @@ class OrcaEnergy:
         yield
 
     def get_results(self, mol: stk.Molecule) -> OrcaResults | None:
-        """
-        Calculate the Orca properties of `mol`.
+        """Calculate the Orca properties of `mol`.
 
-        Parameters:
-
+        Parameters
+        ----------
             mol:
                 The :class:`stk.Molecule` whose energy is to be calculated.
 
-        Returns:
-
+        Returns
+        -------
             The properties, with units, from Orca calculations or `None`
             if `write_input_only` mode.
 
         """
-
         if self._output_dir is None:
             output_dir = str(uuid.uuid4().int)
         else:
@@ -328,20 +320,18 @@ class OrcaEnergy:
             )
 
     def get_energy(self, mol: stk.Molecule) -> float | None:
-        """
-        Calculate the energy of `mol`.
+        """Calculate the energy of `mol`.
 
-        Parameters:
-
+        Parameters
+        ----------
             mol:
                 The :class:`stk.Molecule` whose energy is to be calculated.
 
-        Returns:
-
+        Returns
+        -------
             The energy or `None` if `write_input_only` mode.
 
         """
-
         results = self.get_results(mol)
         if results is None:
             return None

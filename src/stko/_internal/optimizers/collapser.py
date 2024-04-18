@@ -19,8 +19,7 @@ logger = logging.getLogger(__name__)
 
 
 class Collapser(Optimizer):
-    """
-    Collapse stk.ConstructedMolecule to decrease enlarged bonds.
+    """Collapse stk.ConstructedMolecule to decrease enlarged bonds.
 
     It is recommended to use the MCHammer version of this code with
     :mod:`MCHammer` [1]_, where a much cleaner version is written.
@@ -52,8 +51,8 @@ class Collapser(Optimizer):
         )
         cage1 = optimizer.optimize(mol=cage1)
 
-    References:
-
+    References
+    ----------
         .. [1] https://github.com/andrewtarzia/MCHammer
 
     """
@@ -65,27 +64,24 @@ class Collapser(Optimizer):
         distance_cut: float,
         scale_steps: bool = True,
     ) -> None:
-        """
-        Parameters:
+        """Parameters
+        output_dir:
+            The name of the directory into which files generated during
+            the calculation are written.
 
-            output_dir:
-                The name of the directory into which files generated during
-                the calculation are written.
+        step_size:
+            The relative size of the step to take during collapse.
 
-            step_size:
-                The relative size of the step to take during collapse.
+        distance_cut:
+            Distance between distinct building blocks to use as
+            threshold for halting collapse in Angstrom.
 
-            distance_cut:
-                Distance between distinct building blocks to use as
-                threshold for halting collapse in Angstrom.
-
-            scale_steps:
-                Whether to scale the step of each distict building block
-                by their relative distance from the molecules centroid.
-                Defaults to ``True``
+        scale_steps:
+            Whether to scale the step of each distict building block
+            by their relative distance from the molecules centroid.
+            Defaults to ``True``
 
         """
-
         self._output_dir = output_dir
         self._step_size = step_size
         self._distance_cut = distance_cut
@@ -95,13 +91,11 @@ class Collapser(Optimizer):
         self,
         mol: stk.Molecule,
     ) -> abc.Iterable[float]:
-        """
-        Yield The distances between building blocks in mol.
+        """Yield The distances between building blocks in mol.
 
         Ignores H atoms.
 
         """
-
         position_matrix = mol.get_position_matrix()
 
         for atom1, atom2 in combinations(
@@ -125,11 +119,9 @@ class Collapser(Optimizer):
                 yield dist
 
     def _has_short_contacts(self, mol: stk.Molecule) -> bool:
-        """
-        Calculate if there are short contants in mol.
+        """Calculate if there are short contants in mol.
 
         """
-
         return any(
             dist < self._distance_cut
             for dist in self._get_inter_bb_distance(mol)
@@ -142,11 +134,9 @@ class Collapser(Optimizer):
         vectors: dict[int, np.ndarray],
         scales: dict,
     ) -> np.ndarray:
-        """
-        Get the position matrix of the mol after translation.
+        """Get the position matrix of the mol after translation.
 
         """
-
         new_position_matrix = mol.get_position_matrix()
         for atom in mol.get_atom_infos():  # type:ignore[attr-defined]
             bb_id = atom.get_building_block_id()
@@ -164,11 +154,9 @@ class Collapser(Optimizer):
         step: float,
         scales: dict,
     ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
-        """
-        Get the unit cell vectors after collapse step.
+        """Get the unit cell vectors after collapse step.
 
         """
-
         vector_1 = unit_cell.get_vector_1()
         vector_2 = unit_cell.get_vector_2()
         vector_3 = unit_cell.get_vector_3()
@@ -186,11 +174,10 @@ class Collapser(Optimizer):
         mol: stk.Molecule,
         bb_atom_ids: dict[int, list[int]],
     ) -> tuple[dict[int, np.ndarray], dict[int, np.floating]]:
-        """
-        Get the building block to COM vectors.
+        """Get the building block to COM vectors.
 
-        Parameters:
-
+        Parameters
+        ----------
             mol:
                 The molecule to be optimized.
 
@@ -199,8 +186,8 @@ class Collapser(Optimizer):
                 atom ids (values) in each distinct building block in the
                 molecule.
 
-        Returns:
-
+        Returns
+        -------
             bb_cent_vectors:
                 Dictionary mapping building block ids (keys) to centroid
                 vectors (values) of each distinct building block in the
@@ -212,7 +199,6 @@ class Collapser(Optimizer):
                 building block in the molecule.
 
         """
-
         cent = mol.get_centroid()
 
         # Get bb COM vector to molecule COM.
@@ -316,19 +302,18 @@ class Collapser(Optimizer):
         mol: stk.Molecule,
         unit_cell: UnitCell,
     ) -> tuple[stk.Molecule, UnitCell]:
-        """
-        Optimize `mol`.
+        """Optimize `mol`.
 
-        Parameters:
-
+        Parameters
+        ----------
             mol:
                 The molecule to be optimized.
 
             unit_cell:
                 The cell to be optimized.
 
-        Returns:
-
+        Returns
+        -------
             mol:
                 The optimized molecule.
 
@@ -456,8 +441,7 @@ class Collapser(Optimizer):
 
 
 class CollapserMC(Collapser):
-    """
-    Collapse molecule to decrease enlarged bonds using MC algorithm.
+    """Collapse molecule to decrease enlarged bonds using MC algorithm.
 
     It is recommended to use the MCHammer version of this code with
     :mod:`MCHammer` [2]_, where a much cleaner version is written.
@@ -466,8 +450,8 @@ class CollapserMC(Collapser):
     Smarter optimisation than Collapser using simple Monte Carlo
     algorithm to perform rigid translations of building blocks.
 
-    References:
-
+    References
+    ----------
         .. [2] https://github.com/andrewtarzia/MCHammer
 
     """
@@ -485,55 +469,52 @@ class CollapserMC(Collapser):
         beta: float = 2,
         random_seed: int | None = None,
     ):
-        """
-        Parameters:
+        """Parameters
+        output_dir:
+            The name of the directory into which files generated during
+            the calculation are written.
 
-            output_dir:
-                The name of the directory into which files generated during
-                the calculation are written.
+        step_size:
+            The relative size of the step to take during step.
 
-            step_size:
-                The relative size of the step to take during step.
+        target_bond_length:
+            Target equilibrium bond length for long bonds to minimize
+            to.
 
-            target_bond_length:
-                Target equilibrium bond length for long bonds to minimize
-                to.
+        num_steps:
+            Number of MC moves to perform.
 
-            num_steps:
-                Number of MC moves to perform.
+        bond_epsilon:
+            Value of epsilon used in the bond potential in MC moves.
+            Determines strength of the bond potential.
+            Defaults to 50.
 
-            bond_epsilon:
-                Value of epsilon used in the bond potential in MC moves.
-                Determines strength of the bond potential.
-                Defaults to 50.
+        nonbond_epsilon:
+            Value of epsilon used in the nonbond potential in MC moves.
+            Determines strength of the nonbond potential.
+            Defaults to 20.
 
-            nonbond_epsilon:
-                Value of epsilon used in the nonbond potential in MC moves.
-                Determines strength of the nonbond potential.
-                Defaults to 20.
+        nonbond_sigma:
+            Value of sigma used in the nonbond potential in MC moves.
+            Defaults to 1.2.
 
-            nonbond_sigma:
-                Value of sigma used in the nonbond potential in MC moves.
-                Defaults to 1.2.
+        nonbond_mu:
+            Value of mu used in the nonbond potential in MC moves.
+            Determines the steepness of the nonbond potential.
+            Defaults to 3.
 
-            nonbond_mu:
-                Value of mu used in the nonbond potential in MC moves.
-                Determines the steepness of the nonbond potential.
-                Defaults to 3.
+        beta:
+            Value of beta used in the in MC moves. Beta takes the
+            place of the inverse boltzmann temperature.
+            Defaults to 2.
 
-            beta:
-                Value of beta used in the in MC moves. Beta takes the
-                place of the inverse boltzmann temperature.
-                Defaults to 2.
-
-            random_seed:
-                Random seed to use for MC algorithm. Should only be set
-                if exactly reproducible results are required, otherwise
-                a system-based random seed should be used for proper
-                sampling.
+        random_seed:
+            Random seed to use for MC algorithm. Should only be set
+            if exactly reproducible results are required, otherwise
+            a system-based random seed should be used for proper
+            sampling.
 
         """
-
         self._output_dir = output_dir
         self._step_size = step_size
         self._target_bond_length = target_bond_length
@@ -577,11 +558,9 @@ class CollapserMC(Collapser):
         self,
         mol: stk.Molecule,
     ) -> dict[tuple[int, int], stk.BondInfo]:
-        """
-        Returns dict of long bond infos.
+        """Returns dict of long bond infos.
 
         """
-
         long_bond_infos: dict[tuple[int, int], stk.BondInfo] = {}
         for bond_infos in mol.get_bond_infos():  # type: ignore[attr-defined]
             if bond_infos.get_building_block() is None:
@@ -598,11 +577,9 @@ class CollapserMC(Collapser):
         mol: stk.Molecule,
         bb_atom_ids: dict[int, tuple[int, ...]],
     ) -> dict[int, np.ndarray]:
-        """
-        Returns dict of building block centroids.
+        """Returns dict of building block centroids.
 
         """
-
         bb_centroids = {
             i: mol.get_centroid(atom_ids=bb_atom_ids[i]) for i in bb_atom_ids
         }
@@ -615,11 +592,9 @@ class CollapserMC(Collapser):
         bb_centroids: dict[int, np.ndarray],
         long_bond_infos: dict[tuple, stk.BondInfo],
     ) -> dict[tuple[int, int], tuple[float]]:
-        """
-        Returns dict of long bond atom to bb centroid vectors.
+        """Returns dict of long bond atom to bb centroid vectors.
 
         """
-
         position_matrix = mol.get_position_matrix()
         centroid_to_lb_vectors: dict[tuple[int, int], tuple[float]] = {}
         for bb in bb_centroids:
@@ -641,24 +616,20 @@ class CollapserMC(Collapser):
         return centroid_to_lb_vectors
 
     def _bond_potential(self, distance: float) -> float:
-        """
-        Define an arbitrary parabolic bond potential.
+        """Define an arbitrary parabolic bond potential.
 
         This potential has no relation to an empircal forcefield.
         """
-
         potential = (distance - self._target_bond_length) ** 2
         potential = self._bond_epsilon * potential
 
         return potential
 
     def _non_bond_potential(self, distance: float) -> float:
-        """
-        Define an arbitrary repulsive nonbonded potential.
+        """Define an arbitrary repulsive nonbonded potential.
 
         This potential has no relation to an empircal forcefield.
         """
-
         return self._nonbond_epsilon * (
             (self._nonbond_sigma / distance) ** self._nonbond_mu
         )

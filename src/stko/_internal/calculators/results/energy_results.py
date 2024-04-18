@@ -2,8 +2,7 @@ from collections import abc
 
 
 class EnergyResults:
-    """
-    Results class containing molecule energy.
+    """Results class containing molecule energy.
 
     """
 

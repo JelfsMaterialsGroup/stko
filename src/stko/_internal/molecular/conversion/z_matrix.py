@@ -12,11 +12,10 @@ logger = logging.getLogger(__name__)
 
 
 class ZMatrix:
-    """
-    Converter for :class:`stk.Molecule` to Z-Matrix.
+    """Converter for :class:`stk.Molecule` to Z-Matrix.
 
-    Examples:
-
+    Examples
+    --------
         The Z-matrix is returned as a string.
 
         .. code-block:: python
@@ -31,22 +30,20 @@ class ZMatrix:
     """
 
     def get_zmatrix(self, molecule: stk.Molecule) -> str:
-        """
-        Get Z-matrix of a molecule.
+        """Get Z-matrix of a molecule.
 
-        Parameters:
-
+        Parameters
+        ----------
             molecule:
                 Molecule to convert.
 
-        Returns:
-
+        Returns
+        -------
             zmatrix:
                 The Z-matrix of the molecule.
                 Distances in Angstrom, angles and torsions in degrees.
 
         """
-
         zmatrix = []
         mol_atoms = list(molecule.get_atoms())
         position_matrix = molecule.get_position_matrix()

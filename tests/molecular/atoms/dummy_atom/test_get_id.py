@@ -1,6 +1,5 @@
 def test_get_id(case_data):
-    """
-    Test :meth:`.Du.get_id`.
+    """Test :meth:`.Du.get_id`.
 
     Parameters
     ----------
@@ -12,5 +11,4 @@ def test_get_id(case_data):
     None : :class:`NoneType`
 
     """
-
     assert case_data.atom.get_id() == case_data.id

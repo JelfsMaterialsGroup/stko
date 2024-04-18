@@ -3,16 +3,14 @@ import stko
 
 
 def test_get_adjacent_centroids(case_data):
-    """
-    Test :class:`.DitopicThreeSiteAnalyser.get_adjacent_centroids`.
+    """Test :class:`.DitopicThreeSiteAnalyser.get_adjacent_centroids`.
 
-    Parameters:
-
+    Parameters
+    ----------
         case_data:
             A test case.
 
     """
-
     threesite_analysis = stko.molecule_analysis.DitopicThreeSiteAnalyser()
 
     centroids = threesite_analysis.get_adjacent_centroids(

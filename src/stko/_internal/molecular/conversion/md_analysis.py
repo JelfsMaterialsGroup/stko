@@ -12,11 +12,10 @@ logger = logging.getLogger(__name__)
 
 
 class MDAnalysis:
-    """
-    Converter for :class:`stk.Molecule` to and from MDAnalysis.
+    """Converter for :class:`stk.Molecule` to and from MDAnalysis.
 
-    Examples:
-
+    Examples
+    --------
         An stk molecule can be converted into an MDAnalysis Universe.
 
         .. code-block:: python
@@ -37,11 +36,8 @@ class MDAnalysis:
     """
 
     def __init__(self) -> None:
-        """
-
-        Raises:
-
-            :class:`WrapperNotInstalledError` if `MDAnalysis` not installed.
+        """Raises
+        :class:`WrapperNotInstalledError` if `MDAnalysis` not installed.
 
 
         """
@@ -51,20 +47,18 @@ class MDAnalysis:
             )
 
     def get_universe(self, mol: stk.Molecule):  # type: ignore[no-untyped-def]
-        """
-        Get an MDAnalysis object.
+        """Get an MDAnalysis object.
 
-        Parameters:
-
+        Parameters
+        ----------
             mol:
                 Molecule to convert.
 
-        Returns:
-
+        Returns
+        -------
             :class:`MDAnalysis.Universe`:
                 The MDAnalysis Universe of the molecule.
 
         """
-
         rdkit_mol = mol.to_rdkit_mol()
         return mda.Universe(rdkit_mol)

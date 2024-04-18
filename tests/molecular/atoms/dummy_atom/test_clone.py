@@ -2,8 +2,7 @@ from ..utilities import is_equivalent_atom
 
 
 def test_clone(dummy_atom):
-    """
-    Test :meth:`.Du.clone`.
+    """Test :meth:`.Du.clone`.
 
     Parameters
     ----------
@@ -15,6 +14,5 @@ def test_clone(dummy_atom):
     None : :class:`NoneType`
 
     """
-
     clone = dummy_atom.clone()
     is_equivalent_atom(dummy_atom, clone)

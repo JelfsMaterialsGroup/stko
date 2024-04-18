@@ -19,14 +19,13 @@ logger = logging.getLogger(__name__)
 
 
 class OpenBabel(Optimizer):
-    """
-    Use OpenBabel to optimize molecules with forcefields. [#]_
+    """Use OpenBabel to optimize molecules with forcefields. [#]_
 
     Warning: this optimizer seems to be machine dependant, producing
     different energies after optimisation on Ubunut 18 vs. Ubuntu 20.
 
-    Examples:
-
+    Examples
+    --------
         .. code-block:: python
 
             import stk
@@ -36,8 +35,8 @@ class OpenBabel(Optimizer):
             openbabel = stko.OpenBabel('uff')
             mol = openbabel.optimize(mol)
 
-    References:
-
+    References
+    ----------
         .. [#] https://github.com/openbabel/openbabel
 
     """
@@ -49,9 +48,7 @@ class OpenBabel(Optimizer):
         sd_steps: int = 50,
         cg_steps: int = 50,
     ) -> None:
-        """
-        Parameters:
-
+        """Parameters
             forcefield:
                 Forcefield to use. Options include `uff`, `gaff`,
                 `ghemical`, `mmff94`.
@@ -67,12 +64,11 @@ class OpenBabel(Optimizer):
             cg_steps:
                 Number of conjugate gradient steps per optimisations.
 
-        Raises:
-
+        Raises
+        ------
             :class:`WrapperNotInstalledError` if `openbabel` not installed.
 
         """
-
         if openbabel is None:
             raise WrapperNotInstalledError(
                 "openbabel is not installed; see README for " "installation."

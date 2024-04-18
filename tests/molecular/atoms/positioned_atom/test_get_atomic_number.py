@@ -1,6 +1,5 @@
 def test_get_atomic_number(case_data):
-    """
-    Test :meth:`.PositionedAtom.get_atomic_number`.
+    """Test :meth:`.PositionedAtom.get_atomic_number`.
 
     Parameters
     ----------
@@ -13,13 +12,11 @@ def test_get_atomic_number(case_data):
     None : :class:`NoneType`
 
     """
-
     _test_get_atomic_number(case_data.atom, case_data.atomic_number)
 
 
 def _test_get_atomic_number(atom, atomic_number):
-    """
-    Test :meth:`.PositionedAtom.get_atomic_number`
+    """Test :meth:`.PositionedAtom.get_atomic_number`
 
     Parameters
     ----------
@@ -34,5 +31,4 @@ def _test_get_atomic_number(atom, atomic_number):
     None : :class:`NoneType`
 
     """
-
     assert atom.get_atomic_number() == atomic_number

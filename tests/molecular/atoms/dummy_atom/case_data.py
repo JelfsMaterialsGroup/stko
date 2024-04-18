@@ -1,6 +1,5 @@
 class CaseData:
-    """
-    An :class:`.Du` test case.
+    """An :class:`.Du` test case.
 
     Attributes
     ----------
@@ -13,8 +12,7 @@ class CaseData:
     """
 
     def __init__(self, atom, id):
-        """
-        Parameters:
+        """Parameters
         ----------
         atom : :class:`.Du`
             The atom being tested.
@@ -23,6 +21,5 @@ class CaseData:
             The correct id.
 
         """
-
         self.atom = atom
         self.id = id

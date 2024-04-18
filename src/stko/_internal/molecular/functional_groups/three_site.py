@@ -8,8 +8,7 @@ logger = logging.getLogger(__name__)
 
 
 class ThreeSiteFG:
-    """
-    Represents FG sites like N atom in pyridine functional group.
+    """Represents FG sites like N atom in pyridine functional group.
 
     WARNING: This code is only present in the latest versions of stko
     that require Python 3.11!
@@ -29,26 +28,23 @@ class ThreeSiteFG:
         bonders: tuple[stk.Atom, ...],
         deleters: tuple[stk.Atom, ...],
     ) -> None:
-        """
-        Parameters:
+        """Parameters
+        neigh1:
+            The first neighbour atom.
 
-            neigh1:
-                The first neighbour atom.
+        binder:
+            The central atom that forms the bond.
 
-            binder:
-                The central atom that forms the bond.
+        neigh2:
+            The second neighbour atom.
 
-            neigh2:
-                The second neighbour atom.
+        bonders:
+            The bonder atoms, this should be the same ID as `binder`.
 
-            bonders:
-                The bonder atoms, this should be the same ID as `binder`.
-
-            deleters:
-                The deleter atoms, there should be none.
+        deleters:
+            The deleter atoms, there should be none.
 
         """
-
         self._neigh1 = neigh1
         self._binder = binder
         self._neigh2 = neigh2
@@ -151,8 +147,7 @@ class ThreeSiteFG:
 
 
 class ThreeSiteFactory(stk.FunctionalGroupFactory):
-    """
-    Find ThreeSite functional groups in molecules.
+    """Find ThreeSite functional groups in molecules.
 
     WARNING: This code is only present in the latest versions of stko
     that require Python 3.11!
@@ -166,21 +161,18 @@ class ThreeSiteFactory(stk.FunctionalGroupFactory):
         bonders: tuple[int, ...] = (1,),
         deleters: tuple[int, ...] = (),
     ) -> None:
-        """
-        Parameters:
+        """Parameters
+        smarts:
+            SMARTS string to use to find functional group. Of form
+            ``[neighbour][binder][neighbour]``.
 
-            smarts:
-                SMARTS string to use to find functional group. Of form
-                ``[neighbour][binder][neighbour]``.
+        bonders:
+            The bonder atoms, this should be the same ID as `binder`.
 
-            bonders:
-                The bonder atoms, this should be the same ID as `binder`.
-
-            deleters:
-                The deleter atoms, there should be none.
+        deleters:
+            The deleter atoms, there should be none.
 
         """
-
         self._smarts = smarts
         self._bonders = bonders
         self._deleters = deleters
@@ -207,8 +199,7 @@ class ThreeSiteFactory(stk.FunctionalGroupFactory):
 
 
 class CNCFactory(ThreeSiteFactory):
-    """
-    A subclass of :class:`.ThreeSiteFactory`.
+    """A subclass of :class:`.ThreeSiteFactory`.
 
     WARNING: This code is only present in the latest versions of stko
     that require Python 3.11!
@@ -228,8 +219,7 @@ class CNCFactory(ThreeSiteFactory):
 
 
 class CNNFactory(ThreeSiteFactory):
-    """
-    A subclass of :class:`.ThreeSiteFactory`.
+    """A subclass of :class:`.ThreeSiteFactory`.
 
     WARNING: This code is only present in the latest versions of stko
     that require Python 3.11!
@@ -249,8 +239,7 @@ class CNNFactory(ThreeSiteFactory):
 
 
 class NNNFactory(ThreeSiteFactory):
-    """
-    A subclass of :class:`.ThreeSiteFactory`.
+    """A subclass of :class:`.ThreeSiteFactory`.
 
     WARNING: This code is only present in the latest versions of stko
     that require Python 3.11!

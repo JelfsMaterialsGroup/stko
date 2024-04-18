@@ -9,8 +9,7 @@ logger = logging.getLogger(__name__)
 
 
 class UnitCell(PeriodicInfo):
-    """
-    Unit cell information for periodic systems.
+    """Unit cell information for periodic systems.
 
     We are aware that this naming choice may not be appropriate (because
     not all inputs will be unit cells, strictly). However, for backwards
@@ -25,11 +24,9 @@ class UnitCell(PeriodicInfo):
         vector_2: np.ndarray,
         vector_3: np.ndarray,
     ) -> Self:
-        """
-        Return clone of :class:`.UnitCell` with new parameters.
+        """Return clone of :class:`.UnitCell` with new parameters.
 
         """
-
         clone = cls.__new__(cls)
         UnitCell.__init__(
             self=clone,
@@ -46,11 +43,10 @@ class UnitCell(PeriodicInfo):
         vector_2: np.ndarray,
         vector_3: np.ndarray,
     ) -> Self:
-        """
-        Update cell.
+        """Update cell.
 
-        Parameters:
-
+        Parameters
+        ----------
             vector_1:
                 First cell lattice vector of shape (3, ) in
                 Angstrom.
@@ -63,12 +59,11 @@ class UnitCell(PeriodicInfo):
                 Third cell lattice vector of shape (3, ) in
                 Angstrom.
 
-        Returns:
-
+        Returns
+        -------
             Clone with updated cell parameters.
 
         """
-
         return self.__class__._update_periodic_info(
             vector_1=vector_1,
             vector_2=vector_2,
@@ -76,18 +71,16 @@ class UnitCell(PeriodicInfo):
         )
 
     def with_cell_from_turbomole(self, filename: str) -> Self:
-        """
-        Update cell from structure in Turbomole coord file.
+        """Update cell from structure in Turbomole coord file.
 
-        Returns:
-
+        Returns
+        -------
             Clone with updated cell parameters.
 
         """
-
         bohr_to_ang = 0.5291772105638411
 
-        with open(filename, "r") as f:
+        with open(filename) as f:
             content = f.readlines()
 
         periodicity: bool | int = False
@@ -184,15 +177,13 @@ class UnitCell(PeriodicInfo):
         return self._update_periodic_info(vector_1, vector_2, vector_3)
 
     def with_cell_from_cif(self, filename: str) -> Self:
-        """
-        Update cell from structure in CIF.
+        """Update cell from structure in CIF.
 
-        Returns:
-
+        Returns
+        -------
             Clone with updated cell parameters.
 
         """
-
         cell_info: dict[str, float] = {}
 
         targets = {
@@ -204,13 +195,13 @@ class UnitCell(PeriodicInfo):
             "_cell_angle_gamma": "gamma",
         }
 
-        with open(filename, "r") as f:
+        with open(filename) as f:
             lines = f.readlines()
 
         for targ in targets:
             for line in lines:
                 # Avoid running through the rest.
-                if targets[targ] in cell_info.keys():
+                if targets[targ] in cell_info:
                     break
                 splits = line.rstrip().split(" ")
                 if splits[0] == targ:

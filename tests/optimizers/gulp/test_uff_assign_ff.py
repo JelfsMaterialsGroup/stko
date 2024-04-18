@@ -32,8 +32,7 @@ complex = stk.ConstructedMolecule(
 
 
 class CaseData:
-    """
-    A test case.
+    """A test case.
 
     Attributes
     ----------

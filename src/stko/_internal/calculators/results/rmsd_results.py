@@ -1,6 +1,5 @@
 class RmsdResults:
-    """
-    Results class containing RMSD measures.
+    """Results class containing RMSD measures.
 
     """
 

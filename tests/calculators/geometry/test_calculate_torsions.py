@@ -3,16 +3,14 @@ import stko
 
 
 def test_calculate_torsions(case_data):
-    """
-    Test :class:`.GeometryAnalyser.calculate_torsions`.
+    """Test :class:`.GeometryAnalyser.calculate_torsions`.
 
-    Parameters:
-
+    Parameters
+    ----------
         case_data:
             A test case.
 
     """
-
     analyser = stko.molecule_analysis.GeometryAnalyser()
 
     result = analyser.calculate_torsions(case_data.molecule)

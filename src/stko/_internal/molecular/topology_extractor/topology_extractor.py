@@ -11,11 +11,10 @@ logger = logging.getLogger(__name__)
 
 
 class TopologyExtractor:
-    """
-    Extractor of topology definitions from a molecule.
+    """Extractor of topology definitions from a molecule.
 
-    Examples:
-
+    Examples
+    --------
         Using a SMARTS string and the
         :class:`stk.SmartsFunctionalGroupFactory`, you can split a molecule
         at any point to define a topology.
@@ -68,11 +67,10 @@ class TopologyExtractor:
         broken_bonds_by_id: abc.Iterable[tuple[int, int]],
         disconnectors: set,
     ) -> TopologyInfo:
-        """
-        Extract a toplogy defining a molecule with disconnections.
+        """Extract a toplogy defining a molecule with disconnections.
 
-        Parameters:
-
+        Parameters
+        ----------
             molecule:
                 Molecule to get underlying topology of.
 
@@ -82,12 +80,11 @@ class TopologyExtractor:
             disconnectors:
                 Atom ids of disconnection points.
 
-        Returns:
-
+        Returns
+        -------
             Information of the underlying topology.
 
         """
-
         connected_graphs = self.get_connected_graphs(
             molecule=molecule,
             atom_ids_to_disconnect=broken_bonds_by_id,

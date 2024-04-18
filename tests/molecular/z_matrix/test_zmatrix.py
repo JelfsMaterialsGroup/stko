@@ -2,8 +2,7 @@ import stko
 
 
 def test_zmatrix(case_data):
-    """
-    Test :meth:`.Converter.get_zmatrix`.
+    """Test :meth:`.Converter.get_zmatrix`.
 
     Parameters
     ----------
@@ -15,13 +14,11 @@ def test_zmatrix(case_data):
     None : :class:`NoneType`
 
     """
-
     _test_zmatrix(case_data.molecule, case_data.zmatrix)
 
 
 def _test_zmatrix(molecule, zmatrix):
-    """
-    Test :meth:`.ZMatrix.get_zmatrix`.
+    """Test :meth:`.ZMatrix.get_zmatrix`.
 
     Parameters
     ----------
@@ -36,7 +33,6 @@ def _test_zmatrix(molecule, zmatrix):
     None : :class:`NoneType`
 
     """
-
     result = stko.ZMatrix().get_zmatrix(molecule)
     # Printing is useful for debugging.
     print(result)

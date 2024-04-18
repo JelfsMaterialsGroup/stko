@@ -3,16 +3,14 @@ import stko
 
 
 def test_get_max_diameter(case_data):
-    """
-    Test :class:`.GeometryAnalyser.get_max_diameter`.
+    """Test :class:`.GeometryAnalyser.get_max_diameter`.
 
-    Parameters:
-
+    Parameters
+    ----------
         case_data:
             A test case.
 
     """
-
     analyser = stko.molecule_analysis.GeometryAnalyser()
 
     result = analyser.get_max_diameter(case_data.molecule)

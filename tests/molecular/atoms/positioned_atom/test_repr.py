@@ -5,8 +5,7 @@ from ..utilities import is_equivalent_atom
 
 
 def test_repr(positioned_atom):
-    """
-    Test :meth:`.PositionedAtom.__repr__`.
+    """Test :meth:`.PositionedAtom.__repr__`.
 
     Parameters
     ----------
@@ -18,7 +17,6 @@ def test_repr(positioned_atom):
     None : :class:`NoneType`
 
     """
-
     other = stko.PositionedAtom(
         atom=eval(repr(positioned_atom), dict(stk.__dict__)),
         position=positioned_atom.get_position(),

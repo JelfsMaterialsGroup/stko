@@ -12,11 +12,10 @@ def get_approximate_cell_size(
     vector_2: np.ndarray,
     vector_3: np.ndarray,
 ) -> float:
-    """
-    Cell size determined from projection of atoms on cell vectors.
+    """Cell size determined from projection of atoms on cell vectors.
 
-    Parameters:
-
+    Parameters
+    ----------
         molecule:
             Molecule to get approximate cell size of.
 
@@ -29,8 +28,8 @@ def get_approximate_cell_size(
         vector_3:
             Third cell lattice vector of shape (3, ) in Angstrom.
 
-    Returns:
-
+    Returns
+    -------
         max_extent: :class:`float`
             Get maximum multiplier of cell vectors required to fit
             molecule.
@@ -38,11 +37,9 @@ def get_approximate_cell_size(
     """
 
     def get_projection(start: np.ndarray, target: np.ndarray) -> np.ndarray:
-        """
-        Get the projection of `start` onto `target`.
+        """Get the projection of `start` onto `target`.
 
         """
-
         return (
             target
             * np.dot(
@@ -56,11 +53,9 @@ def get_approximate_cell_size(
         atom_pos: np.ndarray,
         vector: np.ndarray,
     ) -> float:
-        """
-        Get magnitude of atom position along vector.
+        """Get magnitude of atom position along vector.
 
         """
-
         projection = get_projection(start=atom_pos, target=vector)
 
         return float(
@@ -99,13 +94,12 @@ def get_from_parameters(
     beta: float,
     gamma: float,
 ) -> tuple[np.ndarray, ...]:
-    """
-    Create a Lattice using unit cell lengths and angles (in degrees).
+    """Create a Lattice using unit cell lengths and angles (in degrees).
 
     This code is modified from the pymatgen source code [1]_.
 
-    Parameters:
-
+    Parameters
+    ----------
         a:
             *a* lattice parameter.
 
@@ -125,16 +119,15 @@ def get_from_parameters(
             *gamma* angle in degrees.
 
 
-    Returns:
-
+    Returns
+    -------
         Tuple of cell lattice vectors of shape (3, ) in Angstrom.
 
-    References:
-
+    References
+    ----------
         .. [1] https://pymatgen.org/pymatgen.util.num.html
 
     """
-
     angles_r = np.radians([alpha, beta, gamma])
     cos_alpha, cos_beta, cos_gamma = np.cos(angles_r)
     sin_alpha, sin_beta, sin_gamma = np.sin(angles_r)
@@ -158,8 +151,7 @@ def get_from_parameters(
 
 
 def cap_absolute_value(value: float, max_absolute_value: float = 1) -> float:
-    """
-    Returns `value` with absolute value capped at `max_absolute_value`.
+    """Returns `value` with absolute value capped at `max_absolute_value`.
 
     Particularly useful in passing values to trignometric functions
     where numerical errors may result in an argument > 1 being passed
@@ -167,22 +159,21 @@ def cap_absolute_value(value: float, max_absolute_value: float = 1) -> float:
 
     This code is modified from the pymatgen source code [2]_.
 
-    Parameters:
-
+    Parameters
+    ----------
         value:
             Value to cap.
 
         max_absolute_value:
             Absolute value to cap `value` at. Defaults to 1.
 
-    Returns:
-
+    Returns
+    -------
         `value` capped at `max_absolute_value` with sign preserved.
 
-    References:
-
+    References
+    ----------
         .. [2] https://pymatgen.org/pymatgen.util.num.html
 
     """
-
     return max(min(value, max_absolute_value), -max_absolute_value)

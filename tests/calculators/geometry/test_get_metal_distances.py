@@ -3,16 +3,14 @@ import stko
 
 
 def test_get_metal_distances(case_data):
-    """
-    Test :class:`.GeometryAnalyser.get_metal_distances`.
+    """Test :class:`.GeometryAnalyser.get_metal_distances`.
 
-    Parameters:
-
+    Parameters
+    ----------
         case_data:
             A test case.
 
     """
-
     analyser = stko.molecule_analysis.GeometryAnalyser()
 
     result = analyser.get_metal_distances(

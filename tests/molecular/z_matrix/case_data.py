@@ -1,6 +1,5 @@
 class CaseData:
-    """
-    A test case.
+    """A test case.
 
     Attributes
     ----------
@@ -13,8 +12,7 @@ class CaseData:
     """
 
     def __init__(self, molecule, zmatrix):
-        """
-        Parameters
+        """Parameters
         ----------
         molecule : :class:`stk.Molecule`
             The molecule to test.
@@ -23,6 +21,5 @@ class CaseData:
             The correct Z-matrix string.
 
         """
-
         self.molecule = molecule
         self.zmatrix = zmatrix

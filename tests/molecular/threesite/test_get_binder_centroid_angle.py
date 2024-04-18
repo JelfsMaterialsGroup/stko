@@ -3,16 +3,14 @@ import stko
 
 
 def test_get_binder_centroid_angle(case_data):
-    """
-    Test :class:`.DitopicThreeSiteAnalyser.get_binder_centroid_angle`.
+    """Test :class:`.DitopicThreeSiteAnalyser.get_binder_centroid_angle`.
 
-    Parameters:
-
+    Parameters
+    ----------
         case_data:
             A test case.
 
     """
-
     threesite_analysis = stko.molecule_analysis.DitopicThreeSiteAnalyser()
 
     result = threesite_analysis.get_binder_centroid_angle(

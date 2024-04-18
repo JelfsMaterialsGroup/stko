@@ -3,16 +3,14 @@ import stko
 
 
 def test_get_avg_centroid_distance(case_data):
-    """
-    Test :class:`.GeometryAnalyser.get_avg_centroid_distance`.
+    """Test :class:`.GeometryAnalyser.get_avg_centroid_distance`.
 
-    Parameters:
-
+    Parameters
+    ----------
         case_data:
             A test case.
 
     """
-
     analyser = stko.molecule_analysis.GeometryAnalyser()
 
     result = analyser.get_avg_centroid_distance(case_data.molecule)

@@ -3,16 +3,14 @@ import stko
 
 
 def test_get_binder_distance(case_data):
-    """
-    Test :class:`.SubgroupAnalyser`.
+    """Test :class:`.SubgroupAnalyser`.
 
-    Parameters:
-
+    Parameters
+    ----------
         case_data:
             A test case.
 
     """
-
     analyser = stko.molecule_analysis.SubgroupAnalyser()
 
     results = analyser.calculate(case_data.molecule)

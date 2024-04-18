@@ -3,16 +3,14 @@ import stko
 
 
 def test_calculate_angles(case_data):
-    """
-    Test :class:`.GeometryAnalyser.calculate_angles`.
+    """Test :class:`.GeometryAnalyser.calculate_angles`.
 
-    Parameters:
-
+    Parameters
+    ----------
         case_data:
             A test case.
 
     """
-
     analyser = stko.molecule_analysis.GeometryAnalyser()
 
     result = analyser.calculate_angles(case_data.molecule)

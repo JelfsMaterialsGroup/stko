@@ -1,6 +1,5 @@
 class CaseData:
-    """
-    An :class:`.PositionedAtom` test case.
+    """An :class:`.PositionedAtom` test case.
 
     Attributes
     ----------
@@ -23,8 +22,7 @@ class CaseData:
     """
 
     def __init__(self, atom, id, charge, atomic_number, position):
-        """
-        Parameters
+        """Parameters
         ----------
         atom : :class:`.PositionedAtom`
             The atom being tested.
@@ -43,7 +41,6 @@ class CaseData:
             coordinates.
 
         """
-
         self.atom = atom
         self.id = id
         self.charge = charge

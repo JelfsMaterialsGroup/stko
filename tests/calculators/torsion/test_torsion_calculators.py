@@ -4,8 +4,7 @@ from pytest import approx
 
 
 def _polymer_angles_match(bb1, bb2, torsion_index=0):
-    """
-    Attach bb1 to bb2, and test torsion mapping.
+    """Attach bb1 to bb2, and test torsion mapping.
 
     """
     polymer = stk.ConstructedMolecule(
@@ -27,15 +26,13 @@ def _polymer_angles_match(bb1, bb2, torsion_index=0):
 
 
 def test_torsion_matching():
-    """
-    Confirm torsions are appropriately mapped.
+    """Confirm torsions are appropriately mapped.
 
     Check corresponding torsion angles between building blocks and
     constructed molecules to confirm that the angle is the same in
     both.
 
     """
-
     bb1 = stk.BuildingBlock("NCCNCCN", [stk.PrimaryAminoFactory()])
     bb2 = stk.BuildingBlock("O=CCCC=O", [stk.AldehydeFactory()])
     assert _polymer_angles_match(bb1, bb2)

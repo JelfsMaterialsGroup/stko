@@ -1,6 +1,5 @@
 def test_get_position(case_data):
-    """
-    Test :meth:`.PositionedAtom.get_position`.
+    """Test :meth:`.PositionedAtom.get_position`.
 
     Parameters
     ----------
@@ -13,13 +12,11 @@ def test_get_position(case_data):
     None : :class:`NoneType`
 
     """
-
     _test_get_position(case_data.atom, case_data.position)
 
 
 def _test_get_position(atom, position):
-    """
-    Test :meth:`.PositionedAtom.get_position`
+    """Test :meth:`.PositionedAtom.get_position`
 
     Parameters
     ----------
@@ -35,5 +32,4 @@ def _test_get_position(atom, position):
     None : :class:`NoneType`
 
     """
-
     assert atom.get_position() == position

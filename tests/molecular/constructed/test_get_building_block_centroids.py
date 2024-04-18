@@ -3,16 +3,14 @@ import stko
 
 
 def test_get_building_block_centroids(case_data):
-    """
-    Test :class:`.ConstructedAnalyser.get_building_block_centroids`.
+    """Test :class:`.ConstructedAnalyser.get_building_block_centroids`.
 
-    Parameters:
-
+    Parameters
+    ----------
         case_data:
             A test case.
 
     """
-
     analyser = stko.molecule_analysis.ConstructedAnalyser()
     result = analyser.get_building_block_centroids(
         case_data.constructed_molecule

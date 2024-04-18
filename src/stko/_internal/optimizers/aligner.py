@@ -1,5 +1,4 @@
-"""
-Aligner
+"""Aligner
 =======
 
 Optimizer that aligns two molecules using `Spindry`.
@@ -69,11 +68,10 @@ class AlignmentPotential(spd.Potential):
 
 
 class Aligner(Optimizer):
-    """
-    Use SpinDry to align two molecules. [#]_
+    """Use SpinDry to align two molecules. [#]_
 
-    Examples:
-
+    Examples
+    --------
         .. code-block:: python
 
             import stk
@@ -89,8 +87,8 @@ class Aligner(Optimizer):
             aligner = stko.Aligner(mol2, (('N', 'N'), ))
             mol = aligner.optimize(mol)
 
-    References:
-
+    References
+    ----------
         .. [#] https://github.com/andrewtarzia/SpinDry
 
     """
@@ -100,17 +98,14 @@ class Aligner(Optimizer):
         initial_molecule: stk.Molecule,
         matching_pairs: tuple[tuple[str]],
     ) -> None:
-        """
-        Parameters:
+        """Parameters
+        initial_molecule:
+            Molecule to align to.
 
-            initial_molecule:
-                Molecule to align to.
-
-            matching_pairs:
-                Pairs of atom types to use in alignment.
+        matching_pairs:
+            Pairs of atom types to use in alignment.
 
         """
-
         self._initial_molecule = initial_molecule.with_centroid(
             np.array((0, 0, 0)),
         )

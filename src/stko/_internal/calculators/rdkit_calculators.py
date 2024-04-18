@@ -9,11 +9,10 @@ logger = logging.getLogger(__name__)
 
 
 class MMFFEnergy:
-    """
-    Uses the MMFF force field to calculate energies.
+    """Uses the MMFF force field to calculate energies.
 
-    Examples:
-
+    Examples
+    --------
         .. code-block:: python
 
             import stk
@@ -48,49 +47,44 @@ class MMFFEnergy:
         yield ff.CalcEnergy()
 
     def get_results(self, mol: stk.Molecule) -> EnergyResults:
-        """
-        Calculate the energy of `mol`.
+        """Calculate the energy of `mol`.
 
-        Parameters:
-
+        Parameters
+        ----------
             mol:
                 The :class:`stk.Molecule` whose energy is to be calculated.
 
-        Returns:
-
+        Returns
+        -------
             The energy and units of the energy.
 
         """
-
         return EnergyResults(
             generator=self.calculate(mol),
             unit_string="kcal mol-1",
         )
 
     def get_energy(self, mol: stk.Molecule) -> float:
-        """
-        Calculate the energy of `mol`.
+        """Calculate the energy of `mol`.
 
-        Parameters:
-
+        Parameters
+        ----------
             mol:
                 The :class:`stk.Molecule` whose energy is to be calculated.
 
-        Returns:
-
+        Returns
+        -------
             The energy.
 
         """
-
         return self.get_results(mol).get_energy()
 
 
 class UFFEnergy:
-    """
-    Uses the UFF force field to calculate energies.
+    """Uses the UFF force field to calculate energies.
 
-    Examples:
-
+    Examples
+    --------
         .. code-block:: python
 
             import stk
@@ -126,38 +120,34 @@ class UFFEnergy:
         yield ff.CalcEnergy()
 
     def get_results(self, mol: stk.Molecule) -> EnergyResults:
-        """
-        Calculate the energy of `mol`.
+        """Calculate the energy of `mol`.
 
-        Parameters:
-
+        Parameters
+        ----------
             mol:
                 The :class:`stk.Molecule` whose energy is to be calculated.
 
-        Returns:
-
+        Returns
+        -------
             The energy and units of the energy.
 
         """
-
         return EnergyResults(
             generator=self.calculate(mol),
             unit_string="kcal mol-1",
         )
 
     def get_energy(self, mol: stk.Molecule) -> float:
-        """
-        Calculate the energy of `mol`.
+        """Calculate the energy of `mol`.
 
-        Parameters:
-
+        Parameters
+        ----------
             mol:
                 The :class:`stk.Molecule` whose energy is to be calculated.
 
-        Returns:
-
+        Returns
+        -------
             The energy.
 
         """
-
         return self.get_results(mol).get_energy()

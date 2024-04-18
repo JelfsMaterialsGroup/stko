@@ -6,6 +6,6 @@ def a_molecule():
     return stk.BuildingBlock(smiles="CCCCCC")
 
 
-@pytest.fixture
+@pytest.fixture()
 def unoptimized_mol():
     return a_molecule()
