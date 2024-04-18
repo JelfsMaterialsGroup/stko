@@ -1,10 +1,3 @@
-"""Aligner
-=======
-
-Optimizer that aligns two molecules using `Spindry`.
-
-"""
-
 import logging
 from itertools import product
 
@@ -14,6 +7,7 @@ import stk
 from scipy.spatial.distance import cdist
 from stko._internal.calculators.rmsd_calculators import RmsdMappedCalculator
 from stko._internal.optimizers.optimizers import Optimizer
+from stko._internal.types import MoleculeT
 
 logger = logging.getLogger(__name__)
 
@@ -50,10 +44,10 @@ class AlignmentPotential(spd.Potential):
         component_position_matrices = list(
             i.get_position_matrix() for i in supramolecule.get_components()
         )
-        component_atoms = list(
+        component_atoms = [
             tuple(j for j in i.get_atoms())
             for i in supramolecule.get_components()
-        )
+        ]
         pair_dists = cdist(
             component_position_matrices[0],
             component_position_matrices[1],
@@ -68,7 +62,18 @@ class AlignmentPotential(spd.Potential):
 
 
 class Aligner(Optimizer):
+    # TODO: docstring
+    """Use SpinDry to align two molecules."""
+
     """Use SpinDry to align two molecules. [#]_
+
+    Parameters:
+        initial_molecule:
+            Molecule to align to.
+
+        matching_pairs:
+            Pairs of atom types to use in alignment.
+
 
     Examples:
     --------
@@ -98,14 +103,6 @@ class Aligner(Optimizer):
         initial_molecule: stk.Molecule,
         matching_pairs: tuple[tuple[str, ...]],
     ) -> None:
-        """Parameters
-        initial_molecule:
-            Molecule to align to.
-
-        matching_pairs:
-            Pairs of atom types to use in alignment.
-
-        """
         self._initial_molecule = initial_molecule.with_centroid(
             np.array((0, 0, 0)),
         )
@@ -183,7 +180,7 @@ class Aligner(Optimizer):
 
         return mol
 
-    def optimize(self, mol: stk.Molecule) -> stk.Molecule:
+    def optimize(self, mol: MoleculeT) -> MoleculeT:
         rotation_axes = (
             None,
             (1, 0, 0),

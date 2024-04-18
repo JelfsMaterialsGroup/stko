@@ -1,13 +1,11 @@
 # TODO: check sections in optimizer docstring
 
 import logging
-from typing import Protocol, TypeVar
+from typing import Protocol
 
-import stk
+from stko._internal.types import MoleculeT
 
 logger = logging.getLogger(__name__)
-
-T = TypeVar("T", bound=stk.Molecule)
 
 
 class Optimizer(Protocol):
@@ -65,7 +63,7 @@ class Optimizer(Protocol):
 
     """
 
-    def optimize(self, mol: T) -> T:
+    def optimize(self, mol: MoleculeT) -> MoleculeT:
         """Optimize `mol`.
 
         Parameters:
@@ -104,7 +102,7 @@ class OptimizerSequence(Optimizer):
     def __init__(self, *optimizers: Optimizer) -> None:
         self._optimizers = optimizers
 
-    def optimize(self, mol: T) -> T:
+    def optimize(self, mol: MoleculeT) -> MoleculeT:
         for optimizer in self._optimizers:
             cls_name = optimizer.__class__.__name__
             msg = f'Using {cls_name} on "{mol}".'
@@ -167,7 +165,7 @@ class TryCatchOptimizer(Optimizer):
         self._try_optimizer = try_optimizer
         self._catch_optimizer = catch_optimizer
 
-    def optimize(self, mol: T) -> T:
+    def optimize(self, mol: MoleculeT) -> MoleculeT:
         """Optimize `mol`.
 
         Parameters:
