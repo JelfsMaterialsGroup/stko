@@ -5,9 +5,11 @@ import re
 import shutil
 import subprocess as sp
 import uuid
+from pathlib import Path
 
 import stk
-from rdkit.Chem import AllChem as rdkit
+from rdkit.Chem import AllChem as rdkit  # noqa: N813
+
 from stko._internal.molecular.periodic.unitcell import UnitCell
 from stko._internal.optimizers.optimizers import Optimizer
 from stko._internal.optimizers.utilities import (
@@ -17,6 +19,7 @@ from stko._internal.optimizers.utilities import (
     has_metal_atom,
     to_rdkit_mol_without_metals,
 )
+from stko._internal.types import MoleculeT
 from stko._internal.utilities.exceptions import (
     ExpectedMetalError,
     ForceFieldSetupError,
@@ -30,8 +33,35 @@ logger = logging.getLogger(__name__)
 class GulpUFFOptimizer(Optimizer):
     """Applies forcefield optimizers that can handle metal centres.
 
+    Parameters:
+        gulp_path:
+            Path to GULP executable.
+
+        maxcyc:
+            Set the maximum number of optimisation steps to use.
+            Default in Gulp is 1000.
+
+        metal_FF:
+            Dictionary with metal atom forcefield assignments.
+            Key: :class:`int` : atomic number.
+            Value: :class:`str` : UFF4MOF forcefield type.
+
+        metal_ligand_bond_order:
+            Bond order to use for metal-ligand bonds. Defaults to
+            `half`, but using `resonant` can increase the force
+            constant for stronger metal-ligand interactions.
+
+        conjugate_gradient:
+            ``True`` to use Conjugate Graditent method.
+            Defaults to ``False``
+
+        output_dir:
+            The name of the directory into which files generated during
+            the calculation are written, if ``None`` then
+            :func:`uuid.uuid4` is used.
+
+
     Notes:
-    -----
         By default, :meth:`optimize` will run an optimisation using the
         UFF4MOF. This forcefield requires some explicit metal atom
         definitions, which are determined by the user.
@@ -41,7 +71,6 @@ class GulpUFFOptimizer(Optimizer):
         Make sure to sanity check the output.
 
     Examples:
-    --------
         While metal atoms are not required, UFF4MOF is useful because it
         encompasses almost all chemical environments commonly found in
         metal-organic structures. Better forcefields exist for purely
@@ -116,43 +145,16 @@ class GulpUFFOptimizer(Optimizer):
 
     """
 
-    def __init__(
+    def __init__(  # noqa: PLR0913
         self,
-        gulp_path: str,
+        gulp_path: Path | str,
         maxcyc: int = 1000,
-        metal_FF: dict | None = None,
+        metal_FF: dict | None = None,  # noqa: N803
         metal_ligand_bond_order: str | None = None,
         conjugate_gradient: bool = False,
         output_dir: str | None = None,
-    ):
-        """Parameters
-        gulp_path:
-            Path to GULP executable.
-
-        maxcyc:
-            Set the maximum number of optimisation steps to use.
-            Default in Gulp is 1000.
-
-        metal_FF:
-            Dictionary with metal atom forcefield assignments.
-            Key: :class:`int` : atomic number.
-            Value: :class:`str` : UFF4MOF forcefield type.
-
-        metal_ligand_bond_order:
-            Bond order to use for metal-ligand bonds. Defaults to
-            `half`, but using `resonant` can increase the force
-            constant for stronger metal-ligand interactions.
-
-        conjugate_gradient:
-            ``True`` to use Conjugate Graditent method.
-            Defaults to ``False``
-
-        output_dir:
-            The name of the directory into which files generated during
-            the calculation are written, if ``None`` then
-            :func:`uuid.uuid4` is used.
-
-        """
+    ) -> None:
+        gulp_path = Path(gulp_path)
         self._check_path(gulp_path)
         self._gulp_path = gulp_path
         self._maxcyc = maxcyc
@@ -165,11 +167,12 @@ class GulpUFFOptimizer(Optimizer):
         self._conjugate_gradient = conjugate_gradient
         self._output_dir = output_dir
 
-    def _check_path(self, path: str) -> None:
-        if not os.path.exists(path):
-            raise PathError(f"GULP not found at {path}")
+    def _check_path(self, path: Path) -> None:
+        if not path.exists():
+            msg = f"GULP not found at {path}"
+            raise PathError(msg)
 
-    def _add_atom_charge_flags(self, atom: rdkit.Atom, atomkey: str) -> str:
+    def _add_atom_charge_flags(self, atom: rdkit.Atom, atomkey: str) -> str:  # noqa: PLR0915, PLR0912, C901
         """Add atom charge flags for forcefield.
 
         Code inspired by:
@@ -182,132 +185,145 @@ class GulpUFFOptimizer(Optimizer):
 
         # Go through element cases.
         # Mg.
-        if atnum == 12:
-            if total_valence == 2:
+        if atnum == 12:  # noqa: PLR2004
+            if total_valence == 2:  # noqa: PLR2004
                 atomkey += "+2"
             else:
-                raise ForceFieldSetupError(
+                msg = (
                     f"UFFTYPER: Unrecognized charge state for atom: "
                     f"{atom.GetIdx}"
                 )
+                raise ForceFieldSetupError(msg)
         # Al.
-        elif atnum == 13:
-            if total_valence != 3:
-                raise ForceFieldSetupError(
+        elif atnum == 13:  # noqa: PLR2004
+            if total_valence != 3:  # noqa: PLR2004
+                msg = (
                     f"UFFTYPER: Unrecognized charge state for atom: "
                     f"{atom.GetIdx}"
                 )
+                raise ForceFieldSetupError(msg)
 
         # Si.
-        elif atnum == 14:
-            if total_valence != 4:
-                raise ForceFieldSetupError(
+        elif atnum == 14:  # noqa: PLR2004
+            if total_valence != 4:  # noqa: PLR2004
+                msg = (
                     f"UFFTYPER: Unrecognized charge state for atom: "
                     f"{atom.GetIdx}"
                 )
+                raise ForceFieldSetupError(msg)
         # P.
-        elif atnum == 15:
-            if total_valence == 3:
+        elif atnum == 15:  # noqa: PLR2004
+            if total_valence == 3:  # noqa: PLR2004
                 atomkey += "+3"
-            elif total_valence == 5:
+            elif total_valence == 5:  # noqa: PLR2004
                 atomkey += "+5"
             else:
-                raise ForceFieldSetupError(
+                msg = (
                     f"UFFTYPER: Unrecognized charge state for atom: "
                     f"{atom.GetIdx}"
                 )
+                raise ForceFieldSetupError(msg)
 
         # S.
-        elif atnum == 16:
+        elif atnum == 16:  # noqa: PLR2004
             hybrid = rdkit.Atom.GetHybridization(atom)
             if hybrid != rdkit.HybridizationType.SP2:
-                if total_valence == 2:
+                if total_valence == 2:  # noqa: PLR2004
                     atomkey += "+2"
-                elif total_valence == 4:
+                elif total_valence == 4:  # noqa: PLR2004
                     atomkey += "+4"
-                elif total_valence == 6:
+                elif total_valence == 6:  # noqa: PLR2004
                     atomkey += "+6"
                 else:
-                    raise ForceFieldSetupError(
+                    msg = (
                         f"UFFTYPER: Unrecognized charge state for "
                         f"atom: {atom.GetIdx}"
                     )
+                    raise ForceFieldSetupError(msg)
         # Zn.
-        elif atnum == 30:
-            if total_valence == 2:
+        elif atnum == 30:  # noqa: PLR2004
+            if total_valence == 2:  # noqa: PLR2004
                 atomkey += "+2"
             else:
-                raise ForceFieldSetupError(
+                msg = (
                     f"UFFTYPER: Unrecognized charge state for atom: "
                     f"{atom.GetIdx}"
                 )
+                raise ForceFieldSetupError(msg)
 
         # Ga.
-        elif atnum == 31 or atnum == 33:
-            if total_valence == 3:
+        elif atnum in {31, 33}:
+            if total_valence == 3:  # noqa: PLR2004
                 atomkey += "+3"
             else:
-                raise ForceFieldSetupError(
+                msg = (
                     f"UFFTYPER: Unrecognized charge state for atom: "
                     f"{atom.GetIdx}"
                 )
+                raise ForceFieldSetupError(msg)
         # Se.
-        elif atnum == 34 or atnum == 48:
-            if total_valence == 2:
+        elif atnum in {34, 48}:
+            if total_valence == 2:  # noqa: PLR2004
                 atomkey += "+2"
             else:
-                raise ForceFieldSetupError(
+                msg = (
                     f"UFFTYPER: Unrecognized charge state for atom: "
                     f"{atom.GetIdx}"
                 )
+                raise ForceFieldSetupError(msg)
         # In.
-        elif atnum == 49 or atnum == 51:
-            if total_valence == 3:
+        elif atnum in {49, 51}:
+            if total_valence == 3:  # noqa: PLR2004
                 atomkey += "+3"
             else:
-                raise ForceFieldSetupError(
+                msg = (
                     f"UFFTYPER: Unrecognized charge state for atom: "
                     f"{atom.GetIdx}"
                 )
+                raise ForceFieldSetupError(msg)
         # Te.
-        elif atnum == 52 or atnum == 80:
-            if total_valence == 2:
+        elif atnum in {52, 80}:
+            if total_valence == 2:  # noqa: PLR2004
                 atomkey += "+2"
             else:
-                raise ForceFieldSetupError(
+                msg = (
                     f"UFFTYPER: Unrecognized charge state for atom: "
                     f"{atom.GetIdx}"
                 )
+                raise ForceFieldSetupError(msg)
         # Tl.
-        elif atnum == 81 or atnum == 82 or atnum == 83:
-            if total_valence == 3:
+        elif atnum in {81, 82, 83}:
+            if total_valence == 3:  # noqa: PLR2004
                 atomkey += "+3"
             else:
-                raise ForceFieldSetupError(
+                msg = (
                     f"UFFTYPER: Unrecognized charge state for atom: "
                     f"{atom.GetIdx}"
                 )
+                raise ForceFieldSetupError(msg)
         # Po.
-        elif atnum == 84:
-            if total_valence == 2:
+        elif atnum == 84:  # noqa: PLR2004
+            if total_valence == 2:  # noqa: PLR2004
                 atomkey += "+2"
             else:
-                raise ForceFieldSetupError(
+                msg = (
                     f"UFFTYPER: Unrecognized charge state for atom: "
                     f"{atom.GetIdx}"
                 )
+                raise ForceFieldSetupError(msg)
         # Lanthanides.
-        elif atnum >= 57 and atnum <= 71:
-            if total_valence == 6:
+        elif atnum >= 57 and atnum <= 71:  # noqa: PLR2004
+            if total_valence == 6:  # noqa: PLR2004
                 atomkey += "+3"
             else:
-                raise ForceFieldSetupError(
+                msg = (
                     f"UFFTYPER: Unrecognized charge state for atom: "
                     f"{atom.GetIdx}"
                 )
+                raise ForceFieldSetupError(msg)
         return atomkey
 
-    def _get_atom_label(self, atom: rdkit.Atom) -> str:
+    def _get_atom_label(self, atom: rdkit.Atom) -> str:  # noqa: PLR0912, C901
         """Get FF atom label.
 
         Code inspired by:
@@ -324,24 +340,26 @@ class GulpUFFOptimizer(Optimizer):
 
         chk1 = rdkit.PeriodicTable.GetDefaultValence(table, atnum) == -1
         chk2 = rdkit.PeriodicTable.GetNOuterElecs(table, atnum) != 1
-        chk3 = rdkit.PeriodicTable.GetNOuterElecs(table, atnum) != 7
+        chk3 = rdkit.PeriodicTable.GetNOuterElecs(table, atnum) != 7  # noqa: PLR2004
         chk4 = chk2 and chk3
         if chk1 or chk4:
             hybrid = rdkit.Atom.GetHybridization(atom)
-            if atnum == 84:
+            if atnum == 84:  # noqa: PLR2004
                 atomkey += "3"
                 if hybrid != rdkit.HybridizationType.SP3:
-                    raise ForceFieldSetupError(
+                    msg = (
                         f"UFFTYPER: Unrecognized hybridization for"
                         f" atom: {atom.GetIdx}"
                     )
-            elif atnum == 80:
+                    raise ForceFieldSetupError(msg)
+            elif atnum == 80:  # noqa: PLR2004
                 atomkey += "1"
                 if hybrid != rdkit.HybridizationType.SP:
-                    raise ForceFieldSetupError(
+                    msg = (
                         f"UFFTYPER: Unrecognized hybridization for"
                         f" atom: {atom.GetIdx}"
                     )
+                    raise ForceFieldSetupError(msg)
             elif hybrid == rdkit.HybridizationType.SP:
                 atomkey += "1"
             elif hybrid == rdkit.HybridizationType.SP2:
@@ -366,21 +384,19 @@ class GulpUFFOptimizer(Optimizer):
             elif hybrid == rdkit.HybridizationType.SP3D2:
                 atomkey += "6"
             else:
-                raise ForceFieldSetupError(
+                msg = (
                     f"UFFTYPER: Unrecognized hybridization for"
                     f" atom: {atom.GetIdx}"
                 )
-        atomkey = self._add_atom_charge_flags(atom, atomkey)
-        return atomkey
+                raise ForceFieldSetupError(msg)
+        return self._add_atom_charge_flags(atom, atomkey)
 
     def _type_translator(self) -> dict[str, str]:
         type_translator: dict[str, str] = {}
         types = sorted(
-            set(
-                [  # type: ignore[type-var]
-                    self.atom_labels[i][0] for i in self.atom_labels
-                ]
-            )
+            {  # type: ignore[type-var]
+                self.atom_labels[i][0] for i in self.atom_labels
+            }
         )
         for t in types:
             if not t[1].isalpha():  # type:ignore[index]
@@ -398,7 +414,7 @@ class GulpUFFOptimizer(Optimizer):
         return type_translator
 
     def _cell_section(self, unit_cell: UnitCell) -> str:
-        cell_section = (
+        return (
             "\ncell\n"
             f"{round(unit_cell.get_a(), 6)} "
             f"{round(unit_cell.get_b(), 6)} "
@@ -409,8 +425,6 @@ class GulpUFFOptimizer(Optimizer):
             # No fixes.
             "0 0 0 0 0 0\n"
         )
-
-        return cell_section
 
     def _position_section(
         self, mol: stk.Molecule, type_translator: dict
@@ -452,9 +466,9 @@ class GulpUFFOptimizer(Optimizer):
                 bond_type = "resonant"
             elif bond.get_order() == 1:
                 bond_type = ""
-            elif bond.get_order() == 2:
+            elif bond.get_order() == 2:  # noqa: PLR2004
                 bond_type = "double"
-            elif bond.get_order() == 3:
+            elif bond.get_order() == 3:  # noqa: PLR2004
                 bond_type = "triple"
 
             string = (
@@ -533,8 +547,7 @@ class GulpUFFOptimizer(Optimizer):
     def assign_FF(self, mol: stk.Molecule) -> None:
         """Assign forcefield types to molecule.
 
-        Parameters
-        ----------
+        Parameters:
             mol:
                 The molecule to be optimized.
 
@@ -551,10 +564,11 @@ class GulpUFFOptimizer(Optimizer):
         metal_ids = [i.get_id() for i in metal_atoms]
 
         if len(metal_ids) > 1 and self._metal_FF is None:
-            raise ExpectedMetalError(
+            msg = (
                 "No metal FF provivded, but metal atoms were found ("
                 f"{metal_atoms})"
             )
+            raise ExpectedMetalError(msg)
 
         metal_bonds, _ = get_metal_bonds(mol, metal_atoms)
         edit_mol = to_rdkit_mol_without_metals(
@@ -579,9 +593,7 @@ class GulpUFFOptimizer(Optimizer):
             if self.atom_labels[atomid][1] == "metal":
                 (atom,) = mol.get_atoms(atomid)
                 atom_no = atom.get_atomic_number()
-                self.atom_labels[atomid][0] = self._metal_FF[  # type:ignore[index]
-                    atom_no
-                ]
+                self.atom_labels[atomid][0] = self._metal_FF[atom_no]  # type:ignore[index]
 
     def _run_gulp(self, in_file: str, out_file: str) -> None:
         cmd = f"{self._gulp_path} < {in_file}"
@@ -605,12 +617,13 @@ class GulpUFFOptimizer(Optimizer):
                     string = nums.search(line.rstrip())
                     return float(string.group(0))  # type: ignore[union-attr]
 
-        raise OptimizerError(
+        msg = (
             f'"Final energy =" not found in {out_file}, implying unsuccesful'
             " optimisation"
         )
+        raise OptimizerError(msg)
 
-    def optimize(self, mol: stk.Molecule) -> stk.Molecule:
+    def optimize(self, mol: MoleculeT) -> MoleculeT:
         if self._output_dir is None:
             output_dir = str(uuid.uuid4().int)
         else:
@@ -652,13 +665,12 @@ class GulpUFFOptimizer(Optimizer):
 
     def p_optimize(
         self,
-        mol: stk.Molecule,
+        mol: MoleculeT,
         unit_cell: UnitCell,
-    ) -> tuple[stk.Molecule, UnitCell]:
+    ) -> tuple[MoleculeT, UnitCell]:
         """Optimize `mol` and `unit_cell`.
 
-        Parameters
-        ----------
+        Parameters:
             mol:
                 The molecule to be optimized.
 
@@ -666,12 +678,7 @@ class GulpUFFOptimizer(Optimizer):
                 The unit_cell to be optimized if optimization is periodic.
 
         Returns:
-        -------
-            mol:
-                The optimized molecule.
-
-            unit_cell:
-                The optimized cell.
+            The optimized molecule and the optimized cell.
 
         """
         if self._output_dir is None:
@@ -720,58 +727,7 @@ class GulpUFFOptimizer(Optimizer):
 class GulpUFFMDOptimizer(GulpUFFOptimizer):
     """Applies forcefield MD that can handle metal centres.
 
-    Notes:
-    -----
-        By default, :meth:`optimize` will run a MD run using the UFF4MOF.
-        This forcefield requires some explicit metal atom definitions,
-        which are determined by the user.
-
-        This code was originally written for use with Gulp 5.1 on Linux
-        and has not been officially tested on other versions and operating
-        systems. Make sure to sanity check the output.
-
-
-    Examples:
-    --------
-        Conformer searching is often useful, so we have provided an interface
-        to MD simulations using GULP and UFF4MOF. A conformer search can be
-        run at high temperature, where N conformers are extracted at constant
-        intervals throughtout the simulation and optimized using UFF4MOF. The
-        lowest energy conformer is returned. After these MD steps, it is
-        crucial to reoptimize the resultant structure using a better
-        forcefield or a more robust method!
-
-        .. code-block:: python
-
-            gulp_MD = stko.GulpUFFMDOptimizer(
-                gulp_path='path/to/gulp',
-                metal_FF={46: 'Pd4+2'},
-                temperature=300,
-                N_conformers=10,
-                opt_conformers=True,
-            )
-            gulp_MD.assign_FF(cage)
-            cage = gulp_MD.optimize(cage)
-
-    """
-
-    def __init__(
-        self,
-        gulp_path: str,
-        metal_FF: dict[int, str] | None = None,
-        metal_ligand_bond_order: str | None = None,
-        output_dir: str | None = None,
-        integrator: str = "stochastic",
-        ensemble: str = "nvt",
-        temperature: float = 300,
-        equilbration: float = 1.0,
-        production: float = 10.0,
-        timestep: float = 1.0,
-        N_conformers: int = 10,
-        opt_conformers: bool = True,
-        save_conformers: bool = False,
-    ) -> None:
-        """Parameters
+    Parameters:
         gulp_path:
             Path to GULP executable.
 
@@ -826,7 +782,55 @@ class GulpUFFMDOptimizer(GulpUFFOptimizer):
             Whether or not to save to file each conformer.
             Defaults to ``False``.
 
-        """
+    Notes:
+        By default, :meth:`optimize` will run a MD run using the UFF4MOF.
+        This forcefield requires some explicit metal atom definitions,
+        which are determined by the user.
+
+        This code was originally written for use with Gulp 5.1 on Linux
+        and has not been officially tested on other versions and operating
+        systems. Make sure to sanity check the output.
+
+
+    Examples:
+        Conformer searching is often useful, so we have provided an interface
+        to MD simulations using GULP and UFF4MOF. A conformer search can be
+        run at high temperature, where N conformers are extracted at constant
+        intervals throughtout the simulation and optimized using UFF4MOF. The
+        lowest energy conformer is returned. After these MD steps, it is
+        crucial to reoptimize the resultant structure using a better
+        forcefield or a more robust method!
+
+        .. code-block:: python
+
+            gulp_MD = stko.GulpUFFMDOptimizer(
+                gulp_path='path/to/gulp',
+                metal_FF={46: 'Pd4+2'},
+                temperature=300,
+                N_conformers=10,
+                opt_conformers=True,
+            )
+            gulp_MD.assign_FF(cage)
+            cage = gulp_MD.optimize(cage)
+
+    """
+
+    def __init__(
+        self,
+        gulp_path: str,
+        metal_FF: dict[int, str] | None = None,
+        metal_ligand_bond_order: str | None = None,
+        output_dir: str | None = None,
+        integrator: str = "stochastic",
+        ensemble: str = "nvt",
+        temperature: float = 300,
+        equilbration: float = 1.0,
+        production: float = 10.0,
+        timestep: float = 1.0,
+        N_conformers: int = 10,
+        opt_conformers: bool = True,
+        save_conformers: bool = False,
+    ) -> None:
         self._check_path(gulp_path)
         self._gulp_path = gulp_path
         self._metal_FF = metal_FF
@@ -1135,7 +1139,7 @@ class GulpUFFMDOptimizer(GulpUFFOptimizer):
                 atom_types=atom_types,
             )
 
-    def optimize(self, mol: stk.Molecule) -> stk.Molecule:
+    def optimize(self, mol: MoleculeT) -> MoleculeT:
         if self._output_dir is None:
             output_dir = str(uuid.uuid4().int)
         else:
@@ -1190,13 +1194,12 @@ class GulpUFFMDOptimizer(GulpUFFOptimizer):
 
     def p_optimize(
         self,
-        mol: stk.Molecule,
+        mol: MoleculeT,
         unit_cell: UnitCell,
-    ) -> tuple[stk.Molecule, UnitCell]:
+    ) -> tuple[MoleculeT, UnitCell]:
         """Optimize `mol` and `unit_cell`.
 
-        Parameters
-        ----------
+        Parameters:
             mol:
                 The molecule to be optimized.
 
@@ -1204,12 +1207,7 @@ class GulpUFFMDOptimizer(GulpUFFOptimizer):
                 The unit_cell to be optimized if optimization is periodic.
 
         Returns:
-        -------
-            mol:
-                The optimized molecule.
-
-            unit_cell:
-                The optimized cell.
+            The optimized molecule and the optimized cell.
 
         """
         if self._output_dir is None:

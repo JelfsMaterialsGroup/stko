@@ -1,8 +1,10 @@
 import logging
+from pathlib import Path
 from typing import Self
 
 import numpy as np
 from stk import PeriodicInfo
+
 from stko._internal.molecular.periodic.utilities import get_from_parameters
 
 logger = logging.getLogger(__name__)
@@ -43,8 +45,7 @@ class UnitCell(PeriodicInfo):
     ) -> Self:
         """Update cell.
 
-        Parameters
-        ----------
+        Parameters:
             vector_1:
                 First cell lattice vector of shape (3, ) in
                 Angstrom.
@@ -58,27 +59,26 @@ class UnitCell(PeriodicInfo):
                 Angstrom.
 
         Returns:
-        -------
             Clone with updated cell parameters.
 
         """
-        return self.__class__._update_periodic_info(
+        return self._update_periodic_info(
             vector_1=vector_1,
             vector_2=vector_2,
             vector_3=vector_3,
         )
 
-    def with_cell_from_turbomole(self, filename: str) -> Self:
+    def with_cell_from_turbomole(self, filename: Path | str) -> Self:  # noqa:  PLR0912, C901
         """Update cell from structure in Turbomole coord file.
 
         Returns:
-        -------
             Clone with updated cell parameters.
 
         """
+        filename = Path(filename)
         bohr_to_ang = 0.5291772105638411
 
-        with open(filename) as f:
+        with filename.open() as f:
             content = f.readlines()
 
         periodicity: bool | int = False
@@ -95,7 +95,8 @@ class UnitCell(PeriodicInfo):
                 elif "bohr" in line:
                     cell_units = "bohr"
                 else:
-                    raise ValueError("cell not in Angstroms.")
+                    msg = "cell not in Angstroms."
+                    raise ValueError(msg)
                 cell_parameters = [
                     float(j) for j in content[line_number + 1].rstrip().split()
                 ]
@@ -105,7 +106,8 @@ class UnitCell(PeriodicInfo):
                 elif "bohr" in line:
                     lattice_units = "bohr"
                 else:
-                    raise ValueError("lattice not in Angstroms.")
+                    msg = "lattice not in Angstroms."
+                    raise ValueError(msg)
                 lattice_vectors = (
                     np.array(
                         [
@@ -130,7 +132,8 @@ class UnitCell(PeriodicInfo):
         # Check that cell is only defined once.
         chk2 = lattice_vectors is not None and cell_parameters is not None
         if periodicity and chk2:
-            raise RuntimeError("The cell is defined twice in the file.")
+            msg = "The cell is defined twice in the file."
+            raise RuntimeError(msg)
 
         if lattice_vectors is not None:
             vector_1 = (
@@ -170,18 +173,19 @@ class UnitCell(PeriodicInfo):
                 gamma=cell_parameters[5],
             )
         else:
-            raise RuntimeError("The cell is not defined in the file.")
+            msg = "The cell is not defined in the file."
+            raise RuntimeError(msg)
         # Update the cell.
         return self._update_periodic_info(vector_1, vector_2, vector_3)
 
-    def with_cell_from_cif(self, filename: str) -> Self:
+    def with_cell_from_cif(self, filename: Path | str) -> Self:
         """Update cell from structure in CIF.
 
         Returns:
-        -------
             Clone with updated cell parameters.
 
         """
+        filename = Path(filename)
         cell_info: dict[str, float] = {}
 
         targets = {
@@ -193,7 +197,7 @@ class UnitCell(PeriodicInfo):
             "_cell_angle_gamma": "gamma",
         }
 
-        with open(filename) as f:
+        with filename.open() as f:
             lines = f.readlines()
 
         for targ in targets:
