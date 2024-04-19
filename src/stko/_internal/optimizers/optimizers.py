@@ -1,5 +1,3 @@
-# TODO: check sections in optimizer docstring
-
 import logging
 from typing import Protocol
 
