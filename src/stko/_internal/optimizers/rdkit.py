@@ -23,8 +23,9 @@ class MMFF(Optimizer):
     See Also:
         * rdkit: https://www.rdkit.org/
 
-    Warning: this optimizer seems to be machine dependant, producing
-    different energies after optimisation on Ubunut 18 vs. Ubuntu 20.
+    .. warning::
+        this optimizer seems to be machine dependant, producing
+        different energies after optimisation on Ubunut 18 vs. Ubuntu 20.
 
     Examples:
         .. code-block:: python
