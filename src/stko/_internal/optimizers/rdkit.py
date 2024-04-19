@@ -2,27 +2,31 @@ import logging
 from itertools import combinations
 
 import numpy as np
-import rdkit.Chem.AllChem as rdkit
+import rdkit.Chem.AllChem as rdkit  # noqa: N813
 import stk
+
 from stko._internal.optimizers.optimizers import Optimizer
 from stko._internal.optimizers.utilities import (
     get_metal_atoms,
     get_metal_bonds,
     to_rdkit_mol_without_metals,
 )
+from stko._internal.types import MoleculeT
 from stko._internal.utilities.utilities import vector_angle
 
 logger = logging.getLogger(__name__)
 
 
 class MMFF(Optimizer):
-    """Use the MMFF force field in :mod:`rdkit` [1]_ to optimize molecules.
+    """Use the MMFF force field in :mod:`rdkit` to optimize molecules.
+
+    See Also:
+        * rdkit: https://www.rdkit.org/
 
     Warning: this optimizer seems to be machine dependant, producing
     different energies after optimisation on Ubunut 18 vs. Ubuntu 20.
 
     Examples:
-    --------
         .. code-block:: python
 
             import stk
@@ -32,16 +36,12 @@ class MMFF(Optimizer):
             mmff = stko.MMFF()
             mol = mmff.optimize(mol)
 
-    References:
-    ----------
-        .. [1] https://www.rdkit.org/
-
     """
 
-    def __init__(self, ignore_inter_interactions: bool = True):
+    def __init__(self, ignore_inter_interactions: bool = True) -> None:
         self._ignore_inter_interactions = ignore_inter_interactions
 
-    def optimize(self, mol: stk.Molecule) -> stk.Molecule:
+    def optimize(self, mol: MoleculeT) -> MoleculeT:
         rdkit_mol = mol.to_rdkit_mol()
         # Needs to be sanitized to get force field params.
         rdkit.SanitizeMol(rdkit_mol)
@@ -49,21 +49,22 @@ class MMFF(Optimizer):
             rdkit_mol,
             ignoreInterfragInteractions=self._ignore_inter_interactions,
         )
-        mol = mol.with_position_matrix(
+        return mol.with_position_matrix(
             position_matrix=rdkit_mol.GetConformer().GetPositions()
         )
 
-        return mol
-
 
 class UFF(Optimizer):
-    """Use the UFF force field in :mod:`rdkit` [2]_ to optimize molecules.
+    """Use the UFF force field in :mod:`rdkit` to optimize molecules.
 
-    Warning: this optimizer seems to be machine dependant, producing
-    different energies after optimisation on Ubunut 18 vs. Ubuntu 20.
+    .. warning::
+        this optimizer seems to be machine dependant, producing
+        different energies after optimisation on Ubunut 18 vs. Ubuntu 20.
+
+    See Also:
+        * rdkit: https://www.rdkit.org/
 
     Examples:
-    --------
         .. code-block:: python
 
             import stk
@@ -73,16 +74,12 @@ class UFF(Optimizer):
             uff = stko.UFF()
             mol = uff.optimize(mol)
 
-    References:
-    ----------
-        .. [2] https://www.rdkit.org/
-
     """
 
-    def __init__(self, ignore_inter_interactions: bool = True):
+    def __init__(self, ignore_inter_interactions: bool = True) -> None:
         self._ignore_inter_interactions = ignore_inter_interactions
 
-    def optimize(self, mol: stk.Molecule) -> stk.Molecule:
+    def optimize(self, mol: MoleculeT) -> MoleculeT:
         rdkit_mol = mol.to_rdkit_mol()
         # Needs to be sanitized to get force field params.
         rdkit.SanitizeMol(rdkit_mol)
@@ -90,18 +87,23 @@ class UFF(Optimizer):
             rdkit_mol,
             ignoreInterfragInteractions=self._ignore_inter_interactions,
         )
-        mol = mol.with_position_matrix(
+        return mol.with_position_matrix(
             position_matrix=rdkit_mol.GetConformer().GetPositions()
         )
 
-        return mol
-
 
 class ETKDG(Optimizer):
-    """Uses ETKDG [3]_ v2 algorithm in :mod:`rdkit` [4]_ to optimize a structure.
+    """Uses ETKDG v2 algorithm in :mod:`rdkit` to optimize a structure.
+
+    See Also:
+        * ETKDG: http://pubs.acs.org/doi/pdf/10.1021/acs.jcim.5b00654
+        * rdkit: https://www.rdkit.org/
+
+    Parameters:
+        random_seed:
+            The random seed to use.
 
     Examples:
-    --------
         .. code-block:: python
 
             import stk
@@ -111,40 +113,41 @@ class ETKDG(Optimizer):
             etkdg = stko.ETKDG()
             mol = etkdg.optimize(mol)
 
-    References:
-    ----------
-        .. [3] http://pubs.acs.org/doi/pdf/10.1021/acs.jcim.5b00654
-        .. [4] https://www.rdkit.org/
-
     """
 
-    def __init__(self, random_seed: int = 12):
-        """Parameters
-        random_seed:
-            The random seed to use.
-
-        """
+    def __init__(self, random_seed: int = 12) -> None:
         self._random_seed = random_seed
 
-    def optimize(self, mol: stk.Molecule) -> stk.Molecule:
+    def optimize(self, mol: MoleculeT) -> MoleculeT:
         params = rdkit.ETKDGv2()
         params.clearConfs = True
         params.random_seed = self._random_seed
 
         rdkit_mol = mol.to_rdkit_mol()
         rdkit.EmbedMolecule(rdkit_mol, params)
-        mol = mol.with_position_matrix(
+        return mol.with_position_matrix(
             position_matrix=rdkit_mol.GetConformer().GetPositions()
         )
 
-        return mol
-
 
 class MetalOptimizer(Optimizer):
-    """Applies forcefield optimizers in :mod:`rdkit` [5]_ that can handle metals.
+    """Applies forcefield optimizers in :mod:`rdkit` that can handle metals.
+
+    Parameters:
+        metal_binder_distance:
+            Distance in Angstrom.
+
+        metal_binder_forceconstant:
+            Force constant to use for restricted metal-ligand bonds.
+
+        max_iterations:
+            Number of iteractions to run.
+
+
+    See Also:
+        * rdkit: https://www.rdkit.org/
 
     Notes:
-    -----
         By default, :meth:`optimize` will run a restricted optimization
         using constraints and the UFF. To implement this, metal atoms are
         replaced by noninteracting H atoms, and constraints are applied
@@ -157,7 +160,6 @@ class MetalOptimizer(Optimizer):
         different energies after optimisation on Ubunut 18 vs. Ubuntu 20.
 
     Examples:
-    --------
         :class:`MetalOptimizer` allows for the restricted optimization of
         :class:`ConstructedMolecule` instances containing metals. Note that
         this optimizer algorithm is not very robust to large bonds and may
@@ -220,9 +222,6 @@ class MetalOptimizer(Optimizer):
             # Optimize.
             cage1 = optimizer.optimize(mol=cage1)
 
-    References:
-    ----------
-        .. [5] https://www.rdkit.org/
 
     """
 
@@ -231,18 +230,7 @@ class MetalOptimizer(Optimizer):
         metal_binder_distance: float = 1.6,
         metal_binder_forceconstant: float = 1.0e2,
         max_iterations: int = 500,
-    ):
-        """Parameters
-        metal_binder_distance:
-            Distance in Angstrom.
-
-        metal_binder_forceconstant:
-            Force constant to use for restricted metal-ligand bonds.
-
-        max_iterations:
-            Number of iteractions to run.
-
-        """
+    ) -> None:
         self._metal_binder_distance = metal_binder_distance
         self._metal_binder_forceconstant = metal_binder_forceconstant
         self._max_iterations = max_iterations
@@ -255,8 +243,7 @@ class MetalOptimizer(Optimizer):
     ) -> None:
         """Applies UFF metal centre constraints.
 
-        Parameters
-        ----------
+        Parameters:
             mol:
                 The molecule to be optimized.
 
@@ -291,7 +278,7 @@ class MetalOptimizer(Optimizer):
             pres_atoms = list(set(bond1_atoms + bond2_atoms))
             # If there are more than 3 atoms, implies two
             # independant bonds.
-            if len(pres_atoms) > 3:
+            if len(pres_atoms) > 3:  # noqa: PLR2004
                 continue
             for atom in pres_atoms:
                 if atom in bond1_atoms and atom in bond2_atoms:
@@ -300,9 +287,9 @@ class MetalOptimizer(Optimizer):
                     idx1 = atom.get_id()
                 elif atom in bond2_atoms:
                     idx3 = atom.get_id()
-            pos1 = [i for i in mol.get_atomic_positions(atom_ids=[idx1])][0]
-            pos2 = [i for i in mol.get_atomic_positions(atom_ids=[idx2])][0]
-            pos3 = [i for i in mol.get_atomic_positions(atom_ids=[idx3])][0]
+            pos1 = next(mol.get_atomic_positions(atom_ids=[idx1]))
+            pos2 = next(mol.get_atomic_positions(atom_ids=[idx2]))
+            pos3 = next(mol.get_atomic_positions(atom_ids=[idx3]))
             v1 = pos1 - pos2
             v2 = pos3 - pos2
             angle = vector_angle(v1, v2)
@@ -316,7 +303,7 @@ class MetalOptimizer(Optimizer):
                 forceConstant=1.0e5,
             )
 
-    def optimize(self, mol: stk.Molecule) -> stk.Molecule:
+    def optimize(self, mol: MoleculeT) -> MoleculeT:
         # Find all metal atoms and atoms they are bonded to.
         metal_atoms = get_metal_atoms(mol)
         metal_bonds, ids_to_metals = get_metal_bonds(
@@ -358,6 +345,4 @@ class MetalOptimizer(Optimizer):
         # only modify atom positions, which means metal atoms will be
         # reinstated.
         new_position_matrix = edit_mol.GetConformer().GetPositions()
-        mol = mol.with_position_matrix(new_position_matrix)
-
-        return mol
+        return mol.with_position_matrix(new_position_matrix)
