@@ -15,8 +15,7 @@ def get_atom_maps(mol: stk.ConstructedMolecule) -> dict:
     Returns a dictionary of dictionaries from atom id (in building
     block) to constructed molecule atom, indexed by building block id.
 
-    Parameters
-    ----------
+    Parameters:
         mol:
             The :class:`stk.ConstructedMolecule` for which atom maps are
             desired.

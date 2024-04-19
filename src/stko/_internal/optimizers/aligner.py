@@ -1,10 +1,13 @@
 import logging
+from collections.abc import Iterator
 from itertools import product
+from typing import TypeVar
 
 import numpy as np
 import spindry as spd
 import stk
 from scipy.spatial.distance import cdist
+
 from stko._internal.calculators.rmsd_calculators import RmsdMappedCalculator
 from stko._internal.optimizers.optimizers import Optimizer
 from stko._internal.types import MoleculeT
@@ -13,7 +16,9 @@ logger = logging.getLogger(__name__)
 
 
 class AlignmentPotential(spd.Potential):
-    def __init__(self, matching_pairs: tuple[tuple[str]], width: float):
+    def __init__(
+        self, matching_pairs: tuple[tuple[str, ...]], width: float
+    ) -> None:
         self._matching_pairs = matching_pairs
         self._width = width
 
@@ -41,9 +46,9 @@ class AlignmentPotential(spd.Potential):
         return mixed
 
     def compute_potential(self, supramolecule: spd.SupraMolecule) -> float:
-        component_position_matrices = list(
+        component_position_matrices = [
             i.get_position_matrix() for i in supramolecule.get_components()
-        )
+        ]
         component_atoms = [
             tuple(j for j in i.get_atoms())
             for i in supramolecule.get_components()
@@ -54,18 +59,16 @@ class AlignmentPotential(spd.Potential):
         )
         sigmas = self._combine_atoms(component_atoms[0], component_atoms[1])
 
-        new_array = np.where(sigmas, pair_dists, 1e24)
+        initial_value = 1e24
+        new_array = np.where(sigmas, pair_dists, initial_value)
         distances = np.array(
-            [i for i in np.amin(new_array, axis=1) if i != 1e24]
+            [i for i in np.amin(new_array, axis=1) if i != initial_value]
         )
         return np.sum(self._potential(distance=distances))
 
 
 class Aligner(Optimizer):
-    # TODO: docstring
-    """Use SpinDry to align two molecules."""
-
-    """Use SpinDry to align two molecules. [#]_
+    """Use SpinDry to align two molecules.
 
     Parameters:
         initial_molecule:
@@ -74,9 +77,10 @@ class Aligner(Optimizer):
         matching_pairs:
             Pairs of atom types to use in alignment.
 
+    See Also:
+        * SpinDry - https://github.com/andrewtarzia/SpinDry
 
     Examples:
-    --------
         .. code-block:: python
 
             import stk
@@ -91,10 +95,6 @@ class Aligner(Optimizer):
             )
             aligner = stko.Aligner(mol2, (('N', 'N'), ))
             mol = aligner.optimize(mol)
-
-    References:
-    ----------
-        .. [#] https://github.com/andrewtarzia/SpinDry
 
     """
 
@@ -154,10 +154,11 @@ class Aligner(Optimizer):
             components=(host_molecule, guest_molecule),
         )
 
-    def _align_molecules(self, mol: stk.Molecule) -> stk.Molecule:
+    def _align_molecules(self, mol: MoleculeT) -> MoleculeT:
         supramolecule = self._get_supramolecule(mol)
-        for comp in supramolecule.get_components():
-            pass
+
+        comp = _last(supramolecule.get_components())
+
         mol = mol.with_position_matrix(comp.get_position_matrix())
         cg = spd.Spinner(
             step_size=0.2,
@@ -174,11 +175,8 @@ class Aligner(Optimizer):
             movable_components=(1,),
         )
 
-        for comp in conformer.get_components():
-            pass
-        mol = mol.with_position_matrix(comp.get_position_matrix())
-
-        return mol
+        comp = _last(conformer.get_components())
+        return mol.with_position_matrix(comp.get_position_matrix())
 
     def optimize(self, mol: MoleculeT) -> MoleculeT:
         rotation_axes = (
@@ -220,3 +218,13 @@ class Aligner(Optimizer):
                 final_mol = aligned_mol.with_centroid(np.array((0, 0, 0)))
 
         return final_mol
+
+
+T = TypeVar("T")
+
+
+def _last(items: Iterator[T]) -> T:
+    result = next(items)
+    for item in items:
+        result = item
+    return result
