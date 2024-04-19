@@ -1,22 +1,16 @@
 import logging
 
 import stk
+
 from stko._internal.molecular.torsion.torsion import Torsion
 
 logger = logging.getLogger(__name__)
 
 
 class TorsionInfo:
-    """Holds additional info about ConstructedMoleculeTorsioned torsions."""
+    """Holds additional info about ConstructedMoleculeTorsioned torsions.
 
-    def __init__(
-        self,
-        torsion: Torsion,
-        building_block: stk.Molecule | None,
-        building_block_id: int | None,
-        building_block_torsion: Torsion | None,
-    ) -> None:
-        """Parameters
+    Parameters:
         torsion:
             The torsion about which information is held.
 
@@ -39,7 +33,16 @@ class TorsionInfo:
             originates. Can be ``None``, if the atoms that make
             up the torsion did not come from a single building block.
 
-        """
+
+    """
+
+    def __init__(
+        self,
+        torsion: Torsion,
+        building_block: stk.Molecule | None,
+        building_block_id: int | None,
+        building_block_torsion: Torsion | None,
+    ) -> None:
         self._torsion = torsion
         self._building_block = building_block
         self._building_block_id = building_block_id

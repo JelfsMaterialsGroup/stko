@@ -1,5 +1,8 @@
 import numpy as np
+import stk
 from scipy.spatial.distance import euclidean
+
+from stko._internal.molecular.torsion.torsion_info import TorsionInfo
 
 
 def is_valid_xtb_solvent(
@@ -9,8 +12,7 @@ def is_valid_xtb_solvent(
 ) -> bool:
     """Check if solvent is valid [#]_ for the given GFN version.
 
-    Parameters
-    ----------
+    Parameters:
         gfn_version:
             GFN parameterization version. Can be: ``0``, ``1`` or ``2``.
 
@@ -21,17 +23,15 @@ def is_valid_xtb_solvent(
             Solvent being tested.
 
     Returns:
-    -------
         ``True`` if solvent is valid.
 
     References:
-    ----------
         .. [#] https://xtb-docs.readthedocs.io/en/latest/gbsa.html
 
     """
     if gfn_version == 0:
         return False
-    elif gfn_version == 1 and solvent_model == "gbsa":
+    if gfn_version == 1 and solvent_model == "gbsa":
         valid_solvents = {
             "acetone",
             "acetonitrile",
@@ -74,7 +74,7 @@ def is_valid_xtb_solvent(
             "toluene",
             "water",
         }
-    elif gfn_version == 2 and solvent_model == "gbsa":
+    elif gfn_version == 2 and solvent_model == "gbsa":  # noqa: PLR2004
         valid_solvents = {
             "acetone",
             "acetonitrile",
@@ -91,7 +91,7 @@ def is_valid_xtb_solvent(
             "toluene",
             "water",
         }
-    elif gfn_version == 2 and solvent_model == "alpb":
+    elif gfn_version == 2 and solvent_model == "alpb":  # noqa: PLR2004
         valid_solvents = {
             "acetone",
             "acetonitrile",
@@ -187,8 +187,7 @@ def vector_angle(vector1: np.ndarray, vector2: np.ndarray) -> float:
 
     From: https://stackoverflow.com/a/13849249
 
-    Parameters
-    ----------
+    Parameters:
         vector1:
             The first vector.
 
@@ -196,14 +195,12 @@ def vector_angle(vector1: np.ndarray, vector2: np.ndarray) -> float:
             The second vector.
 
     Returns:
-    -------
         The angle between `vector1` and `vector2` in radians.
 
     """
     v1_u = unit_vector(vector1)
     v2_u = unit_vector(vector2)
-    angle = np.arccos(np.clip(np.dot(v1_u, v2_u), -1.0, 1.0))
-    return angle
+    return np.arccos(np.clip(np.dot(v1_u, v2_u), -1.0, 1.0))
 
 
 def calculate_angle(
@@ -217,9 +214,9 @@ def calculate_angle(
     return np.degrees(vector_angle(v1, v2))
 
 
-def get_torsion_info_angles(  # type: ignore[no-untyped-def]
-    mol,
-    torsion_info,
+def get_torsion_info_angles(
+    mol: stk.ConstructedMolecule,
+    torsion_info: TorsionInfo,
 ) -> tuple[float, float | None]:
     """Get the angles for torsion_info in mol.
 
@@ -231,51 +228,33 @@ def get_torsion_info_angles(  # type: ignore[no-untyped-def]
     A :class:`stko.MatchedTorsionCalculator` should yield torsions
     such that the two angles returned are the same.
 
-    Parameters
-    ----------
+    Parameters:
         mol:
-            The :class:`.ConstructedMolecule` for which angles are
-            computed.
+            The molecule for which angles are computed.
 
         torsion_info:
             Specifies the torsion for which angles will be computed.
 
     Returns:
-    -------
         The angle and the bb_angle in degrees.
 
     """
     torsion = torsion_info.get_torsion()
     angle = calculate_dihedral(
-        pt1=tuple(mol.get_atomic_positions(torsion.get_atom_ids()[0]))[0],
-        pt2=tuple(mol.get_atomic_positions(torsion.get_atom_ids()[1]))[0],
-        pt3=tuple(mol.get_atomic_positions(torsion.get_atom_ids()[2]))[0],
-        pt4=tuple(mol.get_atomic_positions(torsion.get_atom_ids()[3]))[0],
+        pt1=next(mol.get_atomic_positions(torsion.get_atom_ids()[0])),
+        pt2=next(mol.get_atomic_positions(torsion.get_atom_ids()[1])),
+        pt3=next(mol.get_atomic_positions(torsion.get_atom_ids()[2])),
+        pt4=next(mol.get_atomic_positions(torsion.get_atom_ids()[3])),
     )
     bb_torsion = torsion_info.get_building_block_torsion()
-    if bb_torsion is None:
+    bb = torsion_info.get_building_block()
+    if bb_torsion is None or bb is None:
         bb_angle = None
     else:
         bb_angle = calculate_dihedral(
-            pt1=tuple(
-                torsion_info.get_building_block().get_atomic_positions(
-                    bb_torsion.get_atom_ids()[0]
-                )
-            )[0],
-            pt2=tuple(
-                torsion_info.get_building_block().get_atomic_positions(
-                    bb_torsion.get_atom_ids()[1]
-                )
-            )[0],
-            pt3=tuple(
-                torsion_info.get_building_block().get_atomic_positions(
-                    bb_torsion.get_atom_ids()[2]
-                )
-            )[0],
-            pt4=tuple(
-                torsion_info.get_building_block().get_atomic_positions(
-                    bb_torsion.get_atom_ids()[3]
-                )
-            )[0],
+            pt1=next(bb.get_atomic_positions(bb_torsion.get_atom_ids()[0])),
+            pt2=next(bb.get_atomic_positions(bb_torsion.get_atom_ids()[1])),
+            pt3=next(bb.get_atomic_positions(bb_torsion.get_atom_ids()[2])),
+            pt4=next(bb.get_atomic_positions(bb_torsion.get_atom_ids()[3])),
         )
     return angle, bb_angle

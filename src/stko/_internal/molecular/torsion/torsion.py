@@ -7,7 +7,22 @@ logger = logging.getLogger(__name__)
 
 
 class Torsion:
-    """Represents a torsion angle in a molecule."""
+    """Represents a torsion angle in a molecule.
+
+    Parameters:
+        atom1:
+            First atom in torsion.
+
+        atom2:
+            Second atom in torsion.
+
+        atom3:
+            Third atom in torsion.
+
+        atom4:
+            Fourth atom in torsion.
+
+    """
 
     def __init__(
         self,
@@ -16,36 +31,17 @@ class Torsion:
         atom3: stk.Atom | None,
         atom4: stk.Atom | None,
     ) -> None:
-        """Defines a torsion.
-
-        Parameters
-        ----------
-            atom1:
-                First atom in torsion.
-
-            atom2:
-                Second atom in torsion.
-
-            atom3:
-                Third atom in torsion.
-
-            atom4:
-                Fourth atom in torsion.
-
-        """
         self._atom1 = atom1
         self._atom2 = atom2
         self._atom3 = atom3
         self._atom4 = atom4
 
     def get_atoms(self) -> tuple[stk.Atom | None, ...]:
-        return tuple(
-            (
-                self._atom1,
-                self._atom2,
-                self._atom3,
-                self._atom4,
-            )
+        return (
+            self._atom1,
+            self._atom2,
+            self._atom3,
+            self._atom4,
         )
 
     def get_atom_ids(self) -> tuple[int, ...]:
@@ -54,7 +50,7 @@ class Torsion:
             for atom in self.get_atoms()
         )
 
-    def __iter__(self) -> abc.Iterable[stk.Atom | None]:
+    def __iter__(self) -> abc.Iterator[stk.Atom | None]:
         return iter(self.get_atoms())
 
     def __str__(self) -> str:
