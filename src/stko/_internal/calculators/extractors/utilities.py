@@ -1,8 +1,7 @@
 def check_line(line: str, option: str, options_dict: dict[str, str]) -> bool:
     """Checks a line for a string based on option.
 
-    Parameters
-    ----------
+    Parameters:
         line:
             Line of output file to check.
 
@@ -15,7 +14,6 @@ def check_line(line: str, option: str, options_dict: dict[str, str]) -> bool:
             The :meth:`_properties_dict` of the Extractor.
 
     Returns:
-    -------
         Returns ``True`` if the desired string is present.
 
     """
