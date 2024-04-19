@@ -482,7 +482,11 @@ class XTB(Optimizer):
 
 
 class XTBCREST(Optimizer):
-    """Uses GFN-n [#2]_ to run CREST [#3]_ on molecules.
+    """Uses GFN-n to run CREST on molecules.
+
+    See Also:
+        * GFN-n: https://xtb-docs.readthedocs.io/en/latest/setup.html
+        * CREST: https://xtb-docs.readthedocs.io/en/latest/crestcmd.html
 
     Parameters:
         crest_path:
@@ -643,9 +647,6 @@ class XTBCREST(Optimizer):
             | gfn_topo: GFN-FF binary topology file.
             |    Defines the molecules force field topology.
 
-    References:
-        .. [#2] https://xtb-docs.readthedocs.io/en/latest/setup.html
-        .. [#3] https://xtb-docs.readthedocs.io/en/latest/crestcmd.html
 
     """
 
@@ -880,7 +881,10 @@ class XTBCREST(Optimizer):
 
 
 class XTBFF(Optimizer):
-    """Uses GFN-FF [#4]_ to optimize molecules.
+    """Uses GFN-FF to optimize molecules.
+
+    See Also:
+        * GFN-FF: https://xtb-docs.readthedocs.io/en/latest/gfnff.html
 
     Parameters:
         xtb_path:
@@ -959,8 +963,6 @@ class XTBFF(Optimizer):
             )
             polymer = xtb.optimize(polymer)
 
-    References:
-        .. [#4] https://xtb-docs.readthedocs.io/en/latest/gfnff.html
 
     """
 
@@ -1120,7 +1122,11 @@ class XTBFF(Optimizer):
 
 
 class XTBFFCREST(Optimizer):
-    """Uses GFN-FF [#5]_ to run CREST [#6]_ on molecules.
+    """Uses GFN-FF to run CREST on molecules.
+
+    See Also:
+        * GFN-FF: https://xtb-docs.readthedocs.io/en/latest/gfnff.html
+        * CREST: https://xtb-docs.readthedocs.io/en/latest/crestcmd.html
 
     Parameters:
 
@@ -1265,9 +1271,6 @@ class XTBFFCREST(Optimizer):
             | gfn_topo: GFN-FF binary topology file.
             |    Defines the molecules force field topology.
 
-    References:
-        .. [#5] https://xtb-docs.readthedocs.io/en/latest/gfnff.html
-        .. [#6] https://xtb-docs.readthedocs.io/en/latest/crestcmd.html
 
     """
 
