@@ -124,11 +124,6 @@ class XTB(Optimizer):
             encountered, this should be ``True``, however this may
             raise issues on clusters.
 
-    Attributes:
-        incomplete:
-            A :class:`set` of molecules passed to :meth:`optimize` whose
-            optimzation was incomplete.
-
     Examples:
         Note that for :class:`.ConstructedMolecule` objects constructed by
         ``stk``, :class:`XTB` should usually be used in a
@@ -213,6 +208,9 @@ class XTB(Optimizer):
     """
 
     incomplete: set[stk.Molecule]
+    """
+    Molecules passed to :meth:`optimize` whose optimzation was incomplete.
+    """
 
     def __init__(  # noqa: PLR0913
         self,
