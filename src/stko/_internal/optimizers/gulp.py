@@ -152,7 +152,7 @@ class GulpUFFOptimizer(Optimizer):
         metal_FF: dict | None = None,  # noqa: N803
         metal_ligand_bond_order: str | None = None,
         conjugate_gradient: bool = False,
-        output_dir: str | None = None,
+        output_dir: Path | str | None = None,
     ) -> None:
         gulp_path = Path(gulp_path)
         self._check_path(gulp_path)
@@ -165,7 +165,7 @@ class GulpUFFOptimizer(Optimizer):
             else metal_ligand_bond_order
         )
         self._conjugate_gradient = conjugate_gradient
-        self._output_dir = output_dir
+        self._output_dir = None if output_dir is None else Path(output_dir)
 
     def _check_path(self, path: Path) -> None:
         if not path.exists():
@@ -399,15 +399,10 @@ class GulpUFFOptimizer(Optimizer):
             }
         )
         for t in types:
-            if not t[1].isalpha():  # type:ignore[index]
-                symb = t[0]  # type:ignore[index]
-            else:
-                symb = t[0:2]  # type:ignore[index]
+            symb = t[0:2] if t[1].isalpha() else t[0]  # type:ignore[index]
             for i in range(1, 100):
                 name = f"{symb}{i}"
-                if name in type_translator.values():
-                    continue
-                else:
+                if name not in type_translator.values():
                     type_translator[t] = name  # type: ignore[index]
                     break
 
@@ -487,12 +482,12 @@ class GulpUFFOptimizer(Optimizer):
 
         return species_section
 
-    def _write_gulp_file(
+    def _write_gulp_file(  # noqa: PLR0913
         self,
         mol: stk.Molecule,
         metal_atoms: list[stk.Atom],
-        in_file: str,
-        output_xyz: str,
+        in_file: Path,
+        output_xyz: Path,
         unit_cell: UnitCell | None = None,
     ) -> None:
         type_translator = self._type_translator()
@@ -507,7 +502,7 @@ class GulpUFFOptimizer(Optimizer):
             top_line += "conp "
             cell_section = self._cell_section(unit_cell)
             # Output CIF.
-            output_cif = output_xyz.replace("xyz", "cif")
+            output_cif = output_xyz.with_suffix(".cif")
             periodic_output = f"output cif {output_cif}\n"
         else:
             # Constant volume.
@@ -535,7 +530,7 @@ class GulpUFFOptimizer(Optimizer):
             # 'output movie xyz steps_.xyz\n'
         )
 
-        with open(in_file, "w") as f:
+        with in_file.open("w") as f:
             f.write(top_line)
             f.write(cell_section)
             f.write(position_section)
@@ -544,7 +539,7 @@ class GulpUFFOptimizer(Optimizer):
             f.write(library)
             f.write(output_section)
 
-    def assign_FF(self, mol: stk.Molecule) -> None:
+    def assign_FF(self, mol: stk.Molecule) -> None:  # noqa: N802
         """Assign forcefield types to molecule.
 
         Parameters:
@@ -595,9 +590,9 @@ class GulpUFFOptimizer(Optimizer):
                 atom_no = atom.get_atomic_number()
                 self.atom_labels[atomid][0] = self._metal_FF[atom_no]  # type:ignore[index]
 
-    def _run_gulp(self, in_file: str, out_file: str) -> None:
+    def _run_gulp(self, in_file: Path, out_file: Path) -> None:
         cmd = f"{self._gulp_path} < {in_file}"
-        with open(out_file, "w") as f:
+        with out_file.open("w") as f:
             # Note that sp.call will hold the program until completion
             # of the calculation.
             sp.call(
@@ -606,12 +601,12 @@ class GulpUFFOptimizer(Optimizer):
                 stdout=f,
                 stderr=sp.PIPE,
                 # Shell is required to run complex arguments.
-                shell=True,
+                shell=True,  # noqa: S602
             )
 
-    def extract_final_energy(self, out_file: str) -> float:
+    def extract_final_energy(self, out_file: Path) -> float:
         nums = re.compile(r"[+-]?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?")
-        with open(out_file) as f:
+        with out_file.open() as f:
             for line in f.readlines():
                 if "Final energy =" in line:
                     string = nums.search(line.rstrip())
@@ -625,21 +620,20 @@ class GulpUFFOptimizer(Optimizer):
 
     def optimize(self, mol: MoleculeT) -> MoleculeT:
         if self._output_dir is None:
-            output_dir = str(uuid.uuid4().int)
+            output_dir = Path(str(uuid.uuid4().int)).resolve()
         else:
-            output_dir = self._output_dir
-        output_dir = os.path.abspath(output_dir)
+            output_dir = self._output_dir.resolve()
 
-        if os.path.exists(output_dir):
+        if output_dir.exists():
             shutil.rmtree(output_dir)
 
-        os.mkdir(output_dir)
-        init_dir = os.getcwd()
+        output_dir.mkdir()
+        init_dir = Path.cwd()
         os.chdir(output_dir)
 
-        in_file = "gulp_opt.gin"
-        out_file = "gulp_opt.ginout"
-        output_xyz = "gulp_opt.xyz"
+        in_file = Path("gulp_opt.gin")
+        out_file = Path("gulp_opt.ginout")
+        output_xyz = Path("gulp_opt.xyz")
 
         metal_atoms = get_metal_atoms(mol)
 
@@ -682,22 +676,21 @@ class GulpUFFOptimizer(Optimizer):
 
         """
         if self._output_dir is None:
-            output_dir = str(uuid.uuid4().int)
+            output_dir = Path(str(uuid.uuid4().int)).resolve()
         else:
-            output_dir = self._output_dir
-        output_dir = os.path.abspath(output_dir)
+            output_dir = self._output_dir.resolve()
 
-        if os.path.exists(output_dir):
+        if output_dir.exists():
             shutil.rmtree(output_dir)
 
-        os.mkdir(output_dir)
-        init_dir = os.getcwd()
+        output_dir.mkdir()
+        init_dir = Path.cwd()
         os.chdir(output_dir)
 
-        in_file = "gulp_opt.gin"
-        out_file = "gulp_opt.ginout"
-        output_xyz = "gulp_opt.xyz"
-        output_cif = output_xyz.replace("xyz", "cif")
+        in_file = Path("gulp_opt.gin")
+        out_file = Path("gulp_opt.ginout")
+        output_xyz = Path("gulp_opt.xyz")
+        output_cif = output_xyz.with_suffix(".cif")
 
         metal_atoms = get_metal_atoms(mol)
 
@@ -815,22 +808,23 @@ class GulpUFFMDOptimizer(GulpUFFOptimizer):
 
     """
 
-    def __init__(
+    def __init__(  # noqa: PLR0913
         self,
-        gulp_path: str,
-        metal_FF: dict[int, str] | None = None,
+        gulp_path: Path | str,
+        metal_FF: dict[int, str] | None = None,  # noqa: N803
         metal_ligand_bond_order: str | None = None,
-        output_dir: str | None = None,
+        output_dir: Path | str | None = None,
         integrator: str = "stochastic",
         ensemble: str = "nvt",
         temperature: float = 300,
         equilbration: float = 1.0,
         production: float = 10.0,
         timestep: float = 1.0,
-        N_conformers: int = 10,
+        N_conformers: int = 10,  # noqa: N803
         opt_conformers: bool = True,
         save_conformers: bool = False,
     ) -> None:
+        gulp_path = Path(gulp_path)
         self._check_path(gulp_path)
         self._gulp_path = gulp_path
         self._metal_FF = metal_FF
@@ -839,7 +833,7 @@ class GulpUFFMDOptimizer(GulpUFFOptimizer):
             if metal_ligand_bond_order is None
             else metal_ligand_bond_order
         )
-        self._output_dir = output_dir
+        self._output_dir = None if output_dir is None else Path(output_dir)
         self._integrator = integrator
         self._ensemble = ensemble
         self._temperature = temperature
@@ -854,12 +848,12 @@ class GulpUFFMDOptimizer(GulpUFFOptimizer):
         self._opt_conformers = opt_conformers
         self._save_conformers = save_conformers
 
-    def _write_gulp_file(
+    def _write_gulp_file(  # noqa: PLR0913
         self,
         mol: stk.Molecule,
         metal_atoms: list[stk.Atom],
-        in_file: str,
-        output_traj: str,
+        in_file: Path,
+        output_traj: Path,
         unit_cell: UnitCell | None = None,
     ) -> None:
         type_translator = self._type_translator()
@@ -871,7 +865,7 @@ class GulpUFFMDOptimizer(GulpUFFOptimizer):
             top_line += "conp "
             cell_section = self._cell_section(unit_cell)
             # Output CIF.
-            output_cif = output_traj.replace("xyz", "cif")
+            output_cif = output_traj.with_suffix(".cif")
             periodic_output = f"output cif {output_cif}\n"
         else:
             # Constant volume.
@@ -911,7 +905,7 @@ class GulpUFFMDOptimizer(GulpUFFOptimizer):
             f"{periodic_output}"
         )
 
-        with open(in_file, "w") as f:
+        with in_file.open("w") as f:
             f.write(top_line)
             f.write(cell_section)
             f.write(position_section)
@@ -923,17 +917,17 @@ class GulpUFFMDOptimizer(GulpUFFOptimizer):
 
     def _convert_traj_to_xyz(
         self,
-        output_xyz: str,
-        output_traj: str,
+        output_xyz: Path,
+        output_traj: Path,
     ) -> tuple[list[str], dict[int, dict], list[str]]:
         # Get atom types from an existing xyz file.
-        atom_types = []
-        with open(output_xyz) as f:
-            for line in f.readlines()[2:]:
-                atom_types.append(line.rstrip().split(" ")[0])
+        atom_types = [
+            line.rstrip().split(" ")[0]
+            for line in output_xyz.open().readlines()[2:]
+        ]
 
         # Read in lines from trajectory file.
-        with open(output_traj) as f:
+        with output_traj.open() as f:
             lines = f.readlines()
 
         # Split file using strings.
@@ -954,18 +948,13 @@ class GulpUFFMDOptimizer(GulpUFFOptimizer):
             )[0]
             sites_section = cont.split("#  Site energies \n")[1]
 
-            ts_data["time"] = float(
-                [i for i in time_section.strip().split(" ") if i][0]
+            time, ke, e, t, *_ = (
+                float(i) for i in time_section.strip().split(" ") if i
             )
-            ts_data["KE"] = float(
-                [i for i in time_section.strip().split(" ") if i][1]
-            )
-            ts_data["E"] = float(
-                [i for i in time_section.strip().split(" ") if i][2]
-            )
-            ts_data["T"] = float(
-                [i for i in time_section.strip().split(" ") if i][3]
-            )
+            ts_data["time"] = time
+            ts_data["KE"] = ke
+            ts_data["E"] = e
+            ts_data["T"] = t
             ts_data["coords"] = [  # type:ignore[assignment]
                 [i for i in li.split(" ") if i]
                 for li in coords_section.split("\n")[:-1]
@@ -995,7 +984,7 @@ class GulpUFFMDOptimizer(GulpUFFOptimizer):
             for i, coord in enumerate(  # type: ignore[var-annotated]
                 ts_data["coords"]  # type: ignore[arg-type]
             ):
-                site_E = ts_data["sites"][i][0]  # type: ignore[index]
+                site_E = ts_data["sites"][i][0]  # type: ignore[index]  # noqa: N806
                 xyz_string += (
                     f"{atom_types[i]} {round(float(coord[0]), 5)} "
                     f"{round(float(coord[1]), 5)} "
@@ -1010,7 +999,7 @@ class GulpUFFMDOptimizer(GulpUFFOptimizer):
         self,
         ts: float,
         ts_data: dict,
-        filename: str,
+        filename: Path,
         atom_types: list[str],
     ) -> None:
         coords = ts_data["coords"]
@@ -1026,7 +1015,7 @@ class GulpUFFMDOptimizer(GulpUFFOptimizer):
                 f"{round(float(coord[1]), 5)} "
                 f"{round(float(coord[2]), 5)}\n"
             )
-        with open(filename, "w") as f:
+        with filename.open("w") as f:
             f.write(xyz_string)
 
     def _optimise_all_conformers(
@@ -1034,16 +1023,16 @@ class GulpUFFMDOptimizer(GulpUFFOptimizer):
         mol: stk.Molecule,
         trajectory_data: dict,
         atom_types: list[str],
-        low_conf_xyz: str,
+        low_conf_xyz: Path,
     ) -> None:
         min_energy = 1e10
         for ts in trajectory_data:
             if self._save_conformers:
-                conformer_file_name = f"conf_{ts}.xyz"
+                conformer_file_name = Path(f"conf_{ts}.xyz")
             else:
                 # This will get overwrriten each time and deleted at
                 # the end.
-                conformer_file_name = "temp_conf.xyz"
+                conformer_file_name = Path("temp_conf.xyz")
 
             self._write_conformer_xyz_file(
                 ts=ts,
@@ -1052,7 +1041,7 @@ class GulpUFFMDOptimizer(GulpUFFOptimizer):
                 atom_types=atom_types,
             )
             mol = mol.with_structure_from_file(conformer_file_name)
-            conformer_opt_dir = os.path.join(os.getcwd(), f"conf_{ts}_opt")
+            conformer_opt_dir = Path.cwd() / f"conf_{ts}_opt"
             gulp_opt = GulpUFFOptimizer(
                 gulp_path=self._gulp_path,
                 metal_FF=self._metal_FF,
@@ -1061,7 +1050,7 @@ class GulpUFFMDOptimizer(GulpUFFOptimizer):
             gulp_opt.assign_FF(mol)
             mol = gulp_opt.optimize(mol=mol)
             energy = gulp_opt.extract_final_energy(
-                out_file=os.path.join(conformer_opt_dir, "gulp_opt.ginout"),
+                out_file=conformer_opt_dir / "gulp_opt.ginout",
             )
             if energy < min_energy:
                 min_energy = energy
@@ -1069,7 +1058,7 @@ class GulpUFFMDOptimizer(GulpUFFOptimizer):
                 mol.write(low_conf_xyz)
 
         if not self._save_conformers:
-            os.remove("temp_conf.xyz")
+            Path("temp_conf.xyz").unlink()
 
     def _save_all_conformers(
         self,
@@ -1077,7 +1066,7 @@ class GulpUFFMDOptimizer(GulpUFFOptimizer):
         atom_types: list[str],
     ) -> None:
         for ts in trajectory_data:
-            conformer_file_name = f"conf_{ts}.xyz"
+            conformer_file_name = Path(f"conf_{ts}.xyz")
             self._write_conformer_xyz_file(
                 ts=ts,
                 ts_data=trajectory_data[ts],
@@ -1091,16 +1080,15 @@ class GulpUFFMDOptimizer(GulpUFFOptimizer):
     ) -> int:
         energies = [trajectory_data[ts]["E"] for ts in trajectory_data]
         min_energy = min(energies)
-        min_ts = list(trajectory_data.keys())[energies.index(min_energy)]
-        return min_ts
+        return list(trajectory_data.keys())[energies.index(min_energy)]
 
-    def _save_lowest_energy_conf(
+    def _save_lowest_energy_conf(  # noqa: PLR0913
         self,
         mol: stk.Molecule,
-        output_xyz: str,
-        output_traj: str,
-        xyz_traj: str,
-        low_conf_xyz: str,
+        output_xyz: Path,
+        output_traj: Path,
+        xyz_traj: Path,
+        low_conf_xyz: Path,
     ) -> None:
         # Convert GULP trajectory file to xyz trajectory.
         (
@@ -1112,7 +1100,7 @@ class GulpUFFMDOptimizer(GulpUFFOptimizer):
             output_traj=output_traj,
         )
         # Write XYZ trajectory file.
-        with open(xyz_traj, "w") as f:
+        with xyz_traj.open("w") as f:
             for line in xyz_traj_lines:
                 f.write(line)
 
@@ -1141,24 +1129,23 @@ class GulpUFFMDOptimizer(GulpUFFOptimizer):
 
     def optimize(self, mol: MoleculeT) -> MoleculeT:
         if self._output_dir is None:
-            output_dir = str(uuid.uuid4().int)
+            output_dir = Path(str(uuid.uuid4().int)).resolve()
         else:
-            output_dir = self._output_dir
-        output_dir = os.path.abspath(output_dir)
+            output_dir = self._output_dir.resolve()
 
-        if os.path.exists(output_dir):
+        if output_dir.exists():
             shutil.rmtree(output_dir)
 
-        os.mkdir(output_dir)
-        init_dir = os.getcwd()
+        output_dir.mkdir()
+        init_dir = Path.cwd()
         os.chdir(output_dir)
 
-        in_file = "gulp_MD.gin"
-        out_file = "gulp_MD.ginout"
-        output_xyz = "gulp_MD_template.xyz"
-        output_traj = "gulp_MD.trg"
-        xyz_traj = "gulp_MD_traj.xyz"
-        low_conf_xyz = "low_energy_conf.xyz"
+        in_file = Path("gulp_MD.gin")
+        out_file = Path("gulp_MD.ginout")
+        output_xyz = Path("gulp_MD_template.xyz")
+        output_traj = Path("gulp_MD.trg")
+        xyz_traj = Path("gulp_MD_traj.xyz")
+        low_conf_xyz = Path("low_energy_conf.xyz")
 
         metal_atoms = get_metal_atoms(mol)
 
@@ -1211,25 +1198,24 @@ class GulpUFFMDOptimizer(GulpUFFOptimizer):
 
         """
         if self._output_dir is None:
-            output_dir = str(uuid.uuid4().int)
+            output_dir = Path(str(uuid.uuid4().int)).resolve()
         else:
-            output_dir = self._output_dir
-        output_dir = os.path.abspath(output_dir)
+            output_dir = self._output_dir.resolve()
 
-        if os.path.exists(output_dir):
+        if output_dir.exists():
             shutil.rmtree(output_dir)
 
-        os.mkdir(output_dir)
-        init_dir = os.getcwd()
+        output_dir.mkdir()
+        init_dir = Path.cwd()
         os.chdir(output_dir)
 
-        in_file = "gulp_MD.gin"
-        out_file = "gulp_MD.ginout"
-        output_xyz = "gulp_MD_template.xyz"
-        output_traj = "gulp_MD.trg"
-        xyz_traj = "gulp_MD_traj.xyz"
-        low_conf_xyz = "low_energy_conf.xyz"
-        low_conf_cif = low_conf_xyz.replace("xyz", "cif")
+        in_file = Path("gulp_MD.gin")
+        out_file = Path("gulp_MD.ginout")
+        output_xyz = Path("gulp_MD_template.xyz")
+        output_traj = Path("gulp_MD.trg")
+        xyz_traj = Path("gulp_MD_traj.xyz")
+        low_conf_xyz = Path("low_energy_conf.xyz")
+        low_conf_cif = low_conf_xyz.with_suffix(".cif")
 
         metal_atoms = get_metal_atoms(mol)
 
