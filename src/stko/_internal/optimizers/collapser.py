@@ -1,24 +1,25 @@
 import logging
-import os
 import random
 import shutil
 from collections import abc, defaultdict
 from itertools import combinations
+from pathlib import Path
 
 import matplotlib.pyplot as plt
 import numpy as np
 import stk
 from scipy.spatial.distance import pdist
 from stk import PdbWriter
+
 from stko._internal.molecular.periodic.unitcell import UnitCell
-from stko._internal.optimizers.optimizers import Optimizer
+from stko._internal.types import ConstructedMoleculeT
 from stko._internal.utilities.exceptions import InputError
 from stko._internal.utilities.utilities import get_atom_distance
 
 logger = logging.getLogger(__name__)
 
 
-class Collapser(Optimizer):
+class Collapser:
     """Collapse stk.ConstructedMolecule to decrease enlarged bonds.
 
     It is recommended to use the MCHammer version of this code with
@@ -51,20 +52,7 @@ class Collapser(Optimizer):
         )
         cage1 = optimizer.optimize(mol=cage1)
 
-    References:
-    ----------
-        .. [1] https://github.com/andrewtarzia/MCHammer
-
-    """
-
-    def __init__(
-        self,
-        output_dir: str,
-        step_size: float,
-        distance_cut: float,
-        scale_steps: bool = True,
-    ) -> None:
-        """Parameters
+    Parameters:
         output_dir:
             The name of the directory into which files generated during
             the calculation are written.
@@ -81,8 +69,19 @@ class Collapser(Optimizer):
             by their relative distance from the molecules centroid.
             Defaults to ``True``
 
-        """
-        self._output_dir = output_dir
+    References:
+        .. [1] https://github.com/andrewtarzia/MCHammer
+
+    """
+
+    def __init__(
+        self,
+        output_dir: Path | str,
+        step_size: float,
+        distance_cut: float,
+        scale_steps: bool = True,
+    ) -> None:
+        self._output_dir = Path(output_dir)
         self._step_size = step_size
         self._distance_cut = distance_cut
         self._scale_steps = scale_steps
@@ -170,8 +169,7 @@ class Collapser(Optimizer):
     ) -> tuple[dict[int, np.ndarray], dict[int, np.floating]]:
         """Get the building block to COM vectors.
 
-        Parameters
-        ----------
+        Parameters:
             mol:
                 The molecule to be optimized.
 
@@ -181,16 +179,14 @@ class Collapser(Optimizer):
                 molecule.
 
         Returns:
-        -------
-            bb_cent_vectors:
-                Dictionary mapping building block ids (keys) to centroid
-                vectors (values) of each distinct building block in the
-                molecule.
+            A tuple of:
 
-            bb_cent_scales:
-                Dictionary mapping building block ids (keys) to relative
-                magnitude of centroid vectors (values) of each distinct
-                building block in the molecule.
+            * Dictionary mapping building block ids (keys) to centroid
+              vectors (values) of each distinct building block in the
+              molecule.
+            * Dictionary mapping building block ids (keys) to relative
+              magnitude of centroid vectors (values) of each distinct
+              building block in the molecule.
 
         """
         cent = mol.get_centroid()
@@ -214,19 +210,12 @@ class Collapser(Optimizer):
 
         return bb_cent_vectors, bb_cent_scales
 
-    def optimize(self, mol: stk.Molecule) -> stk.Molecule:
-        if not isinstance(mol, stk.ConstructedMolecule):
-            raise InputError(
-                f"{mol} needs to be a ConstructedMolecule for "
-                f"this optimizer"
-            )
+    def optimize(self, mol: ConstructedMoleculeT) -> ConstructedMoleculeT:
+        output_dir = self._output_dir.resolve()
 
-        output_dir = self._output_dir
-        output_dir = os.path.abspath(output_dir)
-
-        if os.path.exists(output_dir):
+        if output_dir.exists():
             shutil.rmtree(output_dir)
-        os.mkdir(output_dir)
+        output_dir.mkdir()
 
         bb_atom_ids = defaultdict(list)
         for i in mol.get_atom_infos():
@@ -254,7 +243,7 @@ class Collapser(Optimizer):
             )
             step_no += 1
             mol = mol.with_position_matrix(new_pos)
-            mol.write(os.path.join(output_dir, f"collapsed_{step_no}.mol"))
+            mol.write(output_dir / f"collapsed_{step_no}.mol")
 
         bb_cent_vectors, bb_cent_scales = self._get_bb_vectors(
             mol=mol,
@@ -274,10 +263,10 @@ class Collapser(Optimizer):
             )
             step_no += 1
             mol = mol.with_position_matrix(new_pos)
-            mol.write(os.path.join(output_dir, "collapsed_rev.mol"))
+            mol.write(output_dir / "collapsed_rev.mol")
 
-        out_file = os.path.join(output_dir, "collapser.out")
-        with open(out_file, "w") as f:
+        out_file = output_dir / "collapser.out"
+        with out_file.open("w") as f:
             f.write(
                 "Collapser algorithm.\n"
                 "====================\n"
@@ -298,8 +287,7 @@ class Collapser(Optimizer):
     ) -> tuple[stk.Molecule, UnitCell]:
         """Optimize `mol`.
 
-        Parameters
-        ----------
+        Parameters:
             mol:
                 The molecule to be optimized.
 
@@ -307,26 +295,21 @@ class Collapser(Optimizer):
                 The cell to be optimized.
 
         Returns:
-        -------
-            mol:
-                The optimized molecule.
-
-            unit_cell:
-                The optimized cell.
+            The optimized molecule and the optimized cell.
 
         """
         if not isinstance(mol, stk.ConstructedMolecule):
-            raise InputError(
+            msg = (
                 f"{mol} needs to be a ConstructedMolecule for "
                 f"this optimizer"
             )
+            raise InputError(msg)
 
-        output_dir = self._output_dir
-        output_dir = os.path.abspath(output_dir)
+        output_dir = self._output_dir.resolve()
 
-        if os.path.exists(output_dir):
+        if output_dir.exists():
             shutil.rmtree(output_dir)
-        os.mkdir(output_dir)
+        output_dir.mkdir()
 
         bb_atom_ids = defaultdict(list)
         for i in mol.get_atom_infos():
@@ -373,7 +356,7 @@ class Collapser(Optimizer):
             )
             PdbWriter().write(
                 molecule=mol,
-                path=os.path.join(output_dir, f"collapsed_{step_no}.pdb"),
+                path=output_dir / f"collapsed_{step_no}.pdb",
                 periodic_info=unit_cell,
             )
 
@@ -414,12 +397,12 @@ class Collapser(Optimizer):
             )
             PdbWriter().write(
                 molecule=mol,
-                path=os.path.join(output_dir, "collapsed_rev.pdb"),
+                path=output_dir / "collapsed_rev.pdb",
                 periodic_info=unit_cell,
             )
 
-        out_file = os.path.join(output_dir, "collapser.out")
-        with open(out_file, "w") as f:
+        out_file = output_dir / "collapser.out"
+        with out_file.open("w") as f:
             f.write(
                 "Collapser algorithm.\n"
                 "====================\n"
@@ -438,32 +421,13 @@ class CollapserMC(Collapser):
     """Collapse molecule to decrease enlarged bonds using MC algorithm.
 
     It is recommended to use the MCHammer version of this code with
-    :mod:`MCHammer` [2]_, where a much cleaner version is written.
+    :mod:`MCHammer` [#]_, where a much cleaner version is written.
     The utilities `get_long_bond_ids` will help generate sub units.
 
     Smarter optimisation than Collapser using simple Monte Carlo
     algorithm to perform rigid translations of building blocks.
 
-    References:
-    ----------
-        .. [2] https://github.com/andrewtarzia/MCHammer
-
-    """
-
-    def __init__(
-        self,
-        output_dir: str,
-        step_size: float,
-        target_bond_length: float,
-        num_steps: int,
-        bond_epsilon: float = 50,
-        nonbond_epsilon: float = 20,
-        nonbond_sigma: float = 1.2,
-        nonbond_mu: float = 3,
-        beta: float = 2,
-        random_seed: int | None = None,
-    ):
-        """Parameters
+    Parameters:
         output_dir:
             The name of the directory into which files generated during
             the calculation are written.
@@ -508,8 +472,25 @@ class CollapserMC(Collapser):
             a system-based random seed should be used for proper
             sampling.
 
-        """
-        self._output_dir = output_dir
+    References:
+        .. [#] https://github.com/andrewtarzia/MCHammer
+
+    """
+
+    def __init__(  # noqa: PLR0913
+        self,
+        output_dir: Path | str,
+        step_size: float,
+        target_bond_length: float,
+        num_steps: int,
+        bond_epsilon: float = 50,
+        nonbond_epsilon: float = 20,
+        nonbond_sigma: float = 1.2,
+        nonbond_mu: float = 3,
+        beta: float = 2,
+        random_seed: int | None = None,
+    ) -> None:
+        self._output_dir = Path(output_dir)
         self._step_size = step_size
         self._target_bond_length = target_bond_length
         self._num_steps = num_steps
@@ -570,11 +551,9 @@ class CollapserMC(Collapser):
         bb_atom_ids: dict[int, tuple[int, ...]],
     ) -> dict[int, np.ndarray]:
         """Returns dict of building block centroids."""
-        bb_centroids = {
+        return {
             i: mol.get_centroid(atom_ids=bb_atom_ids[i]) for i in bb_atom_ids
         }
-
-        return bb_centroids
 
     def _get_cent_to_lb_vector(
         self,
@@ -587,7 +566,7 @@ class CollapserMC(Collapser):
         centroid_to_lb_vectors: dict[tuple[int, int], tuple[float]] = {}
         for bb in bb_centroids:
             cent = bb_centroids[bb]
-            for b_atom_ids, bond_info in long_bond_infos.items():
+            for b_atom_ids in long_bond_infos:
                 for atom_id in b_atom_ids:
                     (atom_info,) = mol.get_atom_infos(  # type: ignore[attr-defined]
                         atom_id
@@ -607,9 +586,7 @@ class CollapserMC(Collapser):
         This potential has no relation to an empircal forcefield.
         """
         potential = (distance - self._target_bond_length) ** 2
-        potential = self._bond_epsilon * potential
-
-        return potential
+        return self._bond_epsilon * potential
 
     def _non_bond_potential(self, distance: float) -> float:
         """Define an arbitrary repulsive nonbonded potential.
@@ -623,9 +600,7 @@ class CollapserMC(Collapser):
     def _compute_non_bonded_potential(self, mol: stk.Molecule) -> float:
         # Get all pairwise distances.
         pair_dists = pdist(mol.get_position_matrix())
-        nonbonded_potential = np.sum(self._non_bond_potential(pair_dists))
-
-        return nonbonded_potential
+        return np.sum(self._non_bond_potential(pair_dists))
 
     def _compute_potential(
         self,
@@ -647,10 +622,10 @@ class CollapserMC(Collapser):
 
     def _translate_atoms_along_vector(
         self,
-        mol: stk.Molecule,
+        mol: ConstructedMoleculeT,
         atom_ids: tuple[int, ...],
         vector: np.ndarray,
-    ) -> stk.Molecule:
+    ) -> ConstructedMoleculeT:
         new_position_matrix = mol.get_position_matrix()
         for atom in mol.get_atom_infos(atom_ids):  # type: ignore[attr-defined]
             _id = atom.get_atom().get_id()
@@ -662,17 +637,13 @@ class CollapserMC(Collapser):
     def _test_move(self, curr_pot: float, new_pot: float) -> bool:
         if new_pot < curr_pot:
             return True
-        else:
-            exp_term = np.exp(-self._beta * (new_pot - curr_pot))
-            rand_number = random.random()
+        exp_term = np.exp(-self._beta * (new_pot - curr_pot))
+        rand_number = random.random()  # noqa: S311
 
-            if exp_term > rand_number:
-                return True
-            else:
-                return False
+        return exp_term > rand_number
 
     def _output_top_lines(self) -> str:
-        string = (
+        return (
             "====================================================\n"
             "                Collapser optimisation              \n"
             "                ----------------------              \n"
@@ -688,15 +659,13 @@ class CollapserMC(Collapser):
             "====================================================\n\n"
         )
 
-        return string
-
-    def _plot_progess(
+    def _plot_progess(  # noqa: PLR0913
         self,
         steps: abc.Iterable,
         maxds: abc.Iterable,
         spots: abc.Iterable,
         npots: abc.Iterable,
-        output_dir: str,
+        output_dir: Path,
     ) -> None:
         fig, ax = plt.subplots(figsize=(8, 5))
         ax.plot(steps, maxds, c="k", lw=2)
@@ -707,7 +676,7 @@ class CollapserMC(Collapser):
         ax.axhline(y=self._target_bond_length, c="r")
         fig.tight_layout()
         fig.savefig(
-            os.path.join(output_dir, "maxd_vs_step.pdf"),
+            output_dir / "maxd_vs_step.pdf",
             dpi=360,
             bbox_inches="tight",
         )
@@ -723,25 +692,19 @@ class CollapserMC(Collapser):
         ax.legend(fontsize=16)
         fig.tight_layout()
         fig.savefig(
-            os.path.join(output_dir, "pot_vs_step.pdf"),
+            output_dir / "pot_vs_step.pdf",
             dpi=360,
             bbox_inches="tight",
         )
         plt.close()
 
-    def optimize(self, mol: stk.Molecule) -> stk.Molecule:
-        if not isinstance(mol, stk.ConstructedMolecule):
-            raise InputError(
-                f"{mol} needs to be a ConstructedMolecule for "
-                f"this optimizer"
-            )
-
+    def optimize(self, mol: ConstructedMoleculeT) -> ConstructedMoleculeT:
         # Handle output dir.
-        output_dir = os.path.abspath(self._output_dir)
+        output_dir = self._output_dir.resolve()
 
-        if os.path.exists(output_dir):
+        if output_dir.exists():
             shutil.rmtree(output_dir)
-        os.mkdir(output_dir)
+        output_dir.mkdir()
 
         # Define long bonds to optimise.
         long_bond_infos = self._get_long_bond_infos(mol)
@@ -750,23 +713,14 @@ class CollapserMC(Collapser):
         if len(long_bond_infos) == 0:
             return mol
 
-        # Define bb centroid - long bond atom vectors.
-        # These are to be maintained during optimisation.
-        # centroid_to_lb_vectors = self._get_cent_to_lb_vector(
-        #     mol, bb_centroids, long_bond_infos
-        # )
-        print("###################################################")
-        print("WARNING: centroid_to_lb_vectors not maintained yet.")
-        print("###################################################")
-
         system_potential = self._compute_potential(
             mol=mol,
             long_bond_infos=long_bond_infos,
         )
 
-        with open(os.path.join(output_dir, "coll.out"), "w") as f:
+        with output_dir.joinpath("coll.out").open("w") as f:
             f.write(self._output_top_lines())
-            mol.write(os.path.join(output_dir, "coll_0.mol"))
+            mol.write(output_dir / "coll_0.mol")
             steps = [0]
             passed = []
             spots = [system_potential]
@@ -790,7 +744,7 @@ class CollapserMC(Collapser):
             )
             for step in range(1, self._num_steps):
                 # Randomly select a long bond.
-                lb_ids = random.choice(list(long_bond_infos.keys()))
+                lb_ids = random.choice(list(long_bond_infos.keys()))  # noqa: S311
                 lb_info = long_bond_infos[lb_ids]
 
                 lb_vector = self._get_bond_vector(
@@ -806,7 +760,7 @@ class CollapserMC(Collapser):
                 )
 
                 # Choose bb to move out of the two randomly.
-                moving_bb = random.choice([bb_id_1, bb_id_2])
+                moving_bb = random.choice([bb_id_1, bb_id_2])  # noqa: S311
                 moving_bb_atom_ids = tuple(
                     i.get_atom().get_id()
                     for i in mol.get_atom_infos()  # type: ignore[attr-defined]
@@ -816,7 +770,7 @@ class CollapserMC(Collapser):
                 # Randomly choose between translation along long bond
                 # vector or along BB-COM vector.
                 # Random number from -1 to 1
-                rand = (random.random() - 0.5) * 2
+                rand = (random.random() - 0.5) * 2  # noqa: S311
 
                 # Define translation along long bond vector where
                 # direction is from force, magnitude is randomly
@@ -830,7 +784,7 @@ class CollapserMC(Collapser):
                 )
                 com_translation = bb_cent_vector * self._step_size * rand
 
-                translation_vector = random.choice(
+                translation_vector = random.choice(  # noqa: S311
                     [
                         long_bond_translation,
                         com_translation,
@@ -844,17 +798,6 @@ class CollapserMC(Collapser):
                     atom_ids=moving_bb_atom_ids,
                     vector=translation_vector,
                 )
-
-                ###################################################
-                # Here I want to add rotations
-                # To maintain cent_vectors relative orientations.
-                # cent_vector_1 = centroid_to_lb_vectors[
-                #     (bb_id_1, lb_ids[0])
-                # ]
-                # cent_vector_2 = centroid_to_lb_vectors[
-                #     (bb_id_2, lb_ids[1])
-                # ]
-                ###################################################
 
                 new_system_potential = self._compute_potential(
                     mol=mol,
@@ -874,7 +817,7 @@ class CollapserMC(Collapser):
                         vector=-translation_vector,
                     )
 
-                mol.write(os.path.join(output_dir, f"coll_{step}.xyz"))
+                mol.write(output_dir / f"coll_{step}.xyz")
                 steps.append(step)
                 spots.append(system_potential)
                 npots.append(self._compute_non_bonded_potential(mol=mol))
@@ -892,7 +835,6 @@ class CollapserMC(Collapser):
                     f"{steps[-1]} {spots[-1]} "
                     f"{npots[-1]} {maxds[-1]} {lb_ids} {updated}\n"
                 )
-                step += 1
 
             f.write("\n============================================\n")
             f.write(
