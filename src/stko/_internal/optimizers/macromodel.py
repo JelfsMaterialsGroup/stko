@@ -78,7 +78,7 @@ class MacroModel(Optimizer):
             Cannot be less than ``0.0001``.
 
 
-    """ """Base class for MacroModel optimzers."""
+    """
 
     def __init__(  # noqa: PLR0913
         self,
