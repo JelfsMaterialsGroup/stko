@@ -1,4 +1,5 @@
 import re
+from pathlib import Path
 
 from stko._internal.calculators.extractors.utilities import check_line
 
@@ -8,8 +9,12 @@ class OrcaExtractor:
 
     Limited to final single point energy for now.
 
+    Parameters:
+        output_file:
+            Output file to extract properties from.
+
+
     Attributes:
-    ----------
         output_file:
             Output file to extract properties from.
 
@@ -21,7 +26,6 @@ class OrcaExtractor:
             The energy is in units of a.u..
 
     Examples:
-    --------
         .. code-block:: python
 
             import stko
@@ -32,23 +36,18 @@ class OrcaExtractor:
 
     """
 
-    def __init__(self, output_file: str) -> None:
-        """Parameters
-        output_file:
-            Output file to extract properties from.
-
-        """
-        self.output_file = output_file
+    def __init__(self, output_file: Path | str) -> None:
+        self.output_file = Path(output_file)
         # Explictly set encoding to UTF-8 because default encoding on
         # Windows will fail to read the file otherwise.
-        with open(self.output_file, encoding="UTF-8") as f:
+        with self.output_file.open(encoding="UTF-8") as f:
             self.output_lines = f.readlines()
 
         self._extract_values()
 
     def _extract_values(self) -> None:
         """Updates all properties by extracting from Orca output file."""
-        for i, line in enumerate(self.output_lines):
+        for _, line in enumerate(self.output_lines):
             if check_line(line, "total_energy", self._properties_dict()):
                 self._extract_total_energy(line)
 
@@ -58,10 +57,8 @@ class OrcaExtractor:
     def _extract_total_energy(self, line: str) -> None:
         """Updates :attr:`total_energy`.
 
-        Parameters
-        ----------
-            line:
-            Line of output file to extract property from.
+        Parameters:
+            line: Line of output file to extract property from.
 
         """
         nms = re.compile(r"[+-]?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?")
