@@ -4,7 +4,7 @@ from collections import abc
 class EnergyResults:
     """Results class containing molecule energy."""
 
-    def __init__(self, generator: abc.Iterable, unit_string: str):
+    def __init__(self, generator: abc.Iterable, unit_string: str) -> None:
         self._value = next(generator)  # type: ignore[call-overload]
         self._unit_string = unit_string
 
