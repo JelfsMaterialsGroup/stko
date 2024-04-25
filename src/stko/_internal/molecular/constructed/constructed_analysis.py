@@ -10,8 +10,9 @@ logger = logging.getLogger(__name__)
 class ConstructedAnalyser:
     """Analyses geometry of building blocks in constructed molecules.
 
-    WARNING: This code is only present in the latest versions of stko
-    that require Python 3.11!
+    .. warning::
+        This code is only present in the latest versions of stko
+        that require Python 3.11!
 
     """
 
@@ -21,8 +22,7 @@ class ConstructedAnalyser:
     ) -> dict[int | None, list[int]]:
         """Get the centroids of all building blocks.
 
-        Parameters
-        ----------
+        Parameters:
             molecule:
                 Molecule to analyse.
 
@@ -41,14 +41,12 @@ class ConstructedAnalyser:
     ) -> dict[int | None, np.ndarray]:
         """Get the centroids of all building blocks.
 
-        Parameters
-        ----------
+        Parameters:
             molecule:
                 Molecule to analyse.
 
         """
         atom_ids = self.get_building_block_atom_ids(molecule)
-        centroids = {
+        return {
             i: molecule.get_centroid(atom_ids=atom_ids[i]) for i in atom_ids
         }
-        return centroids
