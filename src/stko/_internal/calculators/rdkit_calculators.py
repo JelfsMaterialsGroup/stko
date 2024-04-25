@@ -2,7 +2,8 @@ import logging
 from collections import abc
 
 import stk
-from rdkit.Chem import AllChem as rdkit
+from rdkit.Chem import AllChem as rdkit  # noqa: N813
+
 from stko._internal.calculators.results.energy_results import EnergyResults
 
 logger = logging.getLogger(__name__)
@@ -12,7 +13,6 @@ class MMFFEnergy:
     """Uses the MMFF force field to calculate energies.
 
     Examples:
-    --------
         .. code-block:: python
 
             import stk
@@ -49,13 +49,11 @@ class MMFFEnergy:
     def get_results(self, mol: stk.Molecule) -> EnergyResults:
         """Calculate the energy of `mol`.
 
-        Parameters
-        ----------
+        Parameters:
             mol:
                 The :class:`stk.Molecule` whose energy is to be calculated.
 
         Returns:
-        -------
             The energy and units of the energy.
 
         """
@@ -67,13 +65,11 @@ class MMFFEnergy:
     def get_energy(self, mol: stk.Molecule) -> float:
         """Calculate the energy of `mol`.
 
-        Parameters
-        ----------
+        Parameters:
             mol:
                 The :class:`stk.Molecule` whose energy is to be calculated.
 
         Returns:
-        -------
             The energy.
 
         """
@@ -84,7 +80,6 @@ class UFFEnergy:
     """Uses the UFF force field to calculate energies.
 
     Examples:
-    --------
         .. code-block:: python
 
             import stk
@@ -122,13 +117,11 @@ class UFFEnergy:
     def get_results(self, mol: stk.Molecule) -> EnergyResults:
         """Calculate the energy of `mol`.
 
-        Parameters
-        ----------
+        Parameters:
             mol:
                 The :class:`stk.Molecule` whose energy is to be calculated.
 
         Returns:
-        -------
             The energy and units of the energy.
 
         """
@@ -140,13 +133,11 @@ class UFFEnergy:
     def get_energy(self, mol: stk.Molecule) -> float:
         """Calculate the energy of `mol`.
 
-        Parameters
-        ----------
+        Parameters:
             mol:
                 The :class:`stk.Molecule` whose energy is to be calculated.
 
         Returns:
-        -------
             The energy.
 
         """
