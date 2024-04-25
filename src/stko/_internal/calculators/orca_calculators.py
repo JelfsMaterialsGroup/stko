@@ -1,12 +1,13 @@
-import glob
 import logging
 import os
 import shutil
 import subprocess as sp
 import uuid
 from collections import abc
+from pathlib import Path
 
 import stk
+
 from stko._internal.calculators.results.orca_results import OrcaResults
 from stko._internal.utilities.exceptions import OptimizerError, PathError
 
@@ -28,8 +29,40 @@ class OrcaEnergy:
     like more customization or to run outside of the Python
     environment.
 
+    Parameters:
+        orca_path:
+            The path to the Orca executable.
+
+        topline:
+            Top line designating the type of calculation. Should start
+            with `! `.
+
+        basename:
+            Base name of Orca output files.
+
+        output_dir:
+            The name of the directory into which files generated during
+            the calculation are written, if ``None`` then
+            :func:`uuid.uuid4` is used.
+
+        num_cores:
+            The number of cores Orca should use.
+
+        charge:
+            Formal molecular charge.
+
+        multiplicity:
+            Multiplicity of system (2S+1), where S is the spin.
+
+        write_input_only:
+            `True` if you only want the input file written and to not
+            have the Orca job run.
+
+        discard_output:
+            `True` if you want to delete auxillary Orca output files
+            such as the `.gbw` file.
+
     Notes:
-    -----
         When running :meth:`calculate`, this calculator changes the
         present working directory with :func:`os.chdir`. The original
         working directory will be restored even if an error is raised, so
@@ -44,7 +77,6 @@ class OrcaEnergy:
         which should always be safe.
 
     Examples:
-    --------
         .. code-block:: python
 
             import stk
@@ -100,64 +132,30 @@ class OrcaEnergy:
             orca.get_results(polymer)
 
     References:
-    ----------
         .. [#] https://orcaforum.kofo.mpg.de/app.php/portal
 
     """
 
-    def __init__(
+    def __init__(  # noqa: PLR0913
         self,
-        orca_path: str,
+        orca_path: Path | str,
         topline: str,
         basename: str | None = None,
-        output_dir: str | None = None,
+        output_dir: Path | str | None = None,
         num_cores: int = 1,
         charge: int = 0,
         multiplicity: int = 1,
         write_input_only: bool = False,
         discard_output: bool = True,
-    ):
-        """Parameters
-        orca_path:
-            The path to the Orca executable.
-
-        topline:
-            Top line designating the type of calculation. Should start
-            with `! `.
-
-        basename:
-            Base name of Orca output files.
-
-        output_dir:
-            The name of the directory into which files generated during
-            the calculation are written, if ``None`` then
-            :func:`uuid.uuid4` is used.
-
-        num_cores:
-            The number of cores Orca should use.
-
-        charge:
-            Formal molecular charge.
-
-        multiplicity:
-            Multiplicity of system (2S+1), where S is the spin.
-
-        write_input_only:
-            `True` if you only want the input file written and to not
-            have the Orca job run.
-
-        discard_output:
-            `True` if you want to delete auxillary Orca output files
-            such as the `.gbw` file.
-
-        """
+    ) -> None:
+        orca_path = Path(orca_path)
         self._check_path(orca_path)
         self._orca_path = orca_path
         if basename is None:
             self._basename = f"_{uuid.uuid4().int!s}"
         else:
             self._basename = basename
-        self._output_dir = output_dir
+        self._output_dir = None if output_dir is None else Path(output_dir)
         self._topline = topline
         self._num_cores = str(num_cores)
         self._charge = str(charge)
@@ -165,11 +163,12 @@ class OrcaEnergy:
         self._write_input_only = write_input_only
         self._discard_output = discard_output
 
-    def _check_path(self, path: str) -> None:
-        if not os.path.exists(path):
-            raise PathError(f"Orca not found at {path}")
+    def _check_path(self, path: Path) -> None:
+        if not path.exists():
+            msg = f"Orca not found at {path}"
+            raise PathError(msg)
 
-    def _write_input_file(self, path: str, xyz_file: str) -> None:
+    def _write_input_file(self, path: Path, xyz_file: Path) -> None:
         # Write top line and base name.
         string = f'{self._topline}\n\n%base "{self._basename}"\n'
 
@@ -183,46 +182,45 @@ class OrcaEnergy:
             f"* xyzfile {self._charge} {self._multiplicity} " f"{xyz_file}\n"
         )
 
-        with open(path, "w") as f:
-            f.write(string)
+        path.write_text(string)
 
-    def _check_outcome(self, out_file: str) -> None:
-        if not os.path.exists(out_file):
-            raise OptimizerError(
+    def _check_outcome(self, out_file: Path) -> None:
+        if not out_file.exists():
+            msg = (
                 f"ORCA: {out_file} does not exist, suggesting the job did "
                 "not run."
             )
+            raise OptimizerError(msg)
 
-        with open(out_file) as f:
+        with out_file.open() as f:
             lines = f.readlines()
             if "****ORCA TERMINATED NORMALLY****" not in lines[-2]:
-                raise OptimizerError(
-                    "ORCA: Orca job did not terminate normally."
-                )
+                msg = "ORCA: Orca job did not terminate normally."
+                raise OptimizerError(msg)
 
-        tmp_files = glob.glob(f"{self._basename}*tmp")
+        tmp_files = list(Path().glob(f"{self._basename}*tmp"))
         if len(tmp_files) > 0:
-            raise OptimizerError(
+            msg = (
                 "ORCA: tmp files exist, suggesting the job did not complete "
                 "or did not converge."
             )
+            raise OptimizerError(msg)
 
     def _clean_up(self) -> None:
-        for to_del in glob.glob(f"{self._basename}*"):
-            os.remove(to_del)
+        for to_del in Path().glob(f"{self._basename}*"):
+            to_del.unlink()
 
-    def _run_orca(
+    def _run_orca(  # noqa: PLR0913
         self,
-        xyz_file: str,
-        input_file: str,
-        out_file: str,
-        init_dir: str,
-        output_dir: str,
+        xyz_file: Path,
+        input_file: Path,
+        out_file: Path,
+        init_dir: Path,
+        output_dir: Path,
     ) -> None:
         """Runs Orca.
 
-        Parameters
-        ----------
+        Parameters:
             xyz_file:
                 The name of the input structure ``.xyz`` file.
 
@@ -246,7 +244,7 @@ class OrcaEnergy:
             os.chdir(output_dir)
             self._write_input_file(input_file, xyz_file)
             if not self._write_input_only:
-                with open(out_file, "w") as f:
+                with out_file.open("w") as f:
                     # Note that sp.call will hold the program until
                     # completion of the calculation.
                     sp.call(
@@ -255,7 +253,7 @@ class OrcaEnergy:
                         stdout=f,
                         stderr=sp.PIPE,
                         # Shell is required to run complex arguments.
-                        shell=True,
+                        shell=True,  # noqa: S602
                     )
                 self._check_outcome(out_file)
                 if self._discard_output:
@@ -265,19 +263,18 @@ class OrcaEnergy:
 
     def calculate(self, mol: stk.Molecule) -> abc.Generator:
         if self._output_dir is None:
-            output_dir = str(uuid.uuid4().int)
+            output_dir = Path(str(uuid.uuid4().int)).resolve()
         else:
-            output_dir = self._output_dir
-        output_dir = os.path.abspath(output_dir)
+            output_dir = self._output_dir.resolve()
 
-        if os.path.exists(output_dir):
+        if output_dir.exists():
             shutil.rmtree(output_dir)
-        os.mkdir(output_dir)
+        output_dir.mkdir()
 
-        init_dir = os.getcwd()
-        xyz_file = os.path.join(output_dir, "input_structure.xyz")
-        input_file = os.path.join(output_dir, "orca_input.inp")
-        out_file = os.path.join(output_dir, "orca_energy.output")
+        init_dir = Path.cwd()
+        xyz_file = output_dir / "input_structure.xyz"
+        input_file = output_dir / "orca_input.inp"
+        out_file = output_dir / "orca_energy.output"
         mol.write(xyz_file)
         self._run_orca(
             xyz_file=xyz_file,
@@ -291,49 +288,42 @@ class OrcaEnergy:
     def get_results(self, mol: stk.Molecule) -> OrcaResults | None:
         """Calculate the Orca properties of `mol`.
 
-        Parameters
-        ----------
+        Parameters:
             mol:
                 The :class:`stk.Molecule` whose energy is to be calculated.
 
         Returns:
-        -------
             The properties, with units, from Orca calculations or `None`
             if `write_input_only` mode.
 
         """
         if self._output_dir is None:
-            output_dir = str(uuid.uuid4().int)
+            output_dir = Path(str(uuid.uuid4().int)).resolve()
         else:
-            output_dir = self._output_dir
-        output_dir = os.path.abspath(output_dir)
+            output_dir = self._output_dir.resolve()
 
-        out_file = os.path.join(output_dir, "orca_energy.output")
+        out_file = output_dir / "orca_energy.output"
 
         if self._write_input_only:
             next(self.calculate(mol))
             return None
-        else:
-            return OrcaResults(
-                generator=self.calculate(mol),
-                output_file=out_file,
-            )
+        return OrcaResults(
+            generator=self.calculate(mol),
+            output_file=out_file,
+        )
 
     def get_energy(self, mol: stk.Molecule) -> float | None:
         """Calculate the energy of `mol`.
 
-        Parameters
-        ----------
+        Parameters:
             mol:
                 The :class:`stk.Molecule` whose energy is to be calculated.
 
         Returns:
-        -------
             The energy or `None` if `write_input_only` mode.
 
         """
         results = self.get_results(mol)
         if results is None:
             return None
-        else:
-            return results.get_total_energy()[0]
+        return results.get_total_energy()[0]

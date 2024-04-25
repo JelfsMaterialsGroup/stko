@@ -1,4 +1,5 @@
 from collections import abc
+from pathlib import Path
 
 from stko._internal.calculators.extractors.orca_extractor import OrcaExtractor
 
@@ -9,9 +10,9 @@ class OrcaResults:
     def __init__(
         self,
         generator: abc.Iterable,
-        output_file: str,
+        output_file: Path | str,
         extractor: type = OrcaExtractor,
-    ):
+    ) -> None:
         # Run calculation.
         next(generator)  # type: ignore[call-overload]
         self._extractor = extractor(output_file=output_file)
