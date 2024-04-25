@@ -4,7 +4,7 @@ from collections import abc
 class ShapeResults:
     """Results class containing molecule shape measures."""
 
-    def __init__(self, generator: abc.Iterable):
+    def __init__(self, generator: abc.Iterable) -> None:
         self._values = next(generator)  # type: ignore[call-overload]
 
     def get_pmi1(self) -> float:

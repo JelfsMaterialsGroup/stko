@@ -1,6 +1,7 @@
 from collections import abc, defaultdict
 
 import stk
+
 from stko._internal.molecular.torsion.torsion import Torsion
 from stko._internal.molecular.torsion.torsion_info import TorsionInfo
 from stko._internal.utilities.utilities import calculate_dihedral
@@ -9,7 +10,7 @@ from stko._internal.utilities.utilities import calculate_dihedral
 class TorsionResults:
     """Results class containing molecule torsions."""
 
-    def __init__(self, generator: abc.Generator, mol: stk.Molecule):
+    def __init__(self, generator: abc.Generator, mol: stk.Molecule) -> None:
         self._torsions = next(generator)
         self._mol = mol
 
@@ -24,26 +25,26 @@ class TorsionResults:
             yield (
                 torsion,
                 calculate_dihedral(
-                    pt1=tuple(
+                    pt1=next(
                         self._mol.get_atomic_positions(
                             torsion.get_atom_ids()[0]
                         )
-                    )[0],
-                    pt2=tuple(
+                    ),
+                    pt2=next(
                         self._mol.get_atomic_positions(
                             torsion.get_atom_ids()[1]
                         )
-                    )[0],
-                    pt3=tuple(
+                    ),
+                    pt3=next(
                         self._mol.get_atomic_positions(
                             torsion.get_atom_ids()[2]
                         )
-                    )[0],
-                    pt4=tuple(
+                    ),
+                    pt4=next(
                         self._mol.get_atomic_positions(
                             torsion.get_atom_ids()[3]
                         )
-                    )[0],
+                    ),
                 ),
             )
 
@@ -79,9 +80,9 @@ class ConstructedMoleculeTorsionResults(TorsionResults):
                 )
             )
             # Get atom info and check they are all the same.
-            building_block_ids = set(
+            building_block_ids = {
                 i.get_building_block_id() for i in atom_infos
-            )
+            }
             if len(building_block_ids) > 1:
                 same_building_block = False
             else:
@@ -90,9 +91,9 @@ class ConstructedMoleculeTorsionResults(TorsionResults):
             if same_building_block:
                 building_block_id = next(iter(building_block_ids))
 
-                building_block = tuple(
+                building_block = next(
                     i.get_building_block() for i in atom_infos
-                )[0]
+                )
                 bb_atoms = tuple(
                     i.get_building_block_atom() for i in atom_infos
                 )

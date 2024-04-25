@@ -3,6 +3,7 @@ from collections import abc
 
 import stk
 from rdkit.Chem import TorsionFingerprints
+
 from stko._internal.calculators.results.torsion_results import (
     ConstructedMoleculeTorsionResults,
     TorsionResults,
@@ -21,7 +22,6 @@ class TorsionCalculator:
     `TorsionFingerprints.CalculateTorsionLists` method.
 
     Examples:
-    --------
         .. code-block:: python
 
             import stk
@@ -39,7 +39,6 @@ class TorsionCalculator:
                 print(t, ang, t.get_atom_ids())
 
     References:
-    ----------
         .. [1] http://rdkit.org/docs/source/rdkit.Chem.TorsionFingerprints.html
 
     """
@@ -60,13 +59,11 @@ class TorsionCalculator:
     def get_results(self, mol: stk.Molecule) -> TorsionResults:
         """Calculate the torsions of `mol`.
 
-        Parameters
-        ----------
+        Parameters:
             mol:
                 The :class:`stk.Molecule` whose torsions are to be calculated.
 
         Returns:
-        -------
             The torsions of the molecule.
 
         """
@@ -81,7 +78,6 @@ class ConstructedMoleculeTorsionCalculator:
     `TorsionFingerprints.CalculateTorsionLists` method.
 
     Examples:
-    --------
         .. code-block:: python
 
             import stk
@@ -116,7 +112,6 @@ class ConstructedMoleculeTorsionCalculator:
                 )
 
     References:
-    ----------
         .. [2] http://rdkit.org/docs/source/rdkit.Chem.TorsionFingerprints.html
 
     """
@@ -140,13 +135,11 @@ class ConstructedMoleculeTorsionCalculator:
     ) -> ConstructedMoleculeTorsionResults:
         """Calculate the torsions of `mol`.
 
-        Parameters
-        ----------
+        Parameters:
             mol:
                 The molecule whose torsions are to be calculated.
 
         Returns:
-        -------
             The torsions of the molecule.
 
         """
@@ -172,8 +165,7 @@ class MatchedTorsionCalculator(ConstructedMoleculeTorsionCalculator):
         of the torsion with the atoms corresponding to the end atoms
         of the underlying building block torsion.
 
-        Parameters
-        ----------
+        Parameters:
             mol:
                 The :class:`stk.ConstructedMolecule` whose torsions are to be
                 calculated.
