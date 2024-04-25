@@ -1,6 +1,6 @@
 import logging
-import os
 from collections import abc
+from pathlib import Path
 
 import stk
 
@@ -20,10 +20,21 @@ logger = logging.getLogger(__name__)
 
 
 class OpenBabelEnergy:
-    """Uses OpenBabel to calculate forcefield energies. [#]_
+    """Uses OpenBabel to calculate forcefield energies.
+
+    Parameters:
+        forcefield:
+            Forcefield to use. Options include `uff`, `gaff`,
+            `ghemical`, `mmff94`.
+
+    Raises:
+        :class:`WrapperNotInstalledError`: if `openbabel` not installed.
+
+
+    See Also:
+        * OpenBabel: https://github.com/openbabel/openbabel
 
     Examples:
-    --------
         .. code-block:: python
 
             import stk
@@ -40,27 +51,13 @@ class OpenBabelEnergy:
             energy = results.get_energy()
             unit_string = results.get_unit_string()
 
-    References:
-    ----------
-        .. [#] https://github.com/openbabel/openbabel
 
     """
 
     def __init__(self, forcefield: str) -> None:
-        """Parameters
-            forcefield:
-                Forcefield to use. Options include `uff`, `gaff`,
-                `ghemical`, `mmff94`.
-
-        Raises:
-        ------
-            :class:`WrapperNotInstalledError` if `openbabel` not installed.
-
-        """
         if openbabel is None:
-            raise WrapperNotInstalledError(
-                "openbabel is not installed; see README for " "installation."
-            )
+            msg = "openbabel is not installed; see README for " "installation."
+            raise WrapperNotInstalledError(msg)
 
         self._forcefield = forcefield
 
@@ -68,33 +65,30 @@ class OpenBabelEnergy:
         temp_file = "temp.mol"
         mol.write(temp_file)
         try:
-            obConversion = openbabel.OBConversion()
-            obConversion.SetInFormat("mol")
-            OBMol = openbabel.OBMol()
-            obConversion.ReadFile(OBMol, temp_file)
-            OBMol.PerceiveBondOrders()
+            ob_conversion = openbabel.OBConversion()
+            ob_conversion.SetInFormat("mol")
+            ob_mol = openbabel.OBMol()
+            ob_conversion.ReadFile(ob_mol, temp_file)
+            ob_mol.PerceiveBondOrders()
         finally:
-            os.system("rm temp.mol")
+            Path("temp.mol").unlink()
 
         forcefield = openbabel.OBForceField.FindForceField(self._forcefield)
-        outcome = forcefield.Setup(OBMol)
+        outcome = forcefield.Setup(ob_mol)
         if not outcome:
-            raise ForceFieldSetupError(
-                f"Openbabel: {self._forcefield} could not be setup for {mol}"
-            )
+            msg = f"Openbabel: {self._forcefield} could not be setup for {mol}"
+            raise ForceFieldSetupError(msg)
 
         yield forcefield.Energy()
 
     def get_results(self, mol: stk.Molecule) -> EnergyResults:
         """Calculate the energy of `mol`.
 
-        Parameters
-        ----------
+        Parameters:
             mol
                 The :class:`stk.Molecule` whose energy is to be calculated.
 
         Returns:
-        -------
             The energy and units of the energy.
 
         """
@@ -106,13 +100,11 @@ class OpenBabelEnergy:
     def get_energy(self, mol: stk.Molecule) -> float:
         """Calculate the energy of `mol`.
 
-        Parameters
-        ----------
+        Parameters:
             mol:
                 The :class:`stk.Molecule` whose energy is to be calculated.
 
         Returns:
-        -------
             The energy.
 
         """
