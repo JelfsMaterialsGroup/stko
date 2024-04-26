@@ -66,74 +66,74 @@ class ThreeSiteFG:
 
     def clone(self) -> Self:
         clone = self.__class__.__new__(self.__class__)
-        clone._neigh1 = self._neigh1
-        clone._binder = self._binder
-        clone._neigh2 = self._neigh2
-        clone._functional_group = self._functional_group.clone()
+        clone._neigh1 = self._neigh1  # noqa: SLF001
+        clone._binder = self._binder  # noqa: SLF001
+        clone._neigh2 = self._neigh2  # noqa: SLF001
+        clone._functional_group = self._functional_group.clone()  # noqa: SLF001
         return clone
 
     def get_bonders(self) -> abc.Iterator[stk.Atom]:
-        yield from self._functional_group._bonders
+        return self._functional_group.get_bonders()
 
     def get_num_bonders(self) -> int:
-        return len(self._functional_group._bonders)
+        return self._functional_group.get_num_bonders()
 
     def get_bonder_ids(self) -> abc.Iterator[int]:
-        yield from (a.get_id() for a in self._functional_group._bonders)
+        return self._functional_group.get_bonder_ids()
 
     def get_deleters(self) -> abc.Iterator[stk.Atom]:
-        yield from self._functional_group._deleters
+        return self._functional_group.get_deleters()
 
     def get_deleter_ids(self) -> abc.Iterator[int]:
-        yield from (a.get_id() for a in self._functional_group._deleters)
+        return self._functional_group.get_deleter_ids()
 
     def get_atoms(self) -> abc.Iterator[stk.Atom]:
-        yield from self._functional_group._atoms
+        return self._functional_group.get_atoms()
 
     def get_atom_ids(self) -> abc.Iterator[int]:
-        yield from (a.get_id() for a in self._functional_group._atoms)
+        return self._functional_group.get_atom_ids()
 
     def get_placer_ids(self) -> abc.Iterator[int]:
-        yield from (a.get_id() for a in self._functional_group._placers)
+        return self._functional_group.get_placer_ids()
 
     def get_core_atom_ids(self) -> abc.Iterator[int]:
-        yield from (a.get_id() for a in self._functional_group._core_atoms)
+        return self._functional_group.get_core_atom_ids()
 
     def with_atoms(self, atom_map: dict[int, stk.Atom]) -> Self:
         clone = self.__class__.__new__(self.__class__)
-        clone._functional_group = stk.GenericFunctionalGroup(
+        clone._functional_group = stk.GenericFunctionalGroup(  # noqa: SLF001
             atoms=tuple(
                 atom_map.get(a.get_id(), a)
-                for a in self._functional_group._atoms
+                for a in self._functional_group.get_atoms()
             ),
             bonders=tuple(
                 atom_map.get(a.get_id(), a)
-                for a in self._functional_group._bonders
+                for a in self._functional_group.get_bonders()
             ),
             deleters=tuple(
                 atom_map.get(a.get_id(), a)
-                for a in self._functional_group._deleters
+                for a in self._functional_group.get_deleters()
             ),
             placers=tuple(
                 atom_map.get(a.get_id(), a)
-                for a in self._functional_group._placers
+                for a in self._functional_group._placers  # noqa: SLF001
             ),
         )
-        clone._neigh1 = atom_map.get(self._neigh1.get_id(), self._neigh1)
-        clone._binder = atom_map.get(self._binder.get_id(), self._binder)
-        clone._neigh2 = atom_map.get(self._neigh2.get_id(), self._neigh2)
+        clone._neigh1 = atom_map.get(self._neigh1.get_id(), self._neigh1)  # noqa: SLF001
+        clone._binder = atom_map.get(self._binder.get_id(), self._binder)  # noqa: SLF001
+        clone._neigh2 = atom_map.get(self._neigh2.get_id(), self._neigh2)  # noqa: SLF001
         return clone
 
     def with_ids(self, id_map: dict[int, int]) -> Self:
         clone = self.__class__.__new__(self.__class__)
-        clone._functional_group = self._functional_group.with_ids(id_map)
-        clone._neigh1 = self._neigh1.with_id(
+        clone._functional_group = self._functional_group.with_ids(id_map)  # noqa: SLF001
+        clone._neigh1 = self._neigh1.with_id(  # noqa: SLF001
             id_map.get(self._neigh1.get_id(), self._neigh1.get_id())
         )
-        clone._binder = self._binder.with_id(
+        clone._binder = self._binder.with_id(  # noqa: SLF001
             id_map.get(self._binder.get_id(), self._binder.get_id())
         )
-        clone._neigh2 = self._neigh2.with_id(
+        clone._neigh2 = self._neigh2.with_id(  # noqa: SLF001
             id_map.get(self._neigh2.get_id(), self._neigh2.get_id())
         )
         return clone
@@ -142,7 +142,7 @@ class ThreeSiteFG:
         return (
             f"{self.__class__.__name__}("
             f"{self._neigh1}, {self._binder}, {self._neigh2}, "
-            f"bonders={self._functional_group._bonders})"
+            f"bonders={self._functional_group._bonders})"  # noqa: SLF001
         )
 
 
