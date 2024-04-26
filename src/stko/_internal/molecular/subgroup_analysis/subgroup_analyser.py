@@ -214,7 +214,7 @@ class SubgroupAnalyser:
 
     def calculate(self, molecule: stk.Molecule) -> dict[str, list[float]]:
         """Calculate the all possible fg values in molecule."""
-        fg_definitions = {
+        fg_definitions: dict[str, Subgroup] = {
             "c6_planarity": C6Planarity(),
             "c5n1_planarity": C5N1Planarity(),
             "x5_planarity": X5Planarity(),

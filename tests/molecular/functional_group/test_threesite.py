@@ -1,15 +1,9 @@
 import stk
 
+from tests.molecular.functional_group.case_data import CaseData
 
-def test_threesite(case_data):
-    """Test :class:`.ThreeSiteFactory`.
 
-    Parameters
-    ----------
-        case_data:
-            A test case.
-
-    """
+def test_threesite(case_data: CaseData) -> None:
     num_fgs = stk.BuildingBlock(
         smiles=case_data.smiles,
         functional_groups=case_data.factory,

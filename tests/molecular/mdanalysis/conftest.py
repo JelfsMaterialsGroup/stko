@@ -1,10 +1,11 @@
+import numpy as np
 import pytest
 import stk
 
 _pd = stk.BuildingBlock(
     smiles="[Pd+2]",
-    functional_groups=(stk.SingleAtom(stk.Pd(0, charge=2)) for i in range(4)),
-    position_matrix=[[0, 0, 0]],
+    functional_groups=(stk.SingleAtom(stk.Pd(0, charge=2)) for _ in range(4)),
+    position_matrix=np.array([[0, 0, 0]]),
 )
 
 # Define a bidentate ligand with two functional groups.
@@ -35,6 +36,5 @@ _complex = stk.ConstructedMolecule(
         _complex,
     ),
 )
-def molecule(request):
-    """A :class:`.CaseData` instance."""
+def molecule(request: pytest.FixtureRequest) -> stk.Molecule:
     return request.param

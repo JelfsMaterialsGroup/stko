@@ -1,26 +1,15 @@
 import numpy as np
 import pytest
+import stk
 import stko
 
 try:
-    import MDAnalysis as mda
+    import MDAnalysis as mda  # noqa: N813
 except ModuleNotFoundError:
     mda = None
 
 
-def test_universe(molecule):
-    """Test :meth:`.MDAnalysis.get_universe`.
-
-    Parameters
-    ----------
-    molecule : :class:`stk.Molecule`
-        The molecule to test.
-
-    Returns:
-    -------
-    None : :class:`NoneType`
-
-    """
+def test_universe(molecule: stk.Molecule) -> None:
     if mda is None:
         with pytest.raises(stko.WrapperNotInstalledError):
             result = stko.MDAnalysis().get_universe(molecule)
