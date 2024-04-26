@@ -1,33 +1,30 @@
-import os
 from pathlib import Path
 
 import numpy as np
 import pytest
-import stk
+import stko
 from stko import GulpUFFMDOptimizer, GulpUFFOptimizer
 from stko._internal.optimizers.utilities import get_metal_atoms
 
-from .conftest import a_molecule
-
 
 class FakeGulpUFFOptimizer(GulpUFFOptimizer):
-    def _check_path(self, path):
+    def _check_path(self, path: Path) -> None:  # noqa: ARG002
         return
 
-    def optimize(self, mol: stk.Molecule) -> stk.Molecule:
-        return a_molecule().with_centroid(np.array([1, 3, 3]))
+    def optimize(self, mol: stko.MoleculeT) -> stko.MoleculeT:
+        return mol.with_centroid(np.array([1, 3, 3]))
 
 
 class FakeGulpUFFMDOptimizer(GulpUFFMDOptimizer):
-    def _check_path(self, path):
+    def _check_path(self, path: Path) -> None:  # noqa: ARG002
         return
 
-    def optimize(self, mol: stk.Molecule) -> stk.Molecule:
-        return a_molecule().with_centroid(np.array([1, 3, 3]))
+    def optimize(self, mol: stko.MoleculeT) -> stko.MoleculeT:
+        return mol.with_centroid(np.array([1, 3, 3]))
 
 
 @pytest.fixture()
-def position_section():
+def position_section() -> str:
     return (
         "\ncartesian\n"
         "C1 core -0.74031 0.03171 0.10194\n"
@@ -42,7 +39,7 @@ def position_section():
 
 
 @pytest.fixture()
-def bond_section():
+def bond_section() -> str:
     return (
         "\nconnect 1 2 \n"
         "connect 1 3 \n"
@@ -55,11 +52,11 @@ def bond_section():
 
 
 @pytest.fixture()
-def species_section():
+def species_section() -> str:
     return "\nspecies\nC1 C_3\nH1 H_\n"
 
 
-def test_gulp_position_section(unoptimized_mol, position_section):
+def test_gulp_position_section(unoptimized_mol, position_section) -> None:
     opt = FakeGulpUFFOptimizer(
         gulp_path="",
         maxcyc=1000,
@@ -69,34 +66,34 @@ def test_gulp_position_section(unoptimized_mol, position_section):
         output_dir="",
     )
     opt.assign_FF(unoptimized_mol)
-    type_translator = opt._type_translator()
-    test = opt._position_section(unoptimized_mol, type_translator)
+    type_translator = opt._type_translator()  # noqa: SLF001
+    test = opt._position_section(unoptimized_mol, type_translator)  # noqa: SLF001
     assert position_section == test
 
 
-def test_gulp_bond_section(unoptimized_mol, bond_section):
+def test_gulp_bond_section(unoptimized_mol, bond_section) -> None:
     opt = FakeGulpUFFOptimizer(gulp_path="")
     opt.assign_FF(unoptimized_mol)
     metal_atoms = get_metal_atoms(unoptimized_mol)
-    test = opt._bond_section(unoptimized_mol, metal_atoms)
+    test = opt._bond_section(unoptimized_mol, metal_atoms)  # noqa: SLF001
     assert bond_section == test
 
 
-def test_gulp_species_section(unoptimized_mol, species_section):
+def test_gulp_species_section(unoptimized_mol, species_section) -> None:
     opt = FakeGulpUFFOptimizer(gulp_path="")
     opt.assign_FF(unoptimized_mol)
-    type_translator = opt._type_translator()
-    test = opt._species_section(type_translator)
+    type_translator = opt._type_translator()  # noqa: SLF001
+    test = opt._species_section(type_translator)  # noqa: SLF001
     assert species_section == test
 
 
 @pytest.fixture()
-def atom_types():
+def atom_types() -> list[str]:
     return ["C", "C", "H", "H", "H", "H", "H", "H"]
 
 
 @pytest.fixture()
-def trajectory():
+def trajectory() -> dict[int, dict[str, float]]:
     """Defines output of the trajectory properties ignoring coords."""
     return {
         0: {
@@ -133,12 +130,12 @@ def trajectory():
 
 
 @pytest.fixture()
-def min_energy_time_step():
+def min_energy_time_step() -> int:
     return 3
 
 
 @pytest.fixture()
-def xyz_string():
+def xyz_string() -> str:
     return (
         "8\n"
         "1,5.0,0.207467138253947,0.245970616427967,267.505966560289\n"
@@ -153,14 +150,14 @@ def xyz_string():
     )
 
 
-def test_gulp_convert_traj_to_xyz(atom_types, trajectory):
-    test_dir = os.path.dirname(os.path.abspath(__file__))
+def test_gulp_convert_traj_to_xyz(atom_types, trajectory) -> None:
+    test_dir = Path(__file__).resolve().parent
     test_xyz = Path(f"{test_dir}/fixtures/gulp_MD_template.xyz")
     test_traj = Path(f"{test_dir}/fixtures/gulp_MD.trg")
     opt = FakeGulpUFFMDOptimizer(
         gulp_path="",
     )
-    test_atom_types, test_trajectory_data, _ = opt._convert_traj_to_xyz(
+    test_atom_types, test_trajectory_data, _ = opt._convert_traj_to_xyz(  # noqa: SLF001
         output_xyz=test_xyz,
         output_traj=test_traj,
     )
@@ -177,8 +174,8 @@ def test_gulp_convert_traj_to_xyz(atom_types, trajectory):
         assert test_ts_dict["T"] == ts_dict["T"]
 
 
-def test_gulp_calculate_lowest_energy_conformer(min_energy_time_step):
-    test_dir = os.path.dirname(os.path.abspath(__file__))
+def test_gulp_calculate_lowest_energy_conformer(min_energy_time_step) -> None:
+    test_dir = Path(__file__).resolve().parent
     test_xyz = Path(f"{test_dir}/fixtures/gulp_MD_template.xyz")
     test_traj = Path(f"{test_dir}/fixtures/gulp_MD.trg")
     opt = FakeGulpUFFMDOptimizer(
@@ -193,20 +190,20 @@ def test_gulp_calculate_lowest_energy_conformer(min_energy_time_step):
     assert min_ts == min_energy_time_step
 
 
-def test_gulp_write_conformer_xyz_file(xyz_string):
-    test_dir = os.path.dirname(os.path.abspath(__file__))
+def test_gulp_write_conformer_xyz_file(xyz_string: str) -> None:
+    test_dir = Path(__file__).resolve().parent
     test_xyz = Path(f"{test_dir}/fixtures/gulp_MD_template.xyz")
     test_traj = Path(f"{test_dir}/fixtures/gulp_MD.trg")
     opt = FakeGulpUFFMDOptimizer(
         gulp_path="",
     )
-    atom_types, trajectory_data, xyz_traj_lines = opt._convert_traj_to_xyz(
+    atom_types, trajectory_data, xyz_traj_lines = opt._convert_traj_to_xyz(  # noqa: SLF001
         output_xyz=test_xyz,
         output_traj=test_traj,
     )
 
     test_output = Path(f"{test_dir}/fixtures/conformer.xyz")
-    opt._write_conformer_xyz_file(
+    opt._write_conformer_xyz_file(  # noqa: SLF001
         ts=1,
         ts_data=trajectory_data[1],
         filename=test_output,
@@ -214,9 +211,8 @@ def test_gulp_write_conformer_xyz_file(xyz_string):
     )
 
     test_string = ""
-    with open(test_output) as f:
+    with test_output.open() as f:
         for line in f.readlines():
-            print(line)
             test_string += line
 
     assert test_string == xyz_string

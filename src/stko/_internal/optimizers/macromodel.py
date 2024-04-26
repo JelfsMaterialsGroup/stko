@@ -532,7 +532,7 @@ class MacroModelForceField(MacroModel):
 
     def __init__(  # noqa: PLR0913
         self,
-        macromodel_path: str,
+        macromodel_path: Path | str,
         output_dir: str | None = None,
         restricted: bool = False,
         timeout: float | None = None,

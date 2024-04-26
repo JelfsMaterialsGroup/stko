@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 
 class AlignmentPotential(spd.Potential):
     def __init__(
-        self, matching_pairs: tuple[tuple[str, ...]], width: float
+        self, matching_pairs: tuple[tuple[str, str], ...], width: float
     ) -> None:
         self._matching_pairs = matching_pairs
         self._width = width

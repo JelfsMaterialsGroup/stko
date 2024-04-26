@@ -1,23 +1,13 @@
+from dataclasses import dataclass
+
 import pytest
 import stk
 
 
+@dataclass(frozen=True, slots=True)
 class CaseData:
-    """A test case.
-
-    Attributes:
-    ----------
-        molecule:
-            The molecule to be tested.
-
-        unoptimised_energy:
-            The energy of the molecule from stk generation.
-
-    """
-
-    def __init__(self, molecule, unoptimised_energy):
-        self.molecule = molecule
-        self.unoptimised_energy = unoptimised_energy
+    molecule: stk.Molecule
+    unoptimised_energy: float
 
 
 @pytest.fixture(
@@ -64,7 +54,7 @@ class CaseData:
         ),
     ],
 )
-def case_uff_molecule(request):
+def case_uff_molecule(request: pytest.FixtureRequest) -> CaseData:
     return request.param
 
 
@@ -112,7 +102,7 @@ def case_uff_molecule(request):
         ),
     ],
 )
-def case_mmff_molecule(request):
+def case_mmff_molecule(request: pytest.FixtureRequest) -> CaseData:
     return request.param
 
 
@@ -127,5 +117,5 @@ def case_mmff_molecule(request):
         stk.BuildingBlock("c1ccccc1"),
     ],
 )
-def case_etkdg_molecule(request):
+def case_etkdg_molecule(request: pytest.FixtureRequest) -> stk.BuildingBlock:
     return request.param
