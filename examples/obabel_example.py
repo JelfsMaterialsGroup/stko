@@ -1,10 +1,13 @@
-import os
+# ruff: noqa: T201
+from pathlib import Path
 
+import numpy as np
 import stk
 import stko
 
 
 def main() -> None:
+    """Run the example."""
     bb1 = stk.BuildingBlock("NCCN", [stk.PrimaryAminoFactory()])
     bb2 = stk.BuildingBlock("O=CCC=O", [stk.AldehydeFactory()])
     polymer = stk.ConstructedMolecule(
@@ -30,9 +33,9 @@ def main() -> None:
     iron_atom = stk.BuildingBlock(
         smiles="[Fe+2]",
         functional_groups=(
-            stk.SingleAtom(stk.Fe(0, charge=2)) for i in range(6)
+            stk.SingleAtom(stk.Fe(0, charge=2)) for _ in range(6)
         ),
-        position_matrix=[[0, 0, 0]],
+        position_matrix=np.array([[0, 0, 0]]),
     )
 
     # Define coordinating ligand with dummy bromine groups and
@@ -54,7 +57,7 @@ def main() -> None:
     )
 
     # Build iron complex with delta stereochemistry.
-    iron_oct_delta = stk.ConstructedMolecule(
+    iron_oct_delta_bb = stk.ConstructedMolecule(
         topology_graph=stk.metal_complex.OctahedralDelta(
             metals=iron_atom,
             ligands=oct_bb,
@@ -64,7 +67,7 @@ def main() -> None:
 
     # Assign Bromo functional groups to the metal complex.
     iron_oct_delta = stk.BuildingBlock.init_from_molecule(
-        molecule=iron_oct_delta,
+        molecule=iron_oct_delta_bb,
         functional_groups=[stk.BromoFactory()],
     )
 
@@ -150,9 +153,8 @@ def main() -> None:
         ),
     )
 
-    examples_output = "output_directory"
-    if not os.path.exists(examples_output):
-        os.mkdir(examples_output)
+    examples_output = Path("output_directory")
+    examples_output.mkdir(exist_ok=True)
 
     structures = [
         ("bb1", bb1),
@@ -172,13 +174,13 @@ def main() -> None:
     # Run optimisations.
     for name, struct in structures:
         if "m_" in name:
-            rdkit_uff_energy = "NA"
+            rdkit_uff_energy = None
         else:
             rdkit_uff_energy = stko.UFFEnergy(
                 ignore_inter_interactions=False
             ).get_energy(struct)
         obabel_uff_energy = stko.OpenBabelEnergy("uff").get_energy(struct)
-        struct.write(os.path.join(examples_output, f"obabel_{name}_unopt.mol"))
+        struct.write(examples_output / f"obabel_{name}_unopt.mol")
         opt = stko.OpenBabel(
             forcefield="uff",
             repeat_steps=10,
@@ -186,12 +188,10 @@ def main() -> None:
             cg_steps=20,
         )
         opt_struct = opt.optimize(struct)
-        opt_struct.write(
-            os.path.join(examples_output, f"obabel_{name}_opt.mol")
-        )
+        opt_struct.write(examples_output / f"obabel_{name}_opt.mol")
 
         if "m_" in name:
-            new_rdkit_uff_energy = "NA"
+            new_rdkit_uff_energy = None
         else:
             new_rdkit_uff_energy = stko.UFFEnergy(
                 ignore_inter_interactions=False

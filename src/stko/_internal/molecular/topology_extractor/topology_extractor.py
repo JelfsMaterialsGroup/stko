@@ -65,7 +65,7 @@ class TopologyExtractor:
         self,
         molecule: stk.Molecule,
         broken_bonds_by_id: abc.Iterable[tuple[int, int]],
-        disconnectors: set,
+        disconnectors: set[int],
     ) -> TopologyInfo:
         """Extract a toplogy defining a molecule with disconnections.
 

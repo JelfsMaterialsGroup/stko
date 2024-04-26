@@ -13,7 +13,7 @@ def test_maeextractor(case_data):
     )
 
     print(extractor.mae_path)
-    assert extractor.mae_path.split("/")[-1] == case_data.mae_path
+    assert extractor.mae_path.name == case_data.mae_path
 
     assert len(extractor.energies) == len(case_data.energies)
     min_energy = 1e24
@@ -31,7 +31,7 @@ def test_maeextractor(case_data):
     assert extractor.min_energy == case_data.min_energy
 
     print(extractor.path)
-    assert extractor.path.split("/")[-1] == case_data.path
+    assert extractor.path.name == case_data.path
 
     os.remove(os.path.join(dir_path, "test-out.mae"))
     if case_data.n == 1:

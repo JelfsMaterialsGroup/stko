@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 
 import numpy as np
 import pytest
@@ -154,8 +155,8 @@ def xyz_string():
 
 def test_gulp_convert_traj_to_xyz(atom_types, trajectory):
     test_dir = os.path.dirname(os.path.abspath(__file__))
-    test_xyz = f"{test_dir}/fixtures/gulp_MD_template.xyz"
-    test_traj = f"{test_dir}/fixtures/gulp_MD.trg"
+    test_xyz = Path(f"{test_dir}/fixtures/gulp_MD_template.xyz")
+    test_traj = Path(f"{test_dir}/fixtures/gulp_MD.trg")
     opt = FakeGulpUFFMDOptimizer(
         gulp_path="",
     )
@@ -178,8 +179,8 @@ def test_gulp_convert_traj_to_xyz(atom_types, trajectory):
 
 def test_gulp_calculate_lowest_energy_conformer(min_energy_time_step):
     test_dir = os.path.dirname(os.path.abspath(__file__))
-    test_xyz = f"{test_dir}/fixtures/gulp_MD_template.xyz"
-    test_traj = f"{test_dir}/fixtures/gulp_MD.trg"
+    test_xyz = Path(f"{test_dir}/fixtures/gulp_MD_template.xyz")
+    test_traj = Path(f"{test_dir}/fixtures/gulp_MD.trg")
     opt = FakeGulpUFFMDOptimizer(
         gulp_path="",
     )
@@ -194,8 +195,8 @@ def test_gulp_calculate_lowest_energy_conformer(min_energy_time_step):
 
 def test_gulp_write_conformer_xyz_file(xyz_string):
     test_dir = os.path.dirname(os.path.abspath(__file__))
-    test_xyz = f"{test_dir}/fixtures/gulp_MD_template.xyz"
-    test_traj = f"{test_dir}/fixtures/gulp_MD.trg"
+    test_xyz = Path(f"{test_dir}/fixtures/gulp_MD_template.xyz")
+    test_traj = Path(f"{test_dir}/fixtures/gulp_MD.trg")
     opt = FakeGulpUFFMDOptimizer(
         gulp_path="",
     )
@@ -204,7 +205,7 @@ def test_gulp_write_conformer_xyz_file(xyz_string):
         output_traj=test_traj,
     )
 
-    test_output = f"{test_dir}/fixtures/conformer.xyz"
+    test_output = Path(f"{test_dir}/fixtures/conformer.xyz")
     opt._write_conformer_xyz_file(
         ts=1,
         ts_data=trajectory_data[1],

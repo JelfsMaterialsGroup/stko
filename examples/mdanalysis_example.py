@@ -1,9 +1,11 @@
+# ruff: noqa: T201
 import numpy as np
 import stk
 import stko
 
 
-def main():
+def main() -> None:
+    """Run the example."""
     stk_molecule = stk.BuildingBlock("NCCNCCN").with_centroid(
         position=np.array((10, 10, 10))
     )

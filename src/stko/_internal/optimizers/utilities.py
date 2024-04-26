@@ -82,11 +82,11 @@ class MAEExtractor:
                 # Write the structure block in its own .mae file, named
                 # after conformer extracted.
                 new_name = self.mae_path.with_name(
-                    f"{self.mae_path.name}EXTRACTED_{num}"
+                    f"{self.mae_path.stem}EXTRACTED_{num}.mae"
                 )
             else:
                 new_name = self.mae_path.with_name(
-                    f"{self.mae_path.name}EXTRACTED_{num}_conf_{i}"
+                    f"{self.mae_path.stem}EXTRACTED_{num}_conf_{i}.mae"
                 )
 
             with new_name.open("w") as mae_file:

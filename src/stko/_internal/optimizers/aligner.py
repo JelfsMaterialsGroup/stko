@@ -101,7 +101,7 @@ class Aligner(Optimizer):
     def __init__(
         self,
         initial_molecule: stk.Molecule,
-        matching_pairs: tuple[tuple[str, ...]],
+        matching_pairs: tuple[tuple[str, str], ...],
     ) -> None:
         self._initial_molecule = initial_molecule.with_centroid(
             np.array((0, 0, 0)),

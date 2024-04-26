@@ -46,7 +46,7 @@ from stko._internal.molecular.topology_extractor.topology_info import (
 )
 from stko._internal.molecular.torsion.torsion import Torsion
 from stko._internal.molecular.torsion.torsion_info import TorsionInfo
-from stko._internal.optimizers.aligner import Aligner
+from stko._internal.optimizers.aligner import Aligner, AlignmentPotential
 from stko._internal.optimizers.collapser import Collapser, CollapserMC
 from stko._internal.optimizers.gulp import GulpUFFMDOptimizer, GulpUFFOptimizer
 from stko._internal.optimizers.macromodel import (
@@ -63,6 +63,11 @@ from stko._internal.optimizers.rdkit import ETKDG, MMFF, UFF, MetalOptimizer
 from stko._internal.optimizers.utilities import MAEExtractor
 from stko._internal.optimizers.xtb import XTB, XTBCREST, XTBFF, XTBFFCREST
 from stko._internal.types import ConstructedMoleculeT, MoleculeT
+from stko._internal.utilities.exceptions import (
+    DifferentAtomError,
+    DifferentMoleculeError,
+    WrapperNotInstalledError,
+)
 from stko._internal.utilities.utilities import get_torsion_info_angles
 
 MoleculeT = MoleculeT  # noqa: PLW0127
@@ -103,6 +108,7 @@ __all__ = [
     "Torsion",
     "TorsionInfo",
     "Aligner",
+    "AlignmentPotential",
     "Collapser",
     "CollapserMC",
     "GulpUFFMDOptimizer",
@@ -124,5 +130,8 @@ __all__ = [
     "ConstructedMoleculeT",
     "MoleculeT",
     "OpenBabel",
+    "WrapperNotInstalledError",
+    "DifferentMoleculeError",
+    "DifferentAtomError",
     "get_torsion_info_angles",
 ]
