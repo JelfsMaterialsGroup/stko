@@ -50,7 +50,7 @@ class MoleculeSplitter:
     def split(
         self,
         molecule: stk.Molecule,
-    ) -> abc.Iterable[stk.BuildingBlock]:
+    ) -> list[stk.BuildingBlock]:
         """Split a molecule.
 
         Parameters:

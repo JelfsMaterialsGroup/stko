@@ -1,11 +1,13 @@
-import os
+# ruff: noqa: T201
 import sys
+from pathlib import Path
 
 import stk
 import stko
 
 
-def main():
+def main() -> None:
+    """Run the example."""
     if len(sys.argv) > 1:
         orca_path = sys.argv[1]
     else:
@@ -23,9 +25,8 @@ def main():
         )
     )
 
-    examples_output = "orca_output_directory"
-    if not os.path.exists(examples_output):
-        os.mkdir(examples_output)
+    examples_output = Path("orca_output_directory")
+    examples_output.mkdir(exist_ok=True)
 
     # Run optimisations.
     etkdg = stko.ETKDG()

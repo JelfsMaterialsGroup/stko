@@ -1,17 +1,18 @@
-import os
+# ruff: noqa: T201, S101
+from pathlib import Path
 
 import stk
 import stko
 
 
-def main():
-    examples_output = "splitter_output_directory"
-    if not os.path.exists(examples_output):
-        os.mkdir(examples_output)
+def main() -> None:
+    """Run the example."""
+    examples_output = Path("splitter_output_directory")
+    examples_output.mkdir(exist_ok=True)
 
     full_mol = stk.BuildingBlock("C1=CC=NC(=C1)C=NC2=CC=C(C=C2)Br")
     print(full_mol)
-    full_mol.write(os.path.join(examples_output, "original.mol"))
+    full_mol.write(examples_output / "original.mol")
 
     splitter = stko.MoleculeSplitter(
         # This smarts corresponds to an imine bond: `CNCC`.
@@ -22,10 +23,10 @@ def main():
     print(split_mols)
     for i, mol in enumerate(split_mols):
         print(mol)
-        mol.write(os.path.join(examples_output, f"splits_{i}.xyz"))
+        mol.write(examples_output / f"splits_{i}.xyz")
 
     # Test it worked.
-    assert len(split_mols) == 2
+    assert len(split_mols) == 2  # noqa: PLR2004
 
     # Transform molecule.
     transformer = stko.MoleculeTransformer(
@@ -37,11 +38,11 @@ def main():
     count = 0
     for i, mol in enumerate(transformed_mols):
         print(mol)
-        mol.write(os.path.join(examples_output, f"transform_{i}.mol"))
+        mol.write(examples_output / f"transform_{i}.mol")
         count += 1
 
     # Test it worked.
-    assert count == 2
+    assert count == 2  # noqa: PLR2004
 
     # Reconstruct.
     polymer = stk.ConstructedMolecule(
@@ -51,7 +52,7 @@ def main():
             num_repeating_units=1,
         ),
     )
-    polymer.write(os.path.join(examples_output, "reconstructed.mol"))
+    polymer.write(examples_output / "reconstructed.mol")
 
     # Another more complex example.
     full_mol2 = stk.BuildingBlock(
@@ -61,7 +62,7 @@ def main():
         ),
     )
     print(full_mol2)
-    full_mol2.write(os.path.join(examples_output, "original2.mol"))
+    full_mol2.write(examples_output / "original2.mol")
 
     splitter = stko.MoleculeSplitter(
         breaker_smarts="[#6]~[#6]#[#6]",
@@ -71,7 +72,7 @@ def main():
 
     for i, mol in enumerate(split_mols2):
         print(mol)
-        mol.write(os.path.join(examples_output, f"splits2_{i}.xyz"))
+        mol.write(examples_output / f"splits2_{i}.xyz")
 
     # Transform molecule.
     transformer = stko.MoleculeTransformer(
@@ -82,7 +83,7 @@ def main():
 
     for i, mol in enumerate(transformed_mols2):
         print(mol)
-        mol.write(os.path.join(examples_output, f"transform2_{i}.mol"))
+        mol.write(examples_output / f"transform2_{i}.mol")
 
 
 if __name__ == "__main__":

@@ -4,7 +4,7 @@ import stk
 import stko
 
 
-def main():
+def main() -> None:
     bb1 = stk.BuildingBlock("NCCN", [stk.PrimaryAminoFactory()])
     bb2 = stk.BuildingBlock("O=CCC=O", [stk.AldehydeFactory()])
     polymer = stk.ConstructedMolecule(

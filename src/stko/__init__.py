@@ -8,6 +8,7 @@ from stko._internal.calculators.planarity_calculators import (
     PlanarityCalculator,
 )
 from stko._internal.calculators.rdkit_calculators import MMFFEnergy, UFFEnergy
+from stko._internal.calculators.results.energy_results import EnergyResults
 from stko._internal.calculators.results.torsion_results import (
     ConstructedMoleculeTorsionResults,
 )
@@ -15,7 +16,10 @@ from stko._internal.calculators.rmsd_calculators import (
     RmsdCalculator,
     RmsdMappedCalculator,
 )
-from stko._internal.calculators.shape_calculators import ShapeCalculator
+from stko._internal.calculators.shape_calculators import (
+    ShapeCalculator,
+    ShapeResults,
+)
 from stko._internal.calculators.torsion_calculators import (
     ConstructedMoleculeTorsionCalculator,
     MatchedTorsionCalculator,
@@ -76,10 +80,12 @@ __all__ = [
     "PlanarityCalculator",
     "MMFFEnergy",
     "UFFEnergy",
+    "EnergyResults",
     "ConstructedMoleculeTorsionResults",
     "RmsdCalculator",
     "RmsdMappedCalculator",
     "ShapeCalculator",
+    "ShapeResults",
     "ConstructedMoleculeTorsionCalculator",
     "MatchedTorsionCalculator",
     "TorsionCalculator",

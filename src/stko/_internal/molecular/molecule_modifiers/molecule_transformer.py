@@ -75,7 +75,7 @@ class MoleculeTransformer:
 
         self._functional_groups = functional_groups
 
-    def transform(self, molecule: stk.Molecule) -> stk.Molecule:
+    def transform(self, molecule: stk.Molecule) -> stk.BuildingBlock:
         """Transform a molecule.
 
         Parameters
