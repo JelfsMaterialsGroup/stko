@@ -1,15 +1,5 @@
-def test_get_atomic_number(case_data):
-    """Test :meth:`.Du.get_atomic_number`.
+from .case_data import CaseData
 
-    Parameters
-    ----------
-    case_data : :class:`.CaseData`
-        A test case, containing the atom to test and its correct atomic
-        number.
 
-    Returns:
-    -------
-    None : :class:`NoneType`
-
-    """
+def test_get_atomic_number(case_data: CaseData) -> None:
     assert case_data.atom.get_atomic_number() == 0

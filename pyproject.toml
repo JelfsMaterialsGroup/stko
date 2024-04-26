@@ -58,6 +58,7 @@ select = ["ALL"]
 ignore = [
   "ANN101",
   "ANN102",
+  "ANN401",
   "COM812",
   "ISC001",
   "FBT001",

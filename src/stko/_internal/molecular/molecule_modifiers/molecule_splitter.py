@@ -1,5 +1,4 @@
 import logging
-from collections import abc
 from itertools import combinations
 
 import stk

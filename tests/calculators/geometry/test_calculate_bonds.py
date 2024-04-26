@@ -1,20 +1,13 @@
 import numpy as np
 import stko
 
+from .case_data import CaseData
 
-def test_calculate_bonds(case_data):
-    """Test :class:`.GeometryAnalyser.calculate_bonds`.
 
-    Parameters
-    ----------
-        case_data:
-            A test case.
-
-    """
+def test_calculate_bonds(case_data: CaseData) -> None:
     analyser = stko.molecule_analysis.GeometryAnalyser()
 
     result = analyser.calculate_bonds(case_data.molecule)
-    print(result)
     for pair in result:
         if pair == ("C", "C"):
             continue

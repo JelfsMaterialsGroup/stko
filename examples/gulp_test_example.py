@@ -1,6 +1,6 @@
 # ruff: noqa: S101
+import argparse
 import logging
-import sys
 from pathlib import Path
 
 import numpy as np
@@ -10,12 +10,7 @@ import stko
 
 def main() -> None:
     """Run the example."""
-    first_line = f"Usage: {__file__}.py"
-    if len(sys.argv) != 2:
-        logging.info("%s gulp_path", first_line)
-        sys.exit()
-    else:
-        gulp_path = sys.argv[1]
+    args = _parse_args()
 
     iron_atom = stk.BuildingBlock(
         smiles="[Fe+2]",
@@ -72,7 +67,7 @@ def main() -> None:
     # Use conjugate gradient method for a slower, but more stable
     # optimisation.
     gulp_opt = stko.GulpUFFOptimizer(
-        gulp_path=gulp_path,
+        gulp_path=args.gulp_path,
         output_dir="gulp_test_output",
         metal_FF={26: "Fe4+2"},
         conjugate_gradient=True,
@@ -86,7 +81,7 @@ def main() -> None:
 
     target_num_confs = 40
     gulp_md = stko.GulpUFFMDOptimizer(
-        gulp_path=gulp_path,
+        gulp_path=args.gulp_path,
         metal_FF={26: "Fe4+2"},
         output_dir="gulp_test_output_MD",
         temperature=300,
@@ -102,6 +97,12 @@ def main() -> None:
 
     confs_gen = list(Path("gulp_test_output_MD").glob("conf*.xyz"))
     assert len(confs_gen) == target_num_confs
+
+
+def _parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("gulp_path", type=str)
+    return parser.parse_args()
 
 
 if __name__ == "__main__":

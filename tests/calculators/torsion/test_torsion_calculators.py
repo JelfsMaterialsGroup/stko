@@ -1,9 +1,13 @@
+import pytest
 import stk
 import stko
-from pytest import approx
 
 
-def _polymer_angles_match(bb1, bb2, torsion_index=0):
+def _polymer_angles_match(
+    bb1: stk.BuildingBlock,
+    bb2: stk.BuildingBlock,
+    torsion_index: int = 0,
+) -> bool:
     """Attach bb1 to bb2, and test torsion mapping."""
     polymer = stk.ConstructedMolecule(
         stk.polymer.Linear(
@@ -20,10 +24,10 @@ def _polymer_angles_match(bb1, bb2, torsion_index=0):
     angles = stko.get_torsion_info_angles(
         polymer, list(tors_results.get_torsion_infos())[torsion_index]
     )
-    return angles[0] == approx(angles[1])
+    return angles[0] == pytest.approx(angles[1])
 
 
-def test_torsion_matching():
+def test_torsion_matching() -> None:
     """Confirm torsions are appropriately mapped.
 
     Check corresponding torsion angles between building blocks and

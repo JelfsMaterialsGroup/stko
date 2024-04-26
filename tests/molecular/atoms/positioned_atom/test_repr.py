@@ -1,24 +1,12 @@
 import stk
 import stko
 
-from ..utilities import is_equivalent_atom
+from tests.molecular.atoms.utilities import is_equivalent_atom
 
 
-def test_repr(positioned_atom):
-    """Test :meth:`.PositionedAtom.__repr__`.
-
-    Parameters
-    ----------
-    atom : :class:`.PositionedAtom`
-        The atom, whose representation should be tested.
-
-    Returns:
-    -------
-    None : :class:`NoneType`
-
-    """
+def test_repr(positioned_atom: stko.PositionedAtom) -> None:
     other = stko.PositionedAtom(
-        atom=eval(repr(positioned_atom), dict(stk.__dict__)),
+        atom=eval(repr(positioned_atom), dict(stk.__dict__)),  # noqa: S307
         position=positioned_atom.get_position(),
     )
     is_equivalent_atom(other, positioned_atom)

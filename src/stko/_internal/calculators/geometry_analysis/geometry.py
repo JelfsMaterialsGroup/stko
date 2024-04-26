@@ -28,7 +28,7 @@ class GeometryAnalyser:
     def _get_metal_atom_ids(
         self,
         molecule: stk.Molecule,
-        metal_atom_nos: tuple[int],
+        metal_atom_nos: tuple[int, ...],
     ) -> list[int]:
         return [
             i.get_id()
@@ -39,7 +39,7 @@ class GeometryAnalyser:
     def get_metal_distances(
         self,
         molecule: stk.Molecule,
-        metal_atom_nos: tuple[int],
+        metal_atom_nos: tuple[int, ...],
     ) -> dict[tuple[int, int], float]:
         """Get all metal atom pair distances.
 
@@ -71,7 +71,7 @@ class GeometryAnalyser:
     def get_metal_centroid_metal_angle(
         self,
         molecule: stk.Molecule,
-        metal_atom_nos: tuple[int],
+        metal_atom_nos: tuple[int, ...],
     ) -> dict[tuple[int, int], float]:
         """Get all metal-centroid-metal angles.
 
@@ -206,7 +206,7 @@ class GeometryAnalyser:
     def calculate_bonds(
         self,
         molecule: stk.Molecule,
-    ) -> dict[tuple[str, ...], list[float]]:
+    ) -> dict[tuple[str, str], list[float]]:
         """Calculate bond lengths for all `stk.Molecule.get_bonds()`.
 
         Parameters:
@@ -218,19 +218,17 @@ class GeometryAnalyser:
 
         """
         position_matrix = molecule.get_position_matrix()
-        lengths = defaultdict(list)
+        lengths: dict[tuple[str, str], list[float]] = defaultdict(list)
         for bond in molecule.get_bonds():
             a1id = bond.get_atom1().get_id()
             a2id = bond.get_atom2().get_id()
-            length_type = tuple(
-                sorted(
-                    (
-                        bond.get_atom1().__class__.__name__,
-                        bond.get_atom2().__class__.__name__,
-                    )
+            a, b = sorted(
+                (
+                    bond.get_atom1().__class__.__name__,
+                    bond.get_atom2().__class__.__name__,
                 )
             )
-            lengths[length_type].append(
+            lengths[(a, b)].append(
                 get_atom_distance(position_matrix, a1id, a2id)
             )
 
@@ -239,7 +237,7 @@ class GeometryAnalyser:
     def calculate_angles(
         self,
         molecule: stk.Molecule,
-    ) -> dict[tuple[str, ...], list[float]]:
+    ) -> dict[tuple[str, str, str], list[float]]:
         """Calculate angles for all angles defined by molecule bonding.
 
         Parameters:
@@ -251,7 +249,7 @@ class GeometryAnalyser:
 
         """
         position_matrix = molecule.get_position_matrix()
-        angles: dict[tuple[str, ...], list[float]] = defaultdict(list)
+        angles: dict[tuple[str, str, str], list[float]] = defaultdict(list)
         for a_ids in self._get_paths(molecule, 3):
             atoms = list(molecule.get_atoms(atom_ids=a_ids))
             atom1 = atoms[0]

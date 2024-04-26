@@ -1,4 +1,5 @@
 import logging
+from typing import Any
 
 import stk
 
@@ -45,7 +46,7 @@ class MDAnalysis:
             )
             raise WrapperNotInstalledError(msg)
 
-    def get_universe(self, mol: stk.Molecule):  # type: ignore[no-untyped-def]
+    def get_universe(self, mol: stk.Molecule) -> Any:  # type: ignore[no-untyped-def]
         """Get an MDAnalysis object.
 
         Parameters:

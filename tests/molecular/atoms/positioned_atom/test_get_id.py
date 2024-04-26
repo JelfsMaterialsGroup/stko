@@ -1,14 +1,5 @@
-def test_get_id(case_data):
-    """Test :meth:`.PositionedAtom.get_id`.
+from .case_data import CaseData
 
-    Parameters
-    ----------
-    case_data : :class:`case_data`
-        A test case. Holds the atom to test and its correct id.
 
-    Returns:
-    -------
-    None : :class:`NoneType`
-
-    """
+def test_get_id(case_data: CaseData) -> None:
     assert case_data.atom.get_id() == case_data.id

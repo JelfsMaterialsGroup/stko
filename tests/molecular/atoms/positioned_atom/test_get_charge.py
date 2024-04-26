@@ -1,14 +1,5 @@
-def test_get_charge(case_data):
-    """Test :meth:`.PositionedAtom.get_charge`.
+from .case_data import CaseData
 
-    Parameters
-    ----------
-    case_data : :class:`.CaseData`
-        The test case. Holds the atom to test and its correct charge.
 
-    Returns:
-    -------
-    None : :class:`NoneType`
-
-    """
+def test_get_charge(case_data: CaseData) -> None:
     assert case_data.atom.get_charge() == case_data.charge
