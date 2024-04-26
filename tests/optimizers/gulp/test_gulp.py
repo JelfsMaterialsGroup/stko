@@ -2,6 +2,7 @@ from pathlib import Path
 
 import numpy as np
 import pytest
+import stk
 import stko
 from stko import GulpUFFMDOptimizer, GulpUFFOptimizer
 from stko._internal.optimizers.utilities import get_metal_atoms
@@ -56,7 +57,10 @@ def species_section() -> str:
     return "\nspecies\nC1 C_3\nH1 H_\n"
 
 
-def test_gulp_position_section(unoptimized_mol, position_section) -> None:
+def test_gulp_position_section(
+    unoptimized_mol: stk.BuildingBlock,
+    position_section: str,
+) -> None:
     opt = FakeGulpUFFOptimizer(
         gulp_path="",
         maxcyc=1000,
@@ -71,7 +75,10 @@ def test_gulp_position_section(unoptimized_mol, position_section) -> None:
     assert position_section == test
 
 
-def test_gulp_bond_section(unoptimized_mol, bond_section) -> None:
+def test_gulp_bond_section(
+    unoptimized_mol: stk.BuildingBlock,
+    bond_section: str,
+) -> None:
     opt = FakeGulpUFFOptimizer(gulp_path="")
     opt.assign_FF(unoptimized_mol)
     metal_atoms = get_metal_atoms(unoptimized_mol)
@@ -79,7 +86,10 @@ def test_gulp_bond_section(unoptimized_mol, bond_section) -> None:
     assert bond_section == test
 
 
-def test_gulp_species_section(unoptimized_mol, species_section) -> None:
+def test_gulp_species_section(
+    unoptimized_mol: stk.BuildingBlock,
+    species_section: str,
+) -> None:
     opt = FakeGulpUFFOptimizer(gulp_path="")
     opt.assign_FF(unoptimized_mol)
     type_translator = opt._type_translator()  # noqa: SLF001
@@ -150,7 +160,9 @@ def xyz_string() -> str:
     )
 
 
-def test_gulp_convert_traj_to_xyz(atom_types, trajectory) -> None:
+def test_gulp_convert_traj_to_xyz(
+    atom_types: list[str], trajectory: dict[int, dict[str, float]]
+) -> None:
     test_dir = Path(__file__).resolve().parent
     test_xyz = Path(f"{test_dir}/fixtures/gulp_MD_template.xyz")
     test_traj = Path(f"{test_dir}/fixtures/gulp_MD.trg")
@@ -174,18 +186,20 @@ def test_gulp_convert_traj_to_xyz(atom_types, trajectory) -> None:
         assert test_ts_dict["T"] == ts_dict["T"]
 
 
-def test_gulp_calculate_lowest_energy_conformer(min_energy_time_step) -> None:
+def test_gulp_calculate_lowest_energy_conformer(
+    min_energy_time_step: int,
+) -> None:
     test_dir = Path(__file__).resolve().parent
     test_xyz = Path(f"{test_dir}/fixtures/gulp_MD_template.xyz")
     test_traj = Path(f"{test_dir}/fixtures/gulp_MD.trg")
     opt = FakeGulpUFFMDOptimizer(
         gulp_path="",
     )
-    atom_types, trajectory_data, xyz_traj_lines = opt._convert_traj_to_xyz(
+    atom_types, trajectory_data, xyz_traj_lines = opt._convert_traj_to_xyz(  # noqa: SLF001
         output_xyz=test_xyz,
         output_traj=test_traj,
     )
-    min_ts = opt._calculate_lowest_energy_conformer(trajectory_data)
+    min_ts = opt._calculate_lowest_energy_conformer(trajectory_data)  # noqa: SLF001
 
     assert min_ts == min_energy_time_step
 

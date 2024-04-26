@@ -1,13 +1,14 @@
 import numpy as np
 import stko
 
-from ..utilities import (
+from tests.optimizers.aligner.conftest import CaseData, CasePotential
+from tests.optimizers.utilities import (
     inequivalent_position_matrices,
     is_equivalent_molecule,
 )
 
 
-def test_aligner(case_molecule):
+def test_aligner(case_molecule: CaseData) -> None:
     calculator = stko.RmsdCalculator(case_molecule.initial_molecule)
     test_rmsd_unopt = calculator.get_results(case_molecule.molecule).get_rmsd()
     optimizer = stko.Aligner(
@@ -24,7 +25,7 @@ def test_aligner(case_molecule):
     assert test_rmsd < test_rmsd_unopt
 
 
-def test_alignment_potential(case_potential):
+def test_alignment_potential(case_potential: CasePotential) -> None:
     aligner = stko.Aligner(
         initial_molecule=case_potential.initial_molecule,
         matching_pairs=case_potential.pairs,
@@ -33,7 +34,7 @@ def test_alignment_potential(case_potential):
         matching_pairs=case_potential.pairs,
         width=2,
     )
-    supramolecule = aligner._get_supramolecule(case_potential.molecule)
+    supramolecule = aligner._get_supramolecule(case_potential.molecule)  # noqa: SLF001
     assert np.isclose(
         case_potential.potential,
         potential.compute_potential(

@@ -1,30 +1,15 @@
+from dataclasses import dataclass
+
 import numpy as np
 import pytest
 import stk
 
 
+@dataclass(frozen=True, slots=True)
 class CaseData:
-    """A test case.
-
-    Attributes:
-    ----------
-        molecule:
-            The molecule to be tested.
-
-        initial_molecule:
-            The initial molecule to be tested.
-
-        rmsd:
-            The rmsd between two molecules.
-
-    """
-
-    position_matrix: np.ndarray
-
-    def __init__(self, molecule, initial_molecule, rmsd):
-        self.molecule = molecule
-        self.initial_molecule = initial_molecule
-        self.rmsd = rmsd
+    molecule: stk.Molecule
+    initial_molecule: stk.Molecule
+    rmsd: float
 
 
 @pytest.fixture(
@@ -54,37 +39,16 @@ class CaseData:
         ),
     ],
 )
-def case_molecule(request):
-    """A :class:`stk.Molecule` instance."""
+def case_molecule(request: pytest.FixtureRequest) -> CaseData:
     return request.param
 
 
+@dataclass(frozen=True, slots=True)
 class CasePotential:
-    """A test case.
-
-    Attributes:
-    ----------
-        molecule:
-            The molecule to be tested.
-
-        initial_molecule:
-            The initial molecule to be tested.
-
-        potential:
-            The calculated potential.
-
-        pairs:
-            The atom pair types to calculate potential between.
-
-    """
-
-    position_matrix: np.ndarray
-
-    def __init__(self, molecule, initial_molecule, potential, pairs):
-        self.molecule = molecule
-        self.initial_molecule = initial_molecule
-        self.potential = potential
-        self.pairs = pairs
+    molecule: stk.Molecule
+    initial_molecule: stk.Molecule
+    potential: float
+    pairs: tuple[tuple[str, str], ...]
 
 
 @pytest.fixture(
@@ -140,6 +104,5 @@ class CasePotential:
         ),
     ],
 )
-def case_potential(request):
-    """A :class:`stk.Molecule` instance."""
+def case_potential(request: pytest.FixtureRequest) -> CasePotential:
     return request.param

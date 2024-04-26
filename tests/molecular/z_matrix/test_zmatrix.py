@@ -1,39 +1,13 @@
+import stk
 import stko
 
+from tests.molecular.z_matrix.case_data import CaseData
 
-def test_zmatrix(case_data):
-    """Test :meth:`.Converter.get_zmatrix`.
 
-    Parameters
-    ----------
-    case_data : :class:`.CaseData`
-        The test case.
-
-    Returns:
-    -------
-    None : :class:`NoneType`
-
-    """
+def test_zmatrix(case_data: CaseData) -> None:
     _test_zmatrix(case_data.molecule, case_data.zmatrix)
 
 
-def _test_zmatrix(molecule, zmatrix):
-    """Test :meth:`.ZMatrix.get_zmatrix`.
-
-    Parameters
-    ----------
-    molecule : :class:`stk.Molecule`
-        The molecule to test.
-
-    zmatrix : :class:`str`
-        The correct Z-matrix string.
-
-    Returns:
-    -------
-    None : :class:`NoneType`
-
-    """
+def _test_zmatrix(molecule: stk.Molecule, zmatrix: str) -> None:
     result = stko.ZMatrix().get_zmatrix(molecule)
-    # Printing is useful for debugging.
-    print(result)
     assert result == zmatrix
