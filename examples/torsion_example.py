@@ -1,10 +1,12 @@
-import os
+# ruff: noqa: T201
+from pathlib import Path
 
 import stk
 import stko
 
 
-def main():
+def main() -> None:
+    """Run the example."""
     bb1 = stk.BuildingBlock("NCCNCCN", [stk.PrimaryAminoFactory()])
     bb2 = stk.BuildingBlock("O=CCCC=O", [stk.AldehydeFactory()])
     polymer = stk.ConstructedMolecule(
@@ -16,32 +18,33 @@ def main():
         )
     )
 
+    output_directory = Path("output_directory")
     # Run calculations for bb.
-    bb1.write(os.path.join("output_directory", "tors_test_bb1.mol"))
-    tors_calculator = stko.TorsionCalculator()
-    tors_results = tors_calculator.get_results(bb1)
+    bb1.write(output_directory / "tors_test_bb1.mol")
+    tors_results = stko.TorsionCalculator().get_results(bb1)
     print(tors_results.get_molecule())
     for t, ang in tors_results.get_torsion_angles():
         print(t, ang, t.get_atom_ids())
 
     # Run calculations for constructed molecule.
-    polymer.write(os.path.join("output_directory", "tors_test_polymer.mol"))
-    tors_calculator = stko.ConstructedMoleculeTorsionCalculator()
-    tors_results = tors_calculator.get_results(polymer)
+    polymer.write(output_directory / "tors_test_polymer.mol")
+    tors_results = stko.ConstructedMoleculeTorsionCalculator().get_results(
+        polymer
+    )
     print(tors_results.get_molecule())
-    for t, ang in tors_results.get_torsion_angles():
-        print(t, ang, t.get_atom_ids())
-    for t in tors_results.get_torsion_infos():
+    for torsion, ang in tors_results.get_torsion_angles():
+        print(torsion, ang, torsion.get_atom_ids())
+    for torsion_info in tors_results.get_torsion_infos():
         print(
             "c",
-            t.get_torsion(),
-            t.get_building_block(),
-            t.get_building_block_id(),
-            t.get_building_block_torsion(),
+            torsion_info.get_torsion(),
+            torsion_info.get_building_block(),
+            torsion_info.get_building_block_id(),
+            torsion_info.get_building_block_torsion(),
         )
     print(tors_results.get_torsion_infos_by_building_block())
-    for t in tors_results.get_torsion_infos():
-        print(stko.get_torsion_info_angles(polymer, t))
+    for torsion_info in tors_results.get_torsion_infos():
+        print(stko.get_torsion_info_angles(polymer, torsion_info))
 
 
 if __name__ == "__main__":

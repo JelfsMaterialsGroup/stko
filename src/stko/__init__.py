@@ -59,6 +59,7 @@ from stko._internal.optimizers.rdkit import ETKDG, MMFF, UFF, MetalOptimizer
 from stko._internal.optimizers.utilities import MAEExtractor
 from stko._internal.optimizers.xtb import XTB, XTBCREST, XTBFF, XTBFFCREST
 from stko._internal.types import ConstructedMoleculeT, MoleculeT
+from stko._internal.utilities.utilities import get_torsion_info_angles
 
 MoleculeT = MoleculeT  # noqa: PLW0127
 """Type parameter matching any :class:`stk.Molecule` or subclasses."""
@@ -117,4 +118,5 @@ __all__ = [
     "ConstructedMoleculeT",
     "MoleculeT",
     "OpenBabel",
+    "get_torsion_info_angles",
 ]

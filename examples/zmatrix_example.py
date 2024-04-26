@@ -1,10 +1,12 @@
-import os
+# ruff: noqa: T201
+from pathlib import Path
 
 import stk
 import stko
 
 
-def main():
+def main() -> None:
+    """Run the example."""
     bb1 = stk.BuildingBlock("NCCNCCN", [stk.PrimaryAminoFactory()])
     bb2 = stk.BuildingBlock("O=CCCC=O", [stk.AldehydeFactory()])
     polymer = stk.ConstructedMolecule(
@@ -16,16 +18,15 @@ def main():
         )
     )
 
-    examples_output = "output_directory"
-    if not os.path.exists(examples_output):
-        os.mkdir(examples_output)
+    examples_output = Path("output_directory")
+    examples_output.mkdir(exist_ok=True)
 
     print(stko.ZMatrix().get_zmatrix(bb1))
-    bb1.write(os.path.join(examples_output, "bb1.mol"))
+    bb1.write(examples_output / "bb1.mol")
     print(stko.ZMatrix().get_zmatrix(bb2))
-    bb2.write(os.path.join(examples_output, "bb2.mol"))
+    bb2.write(examples_output / "bb2.mol")
     print(stko.ZMatrix().get_zmatrix(polymer))
-    polymer.write(os.path.join(examples_output, "polymer.mol"))
+    polymer.write(examples_output / "polymer.mol")
 
 
 if __name__ == "__main__":
