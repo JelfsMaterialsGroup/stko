@@ -57,6 +57,7 @@ line-length = 79
 select = ["ALL"]
 ignore = [
   "ANN101",
+  "ANN102",
   "COM812",
   "ISC001",
   "FBT001",

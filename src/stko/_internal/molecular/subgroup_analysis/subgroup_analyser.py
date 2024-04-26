@@ -3,6 +3,7 @@ from collections import abc
 
 import numpy as np
 import stk
+
 from stko._internal.calculators.planarity_calculators import (
     PlanarityCalculator,
 )
@@ -14,8 +15,9 @@ logger = logging.getLogger(__name__)
 class Subgroup:
     """Defines subgroup to search for and its measure of interest.
 
-    WARNING: This code is only present in the latest versions of stko
-    that require Python 3.11!
+    .. warning::
+        This code is only present in the latest versions of stko
+        that require Python 3.11!
 
     """
 
@@ -38,28 +40,24 @@ class Subgroup:
         Defined in `_calculate_measure` and `_find_subgroup` private
         methods.
 
-        Parameters
-        ----------
+        Parameters:
             molecule:
                 The molecule to analyse.
 
         Returns:
-        -------
             List of measures.
 
         """
         atom_groups = self._find_subgroup(molecule)
-        measures = []
-        for ag in atom_groups:
-            measures.append(self._calculate_measure(molecule, ag))
-        return measures
+        return [self._calculate_measure(molecule, ag) for ag in atom_groups]
 
 
 class C6Planarity(Subgroup):
     """Sub group measure of C6 ring planarity.
 
-    WARNING: This code is only present in the latest versions of stko
-    that require Python 3.11!
+    .. warning::
+        This code is only present in the latest versions of stko
+        that require Python 3.11!
 
     """
 
@@ -78,8 +76,7 @@ class C6Planarity(Subgroup):
                 ),
             ),
         )
-        for fg in with_fgs.get_functional_groups():
-            yield fg
+        yield from with_fgs.get_functional_groups()
 
     def _calculate_measure(
         self,
@@ -101,8 +98,9 @@ class C6Planarity(Subgroup):
 class C5N1Planarity(C6Planarity):
     """Sub group measure of C5N1 ring planarity.
 
-    WARNING: This code is only present in the latest versions of stko
-    that require Python 3.11!
+    .. warning::
+        This code is only present in the latest versions of stko
+        that require Python 3.11!
 
     """
 
@@ -121,15 +119,15 @@ class C5N1Planarity(C6Planarity):
                 ),
             ),
         )
-        for fg in with_fgs.get_functional_groups():
-            yield fg
+        yield from with_fgs.get_functional_groups()
 
 
 class X5Planarity(C6Planarity):
     """Sub group measure of five-membered ring planarity.
 
-    WARNING: This code is only present in the latest versions of stko
-    that require Python 3.11!
+    .. warning::
+        This code is only present in the latest versions of stko
+        that require Python 3.11!
 
     """
 
@@ -148,15 +146,15 @@ class X5Planarity(C6Planarity):
                 ),
             ),
         )
-        for fg in with_fgs.get_functional_groups():
-            yield fg
+        yield from with_fgs.get_functional_groups()
 
 
 class AlkyneAngle(Subgroup):
     """Sub group measure of avg. CCC angle in C-C#C-C group.
 
-    WARNING: This code is only present in the latest versions of stko
-    that require Python 3.11!
+    .. warning::
+        This code is only present in the latest versions of stko
+        that require Python 3.11!
 
     """
 
@@ -175,8 +173,7 @@ class AlkyneAngle(Subgroup):
                 ),
             ),
         )
-        for fg in with_fgs.get_functional_groups():
-            yield fg
+        yield from with_fgs.get_functional_groups()
 
     def _calculate_measure(
         self,
@@ -209,8 +206,9 @@ class AlkyneAngle(Subgroup):
 class SubgroupAnalyser:
     """Defines the analyser of subgroup instances.
 
-    WARNING: This code is only present in the latest versions of stko
-    that require Python 3.11!
+    .. warning::
+        This code is only present in the latest versions of stko
+        that require Python 3.11!
 
     """
 

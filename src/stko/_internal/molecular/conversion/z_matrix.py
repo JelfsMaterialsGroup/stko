@@ -1,6 +1,7 @@
 import logging
 
 import stk
+
 from stko._internal.utilities.exceptions import ConversionError
 from stko._internal.utilities.utilities import (
     calculate_angle,
@@ -15,7 +16,6 @@ class ZMatrix:
     """Converter for :class:`stk.Molecule` to Z-Matrix.
 
     Examples:
-    --------
         The Z-matrix is returned as a string.
 
         .. code-block:: python
@@ -32,16 +32,13 @@ class ZMatrix:
     def get_zmatrix(self, molecule: stk.Molecule) -> str:
         """Get Z-matrix of a molecule.
 
-        Parameters
-        ----------
+        Parameters:
             molecule:
                 Molecule to convert.
 
         Returns:
-        -------
-            zmatrix:
-                The Z-matrix of the molecule.
-                Distances in Angstrom, angles and torsions in degrees.
+            The Z-matrix of the molecule.
+            Distances in Angstrom, angles and torsions in degrees.
 
         """
         zmatrix = []
@@ -61,28 +58,28 @@ class ZMatrix:
                 distance = round(distance, 2)
                 zmatrix.append(f"{atom.__class__.__name__} {i} {distance}")
                 coords += 1
-            elif i == 2:
+            elif i == 2:  # noqa: PLR2004
                 distance = get_atom_distance(
                     position_matrix=position_matrix,
                     atom1_id=atom.get_id(),
                     atom2_id=mol_atoms[i - 1].get_id(),
                 )
                 angle = calculate_angle(
-                    pt1=tuple(
+                    pt1=next(
                         molecule.get_atomic_positions(
                             mol_atoms[i - 3].get_id()
                         )
-                    )[0],
-                    pt2=tuple(
+                    ),
+                    pt2=next(
                         molecule.get_atomic_positions(
                             mol_atoms[i - 2].get_id()
                         )
-                    )[0],
-                    pt3=tuple(
+                    ),
+                    pt3=next(
                         molecule.get_atomic_positions(
                             mol_atoms[i - 1].get_id()
                         )
-                    )[0],
+                    ),
                 )
 
                 distance = round(distance, 2)
@@ -100,39 +97,39 @@ class ZMatrix:
                     atom2_id=mol_atoms[i - 1].get_id(),
                 )
                 angle = calculate_angle(
-                    pt1=tuple(
+                    pt1=next(
                         molecule.get_atomic_positions(
                             mol_atoms[i - 3].get_id()
                         )
-                    )[0],
-                    pt2=tuple(
+                    ),
+                    pt2=next(
                         molecule.get_atomic_positions(
                             mol_atoms[i - 2].get_id()
                         )
-                    )[0],
-                    pt3=tuple(
+                    ),
+                    pt3=next(
                         molecule.get_atomic_positions(
                             mol_atoms[i - 1].get_id()
                         )
-                    )[0],
+                    ),
                 )
                 torsion = calculate_dihedral(
-                    pt1=tuple(
+                    pt1=next(
                         molecule.get_atomic_positions(
                             mol_atoms[i - 3].get_id()
                         )
-                    )[0],
-                    pt2=tuple(
+                    ),
+                    pt2=next(
                         molecule.get_atomic_positions(
                             mol_atoms[i - 2].get_id()
                         )
-                    )[0],
-                    pt3=tuple(
+                    ),
+                    pt3=next(
                         molecule.get_atomic_positions(
                             mol_atoms[i - 1].get_id()
                         )
-                    )[0],
-                    pt4=tuple(molecule.get_atomic_positions(atom.get_id()))[0],
+                    ),
+                    pt4=next(molecule.get_atomic_positions(atom.get_id())),
                 )
 
                 distance = round(distance, 2)
@@ -145,9 +142,10 @@ class ZMatrix:
                 coords += 3
 
         if 3 * len(zmatrix) - 6 != coords:
-            raise ConversionError(
+            msg = (
                 f"zmatrix: There are {coords}, not {3*len(zmatrix)-6} as "
                 "expected. Therefore, the conversion has failed."
             )
+            raise ConversionError(msg)
 
         return "\n".join(zmatrix)

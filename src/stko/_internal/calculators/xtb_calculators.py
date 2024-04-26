@@ -16,11 +16,14 @@ logger = logging.getLogger(__name__)
 
 
 class XTBEnergy:
-    """Uses GFN-xTB [1]_ to calculate energy and other properties.
+    """Uses GFN-xTB to calculate energy and other properties.
 
     By default, :meth:`get_results` will extract other properties of
     the :class:`stk.Molecule` passed to :meth:`calculate`, which
     will be saved in the attributes of :class:`stko.XTBResults`.
+
+    See Also:
+        * GFN-xTB https://xtb-docs.readthedocs.io/en/latest/setup.html
 
     Parameters:
         xtb_path:
@@ -208,8 +211,6 @@ class XTBEnergy:
             ip = xtb_results.get_ionisation_potential()
             ea = xtb_results.get_electron_affinity()
 
-    References:
-        .. [1] https://xtb-docs.readthedocs.io/en/latest/setup.html
 
     """
 

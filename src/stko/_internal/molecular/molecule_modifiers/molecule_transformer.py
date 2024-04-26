@@ -2,7 +2,8 @@ import logging
 from collections import abc
 
 import stk
-from rdkit.Chem import AllChem as rdkit
+from rdkit.Chem import AllChem as rdkit  # noqa: N813
+
 from stko._internal.molecular.atoms.dummy_atom import Du
 
 logger = logging.getLogger(__name__)
@@ -11,8 +12,20 @@ logger = logging.getLogger(__name__)
 class MoleculeTransformer:
     """Split an stk.molecule into many with new functional groups.
 
+    Parameters:
+        replacer_smarts:
+            SMARTS string of atom to replace dummy atoms with. This
+            must be a single atom.
+
+        functional_groups:
+            Functional group factories to use to define new building
+            block.
+
+    Raises:
+        :class:`ValueError`:
+            If `replacer_smarts` does not correspond to a single atom.
+
     Examples:
-    --------
         Given a molecule, this class allows you to cap a split molecule
         (see :class:`MoleculeSplitter`) at the broken bond with an atom
         defined in `replacer_smarts`.
@@ -44,28 +57,14 @@ class MoleculeTransformer:
         replacer_smarts: str,
         functional_groups: abc.Iterable[stk.FunctionalGroupFactory],
     ) -> None:
-        """Parameters
-            replacer_smarts:
-                SMARTS string of atom to replace dummy atoms with. This
-                must be a single atom.
-
-            functional_groups:
-                Functional group factories to use to define new building
-                block.
-
-        Raises:
-        ------
-            :class:`ValueError` If `replacer_smarts` does not correspond
-            to a single atom.
-
-        """
         # Add replacers bonded to * atoms.
         _atom_list = list(rdkit.MolFromSmarts(replacer_smarts).GetAtoms())
         if len(_atom_list) != 1:
-            raise ValueError(
+            msg = (
                 f"{replacer_smarts} corresponds {len(_atom_list)} "
                 "atoms. Should be 1."
             )
+            raise ValueError(msg)
 
         for i in _atom_list:
             self._replacer = stk.Atom(
@@ -80,14 +79,11 @@ class MoleculeTransformer:
         """Transform a molecule.
 
         Parameters
-        ----------
             molecule:
                 Molecule to modify.
 
         Returns:
-        -------
-            molecule:
-                The resulting molecule.
+            The resulting molecule.
 
         """
         rdkit_mol = molecule.to_rdkit_mol()
@@ -120,9 +116,7 @@ class MoleculeTransformer:
             bonds=bonds,
             position_matrix=position_matrix,
         )
-        building_block = stk.BuildingBlock.init_from_molecule(
+        return stk.BuildingBlock.init_from_molecule(
             molecule=building_block,
             functional_groups=self._functional_groups,
         )
-
-        return building_block

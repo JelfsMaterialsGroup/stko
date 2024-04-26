@@ -1,18 +1,13 @@
 import logging
+from pathlib import Path
 
 logger = logging.getLogger(__name__)
 
 
 class TopologyInfo:
-    """Extracted information of a topology."""
+    """Extracted information of a topology.
 
-    def __init__(
-        self,
-        centroids: dict,
-        connectivities: dict,
-        edge_pairs: list[tuple[int, int]],
-    ) -> None:
-        """Parameters
+    Parameters:
         centroids:
             Positions of vertices.
 
@@ -22,7 +17,14 @@ class TopologyInfo:
         edge_pairs:
             Pairs of vertices with edges between them.
 
-        """
+    """
+
+    def __init__(
+        self,
+        centroids: dict,
+        connectivities: dict,
+        edge_pairs: list[tuple[int, int]],
+    ) -> None:
         self._centroids = centroids
         self._connectivities = connectivities
         self._edge_pairs = edge_pairs
@@ -31,7 +33,6 @@ class TopologyInfo:
         """Get the positions of each vertex.
 
         Returns:
-        -------
             Vertex ids with their positions.
 
         """
@@ -41,7 +42,6 @@ class TopologyInfo:
         """Get the number of connections of each vertex.
 
         Returns:
-        -------
             Vertex ids with their number of connections.
 
         """
@@ -51,13 +51,12 @@ class TopologyInfo:
         """Get the edge pairs.
 
         Returns:
-        -------
             List of edge pairs.
 
         """
         return self._edge_pairs
 
-    def write(self, path: str) -> None:
+    def write(self, path: Path) -> None:
         """Writes a mock .pdb with vertex centroids and edges as bonds."""
         content = []
 
@@ -104,5 +103,4 @@ class TopologyInfo:
 
         content.append("END\n")
 
-        with open(path, "w") as f:
-            f.write("".join(content))
+        path.write_text("".join(content))

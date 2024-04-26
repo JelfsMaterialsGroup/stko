@@ -2,6 +2,7 @@ import logging
 from collections import abc
 
 import stk
+
 from stko._internal.molecular.networkx.network import Network
 from stko._internal.molecular.topology_extractor.topology_info import (
     TopologyInfo,
@@ -14,7 +15,6 @@ class TopologyExtractor:
     """Extractor of topology definitions from a molecule.
 
     Examples:
-    --------
         Using a SMARTS string and the
         :class:`stk.SmartsFunctionalGroupFactory`, you can split a molecule
         at any point to define a topology.
@@ -69,8 +69,7 @@ class TopologyExtractor:
     ) -> TopologyInfo:
         """Extract a toplogy defining a molecule with disconnections.
 
-        Parameters
-        ----------
+        Parameters:
             molecule:
                 Molecule to get underlying topology of.
 
@@ -81,7 +80,6 @@ class TopologyExtractor:
                 Atom ids of disconnection points.
 
         Returns:
-        -------
             Information of the underlying topology.
 
         """
@@ -107,8 +105,8 @@ class TopologyExtractor:
             a1_g, a2_g = (
                 i
                 for i, cg in enumerate(connected_graphs)
-                if pair[0] in set(atom.get_id() for atom in cg)
-                or pair[1] in set(atom.get_id() for atom in cg)
+                if pair[0] in {atom.get_id() for atom in cg}
+                or pair[1] in {atom.get_id() for atom in cg}
             )
             edge_pairs.append((a1_g, a2_g))
 
@@ -121,5 +119,4 @@ class TopologyExtractor:
     ) -> list:
         graph = Network.init_from_molecule(molecule)
         graph = graph.with_deleted_bonds(atom_ids_to_disconnect)
-        connected_graphs = graph.get_connected_components()
-        return connected_graphs
+        return graph.get_connected_components()

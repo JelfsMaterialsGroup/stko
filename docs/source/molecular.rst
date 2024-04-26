@@ -21,7 +21,6 @@ Molecular
   DecomposeMOC <_autosummary/stko.molecule_analysis.DecomposeMOC>
   DitopicThreeSiteAnalyser <_autosummary/stko.molecule_analysis.DitopicThreeSiteAnalyser>
   ConstructedAnalyser <_autosummary/stko.molecule_analysis.ConstructedAnalyser>
-  SubgroupAnalyser <_autosummary/stko.molecule_analysis.SubgroupAnalyser>
   AlkyneAngle <_autosummary/stko.molecule_analysis.AlkyneAngle>
   X5Planarity <_autosummary/stko.molecule_analysis.X5Planarity>
   C5N1Planarity <_autosummary/stko.molecule_analysis.C5N1Planarity>

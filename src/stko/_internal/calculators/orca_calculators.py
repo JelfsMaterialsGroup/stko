@@ -15,19 +15,22 @@ logger = logging.getLogger(__name__)
 
 
 class OrcaEnergy:
-    """Uses Orca [#]_ to calculate energy and other properties.
+    """Uses Orca to calculate energy and other properties.
 
     By default, :meth:`get_results` will extract other properties of
     the :class:`stk.Molecule` passed to :meth:`calculate`, which
     will be saved in the attributes of :class:`stko.OrcaResults`.
 
     All intermediate and output files from Orca are deleted at the end
-    of the job (i.e. the `.gbw` file will be deleted) because they can
+    of the job (i.e. the ``.gbw`` file will be deleted) because they can
     quickly build up to large sizes. The `discard_output` option allows
     you to keep output files if desired.Additionally, the
     `write_input_only` option is available for jobs where you would
     like more customization or to run outside of the Python
     environment.
+
+    See Also:
+        * Orca: https://orcaforum.kofo.mpg.de/app.php/portal
 
     Parameters:
         orca_path:
@@ -35,7 +38,7 @@ class OrcaEnergy:
 
         topline:
             Top line designating the type of calculation. Should start
-            with `! `.
+            with ``!``.
 
         basename:
             Base name of Orca output files.
@@ -55,12 +58,12 @@ class OrcaEnergy:
             Multiplicity of system (2S+1), where S is the spin.
 
         write_input_only:
-            `True` if you only want the input file written and to not
+            ``True`` if you only want the input file written and to not
             have the Orca job run.
 
         discard_output:
-            `True` if you want to delete auxillary Orca output files
-            such as the `.gbw` file.
+            ``True`` if you want to delete auxillary Orca output files
+            such as the ``.gbw`` file.
 
     Notes:
         When running :meth:`calculate`, this calculator changes the
@@ -131,8 +134,6 @@ class OrcaEnergy:
 
             orca.get_results(polymer)
 
-    References:
-        .. [#] https://orcaforum.kofo.mpg.de/app.php/portal
 
     """
 
@@ -293,8 +294,8 @@ class OrcaEnergy:
                 The :class:`stk.Molecule` whose energy is to be calculated.
 
         Returns:
-            The properties, with units, from Orca calculations or `None`
-            if `write_input_only` mode.
+            The properties, with units, from Orca calculations or ``None``
+            if ``write_input_only`` mode.
 
         """
         if self._output_dir is None:
@@ -320,7 +321,7 @@ class OrcaEnergy:
                 The :class:`stk.Molecule` whose energy is to be calculated.
 
         Returns:
-            The energy or `None` if `write_input_only` mode.
+            The energy or ``None`` if ``write_input_only`` mode.
 
         """
         results = self.get_results(mol)

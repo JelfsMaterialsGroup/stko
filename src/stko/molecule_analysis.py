@@ -1,7 +1,8 @@
+"""Tools for molecular analysis."""
+
 from stko._internal.calculators.geometry_analysis.geometry import (
     GeometryAnalyser,
 )
-from stko._internal.calculators.pore_analysis.pore import PoreAnalyser
 from stko._internal.molecular.constructed.constructed_analysis import (
     ConstructedAnalyser,
 )
@@ -19,15 +20,14 @@ from stko._internal.molecular.subgroup_analysis.three_site_analysis import (
 )
 
 __all__ = [
-    "DecomposeMOC",
-    "ConstructedAnalyser",
-    "DitopicThreeSiteAnalyser",
-    "PoreAnalyser",
     "GeometryAnalyser",
-    "Subgroup",
-    "SubgroupAnalyser",
+    "ConstructedAnalyser",
+    "DecomposeMOC",
+    "DitopicThreeSiteAnalyser",
     "AlkyneAngle",
-    "X5Planarity",
     "C5N1Planarity",
     "C6Planarity",
+    "Subgroup",
+    "SubgroupAnalyser",
+    "X5Planarity",
 ]

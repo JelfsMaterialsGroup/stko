@@ -2,6 +2,7 @@ import logging
 
 import numpy as np
 import stk
+
 from stko._internal.molecular.networkx.network import Network
 
 logger = logging.getLogger(__name__)
@@ -10,8 +11,9 @@ logger = logging.getLogger(__name__)
 class DecomposeMOC:
     """Decompose a metal-organic cage to obtain its organic building blocks.
 
-    WARNING: This code is only present in the latest versions of stko
-    that require Python 3.11!
+    .. warning::
+        This code is only present in the latest versions of stko
+        that require Python 3.11!
 
     """
 
@@ -22,8 +24,7 @@ class DecomposeMOC:
     ) -> list:
         graph = Network.init_from_molecule(molecule)
         graph = graph.with_deleted_elements(metal_atom_nos)
-        connected_graphs = graph.get_connected_components()
-        return connected_graphs
+        return graph.get_connected_components()
 
     def decompose(
         self,
@@ -32,8 +33,7 @@ class DecomposeMOC:
     ) -> tuple[stk.Molecule, ...]:
         """Decompose a MOC into ligands by deleting specific metal atoms.
 
-        Parameters
-        ----------
+        Parameters:
             molecule:
                 The molecule to decompose.
 
@@ -42,7 +42,6 @@ class DecomposeMOC:
                 any element on periodic table.
 
         Returns:
-        -------
             The ligands as distinct, connected molecules.
 
         """

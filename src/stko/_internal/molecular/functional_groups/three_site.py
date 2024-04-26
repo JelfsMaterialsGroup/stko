@@ -10,25 +10,16 @@ logger = logging.getLogger(__name__)
 class ThreeSiteFG:
     """Represents FG sites like N atom in pyridine functional group.
 
-    WARNING: This code is only present in the latest versions of stko
-    that require Python 3.11!
+    .. warning::
+        This code is only present in the latest versions of stko
+        that require Python 3.11!
 
     The structure of the functional group is given by the pseudo-SMILES
     ``[neighbour][binder][neighbour]``.
 
     Contains :class:`stk.GenericFunctionalGroup`.
 
-    """
-
-    def __init__(
-        self,
-        neigh1: stk.Atom,
-        binder: stk.Atom,
-        neigh2: stk.Atom,
-        bonders: tuple[stk.Atom, ...],
-        deleters: tuple[stk.Atom, ...],
-    ) -> None:
-        """Parameters
+    Parameters:
         neigh1:
             The first neighbour atom.
 
@@ -44,7 +35,16 @@ class ThreeSiteFG:
         deleters:
             The deleter atoms, there should be none.
 
-        """
+    """
+
+    def __init__(  # noqa: PLR0913
+        self,
+        neigh1: stk.Atom,
+        binder: stk.Atom,
+        neigh2: stk.Atom,
+        bonders: tuple[stk.Atom, ...],
+        deleters: tuple[stk.Atom, ...],
+    ) -> None:
         self._neigh1 = neigh1
         self._binder = binder
         self._neigh2 = neigh2
@@ -149,19 +149,11 @@ class ThreeSiteFG:
 class ThreeSiteFactory(stk.FunctionalGroupFactory):
     """Find ThreeSite functional groups in molecules.
 
-    WARNING: This code is only present in the latest versions of stko
-    that require Python 3.11!
+    .. warning::
+        This code is only present in the latest versions of stko
+        that require Python 3.11!
 
-
-    """
-
-    def __init__(
-        self,
-        smarts: str,
-        bonders: tuple[int, ...] = (1,),
-        deleters: tuple[int, ...] = (),
-    ) -> None:
-        """Parameters
+    Parameters:
         smarts:
             SMARTS string to use to find functional group. Of form
             ``[neighbour][binder][neighbour]``.
@@ -172,7 +164,14 @@ class ThreeSiteFactory(stk.FunctionalGroupFactory):
         deleters:
             The deleter atoms, there should be none.
 
-        """
+    """
+
+    def __init__(
+        self,
+        smarts: str,
+        bonders: tuple[int, ...] = (1,),
+        deleters: tuple[int, ...] = (),
+    ) -> None:
         self._smarts = smarts
         self._bonders = bonders
         self._deleters = deleters
@@ -201,8 +200,9 @@ class ThreeSiteFactory(stk.FunctionalGroupFactory):
 class CNCFactory(ThreeSiteFactory):
     """A subclass of :class:`.ThreeSiteFactory`.
 
-    WARNING: This code is only present in the latest versions of stko
-    that require Python 3.11!
+    .. warning::
+        This code is only present in the latest versions of stko
+        that require Python 3.11!
 
     SMARTs string for [carbon][nitrogen][carbon]: "[#6]~[#7X2]~[#6]"
 
@@ -212,7 +212,7 @@ class CNCFactory(ThreeSiteFactory):
         self,
         bonders: tuple[int, ...] = (1,),
         deleters: tuple[int, ...] = (),
-    ):
+    ) -> None:
         self._smarts = "[#6]~[#7X2]~[#6]"
         self._bonders = bonders
         self._deleters = deleters
@@ -221,8 +221,9 @@ class CNCFactory(ThreeSiteFactory):
 class CNNFactory(ThreeSiteFactory):
     """A subclass of :class:`.ThreeSiteFactory`.
 
-    WARNING: This code is only present in the latest versions of stko
-    that require Python 3.11!
+    .. warning::
+        This code is only present in the latest versions of stko
+        that require Python 3.11!
 
     SMARTs string for [nitrogen][nitrogen][carbon]: "[#7]~[#7X2]~[#6]"
 
@@ -232,7 +233,7 @@ class CNNFactory(ThreeSiteFactory):
         self,
         bonders: tuple[int, ...] = (1,),
         deleters: tuple[int, ...] = (),
-    ):
+    ) -> None:
         self._smarts = "[#7]~[#7X2]~[#6]"
         self._bonders = bonders
         self._deleters = deleters
@@ -241,8 +242,9 @@ class CNNFactory(ThreeSiteFactory):
 class NNNFactory(ThreeSiteFactory):
     """A subclass of :class:`.ThreeSiteFactory`.
 
-    WARNING: This code is only present in the latest versions of stko
-    that require Python 3.11!
+    .. warning::
+        This code is only present in the latest versions of stko
+        that require Python 3.11!
 
     SMARTs string for [nitrogen][nitrogen][nitrogen]: "[#7]~[#7X2]~[#7]"
 
@@ -252,7 +254,7 @@ class NNNFactory(ThreeSiteFactory):
         self,
         bonders: tuple[int, ...] = (1,),
         deleters: tuple[int, ...] = (),
-    ):
+    ) -> None:
         self._smarts = "[#7]~[#7X2]~[#7]"
         self._bonders = bonders
         self._deleters = deleters

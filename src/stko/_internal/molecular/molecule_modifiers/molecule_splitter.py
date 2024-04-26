@@ -3,7 +3,8 @@ from collections import abc
 from itertools import combinations
 
 import stk
-from rdkit.Chem import AllChem as rdkit
+from rdkit.Chem import AllChem as rdkit  # noqa: N813
+
 from stko._internal.molecular.atoms.dummy_atom import Du
 
 logger = logging.getLogger(__name__)
@@ -12,8 +13,14 @@ logger = logging.getLogger(__name__)
 class MoleculeSplitter:
     """Split an stk.molecule into many with dummy atoms.
 
+    Parameters:
+        breaker_smarts:
+            SMARTS string used to find the substructure to break.
+
+        bond_deleter_ids:
+            Index of atoms in `breaker_smarts` to break bond between.
+
     Examples:
-    --------
         Given a molecule, this class allows you to break bonds based on
         `breaker_smarts` between the atoms in `bond_deleter_ids`.
 
@@ -37,14 +44,6 @@ class MoleculeSplitter:
         breaker_smarts: str,
         bond_deleter_ids: tuple[int, ...],
     ) -> None:
-        """Parameters
-        breaker_smarts:
-            SMARTS string used to find the substructure to break.
-
-        bond_deleter_ids:
-            Index of atoms in `breaker_smarts` to break bond between.
-
-        """
         self._breaker_smarts = breaker_smarts
         self._bond_deleter_ids = bond_deleter_ids
 
@@ -54,15 +53,12 @@ class MoleculeSplitter:
     ) -> abc.Iterable[stk.BuildingBlock]:
         """Split a molecule.
 
-        Parameters
-        ----------
+        Parameters:
             molecule:
                 Molecule to modify.
 
         Returns:
-        -------
-            molecules:
-                The resulting list of molecules.
+            The resulting list of molecules.
 
         """
         rdkit_mol = molecule.to_rdkit_mol()

@@ -4,6 +4,7 @@ from typing import Self
 
 import networkx as nx
 import stk
+
 from stko._internal.molecular.atoms.positioned_atom import PositionedAtom
 
 logger = logging.getLogger(__name__)
@@ -12,8 +13,11 @@ logger = logging.getLogger(__name__)
 class Network:
     """Definition of a :mod:`networkx` graph of an :class:`stk.Molecule`.
 
+    Parameters:
+        graph:
+            The NetworkX graph to initialise from.
+
     Examples:
-    --------
         An stk molecule can be converted into a NetworkX object. This allows
         for the disconnection and manipulation of the molecular graph.
 
@@ -41,18 +45,15 @@ class Network:
     """
 
     def __init__(self, graph: nx.Graph) -> None:
-        """Parameters
-        graph:
-            The NetworkX graph to initialise from.
-
-        """
         self._graph = graph
 
     @classmethod
     def init_from_molecule(cls, molecule: stk.Molecule) -> Self:
-        """Parameters
-        molecule:
-            The molecule to initialise from.
+        """Initialize from an stk molecule.
+
+        Parameters:
+            molecule:
+                The molecule to initialise from.
 
         """
         g = nx.Graph()
@@ -90,8 +91,7 @@ class Network:
 
     def get_nodes(self) -> abc.Iterator[PositionedAtom]:
         """Yield nodes of :class:`networkx.Graph` (:class:`PositionAtom`)."""
-        for i in self._graph.nodes:
-            yield i
+        yield from self._graph.nodes
 
     def clone(self) -> Self:
         """Return a clone."""
@@ -122,7 +122,7 @@ class Network:
         atom_ids: abc.Iterable[tuple[int, int]],
     ) -> Self:
         """Return a clone with edges between `atom_ids` deleted."""
-        return self.clone()._with_deleted_bonds(atom_ids)
+        return self.clone()._with_deleted_bonds(atom_ids)  # noqa: SLF001
 
     def _with_deleted_elements(self, atomic_numbers: tuple[int]) -> Self:
         to_delete = []
@@ -150,17 +150,17 @@ class Network:
     def with_deleted_elements(self, atomic_numbers: tuple[int]) -> Self:
         """Return a clone with nodes with `atomic numbers` deleted.
 
-        WARNING: This code is only present in the latest versions of stko
-        that require Python 3.11!
+        .. warning::
+            This code is only present in the latest versions of stko
+            that require Python 3.11!
 
         """
-        return self.clone()._with_deleted_elements(atomic_numbers)
+        return self.clone()._with_deleted_elements(atomic_numbers)  # noqa: SLF001
 
     def get_connected_components(self) -> list[nx.Graph]:
         """Get connected components within full graph.
 
         Returns:
-        -------
             List of connected components of graph.
 
         """
