@@ -1,10 +1,12 @@
 import logging
+from typing import Any
 
 import stk
+
 from stko._internal.utilities.exceptions import WrapperNotInstalledError
 
 try:
-    import MDAnalysis as mda
+    import MDAnalysis as mda  # noqa: N813
 except ModuleNotFoundError:
     mda = None
 
@@ -12,11 +14,12 @@ logger = logging.getLogger(__name__)
 
 
 class MDAnalysis:
-    """
-    Converter for :class:`stk.Molecule` to and from MDAnalysis.
+    """Converter for :class:`stk.Molecule` to and from MDAnalysis.
+
+    Raises:
+        :class:`WrapperNotInstalledError`: if `MDAnalysis` not installed.
 
     Examples:
-
         An stk molecule can be converted into an MDAnalysis Universe.
 
         .. code-block:: python
@@ -37,34 +40,23 @@ class MDAnalysis:
     """
 
     def __init__(self) -> None:
-        """
-
-        Raises:
-
-            :class:`WrapperNotInstalledError` if `MDAnalysis` not installed.
-
-
-        """
         if mda is None:
-            raise WrapperNotInstalledError(
+            msg = (
                 "MDAnalysis is not installed; see README for " "installation."
             )
+            raise WrapperNotInstalledError(msg)
 
-    def get_universe(self, mol: stk.Molecule):  # type: ignore[no-untyped-def]
-        """
-        Get an MDAnalysis object.
+    def get_universe(self, mol: stk.Molecule) -> Any:  # type: ignore[no-untyped-def]
+        """Get an MDAnalysis object.
 
         Parameters:
-
             mol:
                 Molecule to convert.
 
         Returns:
-
             :class:`MDAnalysis.Universe`:
                 The MDAnalysis Universe of the molecule.
 
         """
-
         rdkit_mol = mol.to_rdkit_mol()
         return mda.Universe(rdkit_mol)

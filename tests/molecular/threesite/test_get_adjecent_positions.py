@@ -1,22 +1,13 @@
 import numpy as np
 import stko
 
+from tests.molecular.threesite.case_data import CaseData
 
-def test_get_adjacent_centroids(case_data):
-    """
-    Test :class:`.DitopicThreeSiteAnalyser.get_adjacent_centroids`.
 
-    Parameters:
-
-        case_data:
-            A test case.
-
-    """
-
+def test_get_adjacent_centroids(case_data: CaseData) -> None:
     threesite_analysis = stko.molecule_analysis.DitopicThreeSiteAnalyser()
 
     centroids = threesite_analysis.get_adjacent_centroids(
         case_data.building_block
     )
-    print(centroids, np.linalg.norm(centroids[0] - centroids[1]))
-    assert np.linalg.norm(centroids[0] - centroids[1]) > 0.1
+    assert np.linalg.norm(centroids[0] - centroids[1]) > 0.1  # noqa: PLR2004

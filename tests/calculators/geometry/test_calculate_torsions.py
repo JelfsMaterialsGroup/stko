@@ -1,22 +1,13 @@
 import numpy as np
 import stko
 
+from .case_data import CaseData
 
-def test_calculate_torsions(case_data):
-    """
-    Test :class:`.GeometryAnalyser.calculate_torsions`.
 
-    Parameters:
-
-        case_data:
-            A test case.
-
-    """
-
+def test_calculate_torsions(case_data: CaseData) -> None:
     analyser = stko.molecule_analysis.GeometryAnalyser()
 
     result = analyser.calculate_torsions(case_data.molecule)
-    print(result)
     for four in result:
         if four == ("C", "C", "C", "C"):
             continue

@@ -1,19 +1,21 @@
 import gzip
 import logging
-import os
 import re
 import subprocess as sp
 import time
+from pathlib import Path
 from uuid import uuid4
 
-import rdkit.Chem.AllChem as rdkit
+import rdkit.Chem.AllChem as rdkit  # noqa: N813
 import stk
+
 from stko._internal.optimizers.optimizers import Optimizer
 from stko._internal.optimizers.utilities import (
     MAEExtractor,
     mol_from_mae_file,
     move_generated_macromodel_files,
 )
+from stko._internal.types import MoleculeT
 from stko._internal.utilities.exceptions import (
     ConversionError,
     ForceFieldError,
@@ -27,72 +29,68 @@ logger = logging.getLogger(__name__)
 
 
 class MacroModel(Optimizer):
-    """
-    Base class for MacroModel optimzers.
+    """Base class for MacroModel optimzers.
+
+    Parameters:
+        macromodel_path:
+            The full path of the Schrodinger suite within the user's
+            machine. For example, on a Linux machine this may be
+            something like ``'/opt/schrodinger2017-2'``.
+
+        output_dir:
+            The name of the directory into which files generated during
+            the optimization are written, if ``None`` then
+            :func:`uuid.uuid4` is used.
+
+        timeout:
+            The amount in seconds the optimization is allowed to run
+            before being terminated. ``None`` means there is no
+            timeout.
+
+        force_field:
+            The number of the force field to be used.
+            Force field arguments can be the following::
+
+            +-------------------------+
+            |  1  | MM2               |
+            +-------------------------+
+            |  2  | MM3               |
+            +-------------------------+
+            |  3  | AMBER             |
+            +-------------------------+
+            |  4  | AMBER94           |
+            +-------------------------+
+            |  5  | OPLSA             |
+            +-------------------------+
+            |  10 | MMFF94 and MMFF94s|
+            +-------------------------+
+            |  14 | OPLS_2005         |
+            +-------------------------+
+            |  16 | OPLS3e            |
+            +-------------------------+
+
+        maximum_iterations:
+            The maximum number of iterations done during the
+            optimization. Cannot be more than ``999999``.
+
+        minimum_gradient:
+            The gradient at which optimization is stopped.
+            Cannot be less than ``0.0001``.
+
 
     """
 
-    def __init__(
+    def __init__(  # noqa: PLR0913
         self,
-        macromodel_path: str,
-        output_dir: str | None,
+        macromodel_path: Path | str,
+        output_dir: Path | str | None,
         timeout: float | None,
         force_field: int,
         maximum_iterations: int,
         minimum_gradient: float,
     ) -> None:
-        """
-        Parameters:
-
-            macromodel_path:
-                The full path of the Schrodinger suite within the user's
-                machine. For example, on a Linux machine this may be
-                something like ``'/opt/schrodinger2017-2'``.
-
-            output_dir:
-                The name of the directory into which files generated during
-                the optimization are written, if ``None`` then
-                :func:`uuid.uuid4` is used.
-
-            timeout:
-                The amount in seconds the optimization is allowed to run
-                before being terminated. ``None`` means there is no
-                timeout.
-
-            force_field:
-                The number of the force field to be used.
-                Force field arguments can be the following:
-                +------------+------------+
-                |  1  | MM2               |
-                +------------+------------+
-                |  2  | MM3               |
-                +------------+------------+
-                |  3  | AMBER             |
-                +------------+------------+
-                |  4  | AMBER94           |
-                +------------+------------+
-                |  5  | OPLSA             |
-                +------------+------------+
-                |  10 | MMFF94 and MMFF94s|
-                +------------+------------+
-                |  14 | OPLS_2005         |
-                +------------+------------+
-                |  16 | OPLS3e            |
-                +------------+------------+
-
-
-            maximum_iterations:
-                The maximum number of iterations done during the
-                optimization. Cannot be more than ``999999``.
-
-            minimum_gradient:
-                The gradient at which optimization is stopped.
-                Cannot be less than ``0.0001``.
-
-        """
-
-        self._macromodel_path = macromodel_path
-        self._output_dir = output_dir
+        self._macromodel_path = Path(macromodel_path)
+        self._output_dir = None if output_dir is None else Path(output_dir)
         self._timeout = timeout
         self._force_field = force_field
         self._maximum_iterations = maximum_iterations
@@ -100,11 +98,9 @@ class MacroModel(Optimizer):
         super().__init__()
 
     def _run_bmin(self, mol: stk.Molecule, run_name: str) -> None:
-        """
-        Run an optimization using bmin.
+        """Run an optimization using bmin.
 
         Parameters:
-
             mol:
                 The molecule being optimized.
 
@@ -113,37 +109,36 @@ class MacroModel(Optimizer):
                 will have this name.
 
         Raises:
+            :class:`OptimizationError`:
+                if the optimization failed for some unspecified.
 
-            :class:`OptimizationError` if the optimization failed for
-            some unspecified.
+            :class:`ForceFieldError`:
+                if the force field could not be used with the molecule.
 
-            :class:`ForceFieldError` if the force field could not be
-            used with the molecule.
+            :class:`LewisStructureError`:
+                if Lewis structure of the molecule had issues.
 
-            :class:`LewisStructureError` if Lewis structure of the
-            molecule had issues.
-
-            :class:`PathError` if an invalid MacroModel path is being used.
+            :class:`PathError`:
+                if an invalid MacroModel path is being used.
 
         """
-
-        logger.info(f'Running bmin on "{mol}".')
+        logger.info('Running bmin on "%s".', mol)
 
         # To run MacroModel a command is issued to the console via
         # ``subprocess.Popen``. The command is the full path of the
         # ``bmin`` program. ``bmin`` is located in the Schrodinger
         # installation folder.
-        log_file = f"{run_name}.log"
-        opt_app = os.path.join(self._macromodel_path, "bmin")
+        log_file = Path(f"{run_name}.log")
+        opt_app = self._macromodel_path / "bmin"
         # The first member of the list is the command, the following
         # ones are any additional arguments.
 
-        opt_cmd = [opt_app, run_name, "-WAIT", "-LOCAL"]
+        opt_cmd = [str(opt_app), run_name, "-WAIT", "-LOCAL"]
 
         incomplete = True
         while incomplete:
             process = sp.Popen(
-                opt_cmd,
+                opt_cmd,  # noqa: S603
                 stdout=sp.PIPE,
                 stderr=sp.STDOUT,
                 universal_newlines=True,
@@ -154,26 +149,27 @@ class MacroModel(Optimizer):
             except sp.TimeoutExpired:
                 logger.warning(
                     "Minimization took too long and was terminated "
-                    f'by force on "{mol}".'
+                    'by force on "%s".',
+                    mol,
                 )
-                self._kill_bmin(mol, run_name)
+                self._kill_bmin(run_name)
                 output = ""
 
-            logger.debug(f'Output of bmin on "{mol}" was: {output}.')
+            logger.debug('Output of bmin on "%s" was: %s.', mol, output)
 
-            with open(log_file, "r") as log:
+            with log_file.open() as log:
                 log_content = log.read()
 
             # Check the log for error reports.
             error1 = "termination due to error condition           21-"
             if error1 in log_content:
-                raise OptimizerError("Macromodel: bmin crashed. See log file.")
+                msg = "Macromodel: bmin crashed. See log file."
+                raise OptimizerError(msg)
 
             error2 = "FATAL do_nosort_typing: NO MATCH found for atom "
             if error2 in log_content:
-                raise ForceFieldError(
-                    "Macromodel: The log implies the force field failed."
-                )
+                msg = "Macromodel: The log implies the force field failed."
+                raise ForceFieldError(msg)
 
             error3 = (
                 "FATAL gen_lewis_structure() -> None: "
@@ -184,21 +180,18 @@ class MacroModel(Optimizer):
                 "due to forcefield interaction errors"
             )
             if error3 in log_content and error4 in log_content:
-                raise LewisStructureError(
-                    "Macromodel: bmin failed due to poor Lewis structure."
-                )
+                msg = "Macromodel: bmin failed due to poor Lewis structure."
+                raise LewisStructureError(msg)
 
             if "MDYN error encountered" in log_content:
-                raise OptimizerError(
-                    "Macromodel: MD error during optimization."
-                )
+                msg = "Macromodel: MD error during optimization."
+                raise OptimizerError(msg)
 
             # If optimization fails because a wrong Schrodinger path
             # was given, raise.
             if "The system cannot find the path specified" in output:
-                raise PathError(
-                    "Macromodel: Invalid Schrodinger path given to bmin."
-                )
+                msg = "Macromodel: Invalid Schrodinger path given to bmin."
+                raise PathError(msg)
 
             # If optimization fails because the license is not found,
             # rerun the function.
@@ -207,24 +200,19 @@ class MacroModel(Optimizer):
 
         # Make sure the .maegz file created by the optimization is
         # present.
-        maegz = f"{run_name}-out.maegz"
+        maegz = Path(f"{run_name}-out.maegz")
         self._wait_for_file(maegz)
-        if (
-            not os.path.exists(log_file)
-            or not os.path.exists(maegz)
-            or log_content == ""
-        ):
-            raise OptimizerError(
+        if not log_file.exists() or not maegz.exists() or log_content == "":
+            msg = (
                 "Macromodel: The .log and/or .maegz files were not created"
                 " correctly."
             )
+            raise OptimizerError(msg)
 
-    def _kill_bmin(self, mol: stk.Molecule, run_name: str) -> None:
-        """
-        Kill bmin.
+    def _kill_bmin(self, run_name: str) -> None:
+        """Kill bmin.
 
         Parameters:
-
             mol:
                 The molecule being optimized.
 
@@ -233,15 +221,18 @@ class MacroModel(Optimizer):
                 have this name.
 
         """
-
         name = re.split(r"\\|/", run_name)[-1]
-        app = os.path.join(self._macromodel_path, "jobcontrol")
-        cmd = [app, "-stop", name]
+        app = self._macromodel_path / "jobcontrol"
+        cmd = [str(app), "-stop", name]
 
         incomplete = True
         while incomplete:
             out = sp.run(
-                cmd, stdout=sp.PIPE, stderr=sp.STDOUT, universal_newlines=True
+                cmd,  # noqa: S603
+                stdout=sp.PIPE,
+                stderr=sp.STDOUT,
+                text=True,
+                check=False,
             )
 
             # Keep re-running the function until license is found.
@@ -253,14 +244,18 @@ class MacroModel(Optimizer):
         # been written by the time the function exits. Essentially the
         # loop continues until the job is no longer found by
         # "./jobcontrol -list"
-        cmd = [app, "-list"]
+        cmd = [str(app), "-list"]
         output = name
         start = time.time()
         while name in output:
             output = sp.run(
-                cmd, stdout=sp.PIPE, stderr=sp.STDOUT, universal_newlines=True
+                cmd,  # noqa: S603
+                stdout=sp.PIPE,
+                stderr=sp.STDOUT,
+                text=True,
+                check=False,
             ).stdout
-            if time.time() - start > 600:
+            if time.time() - start > 600:  # noqa: PLR2004
                 break
 
     def _license_found(
@@ -269,8 +264,7 @@ class MacroModel(Optimizer):
         output: str,
         mol: stk.Molecule | None = None,
     ) -> bool:
-        """
-        Check to see if minimization failed due to a missing license.
+        """Check to see if minimization failed due to a missing license.
 
         The user can be notified of this in one of two ways. Sometimes
         the output of the submission contains the message informing
@@ -279,7 +273,6 @@ class MacroModel(Optimizer):
         this message.
 
         Parameters:
-
             run_name:
                 The name of the run. The files generated by this run will
                 have this name.
@@ -293,12 +286,10 @@ class MacroModel(Optimizer):
                 to be checked, the default ``None`` should be used.
 
         Returns:
-
             ``True`` if the license was found. ``False`` if the
             minimization did not occur due to a missing license.
 
         """
-
         if "Could not check out a license for mmlibs" in output:
             return False
         if mol is None:
@@ -309,7 +300,7 @@ class MacroModel(Optimizer):
 
         # Check if the file exists first. If not, this is often means
         # the calculation must be redone so return False anyway.
-        with open(f"{run_name}.log", "r") as f:
+        with Path(f"{run_name}.log").open() as f:
             log_file = f.read()
 
         if "Could not check out a license for mmlibs" in log_file:
@@ -318,15 +309,15 @@ class MacroModel(Optimizer):
         return True
 
     @staticmethod
-    def _get_com_line(
+    def _get_com_line(  # noqa: PLR0913
         arg1: str,
         arg2: int,
         arg3: int,
         arg4: int,
         arg5: int,
-        arg6: float | int,
-        arg7: float | int,
-        arg8: float | int,
+        arg6: float,
+        arg7: float,
+        arg8: float,
         arg9: int,
     ) -> str:
         return (
@@ -335,12 +326,10 @@ class MacroModel(Optimizer):
             f"{arg7:>11.4f}{arg8:>11.4f}{arg9:>11.4f}"
         )
 
-    def _run_structconvert(self, input_path: str, output_path: str) -> None:
-        """
-        Use structconvert to change file type.
+    def _run_structconvert(self, input_path: Path, output_path: Path) -> None:
+        """Use structconvert to change file type.
 
         Parameters:
-
             input_path:
                 The path to the input file.
 
@@ -348,61 +337,62 @@ class MacroModel(Optimizer):
                 The path to the output file.
 
         """
-
-        convrt_app = os.path.join(
-            self._macromodel_path, "utilities", "structconvert"
-        )
-        convrt_cmd = [convrt_app, input_path, output_path]
+        convrt_app = self._macromodel_path / "utilities" / "structconvert"
+        convrt_cmd = [str(convrt_app), str(input_path), str(output_path)]
 
         incomplete = True
         while incomplete:
             # Execute the file conversion.
             try:
                 convrt_return = sp.run(
-                    convrt_cmd,
+                    convrt_cmd,  # noqa: S603
                     stdout=sp.PIPE,
                     stderr=sp.STDOUT,
-                    universal_newlines=True,
+                    text=True,
+                    check=False,
                 )
 
             # If conversion fails because a wrong Schrodinger path was
             # given, raise.
-            except FileNotFoundError:
-                raise PathError(
+            except FileNotFoundError as error:
+                msg = (
                     "Macromodel: Wrong Schrodinger path supplied to "
                     "structconvert."
                 )
+                raise PathError(msg) from error
 
             if "File does not exist" in convrt_return.stdout:
-                raise ConversionError(
+                msg = (
                     f"Macromodel: structconvert input file, {input_path}, "
                     f"missing. Console output was "
                     f"{convrt_return.stdout}"
                 )
+                raise ConversionError(msg)
 
             # Keep re-running the function until license is found.
-            run_name, _ = os.path.splitext(input_path)
-            if self._license_found(run_name, convrt_return.stdout):
+            if self._license_found(
+                str(input_path.parent / input_path.stem), convrt_return.stdout
+            ):
                 incomplete = False
 
         # If force field failed, raise.
         if "number 1" in convrt_return.stdout:
-            raise ForceFieldError(f"Macromodel: {convrt_return.stdout}")
+            msg = f"Macromodel: {convrt_return.stdout}"
+            raise ForceFieldError(msg)
 
         self._wait_for_file(output_path)
-        if not os.path.exists(output_path):
-            raise ConversionError(
+        if not output_path.exists():
+            msg = (
                 f"Macromodel: Conversion output file {output_path} was "
                 "not found."
                 f" Console output was {convrt_return.stdout}."
             )
+            raise ConversionError(msg)
 
-    def _wait_for_file(self, path: str, timeout: float | int = 10) -> None:
-        """
-        Wait until a given file exists or `timeout` expires.
+    def _wait_for_file(self, path: Path, timeout: float = 10) -> None:
+        """Wait until a given file exists or `timeout` expires.
 
         Parameters:
-
             path:
                 The full path of the file which should be waited for.
 
@@ -411,42 +401,89 @@ class MacroModel(Optimizer):
                 returns.
 
         """
-
         t_start = time.time()
         tick = 0
         while True:
             time_taken = time.time() - t_start
             if divmod(time_taken, 5)[0] == tick + 1:
-                logger.warning(f'Waiting for "{path}".')
+                logger.warning('Waiting for "%s".', path)
                 tick += 1
 
-            if os.path.exists(path) or time_taken > timeout:
+            if path.exists() or time_taken > timeout:
                 break
 
     def _convert_maegz_to_mae(self, run_name: str) -> None:
-        """
-        Convert a ``.maegz`` file to a ``.mae`` file.
+        """Convert a ``.maegz`` file to a ``.mae`` file.
 
         Parameters:
-
-            run_name : :class:`str`
+            run_name:
                 The name of the run. The files generated by this run will
                 have this name.
 
         """
-
         gz_file = gzip.open(f"{run_name}-out.maegz")
-        with open(f"{run_name}.mae", "wb") as f:
+        with Path(f"{run_name}.mae").open("wb") as f:
             f.write(gz_file.read())
         gz_file.close()
 
 
 class MacroModelForceField(MacroModel):
-    """
-    Uses MacroModel force fields to optimize molecules.
+    """Uses MacroModel force fields to optimize molecules.
+
+    Parameters:
+        macromodel_path:
+            The full path of the Schrodinger suite within the user's
+            machine. For example, on a Linux machine this may be
+            something like ``'/opt/schrodinger2017-2'``.
+
+        output_dir:
+            The name of the directory into which files generated during
+            the optimization are written, if ``None`` then
+            :func:`uuid.uuid4` is used.
+
+        restricted:
+            If ``True`` then an optimization is performed only on bonds
+            created during the `ConstructedMolecule`
+            creation.
+            All building block bonds will be fixed.
+            If ``False`` then all bonds are optimized.
+
+        timeout:
+            The amount in seconds the optimization is allowed to run
+            before being terminated. ``None`` means there is no
+            timeout.
+
+        force_field:
+            The number of the force field to be used.
+            Force field arguments can be the following:
+
+            +-------------------------+
+            |  1  | MM2               |
+            +-------------------------+
+            |  2  | MM3               |
+            +-------------------------+
+            |  3  | AMBER             |
+            +-------------------------+
+            |  4  | AMBER94           |
+            +-------------------------+
+            |  5  | OPLSA             |
+            +-------------------------+
+            |  10 | MMFF94 and MMFF94s|
+            +-------------------------+
+            |  14 | OPLS_2005         |
+            +-------------------------+
+            |  16 | OPLS3e            |
+            +-------------------------+
+
+        maximum_iterations:
+            The maximum number of iterations done during the
+            optimization. Cannot be more than ``999999``.
+
+        minimum_gradient:
+            The gradient at which optimization is stopped.
+            Cannot be less than ``0.0001``.
 
     Examples:
-
         Optimisation of any :class:`stk.Molecule` is possible with
         `restricted=False`.
 
@@ -493,9 +530,9 @@ class MacroModelForceField(MacroModel):
 
     """
 
-    def __init__(
+    def __init__(  # noqa: PLR0913
         self,
-        macromodel_path: str,
+        macromodel_path: Path | str,
         output_dir: str | None = None,
         restricted: bool = False,
         timeout: float | None = None,
@@ -503,61 +540,6 @@ class MacroModelForceField(MacroModel):
         maximum_iterations: int = 2500,
         minimum_gradient: float = 0.05,
     ) -> None:
-        """
-        Parameters:
-
-            macromodel_path:
-                The full path of the Schrodinger suite within the user's
-                machine. For example, on a Linux machine this may be
-                something like ``'/opt/schrodinger2017-2'``.
-
-            output_dir:
-                The name of the directory into which files generated during
-                the optimization are written, if ``None`` then
-                :func:`uuid.uuid4` is used.
-
-            restricted:
-                If ``True`` then an optimization is performed only on bonds
-                created during the `ConstructedMolecule`
-                creation.
-                All building block bonds will be fixed.
-                If ``False`` then all bonds are optimized.
-
-            timeout:
-                The amount in seconds the optimization is allowed to run
-                before being terminated. ``None`` means there is no
-                timeout.
-
-            force_field:
-                The number of the force field to be used.
-                Force field arguments can be the following:
-                +------------+------------+
-                |  1  | MM2               |
-                +------------+------------+
-                |  2  | MM3               |
-                +------------+------------+
-                |  3  | AMBER             |
-                +------------+------------+
-                |  4  | AMBER94           |
-                +------------+------------+
-                |  5  | OPLSA             |
-                +------------+------------+
-                |  10 | MMFF94 and MMFF94s|
-                +------------+------------+
-                |  14 | OPLS_2005         |
-                +------------+------------+
-                |  16 | OPLS3e            |
-                +------------+------------+
-
-            maximum_iterations:
-                The maximum number of iterations done during the
-                optimization. Cannot be more than ``999999``.
-
-            minimum_gradient:
-                The gradient at which optimization is stopped.
-                Cannot be less than ``0.0001``.
-
-        """
         self._check_params(
             minimum_gradient=minimum_gradient,
             maximum_iterations=maximum_iterations,
@@ -576,11 +558,9 @@ class MacroModelForceField(MacroModel):
     def _check_params(
         minimum_gradient: float, maximum_iterations: int
     ) -> None:
-        """
-        Check if the optimization parameters are valid for MacroModel.
+        """Check if the optimization parameters are valid for MacroModel.
 
         Parameters:
-
             minimum_gradient:
                 The gradient at which optimization is stopped.
                 Cannot be less than ``0.0001``.
@@ -590,26 +570,21 @@ class MacroModelForceField(MacroModel):
                 optimization. Cannot be more than ``999999``.
 
         Raises:
-
-            :class:`.InputError`
+            :class:`.InputError`:
                 If the parameters cannot be converted into a valid ``.com``
                 file entry.
 
         """
+        if minimum_gradient < 0.0001:  # noqa: PLR2004
+            msg = "Macromodel: Convergence gradient (< 0.0001) is too small."
+            raise InputError(msg)
 
-        if minimum_gradient < 0.0001:
-            raise InputError(
-                "Macromodel: Convergence gradient (< 0.0001) is too small."
-            )
-
-        if maximum_iterations > 999999:
-            raise InputError(
-                "Macromodel: Number of iterations (> 999999) is too high."
-            )
+        if maximum_iterations > 999999:  # noqa: PLR2004
+            msg = "Macromodel: Number of iterations (> 999999) is too high."
+            raise InputError(msg)
 
     def _generate_com(self, mol: stk.Molecule, run_name: str) -> None:
-        """
-        Create a ``.com`` file for a MacroModel optimization.
+        """Create a ``.com`` file for a MacroModel optimization.
 
         The created ``.com`` file fixes all bond parameters which were
         not added by :meth:`~.Topology.construct`. This means all bond
@@ -621,7 +596,6 @@ class MacroModelForceField(MacroModel):
         various "FX" commands written within its body.
 
         Parameters:
-
             mol:
                 The molecule which is to be optimized.
 
@@ -630,8 +604,7 @@ class MacroModelForceField(MacroModel):
                 have this name.
 
         """
-
-        logger.debug(f'Creating .com file for "{mol}".')
+        logger.debug('Creating .com file for "%s".', mol)
 
         # This is the body of the ``.com`` file. The line that begins
         # and ends with exclamation lines is replaced with the various
@@ -666,7 +639,7 @@ class MacroModelForceField(MacroModel):
             com_block = self._fix_params(mol, com_block)
 
         # Writes the .com file.
-        with open(f"{run_name}.com", "w") as com:
+        with Path(f"{run_name}.com").open("w") as com:
             # The first line holds the .mae file containing the
             # molecule to be optimized.
             com.write(f"{run_name}.mae\n")
@@ -676,15 +649,14 @@ class MacroModelForceField(MacroModel):
             # Next is the body of the .com file.
             com.write(com_block)
 
-    def optimize(self, mol: stk.Molecule) -> stk.Molecule:
+    def optimize(self, mol: MoleculeT) -> MoleculeT:
         run_name = str(uuid4().int)
-        if self._output_dir is None:
-            output_dir = run_name
-        else:
-            output_dir = self._output_dir
+        output_dir = (
+            Path(run_name) if self._output_dir is None else self._output_dir
+        )
 
-        mol_path = f"{run_name}.mol"
-        mae_path = f"{run_name}.mae"
+        mol_path = Path(f"{run_name}.mol")
+        mae_path = Path(f"{run_name}.mae")
         # First write a .mol file of the molecule.
         mol.write(mol_path)
         # MacroModel requires a ``.mae`` file as input.
@@ -703,8 +675,7 @@ class MacroModelForceField(MacroModel):
         return mol
 
     def _fix_params(self, mol: stk.Molecule, com: str) -> str:
-        """
-        Fix bond distances and angles in ``.com`` file.
+        """Fix bond distances and angles in ``.com`` file.
 
         For each bond distance, bond angle and torsional angle that
         does not involve a bond created by
@@ -714,7 +685,6 @@ class MacroModelForceField(MacroModel):
         These lines replace the filler line in the main string.
 
         Parameters:
-
             mol:
                 The molecule which is to be optimized.
 
@@ -723,13 +693,11 @@ class MacroModelForceField(MacroModel):
                 added.
 
         Returns:
-
             A string holding the body of the ``.com`` file with
             instructions to fix the various bond distances and angles
             as described in the docstring.
 
         """
-
         fix_block = ""
         # Add lines that fix the bond distance.
         fix_block = self._fix_distances(mol, fix_block)
@@ -743,14 +711,12 @@ class MacroModelForceField(MacroModel):
         )
 
     def _fix_distances(self, mol: stk.Molecule, fix_block: str) -> str:
-        """
-        Add lines fixing bond distances to ``.com`` body.
+        """Add lines fixing bond distances to ``.com`` body.
 
         Only bond distances which do not involve bonds created during
         construction are fixed.
 
         Parameters:
-
             mol:
                 The molecule to be optimized.
 
@@ -758,26 +724,24 @@ class MacroModelForceField(MacroModel):
                 A string holding fix commands in the ``.com`` file.
 
         Returns:
-
             A string holding fix commands in the ``.com`` file.
 
 
         Raises:
-
-            :class:`.InputError` if molecule is not
-            :class:`stk.ConstructedMolecule`.
+            :class:`.InputError`:
+                if molecule is not :class:`stk.ConstructedMolecule`.
 
         """
-
         if not isinstance(mol, stk.ConstructedMolecule):
-            raise InputError(
+            msg = (
                 f"{mol} needs to be a ConstructedMolecule for "
                 f"`restricted`==`True` (it is {self._restricted})"
             )
+            raise InputError(msg)
 
         # Identify bonds created by ``stk`` by checking if the
         # ``stk.BuildingBlock`` associated with the bond is ``None``.
-        bonder_ids = set(
+        bonder_ids = {
             atom_id
             for bond_info in mol.get_bond_infos()  # type: ignore[attr-defined]
             if bond_info.get_building_block() is None
@@ -785,7 +749,7 @@ class MacroModelForceField(MacroModel):
                 bond_info.get_bond().get_atom1().get_id(),
                 bond_info.get_bond().get_atom2().get_id(),
             )
-        )
+        }
 
         # Go through all the bonds in the ``stk.Molecule`` . If an
         # ``stk.BuildingBlock`` associated with the bond is ``None``,
@@ -815,13 +779,11 @@ class MacroModelForceField(MacroModel):
         return fix_block
 
     def _fix_bond_angles(self, mol: stk.Molecule, fix_block: str) -> str:
-        """
-        Add lines fixing bond angles to the ``.com`` body.
+        """Add lines fixing bond angles to the ``.com`` body.
 
         All bond angles of the molecule are fixed.
 
         Parameters:
-
             mol:
                 The molecule to be optimized.
 
@@ -829,11 +791,9 @@ class MacroModelForceField(MacroModel):
                 A string holding fix commands in the ``.com`` file.
 
         Returns:
-
             A string holding fix commands in the ``.com`` file.
 
         """
-
         paths = rdkit.FindAllPathsOfLengthN(
             mol=mol.to_rdkit_mol(),
             length=3,
@@ -841,21 +801,19 @@ class MacroModelForceField(MacroModel):
             useHs=True,
         )
         for atom_ids in paths:
-            atom_ids = [i + 1 for i in atom_ids]
-            args = ("FXBA", *atom_ids, 99999, 0, 0, 0, 0)
+            file_atom_ids = (i + 1 for i in atom_ids)
+            args = ("FXBA", *file_atom_ids, 99999, 0, 0, 0, 0)
             fix_block += self._get_com_line(*args)
             fix_block += "\n"
 
         return fix_block
 
     def _fix_torsional_angles(self, mol: stk.Molecule, fix_block: str) -> str:
-        """
-        Add lines fixing torsional bond angles to the ``.com`` body.
+        """Add lines fixing torsional bond angles to the ``.com`` body.
 
         All torsional angles of the molecule are fixed.
 
         Parameters:
-
             mol:
                 The molecule to be optimized.
 
@@ -863,11 +821,9 @@ class MacroModelForceField(MacroModel):
                 A string holding fix commands in the ``.com`` file.
 
         Returns:
-
             A string holding fix commands in the ``.com`` file.
 
         """
-
         paths = rdkit.FindAllPathsOfLengthN(
             mol=mol.to_rdkit_mol(),
             length=4,
@@ -875,8 +831,8 @@ class MacroModelForceField(MacroModel):
             useHs=True,
         )
         for atom_ids in paths:
-            atom_ids = [i + 1 for i in atom_ids]
-            args = ("FXTA", *atom_ids, 99999, 361, 0, 0)
+            file_atom_ids = (i + 1 for i in atom_ids)
+            args = ("FXTA", *file_atom_ids, 99999, 361, 0, 0)
             fix_block += self._get_com_line(*args)
             fix_block += "\n"
 
@@ -884,11 +840,100 @@ class MacroModelForceField(MacroModel):
 
 
 class MacroModelMD(MacroModel):
-    """
-    Runs a molecular dynamics conformer search using MacroModel.
+    """Runs a molecular dynamics conformer search using MacroModel.
+
+    Parameters:
+        macromodel_path:
+            The full path of the Schrodinger suite within the user's
+            machine. For example, on a Linux machine this may be
+            something like ``'/opt/schrodinger2017-2'``.
+
+        output_dir:
+            The name of the directory into which files generated during
+            the optimization are written, if ``None`` then
+            :func:`uuid.uuid4` is used.
+
+        timeout:
+            The amount in seconds the MD is allowed to run before
+            being terminated. ``None`` means there is no timeout.
+
+        force_field:
+            The number of the force field to be used.
+
+        temperature:
+            The temperature in Kelvin at which the MD is run.
+            Cannot be more than ``99999.99``.
+
+        conformers:
+            The number of conformers sampled and optimized from the MD.
+            Cannot be more than ``9999``.
+
+        simulation_time:
+            The simulation time in ``ps`` of the MD.
+            Cannot be more than ``999999.99``.
+
+        time_step:
+            The time step in ``fs`` for the MD.
+            Cannot be more than ``99999.99``.
+
+        eq_time:
+            The equilibration time in ``ps`` before the MD is run.
+            Cannot be more than ``999999.99``.
+
+        maximum_iterations:
+            The maximum number of iterations done during the
+            optimization. Cannot be more than ``999999``.
+
+        minimum_gradient:
+            The gradient at which optimization is stopped.
+            Cannot be less than ``0.0001``.
+
+        restricted_bonds:
+            A :class:`set` of the form
+
+            .. code-block:: python
+
+                restricted_bonds = {
+                    frozenset((0, 10)),
+                    frozenset((3, 14)),
+                    frozenset((5, 6))
+                }
+
+            Where each :class:`frozenset` defines which bonds should
+            have a fixed length via the atom ids of atoms in the bond.
+
+        restricted_bond_angles:
+            A :class:`set` of the form
+
+            .. code-block:: python
+
+                restricted_bonds = {
+                    frozenset((0, 10, 12)),
+                    frozenset((3, 14, 7)),
+                    frozenset((5, 8, 2))
+                }
+
+            Where each :class:`frozenset` defines which bond angles
+            should have a fixed size via the atom ids of atoms in the
+            bond angle.
+
+        restricted_torsional_angles:
+            A :class:`set` of the form
+
+            .. code-block:: python
+
+                restricted_bonds = {
+                    frozenset((0, 10, 12, 3)),
+                    frozenset((3, 14, 7, 4)),
+                    frozenset((5, 8, 2, 9))
+                }
+
+            Where each :class:`frozenset` defines which torsional
+            angles should have a fixed size via the atom ids of atoms
+            in the torsional angle.
+
 
     Examples:
-
         Molecular dynamics can be run on any :class:`stk.Molecule` using
         this class. Restrictions can be applied, but are not by default.
         This class collects a series of conformers from the trajectory,
@@ -908,7 +953,7 @@ class MacroModelMD(MacroModel):
 
     """
 
-    def __init__(
+    def __init__(  # noqa: PLR0913
         self,
         macromodel_path: str,
         output_dir: str | None = None,
@@ -925,100 +970,6 @@ class MacroModelMD(MacroModel):
         restricted_bond_angles: set | None = None,
         restricted_torsional_angles: set | None = None,
     ) -> None:
-        """
-        Parameters:
-
-            macromodel_path:
-                The full path of the Schrodinger suite within the user's
-                machine. For example, on a Linux machine this may be
-                something like ``'/opt/schrodinger2017-2'``.
-
-            output_dir:
-                The name of the directory into which files generated during
-                the optimization are written, if ``None`` then
-                :func:`uuid.uuid4` is used.
-
-            timeout:
-                The amount in seconds the MD is allowed to run before
-                being terminated. ``None`` means there is no timeout.
-
-            force_field:
-                The number of the force field to be used.
-
-            temperature:
-                The temperature in Kelvin at which the MD is run.
-                Cannot be more than ``99999.99``.
-
-            conformers:
-                The number of conformers sampled and optimized from the MD.
-                Cannot be more than ``9999``.
-
-            simulation_time:
-                The simulation time in ``ps`` of the MD.
-                Cannot be more than ``999999.99``.
-
-            time_step:
-                The time step in ``fs`` for the MD.
-                Cannot be more than ``99999.99``.
-
-            eq_time:
-                The equilibration time in ``ps`` before the MD is run.
-                Cannot be more than ``999999.99``.
-
-            maximum_iterations:
-                The maximum number of iterations done during the
-                optimization. Cannot be more than ``999999``.
-
-            minimum_gradient:
-                The gradient at which optimization is stopped.
-                Cannot be less than ``0.0001``.
-
-            restricted_bonds:
-                A :class:`set` of the form
-
-                .. code-block:: python
-
-                    restricted_bonds = {
-                        frozenset((0, 10)),
-                        frozenset((3, 14)),
-                        frozenset((5, 6))
-                    }
-
-                Where each :class:`frozenset` defines which bonds should
-                have a fixed length via the atom ids of atoms in the bond.
-
-            restricted_bond_angles:
-                A :class:`set` of the form
-
-                .. code-block:: python
-
-                    restricted_bonds = {
-                        frozenset((0, 10, 12)),
-                        frozenset((3, 14, 7)),
-                        frozenset((5, 8, 2))
-                    }
-
-                Where each :class:`frozenset` defines which bond angles
-                should have a fixed size via the atom ids of atoms in the
-                bond angle.
-
-            restricted_torsional_angles:
-                A :class:`set` of the form
-
-                .. code-block:: python
-
-                    restricted_bonds = {
-                        frozenset((0, 10, 12, 3)),
-                        frozenset((3, 14, 7, 4)),
-                        frozenset((5, 8, 2, 9))
-                    }
-
-                Where each :class:`frozenset` defines which torsional
-                angles should have a fixed size via the atom ids of atoms
-                in the torsional angle.
-
-        """
-
         if restricted_bonds is None:
             restricted_bonds = set()
         if restricted_bond_angles is None:
@@ -1046,13 +997,13 @@ class MacroModelMD(MacroModel):
         self._restricted_torsional_angles = restricted_torsional_angles
 
         # Negative simulation time is interpreted as times 100 ps.
-        if simulation_time > 99999.99:
+        if simulation_time > 99999.99:  # noqa: PLR2004
             self._sim_time = -simulation_time / 100
         else:
             self._sim_time = simulation_time
 
         # Negative equilibration time is interpreted as times 100 ps.
-        if eq_time > 99999.99:
+        if eq_time > 99999.99:  # noqa: PLR2004
             self._eq_time = -eq_time / 100
         else:
             self._eq_time = eq_time
@@ -1067,7 +1018,7 @@ class MacroModelMD(MacroModel):
         )
 
     @staticmethod
-    def _check_params(
+    def _check_params(  # noqa: PLR0913
         temperature: float,
         conformers: int,
         simulation_time: float,
@@ -1076,11 +1027,9 @@ class MacroModelMD(MacroModel):
         minimum_gradient: float,
         maximum_iterations: int,
     ) -> None:
-        """
-        Check if the optimization parameters are valid for MacroModel.
+        """Check if the optimization parameters are valid for MacroModel.
 
         Parameters:
-
             temperature:
                 The temperature in Kelvin at which the MD is run.
                 Cannot be more than ``99999.99``.
@@ -1110,53 +1059,47 @@ class MacroModelMD(MacroModel):
                 optimization. Cannot be more than ``999999``.
 
         Raises:
-
-            :class:`.MacroModelInputError`
+            :class:`.MacroModelInputError`:
                 If the parameters cannot be converted into a valid ``.com``
                 file entry.
 
         """
+        if temperature > 99999.99:  # noqa: PLR2004
+            msg = "Macromodel: Supplied temperature (> 99999 K) is too high."
+            raise InputError(msg)
 
-        if temperature > 99999.99:
-            raise InputError(
-                "Macromodel: Supplied temperature (> 99999 K) is too high."
-            )
-
-        if conformers > 9999:
-            raise InputError(
+        if conformers > 9999:  # noqa: PLR2004
+            msg = (
                 "Macromodel: Supplied number of conformers (> 9999) is "
                 "too high."
             )
+            raise InputError(msg)
 
-        if simulation_time > 999999.99:
-            raise InputError(
+        if simulation_time > 999999.99:  # noqa: PLR2004
+            msg = (
                 "Macromodel: Supplied simulation time (> 999999 ps) is "
                 "too long."
             )
+            raise InputError(msg)
 
-        if time_step > 99999.99:
-            raise InputError(
-                "Macromodel: Supplied time step (> 99999 fs) is too high."
-            )
+        if time_step > 99999.99:  # noqa: PLR2004
+            msg = "Macromodel: Supplied time step (> 99999 fs) is too high."
+            raise InputError(msg)
 
-        if eq_time > 999999.99:
-            raise InputError(
-                "Macromodel: Supplied eq time (> 999999 ps) is too long."
-            )
+        if eq_time > 999999.99:  # noqa: PLR2004
+            msg = "Macromodel: Supplied eq time (> 999999 ps) is too long."
+            raise InputError(msg)
 
-        if minimum_gradient < 0.0001:
-            raise InputError(
-                "Macromodel: Convergence gradient (< 0.0001) is too small."
-            )
+        if minimum_gradient < 0.0001:  # noqa: PLR2004
+            msg = "Macromodel: Convergence gradient (< 0.0001) is too small."
+            raise InputError(msg)
 
-        if maximum_iterations > 999999:
-            raise InputError(
-                "Macromodel: Number of iterations (> 999999) is too high."
-            )
+        if maximum_iterations > 999999:  # noqa: PLR2004
+            msg = "Macromodel: Number of iterations (> 999999) is too high."
+            raise InputError(msg)
 
     def _generate_com(self, mol: stk.Molecule, run_name: str) -> None:
-        """
-        Create a ``.com`` file for a MacroModel optimization.
+        """Create a ``.com`` file for a MacroModel optimization.
 
         The created ``.com`` file fixes all bond parameters which were
         not added by :meth:`~.Topology.construct`. This means all bond
@@ -1168,13 +1111,11 @@ class MacroModelMD(MacroModel):
         various "FX" commands written within its body.
 
         Parameters:
-
             mol:
                 The molecule which is to be optimized.
 
         """
-
-        logger.debug(f'Creating .com file for "{mol}".')
+        logger.debug('Creating .com file for "%s".', mol)
 
         # Define some short aliases to keep the following lines neat.
         temp = self._temperature
@@ -1229,7 +1170,7 @@ class MacroModelMD(MacroModel):
         com_block = self._fix_params(mol, com_block)
 
         # Generate the com file containing the info for the run
-        with open(f"{run_name}.com", "w") as com:
+        with Path(f"{run_name}.com").open("w") as com:
             # name of the macromodel file
             com.write(f"{run_name}.mae\n")
             # name of the output file
@@ -1237,19 +1178,19 @@ class MacroModelMD(MacroModel):
             # details of the macromodel run
             com.write(com_block)
 
-    def optimize(self, mol: stk.Molecule) -> stk.Molecule:
+    def optimize(self, mol: MoleculeT) -> MoleculeT:
         run_name = str(uuid4().int)
-        if self._output_dir is None:
-            output_dir = run_name
-        else:
-            output_dir = self._output_dir
 
-        mol_path = f"{run_name}.mol"
+        output_dir = (
+            Path(run_name) if self._output_dir is None else self._output_dir
+        )
+
+        mol_path = Path(f"{run_name}.mol")
 
         # First write a .mol file of the molecule.
         mol.write(mol_path)
         # MacroModel requires a ``.mae`` file as input.
-        self._run_structconvert(mol_path, f"{run_name}.mae")
+        self._run_structconvert(mol_path, Path(f"{run_name}.mae"))
         # Generate the ``.com`` file for the MacroModel MD run.
         self._generate_com(mol, run_name)
         # Run the optimization.
@@ -1264,8 +1205,7 @@ class MacroModelMD(MacroModel):
         return mol
 
     def _fix_params(self, mol: stk.Molecule, com: str) -> str:
-        """
-        Fix bond distances and angles in ``.com`` file.
+        """Fix bond distances and angles in ``.com`` file.
 
         For each bond distance, bond angle and torsional angle that
         does not involve a bond created by
@@ -1275,7 +1215,6 @@ class MacroModelMD(MacroModel):
         These lines replace the filler line in the main string.
 
         Parameters:
-
             mol:
                 The molecule which is to be optimized.
 
@@ -1284,13 +1223,11 @@ class MacroModelMD(MacroModel):
                 added.
 
         Returns:
-
             A string holding the body of the ``.com`` file with
             instructions to fix the various bond distances and angles
             as described in the docstring.
 
         """
-
         fix_block = ""
         # Add lines that fix the bond distance.
         fix_block = self._fix_distances(mol, fix_block)
@@ -1304,11 +1241,9 @@ class MacroModelMD(MacroModel):
         )
 
     def _fix_distances(self, mol: stk.Molecule, fix_block: str) -> str:
-        """
-        Add lines fixing bond distances to ``.com`` body.
+        """Add lines fixing bond distances to ``.com`` body.
 
         Parameters:
-
             mol:
                 The molecule to be optimized.
 
@@ -1316,11 +1251,9 @@ class MacroModelMD(MacroModel):
                 A string holding fix commands in the ``.com`` file.
 
         Returns:
-
             A string holding fix commands in the ``.com`` file.
 
         """
-
         # Go through all the bonds in the rdkit molecule. If the bond
         # is not between bonder atoms add a fix line to the
         # ``fix_block``. If the bond does invovle two bonder atoms go
@@ -1347,11 +1280,9 @@ class MacroModelMD(MacroModel):
         return fix_block
 
     def _fix_bond_angles(self, mol: stk.Molecule, fix_block: str) -> str:
-        """
-        Add lines fixing bond angles to the ``.com`` body.
+        """Add lines fixing bond angles to the ``.com`` body.
 
         Parameters:
-
             mol:
                 The molecule to be optimized.
 
@@ -1359,11 +1290,9 @@ class MacroModelMD(MacroModel):
                 A string holding fix commands in the ``.com`` file.
 
         Returns:
-
             A string holding fix commands in the ``.com`` file.
 
         """
-
         paths = rdkit.FindAllPathsOfLengthN(
             mol=mol.to_rdkit_mol(),
             length=3,
@@ -1372,19 +1301,17 @@ class MacroModelMD(MacroModel):
         )
         for atom_ids in paths:
             if frozenset(atom_ids) in self._restricted_bond_angles:
-                atom_ids = [i + 1 for i in atom_ids]
-                args = ("FXBA", *atom_ids, 99999, 0, 0, 0, 0)
+                file_atom_ids = (i + 1 for i in atom_ids)
+                args = ("FXBA", *file_atom_ids, 99999, 0, 0, 0, 0)
                 fix_block += self._get_com_line(*args)
                 fix_block += "\n"
 
         return fix_block
 
     def _fix_torsional_angles(self, mol: stk.Molecule, fix_block: str) -> str:
-        """
-        Add lines fixing torsional bond angles to the ``.com`` body.
+        """Add lines fixing torsional bond angles to the ``.com`` body.
 
         Parameters:
-
             mol:
                 The molecule to be optimized.
 
@@ -1392,11 +1319,9 @@ class MacroModelMD(MacroModel):
                 A string holding fix commands in the ``.com`` file.
 
         Returns:
-
             A string holding fix commands in the ``.com`` file.
 
         """
-
         paths = rdkit.FindAllPathsOfLengthN(
             mol=mol.to_rdkit_mol(),
             length=4,
@@ -1406,8 +1331,8 @@ class MacroModelMD(MacroModel):
         # Apply the fix.
         for atom_ids in paths:
             if frozenset(atom_ids) in (self._restricted_torsional_angles):
-                atom_ids = [i + 1 for i in atom_ids]
-                args = ("FXTA", *atom_ids, 99999, 361, 0, 0)
+                file_atom_ids = [i + 1 for i in atom_ids]
+                args = ("FXTA", *file_atom_ids, 99999, 361, 0, 0)
                 fix_block += self._get_com_line(*args)
                 fix_block += "\n"
 

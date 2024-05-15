@@ -1,18 +1,16 @@
 from collections import abc
+from pathlib import Path
 
 from stko._internal.calculators.extractors.xtb_extractor import XTBExtractor
 
 
 class XTBResults:
-    """
-    Results class containing molecule xTB properties.
-
-    """
+    """Results class containing molecule xTB properties."""
 
     def __init__(
         self,
         generator: abc.Generator,
-        output_file: str,
+        output_file: Path | str,
         extractor: type = XTBExtractor,
     ) -> None:
         # Run calculation.
@@ -49,20 +47,22 @@ class XTBResults:
     def get_total_free_energy(self) -> tuple[float, str]:
         try:
             return (self._extractor.total_free_energy, "a.u.")
-        except AttributeError:
-            raise AttributeError(
+        except AttributeError as exc:
+            msg = (
                 "Frequency, hessian and thermo calculations not "
                 "performed to extract this property."
             )
+            raise AttributeError(msg) from exc
 
     def get_frequencies(self) -> tuple[float, str]:
         try:
             return (self._extractor.frequencies, "wavenumber")
-        except AttributeError:
-            raise AttributeError(
+        except AttributeError as exc:
+            msg = (
                 "Frequency, hessian and thermo calculations not "
                 "performed to extract this property."
             )
+            raise AttributeError(msg) from exc
 
     def get_ionisation_potential(self) -> tuple[float, str]:
         return (self._extractor.ionisation_potential, "eV")

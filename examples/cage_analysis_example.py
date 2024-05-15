@@ -1,3 +1,4 @@
+# ruff: noqa: T201
 import logging
 from collections import defaultdict
 
@@ -6,7 +7,8 @@ import stk
 import stko
 
 
-def main():
+def main() -> None:
+    """Run the example."""
     logging.warning(
         "This code is only present in the latest versions of stko that "
         "require Python 3.11!"
@@ -15,9 +17,9 @@ def main():
     pd = stk.BuildingBlock(
         smiles="[Pd+2]",
         functional_groups=(
-            stk.SingleAtom(stk.Pd(0, charge=2)) for i in range(4)
+            stk.SingleAtom(stk.Pd(0, charge=2)) for _ in range(4)
         ),
-        position_matrix=[[0.0, 0.0, 0.0]],
+        position_matrix=np.array([[0.0, 0.0, 0.0]]),
     )
     ditopic_bb = stk.BuildingBlock(
         smiles="C1=NC=CC(C2=CC=CC(C3=CC=NC=C3)=C2)=C1",
@@ -99,8 +101,8 @@ def main():
     # on the constructed molecule or maintain building block chemistry.
     # It simply extracts the parts of building blocks still present in
     # the molecule.
-    analyser = stko.molecule_analysis.ConstructedAnalyser()
-    centroids = analyser.get_building_block_centroids(apdcage)
+    constructed_analyser = stko.molecule_analysis.ConstructedAnalyser()
+    centroids = constructed_analyser.get_building_block_centroids(apdcage)
     print("building block centroids:")
     print(centroids)
     print()

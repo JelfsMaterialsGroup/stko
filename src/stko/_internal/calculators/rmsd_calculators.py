@@ -2,8 +2,8 @@ import logging
 
 import numpy as np
 import stk
-import stko
 from scipy.spatial.distance import cdist
+
 from stko._internal.calculators.results.rmsd_results import RmsdResults
 from stko._internal.calculators.utilities import is_inequivalent_atom
 from stko._internal.utilities.exceptions import (
@@ -15,8 +15,7 @@ logger = logging.getLogger(__name__)
 
 
 class RmsdCalculator:
-    """
-    Calculates the root mean square distance between molecules.
+    """Calculates the root mean square distance between molecules.
 
     This calculator will only work if the two molecules are the same
     and have the same atom ordering.
@@ -24,8 +23,15 @@ class RmsdCalculator:
     No alignment of the two molecules occurs. However, both molecules
     are moved to a centroid position of (0, 0, 0).
 
-    Examples:
+    Parameters:
+        initial_molecule:
+            The :class:`stk.Molecule` to calculate RMSD from.
 
+        ignore_hydrogens:
+            ``True`` to ignore hydrogen atoms.
+
+
+    Examples:
         .. code-block:: python
 
             import stk
@@ -43,42 +49,32 @@ class RmsdCalculator:
         initial_molecule: stk.Molecule,
         ignore_hydrogens: bool = False,
     ) -> None:
-        """
-        Parameters:
-
-            initial_molecule:
-                The :class:`stk.Molecule` to calculate RMSD from.
-
-            ignore_hydrogens:
-                ``True`` to ignore hydrogen atoms.
-
-        """
-
         self._initial_molecule = initial_molecule
         self._ignore_hydrogens = ignore_hydrogens
 
     def _check_valid_comparison(self, mol: stk.Molecule) -> None:
         if mol.get_num_atoms() != (self._initial_molecule.get_num_atoms()):
-            raise DifferentMoleculeError(
+            msg = (
                 f"{self._initial_molecule} and {mol} are not "
                 "equivalent with different numbers of atoms."
             )
+            raise DifferentMoleculeError(msg)
 
         smiles1 = stk.Smiles().get_key(self._initial_molecule)
         smiles2 = stk.Smiles().get_key(mol)
         if smiles1 != smiles2:
-            raise DifferentMoleculeError(
+            msg = (
                 f"{self._initial_molecule} and {mol} are not "
                 "equivalent with different smiles strings."
             )
+            raise DifferentMoleculeError(msg)
 
         atoms1 = self._initial_molecule.get_atoms()
         atoms2 = mol.get_atoms()
-        for atom1, atom2 in zip(atoms1, atoms2):
+        for atom1, atom2 in zip(atoms1, atoms2, strict=False):
             if is_inequivalent_atom(atom1, atom2):
-                raise DifferentAtomError(
-                    f"{atom1} and {atom2} are not equivalent."
-                )
+                msg = f"{atom1} and {atom2} are not equivalent."
+                raise DifferentAtomError(msg)
 
     def _calculate_rmsd(self, mol: stk.Molecule) -> float:
         if self._ignore_hydrogens:
@@ -107,8 +103,8 @@ class RmsdCalculator:
         pos_mat2 = np.array(list(mol_atom_positions))
 
         deviations = pos_mat1 - pos_mat2
-        N = len(pos_mat1)
-        return np.sqrt(np.sum(deviations * deviations) / N)
+        n = len(pos_mat1)
+        return np.sqrt(np.sum(deviations * deviations) / n)
 
     def calculate(self, mol: stk.Molecule) -> float:
         self._check_valid_comparison(mol)
@@ -118,27 +114,22 @@ class RmsdCalculator:
         mol = mol.with_centroid(np.array((0, 0, 0)))
         return self._calculate_rmsd(mol)
 
-    def get_results(self, mol: stk.Molecule) -> stko.RmsdResults:
-        """
-        Calculate the RMSD between `mol` and the initial molecule.
+    def get_results(self, mol: stk.Molecule) -> RmsdResults:
+        """Calculate the RMSD between `mol` and the initial molecule.
 
         Parameters:
-
             mol:
                 The :class:`stk.Molecule` to calculate RMSD to.
 
         Returns:
-
             The RMSD between the molecules.
 
         """
-
         return RmsdResults(self.calculate(mol))
 
 
 class RmsdMappedCalculator(RmsdCalculator):
-    """
-    Calculates the root mean square distance between molecules.
+    """Calculates the root mean square distance between molecules.
 
     This calculator allows for different molecules but they should be
     aligned, see the example below. It will calculate the RMSD based on
@@ -150,7 +141,6 @@ class RmsdMappedCalculator(RmsdCalculator):
     to be the same when you switch the initial and test molecule.
 
     Examples:
-
         .. code-block:: python
 
             import stk
@@ -214,15 +204,16 @@ class RmsdMappedCalculator(RmsdCalculator):
         pos_mat1 = np.array(list(initial_atom_positions))
         pos_mat2 = np.array(list(mol_atom_positions))
 
-        N = len(pos_mat2)
+        n = len(pos_mat2)
         distances = cdist(pos_mat1, pos_mat2)
-        new_array = np.where(atom_matrix, distances, 1e24)
+        initial_value = 1e24
+        new_array = np.where(atom_matrix, distances, initial_value)
         # Handle situation where one molecule does not have an atom
         # type that the other does.
         deviations = np.array(
-            [i for i in np.amin(new_array, axis=1) if i != 1e24]
+            [i for i in np.amin(new_array, axis=1) if i != initial_value]
         )
-        return np.sqrt(np.sum(deviations * deviations) / N)
+        return np.sqrt(np.sum(deviations * deviations) / n)
 
     def calculate(self, mol: stk.Molecule) -> float:
         self._initial_molecule = self._initial_molecule.with_centroid(

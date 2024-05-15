@@ -1,3 +1,6 @@
+from dataclasses import dataclass
+
+import numpy as np
 import pytest
 import stk
 from stko._internal.utilities.exceptions import ExpectedMetalError
@@ -6,8 +9,8 @@ from .test_gulp import FakeGulpUFFOptimizer
 
 pd_metal = stk.BuildingBlock(
     smiles="[Pd+2]",
-    functional_groups=(stk.SingleAtom(stk.Pd(0, charge=2)) for i in range(4)),
-    position_matrix=[[0, 0, 0]],
+    functional_groups=(stk.SingleAtom(stk.Pd(0, charge=2)) for _ in range(4)),
+    position_matrix=np.array([[0, 0, 0]]),
 )
 
 # Define a bidentate ligand with two functional groups.
@@ -23,7 +26,7 @@ bidentate_ligand = stk.BuildingBlock(
 )
 
 # Construct a cis-protected square planar metal complex.
-complex = stk.ConstructedMolecule(
+complex_ = stk.ConstructedMolecule(
     stk.metal_complex.BidentateSquarePlanar(
         metals=pd_metal,
         ligands=bidentate_ligand,
@@ -31,31 +34,12 @@ complex = stk.ConstructedMolecule(
 )
 
 
+@dataclass(frozen=True, slots=True)
 class CaseData:
-    """
-    A test case.
-
-    Attributes
-    ----------
-    molecule : :class:`stk.Molecule`
-        The molecule to be tested.
-
-    atom_types : :class:`dict`
-        The smiles for the molecule.
-
-    has_metal : :class:`bool`
-        ``True`` if a metal atom is in molecule.
-
-    metal_ff : :class:`dict` or :class:`NoneType`
-        The position matrix of the molecule.
-
-    """
-
-    def __init__(self, molecule, atom_types, has_metal, metal_ff):
-        self.molecule = molecule
-        self.atom_types = atom_types
-        self.has_metal = has_metal
-        self.metal_ff = metal_ff
+    molecule: stk.Molecule
+    atom_types: dict[int, str]
+    has_metal: bool
+    metal_ff: dict[int, str] | None
 
 
 @pytest.fixture(
@@ -78,14 +62,8 @@ class CaseData:
             has_metal=False,
             metal_ff=None,
         ),
-        # CaseData(
-        #     molecule=stk.BuildingBlock.init_from_molecule(complex),
-        #     atom_types={},
-        #     has_metal=True,
-        #     metal_ff=None,
-        # ),
         CaseData(
-            molecule=stk.BuildingBlock.init_from_molecule(complex),
+            molecule=stk.BuildingBlock.init_from_molecule(complex_),
             atom_types={
                 0: "Pd4+2",
                 1: "N_3",
@@ -153,20 +131,6 @@ class CaseData:
             has_metal=False,
             metal_ff=None,
         ),
-        # CaseData(
-        #     molecule=stk.BuildingBlock(
-        # 'CN1C=NC2=C1C(=O)N(C(=O)N2C)C'
-        # ),
-        #     atom_types={
-        #         0: 'C_3', 1: 'N_R', 2: 'C_R', 3: 'N_R', 4: 'C_R',
-        #         5: 'C_R', 6: 'C_R', 7: 'O_2', 8: 'N_R', 9: 'C_R',
-        #         10: 'O_2', 11: 'N_R', 12: 'C_3', 13: 'C_3',
-        #         14: 'H_', 15: 'H_', 16: 'H_', 17: 'H_', 18: 'H_',
-        #         19: 'H_', 20: 'H_', 21: 'H_', 22: 'H_', 23: 'H_',
-        #     },
-        #     has_metal=False,
-        #     metal_ff=None,
-        # ),
         CaseData(
             molecule=stk.BuildingBlock(
                 "C1=CC(=CC(=C1)C#CC2=CN=CC=C2)C#CC3=CN=CC=C3"
@@ -210,29 +174,6 @@ class CaseData:
             has_metal=False,
             metal_ff=None,
         ),
-        # CaseData(
-        #     molecule=stk.BuildingBlock(
-        #         'O=C1c2ccc(cc2Nc3cc(ccc13)C#Cc4cccnc4)C#Cc5cccnc5'
-        #     ),
-        #     atom_types={
-        #         0: 'O_2', 1: 'C_R', 2: 'C_R', 3: 'C_R', 4: 'C_R',
-        #         5: 'C_R', 6: 'C_R', 7: 'C_R', 8: 'N_R', 9: 'C_R',
-        #         10: 'C_R', 11: 'C_R', 12: 'C_R', 13: 'C_R',
-        # 14: 'C_R',
-        #         15: 'C_1', 16: 'C_1', 17: 'C_R', 18: 'C_R',
-        # 19: 'C_R',
-        #         20: 'C_R', 21: 'N_R', 22: 'C_R', 23: 'C_1',
-        # 24: 'C_1',
-        #         25: 'C_R', 26: 'C_R', 27: 'C_R', 28: 'C_R',
-        # 29: 'N_R',
-        #         30: 'C_R', 31: 'H_', 32: 'H_', 33: 'H_', 34: 'H_',
-        #         35: 'H_', 36: 'H_', 37: 'H_', 38: 'H_', 39: 'H_',
-        #         40: 'H_', 41: 'H_', 42: 'H_', 43: 'H_', 44: 'H_',
-        #         45: 'H_',
-        #     },
-        #     has_metal=False,
-        #     metal_ff=None,
-        # ),
         CaseData(
             molecule=stk.BuildingBlock("C1CCC(C(C1)N)N"),
             atom_types={
@@ -262,19 +203,6 @@ class CaseData:
             has_metal=False,
             metal_ff=None,
         ),
-        # CaseData(
-        #     molecule=stk.BuildingBlock('C1=C(C=C(C=C1C=O)C=O)C=O'),
-        #     atom_types={
-        #         0: 'C_R', 1: 'C_R', 2: 'C_R',
-        #         3: 'C_R', 4: 'C_R', 5: 'C_R',
-        #         6: 'C_2', 7: 'O_2', 8: 'C_2',
-        #         9: 'O_2', 10: 'C_2', 11: 'O_2',
-        #         12: 'H_', 13: 'H_', 14: 'H_',
-        #         15: 'H_', 16: 'H_', 17: 'H_',
-        #     },
-        #     has_metal=False,
-        #     metal_ff=None,
-        # ),
         CaseData(
             molecule=stk.BuildingBlock("CC=O"),
             atom_types={
@@ -291,11 +219,11 @@ class CaseData:
         ),
     ),
 )
-def test_molecule(request):
+def test_molecule(request: pytest.FixtureRequest) -> CaseData:
     return request.param
 
 
-def test_assign_FF(test_molecule):
+def test_assign_ff(test_molecule: CaseData) -> None:
     gulp_opt = FakeGulpUFFOptimizer(
         gulp_path="not_required",
         metal_FF=test_molecule.metal_ff,
@@ -310,7 +238,6 @@ def test_assign_FF(test_molecule):
 
         assert len(gulp_opt.atom_labels) == len(test_molecule.atom_types)
         for aid in gulp_opt.atom_labels:
-            print(aid)
             expected_type = test_molecule.atom_types[aid]
             test = gulp_opt.atom_labels[aid][0]
             assert expected_type == test

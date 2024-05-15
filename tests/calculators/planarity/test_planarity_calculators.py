@@ -1,8 +1,10 @@
 import numpy as np
 import stko
 
+from .conftest import CaseData
 
-def test_planarity_calculation(case_data):
+
+def test_planarity_calculation(case_data: CaseData) -> None:
     calc = stko.PlanarityCalculator()
     test = calc.get_results(
         mol=case_data.molecule,

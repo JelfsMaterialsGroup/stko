@@ -20,7 +20,6 @@ readme = "README.rst"
 
 [project.optional-dependencies]
 dev = [
-  "black",
   "ruff",
   "mypy",
   "moldoc",
@@ -51,12 +50,42 @@ where = [
   "src",
 ]
 
-[tool.black]
-line-length = 79
-
 [tool.ruff]
 line-length = 79
-extend-select = ["I"]
+
+[tool.ruff.lint]
+select = ["ALL"]
+ignore = [
+  "ANN101",
+  "ANN102",
+  "ANN401",
+  "COM812",
+  "ISC001",
+  "FBT001",
+  "FBT002",
+]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.ruff.lint.per-file-ignores]
+"examples/*" = [
+  "D100",
+  "INP001",
+]
+"tests/*" = [
+  "D100",
+  "D101",
+  "D102",
+  "D103",
+  "D104",
+  "D105",
+  "D106",
+  "D107",
+  "S101",
+  "INP001",
+]
+"docs/source/conf.py" = ["D100", "INP001"]
 
 [tool.pytest.ini_options]
 testpaths = [

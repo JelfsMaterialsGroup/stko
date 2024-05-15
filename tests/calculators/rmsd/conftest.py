@@ -1,31 +1,16 @@
+from dataclasses import dataclass
+
 import numpy as np
 import pytest
 import stk
 import stko
 
 
+@dataclass(frozen=True, slots=True)
 class CaseData:
-    """
-    A test case.
-
-    Attributes:
-        mol1:
-            The first molecule to be tested.
-
-        mol2:
-            The second molecule to be tested.
-
-        rmsd:
-            The RMSD of the pair of molecules.
-
-    """
-
-    position_matrix: np.ndarray
-
-    def __init__(self, mol1, mol2, rmsd):
-        self.mol1 = mol1
-        self.mol2 = mol2
-        self.rmsd = rmsd
+    mol1: stk.Molecule
+    mol2: stk.Molecule
+    rmsd: float
 
 
 _optimizer = stko.UFF()
@@ -104,12 +89,8 @@ _cc_molecule = stk.BuildingBlock("[C][C]")
         ),
     ],
 )
-def case_data(request):
-    """
-    A pair of :class:`stk.Molecule` instances and an RMSD.
-
-    """
-
+def case_data(request: pytest.FixtureRequest) -> CaseData:
+    """A pair of :class:`stk.Molecule` instances and an RMSD."""
     return request.param
 
 
@@ -143,12 +124,8 @@ def case_data(request):
         ),
     ],
 )
-def ignore_h_case_data(request):
-    """
-    A pair of :class:`stk.Molecule` instances and an RMSD.
-
-    """
-
+def ignore_h_case_data(request: pytest.FixtureRequest) -> CaseData:
+    """A pair of :class:`stk.Molecule` instances and an RMSD."""
     return request.param
 
 
@@ -167,12 +144,8 @@ def ignore_h_case_data(request):
         ),
     ],
 )
-def different_case_data(request):
-    """
-    A pair of :class:`stk.Molecule` instances and an RMSD.
-
-    """
-
+def different_case_data(request: pytest.FixtureRequest) -> CaseData:
+    """A pair of :class:`stk.Molecule` instances and an RMSD."""
     return request.param
 
 
@@ -201,12 +174,8 @@ def different_case_data(request):
         ),
     ],
 )
-def ordering_case_data(request):
-    """
-    A pair of :class:`stk.Molecule` instances and an RMSD.
-
-    """
-
+def ordering_case_data(request: pytest.FixtureRequest) -> CaseData:
+    """A pair of :class:`stk.Molecule` instances and an RMSD."""
     return request.param
 
 
@@ -275,10 +244,6 @@ def ordering_case_data(request):
         ),
     ],
 )
-def aligned_case_data(request):
-    """
-    A pair of :class:`stk.Molecule` instances and an RMSD.
-
-    """
-
+def aligned_case_data(request: pytest.FixtureRequest) -> CaseData:
+    """A pair of :class:`stk.Molecule` instances and an RMSD."""
     return request.param

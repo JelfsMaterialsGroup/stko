@@ -1,3 +1,5 @@
+"""Tools for functional_groups."""
+
 from stko._internal.molecular.functional_groups.three_site import (
     CNCFactory,
     CNNFactory,
@@ -7,9 +9,9 @@ from stko._internal.molecular.functional_groups.three_site import (
 )
 
 __all__ = [
-    "ThreeSiteFG",
-    "ThreeSiteFactory",
-    "NNNFactory",
     "CNCFactory",
     "CNNFactory",
+    "NNNFactory",
+    "ThreeSiteFactory",
+    "ThreeSiteFG",
 ]

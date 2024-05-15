@@ -2,21 +2,20 @@ import logging
 from collections import abc
 
 import stk
-from rdkit.Chem import Descriptors3D as D3D
+from rdkit.Chem import Descriptors3D as D3D  # noqa: N814
+
 from stko._internal.calculators.results.shape_results import ShapeResults
 
 logger = logging.getLogger(__name__)
 
 
 class ShapeCalculator:
-    """
-    Calculates shape measures of a molecule.
+    """Calculates shape measures of a molecule.
 
     Uses :mod:`rdkit` 3D Descriptors [#]_ module to calculate all
     measures.
 
     Examples:
-
         .. code-block:: python
 
             import stk
@@ -28,7 +27,6 @@ class ShapeCalculator:
             eccentricity  = shape_results.get_eccentricity()
 
     References:
-
         .. [#] https://www.rdkit.org/docs/source/rdkit.Chem.Descriptors3D.html
 
     """
@@ -51,18 +49,14 @@ class ShapeCalculator:
         yield results_dict
 
     def get_results(self, mol: stk.Molecule) -> ShapeResults:
-        """
-        Calculate the shape measures of `mol`.
+        """Calculate the shape measures of `mol`.
 
         Parameters:
-
             mol:
                 The :class:`stk.Molecule` whose energy is to be calculated.
 
         Returns:
-
             The shape measures of the molecule.
 
         """
-
         return ShapeResults(self.calculate(mol))

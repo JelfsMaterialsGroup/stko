@@ -1,26 +1,23 @@
-import glob
+# ruff: noqa: S101
+import argparse
 import logging
-import os
-import sys
+from pathlib import Path
 
+import numpy as np
 import stk
 import stko
 
 
-def main():
-    first_line = f"Usage: {__file__}.py"
-    if not len(sys.argv) == 2:
-        logging.info(f"{first_line} gulp_path")
-        sys.exit()
-    else:
-        gulp_path = sys.argv[1]
+def main() -> None:
+    """Run the example."""
+    args = _parse_args()
 
     iron_atom = stk.BuildingBlock(
         smiles="[Fe+2]",
         functional_groups=(
-            stk.SingleAtom(stk.Fe(0, charge=2)) for i in range(6)
+            stk.SingleAtom(stk.Fe(0, charge=2)) for _ in range(6)
         ),
-        position_matrix=[[0, 0, 0]],
+        position_matrix=np.array([[0, 0, 0]]),
     )
     bb2 = stk.BuildingBlock(
         smiles="C1=NC(C=NBr)=CC=C1",
@@ -70,7 +67,7 @@ def main():
     # Use conjugate gradient method for a slower, but more stable
     # optimisation.
     gulp_opt = stko.GulpUFFOptimizer(
-        gulp_path=gulp_path,
+        gulp_path=args.gulp_path,
         output_dir="gulp_test_output",
         metal_FF={26: "Fe4+2"},
         conjugate_gradient=True,
@@ -80,11 +77,11 @@ def main():
     gulp_opt.assign_FF(cage)
     # Run optimization.
     structure = gulp_opt.optimize(mol=cage)
-    structure.write(os.path.join("gulp_test_output", "opt_structure.mol"))
+    structure.write(Path("gulp_test_output") / "opt_structure.mol")
 
     target_num_confs = 40
-    gulp_MD = stko.GulpUFFMDOptimizer(
-        gulp_path=gulp_path,
+    gulp_md = stko.GulpUFFMDOptimizer(
+        gulp_path=args.gulp_path,
         metal_FF={26: "Fe4+2"},
         output_dir="gulp_test_output_MD",
         temperature=300,
@@ -94,12 +91,18 @@ def main():
         opt_conformers=False,
         save_conformers=True,
     )
-    gulp_MD.assign_FF(structure)
-    structure = gulp_MD.optimize(structure)
-    structure.write(os.path.join("gulp_test_output_MD", "opt_structure.mol"))
+    gulp_md.assign_FF(structure)
+    structure = gulp_md.optimize(structure)
+    structure.write(Path("gulp_test_output_MD") / "opt_structure.mol")
 
-    confs_gen = glob.glob("gulp_test_output_MD/conf*.xyz")
+    confs_gen = list(Path("gulp_test_output_MD").glob("conf*.xyz"))
     assert len(confs_gen) == target_num_confs
+
+
+def _parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("gulp_path", type=str)
+    return parser.parse_args()
 
 
 if __name__ == "__main__":

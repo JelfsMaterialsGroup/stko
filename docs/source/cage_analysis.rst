@@ -19,7 +19,6 @@ like all other methods in :mod:`stko`.
   DitopicThreeSiteAnalyser <_autosummary/stko.molecule_analysis.DitopicThreeSiteAnalyser>
   ConstructedAnalyser <_autosummary/stko.molecule_analysis.ConstructedAnalyser>
   GeometryAnalyser <_autosummary/stko.molecule_analysis.GeometryAnalyser>
-  PoreAnalyser <_autosummary/stko.molecule_analysis.PoreAnalyser>
 
 
 There is an example script with some of the analyses

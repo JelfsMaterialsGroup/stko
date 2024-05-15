@@ -7,8 +7,15 @@ logger = logging.getLogger(__name__)
 
 
 class PositionedAtom:
-    """
-    A container for stk.Atom and a coordinate.
+    """A container for stk.Atom and a coordinate.
+
+    Parameters:
+        atom:
+            The atom.
+
+        position:
+            The position (`x`, `y`, `z`) of the atom in cartesian
+            coordinates.
 
     """
 
@@ -17,18 +24,6 @@ class PositionedAtom:
         atom: stk.Atom,
         position: tuple[float, ...],
     ) -> None:
-        """
-        Parameters:
-
-            atom:
-                The atom.
-
-            position:
-                The position (`x`, `y`, `z`) of the atom in cartesian
-                coordinates.
-
-        """
-
         self._atom = atom
         self._position = position
 
@@ -47,41 +42,31 @@ class PositionedAtom:
     def get_position(self) -> tuple[float, ...]:
         return self._position
 
-    def _with_id(self, id: int) -> Self:
-        """
-        Modify the atom id.
-
-        """
-
+    def _with_id(self, id: int) -> Self:  # noqa: A002
+        """Modify the atom id."""
         self._atom = self._atom.with_id(id)
         return self
 
-    def with_id(self, id: int) -> Self:
-        """
-        Get a clone but with a different id.
+    def with_id(self, id: int) -> Self:  # noqa: A002
+        """Get a clone but with a different id.
 
         Returns:
-
             A clone with a new id. Has the same type as the original
             atom.
 
         """
-
-        return self.clone()._with_id(id)
+        return self.clone()._with_id(id)  # noqa: SLF001
 
     def clone(self) -> Self:
-        """
-        Return a clone.
+        """Return a clone.
 
         Returns:
-
             The clone. It has the same type as the original atom.
 
         """
-
         clone = self.__class__.__new__(self.__class__)
-        clone._atom = self._atom
-        clone._position = self._position
+        clone._atom = self._atom  # noqa: SLF001
+        clone._position = self._position  # noqa: SLF001
         return clone
 
     def __repr__(self) -> str:

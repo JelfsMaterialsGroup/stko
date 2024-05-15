@@ -1,20 +1,8 @@
-from ..utilities import is_equivalent_atom
+import stko
+
+from tests.molecular.atoms.utilities import is_equivalent_atom
 
 
-def test_clone(positioned_atom):
-    """
-    Test :meth:`.PositionedAtom.clone`.
-
-    Parameters
-    ----------
-    atom : :class:`.PositionedAtom`
-        The atom to be cloned.
-
-    Returns
-    -------
-    None : :class:`NoneType`
-
-    """
-
+def test_clone(positioned_atom: stko.PositionedAtom) -> None:
     clone = positioned_atom.clone()
     is_equivalent_atom(positioned_atom, clone)

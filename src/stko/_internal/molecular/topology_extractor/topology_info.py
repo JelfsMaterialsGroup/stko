@@ -1,11 +1,21 @@
 import logging
+from pathlib import Path
 
 logger = logging.getLogger(__name__)
 
 
 class TopologyInfo:
-    """
-    Extracted information of a topology.
+    """Extracted information of a topology.
+
+    Parameters:
+        centroids:
+            Positions of vertices.
+
+        connectivities:
+            Connections between vertices.
+
+        edge_pairs:
+            Pairs of vertices with edges between them.
 
     """
 
@@ -15,66 +25,39 @@ class TopologyInfo:
         connectivities: dict,
         edge_pairs: list[tuple[int, int]],
     ) -> None:
-        """
-        Parameters:
-
-            centroids:
-                Positions of vertices.
-
-            connectivities:
-                Connections between vertices.
-
-            edge_pairs:
-                Pairs of vertices with edges between them.
-
-        """
-
         self._centroids = centroids
         self._connectivities = connectivities
         self._edge_pairs = edge_pairs
 
     def get_vertex_positions(self) -> dict:
-        """
-        Get the positions of each vertex.
+        """Get the positions of each vertex.
 
         Returns:
-
             Vertex ids with their positions.
 
         """
-
         return self._centroids
 
     def get_connectivities(self) -> dict:
-        """
-        Get the number of connections of each vertex.
+        """Get the number of connections of each vertex.
 
         Returns:
-
             Vertex ids with their number of connections.
 
         """
-
         return self._connectivities
 
     def get_edge_pairs(self) -> list[tuple[int, int]]:
-        """
-        Get the edge pairs.
+        """Get the edge pairs.
 
         Returns:
-
             List of edge pairs.
 
         """
-
         return self._edge_pairs
 
-    def write(self, path: str) -> None:
-        """
-        Writes a mock .pdb with vertex centroids and edges as bonds.
-
-        """
-
+    def write(self, path: Path) -> None:
+        """Writes a mock .pdb with vertex centroids and edges as bonds."""
         content = []
 
         atom_counts: dict[str, int] = {}
@@ -120,5 +103,4 @@ class TopologyInfo:
 
         content.append("END\n")
 
-        with open(path, "w") as f:
-            f.write("".join(content))
+        path.write_text("".join(content))

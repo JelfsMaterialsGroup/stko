@@ -3,6 +3,7 @@ from collections import abc
 
 import numpy as np
 import stk
+
 from stko._internal.calculators.results.planarity_results import (
     PlanarityResults,
 )
@@ -11,8 +12,7 @@ logger = logging.getLogger(__name__)
 
 
 class PlanarityCalculator:
-    """
-    Calculates measures of planarity of a molecule.
+    """Calculates measures of planarity of a molecule.
 
     Measures based on plane deviation from Angew. paper [1]_ and a
     ChemRxiv paper [2]_.
@@ -26,7 +26,6 @@ class PlanarityCalculator:
     sqrt((1/num_atoms) * (sum d_i ** 2)) (MPP in [2]_)
 
     Examples:
-
         .. code-block:: python
 
             import stk
@@ -45,7 +44,6 @@ class PlanarityCalculator:
             planarity_parameter = pc_results.get_planarity_parameter()
 
     References:
-
         .. [1] https://onlinelibrary.wiley.com/doi/10.1002/anie.202106721
 
         .. [2] https://link.springer.com/article/10.1007/s00894-021-04884-0
@@ -60,19 +58,14 @@ class PlanarityCalculator:
         centroid = mol.get_centroid(atom_ids=plane_atom_ids)
         normal = mol.get_plane_normal(atom_ids=plane_atom_ids)
         # Plane of equation ax + by + cz = d.
-        atom_plane = np.append(normal, np.sum(normal * centroid))
-        return atom_plane
+        return np.append(normal, np.sum(normal * centroid))
 
     def _shortest_distance_to_plane(
         self,
         plane: np.ndarray,
         point: np.ndarray,
     ) -> float:
-        """
-        Calculate the perpendicular distance from a point and a plane.
-
-        """
-
+        """Calculate the perpendicular distance from a point and a plane."""
         top = (
             plane[0] * point[0]
             + plane[1] * point[1]
@@ -80,8 +73,7 @@ class PlanarityCalculator:
             - plane[3]
         )
         bottom = np.sqrt(plane[0] ** 2 + plane[1] ** 2 + plane[2] ** 2)
-        distance = top / bottom
-        return distance
+        return top / bottom
 
     def _calculate_deviations(
         self,
@@ -92,9 +84,9 @@ class PlanarityCalculator:
         return [
             self._shortest_distance_to_plane(
                 plane=atom_plane,
-                point=tuple(
+                point=next(
                     mol.get_atomic_positions(atom_ids=i.get_id()),
-                )[0],
+                ),
             )
             for i in mol.get_atoms()
             if i.get_id() in deviation_atom_ids
@@ -120,11 +112,9 @@ class PlanarityCalculator:
         plane_atom_ids: abc.Iterable[int] | None = None,
         deviation_atom_ids: abc.Iterable[int] | None = None,
     ) -> abc.Iterable[dict]:
-        """
-        Perform calculation on `mol`.
+        """Perform calculation on `mol`.
 
         Parameters:
-
             mol:
                 The :class:`stk.Molecule` whose planarity is to be calculated.
 
@@ -135,11 +125,9 @@ class PlanarityCalculator:
                 The atom ids to use to calculate planarity.
 
         Yields:
-
             Dictionary of results.
 
         """
-
         if plane_atom_ids is None:
             plane_atom_ids = list(range(len(list(mol.get_atoms()))))
         else:
@@ -168,11 +156,9 @@ class PlanarityCalculator:
         plane_atom_ids: abc.Iterable[int] | None = None,
         deviation_atom_ids: abc.Iterable[int] | None = None,
     ) -> PlanarityResults:
-        """
-        Calculate the planarity of `mol`.
+        """Calculate the planarity of `mol`.
 
         Parameters:
-
             mol:
                 The :class:`stk.Molecule` whose planarity is to be calculated.
 
@@ -183,11 +169,9 @@ class PlanarityCalculator:
                 The atom ids to use to calculate planarity.
 
         Returns:
-
             The planarity measures of the molecule.
 
         """
-
         return PlanarityResults(
             self.calculate(
                 mol=mol,

@@ -1,3 +1,4 @@
+import numpy as np
 import pytest
 import stk
 
@@ -8,9 +9,9 @@ _complex = stk.ConstructedMolecule(
         metals=stk.BuildingBlock(
             smiles="[Fe+2]",
             functional_groups=(
-                stk.SingleAtom(stk.Fe(0, charge=2)) for i in range(6)
+                stk.SingleAtom(stk.Fe(0, charge=2)) for _ in range(6)
             ),
-            position_matrix=[[0, 0, 0]],
+            position_matrix=np.array([[0, 0, 0]]),
         ),
         ligands=stk.BuildingBlock(
             smiles="C1=NC(C=NBr)=CC=C1",
@@ -79,9 +80,9 @@ _complex = stk.ConstructedMolecule(
                             smiles="[Pd+2]",
                             functional_groups=(
                                 stk.SingleAtom(stk.Pd(0, charge=2))
-                                for i in range(4)
+                                for _ in range(4)
                             ),
-                            position_matrix=[[0, 0, 0]],
+                            position_matrix=np.array([[0, 0, 0]]),
                         ),
                         stk.BuildingBlock(
                             smiles=(
@@ -103,7 +104,7 @@ _complex = stk.ConstructedMolecule(
         ),
     ),
 )
-def case_data(request) -> CaseData:
+def case_data(request: pytest.FixtureRequest) -> CaseData:
     return request.param(
         f"{request.fixturename}{request.param_index}",
     )

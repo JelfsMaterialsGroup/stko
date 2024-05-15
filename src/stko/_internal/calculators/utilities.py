@@ -10,14 +10,12 @@ def get_plane_normal(points: np.ndarray) -> np.ndarray:
 
 
 def get_atom_maps(mol: stk.ConstructedMolecule) -> dict:
-    """
-    Get atom maps from building blocks to constructude molecule.
+    """Get atom maps from building blocks to constructude molecule.
 
     Returns a dictionary of dictionaries from atom id (in building
     block) to constructed molecule atom, indexed by building block id.
 
     Parameters:
-
         mol:
             The :class:`stk.ConstructedMolecule` for which atom maps are
             desired.
@@ -28,9 +26,9 @@ def get_atom_maps(mol: stk.ConstructedMolecule) -> dict:
         if atom_info is not None:
             bb_atom = atom_info.get_building_block_atom()
             bb_atom_id = bb_atom.get_id()  # type: ignore[union-attr]
-            atom_maps[atom_info.get_building_block_id()][
-                bb_atom_id
-            ] = atom_info.get_atom()
+            atom_maps[atom_info.get_building_block_id()][bb_atom_id] = (
+                atom_info.get_atom()
+            )
     return atom_maps
 
 

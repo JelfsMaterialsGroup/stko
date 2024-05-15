@@ -1,16 +1,14 @@
-import os
-import sys
+# ruff: noqa: T201
+import argparse
+from pathlib import Path
 
 import stk
 import stko
 
 
-def main():
-    if len(sys.argv) > 1:
-        xtb_path = sys.argv[1]
-    else:
-        xtb_path = None
-
+def main() -> None:
+    """Run the example."""
+    args = _parse_args()
     bb1 = stk.BuildingBlock("NCCNCCN", [stk.PrimaryAminoFactory()])
 
     # Run calculations.
@@ -39,11 +37,11 @@ def main():
         mmff.get_energy(bb1),
     )
 
-    if xtb_path is not None:
+    if args.xtb_path is not None:
         print("doing XTB calculation.")
         xtb = stko.XTBEnergy(
-            xtb_path=xtb_path,
-            output_dir=os.path.join("output_directory", "example_xtb_out"),
+            xtb_path=args.xtb_path,
+            output_dir=Path("output_directory") / "example_xtb_out",
             unlimited_memory=True,
             calculate_ip_and_ea=True,
         )
@@ -76,7 +74,7 @@ def main():
             print("Expected fail")
 
         # Try yielded option.
-        calculations.append(xtb.calculate((bb1)))
+        calculations.append(xtb.calculate(bb1))
 
     # Run through yield statements using the `.calculate` method
     # all in once.
@@ -96,6 +94,17 @@ def main():
             mol,
             stko.EnergyResults(mmff.calculate(mol), "kcal mol-1").get_energy(),
         )
+
+
+def _parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--xtb_path",
+        type=Path,
+        help="Path to xtb binary.",
+        default=None,
+    )
+    return parser.parse_args()
 
 
 if __name__ == "__main__":

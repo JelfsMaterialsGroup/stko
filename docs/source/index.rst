@@ -7,6 +7,7 @@
    Calculators <calculators>
    Optimizers <optimizers>
    Cage analysis <cage_analysis>
+   Helpers <helpers>
 
 
 .. toctree::

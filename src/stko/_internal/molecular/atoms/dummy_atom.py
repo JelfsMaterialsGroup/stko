@@ -7,20 +7,15 @@ logger = logging.getLogger(__name__)
 
 
 class Du:
-    """
-    Dummy of an stk.Atom.
+    """Dummy of an stk.Atom.
+
+    Parameters:
+        id:
+            ID of dummy atom.
 
     """
 
-    def __init__(self, id: int) -> None:
-        """
-        Parameters:
-
-            id:
-                ID of dummy atom.
-
-        """
-
+    def __init__(self, id: int) -> None:  # noqa: A002
         self._stk_atom = stk.Atom(
             id=id,
             atomic_number=1,

@@ -1,8 +1,8 @@
-import rdkit.Chem.AllChem as rdkit
+import rdkit.Chem.AllChem as rdkit  # noqa: N813
 import stk
 
 
-def is_equivalent_atom(atom1, atom2):
+def is_equivalent_atom(atom1: stk.Atom, atom2: stk.Atom) -> None:
     assert atom1 is not atom2
     assert atom1.__class__ is atom2.__class__
     assert atom1.get_id() == atom2.get_id()

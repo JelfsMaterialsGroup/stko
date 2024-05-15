@@ -1,3 +1,6 @@
+from dataclasses import dataclass
+
+import numpy as np
 import pytest
 import stk
 import stko
@@ -24,9 +27,9 @@ _square_planar = stk.ConstructedMolecule(
         metals=stk.BuildingBlock(
             smiles="[Pd+2]",
             functional_groups=(
-                stk.SingleAtom(stk.Fe(0, charge=2)) for i in range(4)
+                stk.SingleAtom(stk.Fe(0, charge=2)) for _ in range(4)
             ),
-            position_matrix=[[0, 0, 0]],
+            position_matrix=np.array([[0, 0, 0]]),
         ),
         ligands=stk.BuildingBlock(
             smiles="NBr",
@@ -42,9 +45,9 @@ _octahedral = stk.ConstructedMolecule(
         metals=stk.BuildingBlock(
             smiles="[Fe+2]",
             functional_groups=(
-                stk.SingleAtom(stk.Fe(0, charge=2)) for i in range(6)
+                stk.SingleAtom(stk.Fe(0, charge=2)) for _ in range(6)
             ),
-            position_matrix=[[0, 0, 0]],
+            position_matrix=np.array([[0, 0, 0]]),
         ),
         ligands=stk.BuildingBlock(
             smiles="NBr",
@@ -55,46 +58,14 @@ _octahedral = stk.ConstructedMolecule(
 )
 
 
+@dataclass(frozen=True, slots=True)
 class CaseData:
-    """
-    A test case.
-
-    Attributes:
-        molecule:
-            The molecule to be tested.
-
-        plane_ids:
-            The atom ids to define the plane.
-
-        deviation_ids:
-            The atom ids to calculate planarity of.
-
-        plane_deviation:
-            The plane deviation of the molecule.
-
-        planarity_parameter:
-            The planarity parameter of the molecule.
-
-        plane_span:
-            The plane deviation span of the molecule.
-
-    """
-
-    def __init__(
-        self,
-        molecule,
-        plane_ids,
-        deviation_ids,
-        plane_deviation,
-        planarity_parameter,
-        plane_span,
-    ):
-        self.molecule = molecule
-        self.plane_ids = plane_ids
-        self.deviation_ids = deviation_ids
-        self.plane_deviation = plane_deviation
-        self.planarity_parameter = planarity_parameter
-        self.plane_span = plane_span
+    molecule: stk.Molecule
+    plane_ids: tuple[int, ...] | None
+    deviation_ids: tuple[int, ...] | None
+    plane_deviation: float
+    planarity_parameter: float
+    plane_span: float
 
 
 @pytest.fixture(
@@ -168,15 +139,15 @@ class CaseData:
         ),
         CaseData(
             molecule=_macrocycle,
-            plane_ids=(
+            plane_ids=tuple(
                 i.get_id()
                 for i in _macrocycle.get_atoms()
-                if i.get_atomic_number() == 6
+                if i.get_atomic_number() == 6  # noqa: PLR2004
             ),
-            deviation_ids=(
+            deviation_ids=tuple(
                 i.get_id()
                 for i in _macrocycle.get_atoms()
-                if i.get_atomic_number() == 6
+                if i.get_atomic_number() == 6  # noqa: PLR2004
             ),
             plane_deviation=1.7532095738358657,
             plane_span=0.5478779918237081,
@@ -184,10 +155,10 @@ class CaseData:
         ),
         CaseData(
             molecule=_macrocycle,
-            plane_ids=(
+            plane_ids=tuple(
                 i.get_id()
                 for i in _macrocycle.get_atoms()
-                if i.get_atomic_number() == 6
+                if i.get_atomic_number() == 6  # noqa: PLR2004
             ),
             deviation_ids=None,
             plane_deviation=20.694327117503335,
@@ -197,10 +168,10 @@ class CaseData:
         CaseData(
             molecule=_macrocycle,
             plane_ids=None,
-            deviation_ids=(
+            deviation_ids=tuple(
                 i.get_id()
                 for i in _macrocycle.get_atoms()
-                if i.get_atomic_number() == 6
+                if i.get_atomic_number() == 6  # noqa: PLR2004
             ),
             plane_deviation=1.8020628003297954,
             plane_span=0.5478779918237081,
@@ -232,5 +203,5 @@ class CaseData:
         ),
     ],
 )
-def case_data(request):
+def case_data(request: pytest.FixtureRequest) -> CaseData:
     return request.param

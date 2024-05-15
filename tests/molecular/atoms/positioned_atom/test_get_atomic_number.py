@@ -1,38 +1,13 @@
-def test_get_atomic_number(case_data):
-    """
-    Test :meth:`.PositionedAtom.get_atomic_number`.
+import stko
 
-    Parameters
-    ----------
-    case_data : :class:`.CaseData`
-        A test case, containing the atom to test and its correct atomic
-        number.
+from .case_data import CaseData
 
-    Returns
-    -------
-    None : :class:`NoneType`
 
-    """
-
+def test_get_atomic_number(case_data: CaseData) -> None:
     _test_get_atomic_number(case_data.atom, case_data.atomic_number)
 
 
-def _test_get_atomic_number(atom, atomic_number):
-    """
-    Test :meth:`.PositionedAtom.get_atomic_number`
-
-    Parameters
-    ----------
-    atom : :class:`.PositionedAtom`
-        The atom to test.
-
-    atomic_number : :class:`int`
-        The correct atomic number of `atom`.
-
-    Returns
-    -------
-    None : :class:`NoneType`
-
-    """
-
+def _test_get_atomic_number(
+    atom: stko.PositionedAtom, atomic_number: int
+) -> None:
     assert atom.get_atomic_number() == atomic_number

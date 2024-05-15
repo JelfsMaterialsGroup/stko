@@ -66,7 +66,7 @@ from .case_data import CaseData
         ),
     ),
 )
-def case_data(request) -> CaseData:
+def case_data(request: pytest.FixtureRequest) -> CaseData:
     return request.param(
         f"{request.fixturename}{request.param_index}",
     )

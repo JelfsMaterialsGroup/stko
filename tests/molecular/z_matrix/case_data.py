@@ -1,28 +1,9 @@
+from dataclasses import dataclass
+
+import stk
+
+
+@dataclass(frozen=True, slots=True)
 class CaseData:
-    """
-    A test case.
-
-    Attributes
-    ----------
-    molecule : :class:`stk.Molecule`
-        The molecule to test.
-
-    zmatrix : :class:`str`
-        The correct Z-matrix string.
-
-    """
-
-    def __init__(self, molecule, zmatrix):
-        """
-        Parameters
-        ----------
-        molecule : :class:`stk.Molecule`
-            The molecule to test.
-
-        zmatrix : :class:`str`
-            The correct Z-matrix string.
-
-        """
-
-        self.molecule = molecule
-        self.zmatrix = zmatrix
+    molecule: stk.Molecule
+    zmatrix: str

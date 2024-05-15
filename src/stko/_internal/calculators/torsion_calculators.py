@@ -3,6 +3,7 @@ from collections import abc
 
 import stk
 from rdkit.Chem import TorsionFingerprints
+
 from stko._internal.calculators.results.torsion_results import (
     ConstructedMoleculeTorsionResults,
     TorsionResults,
@@ -14,15 +15,13 @@ logger = logging.getLogger(__name__)
 
 
 class TorsionCalculator:
-    """
-    Uses rdkit to extract all torsions in a molecule.
+    """Uses rdkit to extract all torsions in a molecule.
 
     Note that the rdkit [1]_ function we use only outputs
     one torsion for each rotatable bond. We use the
     `TorsionFingerprints.CalculateTorsionLists` method.
 
     Examples:
-
         .. code-block:: python
 
             import stk
@@ -40,7 +39,6 @@ class TorsionCalculator:
                 print(t, ang, t.get_atom_ids())
 
     References:
-
         .. [1] http://rdkit.org/docs/source/rdkit.Chem.TorsionFingerprints.html
 
     """
@@ -59,33 +57,27 @@ class TorsionCalculator:
         )
 
     def get_results(self, mol: stk.Molecule) -> TorsionResults:
-        """
-        Calculate the torsions of `mol`.
+        """Calculate the torsions of `mol`.
 
         Parameters:
-
             mol:
                 The :class:`stk.Molecule` whose torsions are to be calculated.
 
         Returns:
-
             The torsions of the molecule.
 
         """
-
         return TorsionResults(self.calculate(mol), mol)
 
 
 class ConstructedMoleculeTorsionCalculator:
-    """
-    Uses rdkit to extract all torsions in a molecule.
+    """Uses rdkit to extract all torsions in a molecule.
 
     Note that the rdkit [2]_ function we use only outputs
     one torsion for each rotatable bond. We use the
     `TorsionFingerprints.CalculateTorsionLists` method.
 
     Examples:
-
         .. code-block:: python
 
             import stk
@@ -120,7 +112,6 @@ class ConstructedMoleculeTorsionCalculator:
                 )
 
     References:
-
         .. [2] http://rdkit.org/docs/source/rdkit.Chem.TorsionFingerprints.html
 
     """
@@ -142,20 +133,16 @@ class ConstructedMoleculeTorsionCalculator:
         self,
         mol: stk.ConstructedMolecule,
     ) -> ConstructedMoleculeTorsionResults:
-        """
-        Calculate the torsions of `mol`.
+        """Calculate the torsions of `mol`.
 
         Parameters:
-
             mol:
                 The molecule whose torsions are to be calculated.
 
         Returns:
-
             The torsions of the molecule.
 
         """
-
         return ConstructedMoleculeTorsionResults(
             generator=self.calculate(mol),
             mol=mol,
@@ -163,17 +150,13 @@ class ConstructedMoleculeTorsionCalculator:
 
 
 class MatchedTorsionCalculator(ConstructedMoleculeTorsionCalculator):
-    """
-    Matches rdkit generated torsions with building block torsions.
-
-    """
+    """Matches rdkit generated torsions with building block torsions."""
 
     def calculate(
         self,
         mol: stk.ConstructedMolecule,
     ) -> abc.Generator:
-        """
-        Extract torsions with rdkit, then match to building blocks.
+        """Extract torsions with rdkit, then match to building blocks.
 
         This method loops through each rdkit generated torsion. For
         each torsion, it checks if the two interior atoms of the
@@ -183,13 +166,11 @@ class MatchedTorsionCalculator(ConstructedMoleculeTorsionCalculator):
         of the underlying building block torsion.
 
         Parameters:
-
             mol:
                 The :class:`stk.ConstructedMolecule` whose torsions are to be
                 calculated.
 
         """
-
         torsions = list(
             next(super().calculate(mol))  # type: ignore[call-overload]
         )

@@ -4,7 +4,7 @@ default:
 
 # Build docs.
 docs:
-  rm -rf docs/source/_autosummary
+  rm -rf ./docs/build docs/source/_autosummary
   make -C docs html
   echo Docs are in $PWD/docs/build/html/index.html
 
@@ -20,13 +20,13 @@ check:
   trap error=1 ERR
 
   echo
-  (set -x; ruff . )
+  (set -x; ruff check . )
 
   echo
-  ( set -x; black --check . )
+  ( set -x; ruff format --check . )
 
   echo
-  ( set -x; mypy src )
+  ( set -x; mypy src examples )
 
   echo
   ( set -x; pytest --cov=stko --cov-report term-missing )
@@ -35,5 +35,5 @@ check:
 
 # Auto-fix code issues.
 fix:
-  black .
-  ruff --fix .
+  ruff format .
+  ruff check --fix .

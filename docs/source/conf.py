@@ -9,7 +9,7 @@
 # -- Project information ----------------------------------------------
 
 project = "stko"
-copyright = "2023, Steven Bennett, Andrew Tarzia, Lukas Turcani"
+project_copyright = "2023, Steven Bennett, Andrew Tarzia, Lukas Turcani"
 author = "Steven Bennett, Andrew Tarzia, Lukas Turcani"
 
 # -- General configuration ---------------------------------------------------
@@ -29,7 +29,7 @@ autosummary_imported_members = True
 
 autodoc_typehints = "description"
 autodoc_member_order = "groupwise"
-autoclass_content = "both"
+autoclass_content = "class"
 
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3", None),

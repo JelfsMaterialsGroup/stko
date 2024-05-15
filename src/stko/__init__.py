@@ -1,3 +1,5 @@
+"""Molecular optimisers and property calculators for use with :mod:`stk`."""
+
 from stko import functional_groups, molecule_analysis
 from stko._internal.calculators.extractors.orca_extractor import OrcaExtractor
 from stko._internal.calculators.extractors.xtb_extractor import XTBExtractor
@@ -23,7 +25,9 @@ from stko._internal.calculators.rmsd_calculators import (
     RmsdCalculator,
     RmsdMappedCalculator,
 )
-from stko._internal.calculators.shape_calculators import ShapeCalculator
+from stko._internal.calculators.shape_calculators import (
+    ShapeCalculator,
+)
 from stko._internal.calculators.torsion_calculators import (
     ConstructedMoleculeTorsionCalculator,
     MatchedTorsionCalculator,
@@ -55,20 +59,10 @@ from stko._internal.molecular.topology_extractor.topology_info import (
 )
 from stko._internal.molecular.torsion.torsion import Torsion
 from stko._internal.molecular.torsion.torsion_info import TorsionInfo
-from stko._internal.optimizers.aligner import (
-    Aligner,
-    AlignmentPotential,
-)
-from stko._internal.optimizers.collapser import (
-    Collapser,
-    CollapserMC,
-)
-from stko._internal.optimizers.gulp import (
-    GulpUFFMDOptimizer,
-    GulpUFFOptimizer,
-)
+from stko._internal.optimizers.aligner import Aligner, AlignmentPotential
+from stko._internal.optimizers.collapser import Collapser, CollapserMC
+from stko._internal.optimizers.gulp import GulpUFFMDOptimizer, GulpUFFOptimizer
 from stko._internal.optimizers.macromodel import (
-    MacroModel,
     MacroModelForceField,
     MacroModelMD,
 )
@@ -81,6 +75,7 @@ from stko._internal.optimizers.optimizers import (
 from stko._internal.optimizers.rdkit import ETKDG, MMFF, UFF, MetalOptimizer
 from stko._internal.optimizers.utilities import MAEExtractor
 from stko._internal.optimizers.xtb import XTB, XTBCREST, XTBFF, XTBFFCREST
+from stko._internal.types import ConstructedMoleculeT, MoleculeT
 from stko._internal.utilities.exceptions import (
     CalculatorError,
     ConvergenceError,
@@ -110,41 +105,39 @@ from stko._internal.utilities.utilities import (
     vector_angle,
 )
 
+MoleculeT = MoleculeT  # noqa: PLW0127
+"""Type parameter matching any :class:`stk.Molecule` or subclasses."""
+
+ConstructedMoleculeT = ConstructedMoleculeT  # noqa: PLW0127
+"""Type parameter matching :class:`stk.ConstructedMolecule` or subclasses."""
+
 __all__ = [
     "functional_groups",
     "molecule_analysis",
-    "is_valid_xtb_solvent",
-    "get_atom_distance",
-    "get_torsion_info_angles",
-    "calculate_angle",
-    "calculate_dihedral",
-    "vector_angle",
-    "unit_vector",
-    "Aligner",
-    "AlignmentPotential",
-    "Collapser",
-    "CollapserMC",
-    "ExpectedMetal",
-    "GulpUFFMDOptimizer",
-    "GulpUFFOptimizer",
-    "MacroModel",
-    "MacroModelForceField",
-    "MacroModelMD",
-    "OpenBabel",
-    "Optimizer",
-    "OptimizerSequence",
-    "TryCatchOptimizer",
-    "MMFF",
-    "UFF",
-    "ETKDG",
-    "MetalOptimizer",
-    "XTB",
-    "XTBCREST",
-    "XTBFF",
-    "XTBFFCREST",
-    "MAEExtractor",
-    "PositionedAtom",
+    "OrcaExtractor",
+    "OpenBabelEnergy",
+    "OrcaEnergy",
+    "PlanarityCalculator",
+    "MMFFEnergy",
+    "UFFEnergy",
+    "EnergyResults",
+    "ConstructedMoleculeTorsionResults",
+    "TorsionResults",
+    "XTBResults",
+    "RmsdCalculator",
+    "RmsdMappedCalculator",
+    "ShapeCalculator",
+    "OrcaResults",
+    "PlanarityResults",
+    "RmsdResults",
+    "ShapeResults",
+    "ConstructedMoleculeTorsionCalculator",
+    "MatchedTorsionCalculator",
+    "TorsionCalculator",
+    "XTBExtractor",
+    "XTBEnergy",
     "Du",
+    "PositionedAtom",
     "MDAnalysis",
     "ZMatrix",
     "MoleculeSplitter",
@@ -158,43 +151,51 @@ __all__ = [
     "TopologyInfo",
     "Torsion",
     "TorsionInfo",
-    "XTBEnergy",
-    "TorsionCalculator",
-    "ConstructedMoleculeTorsionCalculator",
-    "MatchedTorsionCalculator",
-    "ShapeCalculator",
-    "RmsdCalculator",
-    "RmsdMappedCalculator",
-    "MMFFEnergy",
-    "UFFEnergy",
-    "OrcaEnergy",
-    "OpenBabelEnergy",
-    "PlanarityCalculator",
-    "XTBResults",
-    "TorsionResults",
-    "ConstructedMoleculeTorsionResults",
-    "ShapeResults",
-    "RmsdResults",
-    "PlanarityResults",
-    "OrcaResults",
-    "EnergyResults",
-    "XTBExtractor",
-    "OrcaExtractor",
+    "Aligner",
+    "AlignmentPotential",
+    "Collapser",
+    "CollapserMC",
+    "GulpUFFMDOptimizer",
+    "GulpUFFOptimizer",
+    "MacroModelForceField",
+    "MacroModelMD",
+    "Optimizer",
+    "OptimizerSequence",
+    "TryCatchOptimizer",
+    "ETKDG",
+    "MMFF",
+    "UFF",
+    "MetalOptimizer",
+    "MAEExtractor",
+    "XTB",
+    "XTBFF",
+    "XTBCREST",
+    "XTBFFCREST",
+    "ConstructedMoleculeT",
+    "MoleculeT",
+    "OpenBabel",
     "WrapperNotInstalledError",
-    "OptimizerError",
-    "ForceFieldError",
-    "ForceFieldSetupError",
-    "CalculatorError",
-    "DifferentAtomError",
     "DifferentMoleculeError",
+    "DifferentAtomError",
+    "InputError",
+    "PathError",
     "ConvergenceError",
+    "CalculatorError",
     "ConversionError",
     "ExpectedMetalError",
-    "PathError",
+    "ForceFieldError",
+    "ForceFieldSetupError",
     "LewisStructureError",
-    "InputError",
-    "InvalidSolventError",
     "NotCompletedError",
     "NotStartedError",
     "SettingConflictError",
+    "InvalidSolventError",
+    "OptimizerError",
+    "get_torsion_info_angles",
+    "calculate_angle",
+    "calculate_dihedral",
+    "vector_angle",
+    "unit_vector",
+    "is_valid_xtb_solvent",
+    "get_atom_distance",
 ]

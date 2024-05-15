@@ -1,8 +1,10 @@
+# ruff: noqa: T201
 import stk
 import stko
 
 
-def main():
+def main() -> None:
+    """Run the example."""
     bb1 = stk.BuildingBlock("NCCNCCN", [stk.PrimaryAminoFactory()])
     bb2 = stk.BuildingBlock("O=CCCC=O", [stk.AldehydeFactory()])
     polymer = stk.ConstructedMolecule(
