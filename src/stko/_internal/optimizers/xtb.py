@@ -214,7 +214,7 @@ class XTB(Optimizer):
 
     def __init__(  # noqa: PLR0913
         self,
-        xtb_path: str,
+        xtb_path: Path | str,
         gfn_version: int = 2,
         output_dir: Path | str | None = None,
         opt_level: str = "normal",
@@ -258,7 +258,7 @@ class XTB(Optimizer):
             )
 
         self._check_path(xtb_path)
-        self._xtb_path = xtb_path
+        self._xtb_path = Path(xtb_path)
         self._gfn_version = str(gfn_version)
         self._output_dir = None if output_dir is None else Path(output_dir)
         self._opt_level = opt_level

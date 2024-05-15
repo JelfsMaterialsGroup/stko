@@ -56,7 +56,7 @@ class OpenBabelEnergy:
 
     def __init__(self, forcefield: str) -> None:
         if openbabel is None:
-            msg = "openbabel is not installed; see README for " "installation."
+            msg = "openbabel is not installed; see README for installation."
             raise WrapperNotInstalledError(msg)
 
         self._forcefield = forcefield
