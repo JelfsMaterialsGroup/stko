@@ -254,7 +254,7 @@ class OrcaEnergy:
                         stdout=f,
                         stderr=sp.PIPE,
                         # Shell is required to run complex arguments.
-                        shell=True,  # noqa: S602
+                        shell=True,
                     )
                 self._check_outcome(out_file)
                 if self._discard_output:

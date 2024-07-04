@@ -382,7 +382,7 @@ class XTB(Optimizer):
                 stdout=f,
                 stderr=sp.PIPE,
                 # Shell is required to run complex arguments.
-                shell=True,  # noqa: S602
+                shell=True,
             )
 
     def _write_detailed_control(self) -> None:
@@ -810,7 +810,7 @@ class XTBCREST(Optimizer):
                 stdout=f,
                 stderr=sp.PIPE,
                 # Shell is required to run complex arguments.
-                shell=True,  # noqa: S602
+                shell=True,
             )
 
     def _run_optimization(
@@ -1056,7 +1056,7 @@ class XTBFF(Optimizer):
                 stdout=f,
                 stderr=sp.PIPE,
                 # Shell is required to run complex arguments.
-                shell=True,  # noqa: S602
+                shell=True,
             )
 
     def _run_optimization(
@@ -1398,7 +1398,7 @@ class XTBFFCREST(Optimizer):
                 stdout=f,
                 stderr=sp.PIPE,
                 # Shell is required to run complex arguments.
-                shell=True,  # noqa: S602
+                shell=True,
             )
 
     def _run_optimization(

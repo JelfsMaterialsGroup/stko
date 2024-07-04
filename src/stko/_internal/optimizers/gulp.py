@@ -601,7 +601,7 @@ class GulpUFFOptimizer(Optimizer):
                 stdout=f,
                 stderr=sp.PIPE,
                 # Shell is required to run complex arguments.
-                shell=True,  # noqa: S602
+                shell=True,
             )
 
     def extract_final_energy(self, out_file: Path) -> float:

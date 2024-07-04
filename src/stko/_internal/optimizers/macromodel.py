@@ -138,7 +138,7 @@ class MacroModel(Optimizer):
         incomplete = True
         while incomplete:
             process = sp.Popen(
-                opt_cmd,  # noqa: S603
+                opt_cmd,
                 stdout=sp.PIPE,
                 stderr=sp.STDOUT,
                 universal_newlines=True,
@@ -228,7 +228,7 @@ class MacroModel(Optimizer):
         incomplete = True
         while incomplete:
             out = sp.run(
-                cmd,  # noqa: S603
+                cmd,
                 stdout=sp.PIPE,
                 stderr=sp.STDOUT,
                 text=True,
@@ -249,7 +249,7 @@ class MacroModel(Optimizer):
         start = time.time()
         while name in output:
             output = sp.run(
-                cmd,  # noqa: S603
+                cmd,
                 stdout=sp.PIPE,
                 stderr=sp.STDOUT,
                 text=True,
@@ -345,7 +345,7 @@ class MacroModel(Optimizer):
             # Execute the file conversion.
             try:
                 convrt_return = sp.run(
-                    convrt_cmd,  # noqa: S603
+                    convrt_cmd,
                     stdout=sp.PIPE,
                     stderr=sp.STDOUT,
                     text=True,

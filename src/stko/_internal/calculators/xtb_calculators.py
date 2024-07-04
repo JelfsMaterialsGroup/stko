@@ -329,7 +329,7 @@ class XTBEnergy:
                     stdout=f,
                     stderr=sp.PIPE,
                     # Shell is required to run complex arguments.
-                    shell=True,  # noqa: S602
+                    shell=True,
                 )
         finally:
             os.chdir(init_dir)
