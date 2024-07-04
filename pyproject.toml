@@ -10,8 +10,8 @@ maintainers = [
   { name = "Lukas Turcani", email = "lukasturcani93@gmail.com" },
 ]
 dependencies = [
-  "numpy==1.26.4",
-  "rdkit==2023.9.5",
+  "numpy==1.26.4",  # remove pin when ecosystem updates to 2.0
+  "rdkit==2023.9.5",  # remove pin when type issues are resolved
   "stk",
   "networkx",
 ]
