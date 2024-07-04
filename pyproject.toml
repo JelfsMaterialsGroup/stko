@@ -10,7 +10,8 @@ maintainers = [
   { name = "Lukas Turcani", email = "lukasturcani93@gmail.com" },
 ]
 dependencies = [
-  "rdkit",
+  "numpy==1.26.4"
+  "rdkit==2023.9.5"
   "stk",
   "networkx",
 ]
