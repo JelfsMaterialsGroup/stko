@@ -323,13 +323,13 @@ class XTBEnergy:
             with out_file.open("w") as f:
                 # Note that sp.call will hold the program until
                 # completion of the calculation.
-                sp.call(
+                sp.call(  # noqa: S602
                     cmd,
                     stdin=sp.PIPE,
                     stdout=f,
                     stderr=sp.PIPE,
                     # Shell is required to run complex arguments.
-                    shell=True,  # noqa: S602
+                    shell=True,
                 )
         finally:
             os.chdir(init_dir)

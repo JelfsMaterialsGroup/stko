@@ -17,7 +17,4 @@ def check_line(line: str, option: str, options_dict: dict[str, str]) -> bool:
         Returns ``True`` if the desired string is present.
 
     """
-    if options_dict[option] in line:
-        return True
-
-    return False
+    return options_dict[option] in line

@@ -376,13 +376,13 @@ class XTB(Optimizer):
         with out_file.open("w") as f:
             # Note that sp.call will hold the program until completion
             # of the calculation.
-            sp.call(
+            sp.call(  # noqa: S602
                 cmd,
                 stdin=sp.PIPE,
                 stdout=f,
                 stderr=sp.PIPE,
                 # Shell is required to run complex arguments.
-                shell=True,  # noqa: S602
+                shell=True,
             )
 
     def _write_detailed_control(self) -> None:
@@ -804,13 +804,13 @@ class XTBCREST(Optimizer):
         with out_file.open("w") as f:
             # Note that sp.call will hold the program until completion
             # of the calculation.
-            sp.call(
+            sp.call(  # noqa: S602
                 cmd,
                 stdin=sp.PIPE,
                 stdout=f,
                 stderr=sp.PIPE,
                 # Shell is required to run complex arguments.
-                shell=True,  # noqa: S602
+                shell=True,
             )
 
     def _run_optimization(
@@ -1050,13 +1050,13 @@ class XTBFF(Optimizer):
         with out_file.open("w") as f:
             # Note that sp.call will hold the program until completion
             # of the calculation.
-            sp.call(
+            sp.call(  # noqa: S602
                 cmd,
                 stdin=sp.PIPE,
                 stdout=f,
                 stderr=sp.PIPE,
                 # Shell is required to run complex arguments.
-                shell=True,  # noqa: S602
+                shell=True,
             )
 
     def _run_optimization(
@@ -1392,13 +1392,13 @@ class XTBFFCREST(Optimizer):
         with out_file.open("w") as f:
             # Note that sp.call will hold the program until completion
             # of the calculation.
-            sp.call(
+            sp.call(  # noqa: S602
                 cmd,
                 stdin=sp.PIPE,
                 stdout=f,
                 stderr=sp.PIPE,
                 # Shell is required to run complex arguments.
-                shell=True,  # noqa: S602
+                shell=True,
             )
 
     def _run_optimization(

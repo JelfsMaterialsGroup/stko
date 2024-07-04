@@ -661,10 +661,10 @@ class CollapserMC(Collapser):
 
     def _plot_progess(  # noqa: PLR0913
         self,
-        steps: abc.Iterable,
-        maxds: abc.Iterable,
-        spots: abc.Iterable,
-        npots: abc.Iterable,
+        steps: list,
+        maxds: list,
+        spots: list,
+        npots: list,
         output_dir: Path,
     ) -> None:
         fig, ax = plt.subplots(figsize=(8, 5))
