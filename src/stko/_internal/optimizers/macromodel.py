@@ -137,7 +137,7 @@ class MacroModel(Optimizer):
 
         incomplete = True
         while incomplete:
-            process = sp.Popen(
+            process = sp.Popen(  # noqa: S603
                 opt_cmd,
                 stdout=sp.PIPE,
                 stderr=sp.STDOUT,
@@ -227,7 +227,7 @@ class MacroModel(Optimizer):
 
         incomplete = True
         while incomplete:
-            out = sp.run(
+            out = sp.run(  # noqa: S603
                 cmd,
                 stdout=sp.PIPE,
                 stderr=sp.STDOUT,
@@ -248,7 +248,7 @@ class MacroModel(Optimizer):
         output = name
         start = time.time()
         while name in output:
-            output = sp.run(
+            output = sp.run(  # noqa: S603
                 cmd,
                 stdout=sp.PIPE,
                 stderr=sp.STDOUT,
@@ -303,10 +303,7 @@ class MacroModel(Optimizer):
         with Path(f"{run_name}.log").open() as f:
             log_file = f.read()
 
-        if "Could not check out a license for mmlibs" in log_file:
-            return False
-
-        return True
+        return "Could not check out a license for mmlibs" not in log_file
 
     @staticmethod
     def _get_com_line(  # noqa: PLR0913
@@ -344,7 +341,7 @@ class MacroModel(Optimizer):
         while incomplete:
             # Execute the file conversion.
             try:
-                convrt_return = sp.run(
+                convrt_return = sp.run(  # noqa: S603
                     convrt_cmd,
                     stdout=sp.PIPE,
                     stderr=sp.STDOUT,

@@ -5,6 +5,7 @@ import re
 import shutil
 import subprocess as sp
 import uuid
+import warnings
 from pathlib import Path
 
 import stk
@@ -547,12 +548,15 @@ class GulpUFFOptimizer(Optimizer):
                 The molecule to be optimized.
 
         """
-        FutureWarning(
-            "We have found some minor discrepancies in this "
-            "assignment algorithm, which is based off rdkit code. "
-            "Changes should come soon. This UFF optimisation should "
-            " not be your final step! Due to this, some tests in "
-            "test_uff_assign_ff.py have been muted."
+        warnings.warn(
+            FutureWarning(
+                "We have found some minor discrepancies in this "
+                "assignment algorithm, which is based off rdkit code. "
+                "Changes should come soon. This UFF optimisation should "
+                " not be your final step! Due to this, some tests in "
+                "test_uff_assign_ff.py have been muted."
+            ),
+            stacklevel=2,
         )
 
         metal_atoms = get_metal_atoms(mol)
@@ -595,7 +599,7 @@ class GulpUFFOptimizer(Optimizer):
         with out_file.open("w") as f:
             # Note that sp.call will hold the program until completion
             # of the calculation.
-            sp.call(
+            sp.call(  # noqa: S602
                 cmd,
                 stdin=sp.PIPE,
                 stdout=f,

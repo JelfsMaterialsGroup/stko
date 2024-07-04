@@ -248,7 +248,7 @@ class OrcaEnergy:
                 with out_file.open("w") as f:
                     # Note that sp.call will hold the program until
                     # completion of the calculation.
-                    sp.call(
+                    sp.call(  # noqa: S602
                         cmd,
                         stdin=sp.PIPE,
                         stdout=f,

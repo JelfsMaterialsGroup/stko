@@ -306,10 +306,7 @@ def has_h_atom(bond: stk.Bond) -> bool:
     """
     if bond.get_atom1().get_atomic_number() == 1:
         return True
-    if bond.get_atom2().get_atomic_number() == 1:
-        return True
-
-    return False
+    return bond.get_atom2().get_atomic_number() == 1
 
 
 def has_metal_atom(bond: stk.Bond, metal_atoms: list[stk.Atom]) -> bool:
@@ -328,10 +325,7 @@ def has_metal_atom(bond: stk.Bond, metal_atoms: list[stk.Atom]) -> bool:
     """
     if bond.get_atom1() in metal_atoms:
         return True
-    if bond.get_atom2() in metal_atoms:
-        return True
-
-    return False
+    return bond.get_atom2() in metal_atoms
 
 
 def metal_atomic_numbers() -> abc.Iterable:
