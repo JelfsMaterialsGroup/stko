@@ -44,6 +44,9 @@ def main() -> None:
             output_dir=Path("output_directory") / "example_xtb_out",
             unlimited_memory=True,
             calculate_ip_and_ea=True,
+            write_sasa_info=True,
+            solvent="dmso",
+            solvent_model="alpb",
         )
 
         xtb_results = xtb.get_results(bb1)
@@ -57,6 +60,7 @@ def main() -> None:
         full_dipole_moments = xtb_results.get_full_dipole_moments()
         ip = xtb_results.get_ionisation_potential()
         ea = xtb_results.get_electron_affinity()
+        sasa = xtb_results.get_total_sasa()
         print(
             total_energy,
             homo_lumo_gap,
@@ -65,6 +69,7 @@ def main() -> None:
             full_dipole_moments,
             ip,
             ea,
+            sasa,
         )
         # From results, vs from calculator.
         print(xtb.get_energy(bb1), total_energy)
