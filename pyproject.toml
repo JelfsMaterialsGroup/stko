@@ -130,5 +130,8 @@ module = [
   "networkx.*",
   "openbabel.*",
   "MDAnalysis.*",
+  "openff.*",
+  "openmm.*",
+  "openmmforcefields.*",
 ]
 ignore_missing_imports = true
