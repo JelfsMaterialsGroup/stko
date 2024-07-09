@@ -73,7 +73,12 @@ from stko._internal.optimizers.optimizers import (
     TryCatchOptimizer,
 )
 from stko._internal.optimizers.rdkit import ETKDG, MMFF, UFF, MetalOptimizer
-from stko._internal.optimizers.utilities import MAEExtractor
+from stko._internal.optimizers.utilities import (
+    MAEExtractor,
+    get_metal_atoms,
+    mol_from_mae_file,
+    move_generated_macromodel_files,
+)
 from stko._internal.optimizers.xtb import XTB, XTBCREST, XTBFF, XTBFFCREST
 from stko._internal.types import ConstructedMoleculeT, MoleculeT
 from stko._internal.utilities.exceptions import (
@@ -167,6 +172,9 @@ __all__ = [
     "UFF",
     "MetalOptimizer",
     "MAEExtractor",
+    "get_metal_atoms",
+    "move_generated_macromodel_files",
+    "mol_from_mae_file",
     "XTB",
     "XTBFF",
     "XTBCREST",
