@@ -89,7 +89,8 @@ class XTBEnergy:
 
         write_sasa_info:
             If ``True``, the detailed info input will request gbsa=True and
-            output SASA information from xtb.
+            output SASA information from xtb. Requires a solvent model to be
+            used.
 
     Notes:
         When running :meth:`calculate`, this calculator changes the
@@ -259,12 +260,12 @@ class XTBEnergy:
         self._calculate_free_energy = calculate_free_energy
         self._calculate_ip_and_ea = calculate_ip_and_ea
         self._electronic_temperature = str(electronic_temperature)
-        self._solvent = solvent
-        self._solvent_model = solvent_model
-        self._solvent_grid = solvent_grid
         self._charge = str(charge)
         self._num_unpaired_electrons = str(num_unpaired_electrons)
         self._unlimited_memory = unlimited_memory
+        self._solvent = solvent
+        self._solvent_model = solvent_model
+        self._solvent_grid = solvent_grid
         self._write_sasa_info = write_sasa_info
 
     def _check_path(self, path: Path) -> None:

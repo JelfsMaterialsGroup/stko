@@ -126,7 +126,8 @@ class XTB(Optimizer):
 
         write_sasa_info:
             If ``True``, the detailed info input will request gbsa=True and
-            output SASA information from xtb.
+            output SASA information from xtb. Requires a solvent model to be
+            used.
 
     Examples:
         Note that for :class:`.ConstructedMolecule` objects constructed by
