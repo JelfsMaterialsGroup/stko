@@ -13,7 +13,6 @@ class XTBExtractor:
         output_file:
             Output file to extract properties from.
 
-
     Attributes:
         output_file:
             Output file to extract properties from.
@@ -78,6 +77,9 @@ class XTBExtractor:
             The vertical electron affinity in the :attr:`output_file`.
             Corresponds to the delta SCC EA.
 
+        total_sasa:
+            The solvent-accessible surface area of the molecule from xtb.
+
     Examples:
         .. code-block:: python
 
@@ -136,6 +138,8 @@ class XTBExtractor:
                 line, "electron_affinity", self._properties_dict()
             ):
                 self._extract_electron_affinity(line)
+            elif check_line(line, "total_sasa", self._properties_dict()):
+                self._extract_total_sasa(line)
 
         # Frequency formatting requires loop through full file.
         self._extract_frequencies()
@@ -152,6 +156,7 @@ class XTBExtractor:
             "total_free_energy": "          | TOTAL FREE ENERGY  ",
             "ionisation_potential": "delta SCC IP (eV)",
             "electron_affinity": "delta SCC EA (eV)",
+            "total_sasa": "total SASA /",
         }
 
     def _extract_total_energy(self, line: str) -> None:
@@ -359,3 +364,15 @@ class XTBExtractor:
         self.electron_affinity = float(
             string.group(0)  # type: ignore[union-attr]
         )
+
+    def _extract_total_sasa(self, line: str) -> None:
+        """Updates :attr:`total_sasa`.
+
+        Parameters:
+            line:
+                Line of output file to extract property from.
+
+        """
+        nums = re.compile(r"[+-]?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?")
+        string = nums.search(line.rstrip())
+        self.total_sasa = float(string.group(0))  # type: ignore[union-attr]
