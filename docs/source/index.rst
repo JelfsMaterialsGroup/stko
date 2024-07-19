@@ -1,8 +1,9 @@
 .. toctree::
    :hidden:
    :caption: stko
-   :maxdepth: 2
+   :maxdepth: 1
 
+   Video Tutorials <video_tutorials>
    Molecular <molecular>
    Calculators <calculators>
    Optimizers <optimizers>
