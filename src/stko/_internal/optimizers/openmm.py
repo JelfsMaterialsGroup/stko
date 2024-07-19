@@ -1,8 +1,10 @@
+from typing import Literal
+
 from openff.interchange import Interchange
-from openff.toolkit import ForceField, Molecule
+from openff.toolkit import ForceField, Molecule, RDKitToolkitWrapper
 from openmm import Integrator, LangevinIntegrator, State
 from openmm.app import Simulation
-from openmm.unit import Quantity, kelvin, picosecond, picoseconds
+from openmm.unit import Quantity, angstrom, kelvin, picosecond, picoseconds
 
 from stko._internal.optimizers.optimizers import Optimizer
 from stko._internal.types import MoleculeT
@@ -15,6 +17,8 @@ class OpenMMForceField(Optimizer):
         box_vectors: Quantity | None = None,
         integrator: Integrator | None = None,
         num_steps: int = 10_000,
+        define_stereo: bool = False,
+        partial_charges_method: Literal["am1bcc", "mmff94"] = "am1bcc",
     ) -> None:
         if integrator is None:
             integrator = LangevinIntegrator(
@@ -24,13 +28,36 @@ class OpenMMForceField(Optimizer):
         self._force_field = force_field
         self._box_vectors = box_vectors
         self._num_steps = num_steps
+        self._define_stereo = define_stereo
+        self._partial_charges_method = partial_charges_method
 
     def optimize(self, mol: MoleculeT) -> MoleculeT:
-        molecule = Molecule.from_rdkit(mol)
+        rdkit_mol = mol.to_rdkit_mol()
+        if self._define_stereo:
+            pass
+
+        molecule = Molecule.from_rdkit(
+            rdmol=rdkit_mol,
+            allow_undefined_stereo=True,
+            hydrogens_are_explicit=True,
+        )
+
+        if self._partial_charges_method == "mmff94":
+            molecule.assign_partial_charges(
+                self._partial_charges_method,
+                toolkit_registry=RDKitToolkitWrapper(),
+            )
+
         topology = molecule.to_topology()
         if self._box_vectors is not None:
             topology.box_vectors = self._box_vectors
-        interchange = Interchange.from_smirnoff(self._force_field, topology)
+
+        interchange = Interchange.from_smirnoff(
+            force_field=self._force_field,
+            topology=topology,
+            positions=mol.get_position_matrix() * angstrom,
+            charge_from_molecules=[molecule],
+        )
         system = interchange.to_openmm()
         simulation = Simulation(topology, system, self._integrator)
         simulation.minimizeEnergy()
