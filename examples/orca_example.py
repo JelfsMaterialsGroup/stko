@@ -26,7 +26,7 @@ def main() -> None:
     )
 
     examples_output = Path("orca_output_directory")
-    examples_output.mkdir(exist_ok=True)
+    examples_output.mkdir(parents=True, exist_ok=True)
 
     # Run optimisations.
     etkdg = stko.ETKDG()

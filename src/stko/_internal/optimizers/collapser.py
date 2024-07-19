@@ -215,7 +215,7 @@ class Collapser:
 
         if output_dir.exists():
             shutil.rmtree(output_dir)
-        output_dir.mkdir()
+        output_dir.mkdir(parents=True)
 
         bb_atom_ids = defaultdict(list)
         for i in mol.get_atom_infos():
@@ -309,7 +309,7 @@ class Collapser:
 
         if output_dir.exists():
             shutil.rmtree(output_dir)
-        output_dir.mkdir()
+        output_dir.mkdir(parents=True)
 
         bb_atom_ids = defaultdict(list)
         for i in mol.get_atom_infos():
@@ -704,7 +704,7 @@ class CollapserMC(Collapser):
 
         if output_dir.exists():
             shutil.rmtree(output_dir)
-        output_dir.mkdir()
+        output_dir.mkdir(parents=True)
 
         # Define long bonds to optimise.
         long_bond_infos = self._get_long_bond_infos(mol)

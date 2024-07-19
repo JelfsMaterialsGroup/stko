@@ -154,7 +154,7 @@ def main() -> None:
     )
 
     examples_output = Path("output_directory")
-    examples_output.mkdir(exist_ok=True)
+    examples_output.mkdir(parents=True, exist_ok=True)
 
     structures = [
         ("bb1", bb1),

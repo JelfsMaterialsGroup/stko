@@ -631,7 +631,7 @@ class GulpUFFOptimizer(Optimizer):
         if output_dir.exists():
             shutil.rmtree(output_dir)
 
-        output_dir.mkdir()
+        output_dir.mkdir(parents=True)
         init_dir = Path.cwd()
         os.chdir(output_dir)
 
@@ -687,7 +687,7 @@ class GulpUFFOptimizer(Optimizer):
         if output_dir.exists():
             shutil.rmtree(output_dir)
 
-        output_dir.mkdir()
+        output_dir.mkdir(parents=True)
         init_dir = Path.cwd()
         os.chdir(output_dir)
 
@@ -1140,7 +1140,7 @@ class GulpUFFMDOptimizer(GulpUFFOptimizer):
         if output_dir.exists():
             shutil.rmtree(output_dir)
 
-        output_dir.mkdir()
+        output_dir.mkdir(parents=True)
         init_dir = Path.cwd()
         os.chdir(output_dir)
 
@@ -1209,7 +1209,7 @@ class GulpUFFMDOptimizer(GulpUFFOptimizer):
         if output_dir.exists():
             shutil.rmtree(output_dir)
 
-        output_dir.mkdir()
+        output_dir.mkdir(parents=True)
         init_dir = Path.cwd()
         os.chdir(output_dir)
 

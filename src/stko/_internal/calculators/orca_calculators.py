@@ -270,7 +270,7 @@ class OrcaEnergy:
 
         if output_dir.exists():
             shutil.rmtree(output_dir)
-        output_dir.mkdir()
+        output_dir.mkdir(parents=True)
 
         init_dir = Path.cwd()
         xyz_file = output_dir / "input_structure.xyz"

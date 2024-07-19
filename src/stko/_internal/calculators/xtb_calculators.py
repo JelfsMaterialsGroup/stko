@@ -350,7 +350,7 @@ class XTBEnergy:
 
         if output_dir.exists():
             shutil.rmtree(output_dir)
-        output_dir.mkdir()
+        output_dir.mkdir(parents=True)
 
         init_dir = Path.cwd()
         xyz = output_dir / "input_structure.xyz"

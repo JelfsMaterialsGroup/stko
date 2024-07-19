@@ -471,7 +471,7 @@ class XTB(Optimizer):
         if output_dir.exists():
             shutil.rmtree(output_dir)
 
-        output_dir.mkdir()
+        output_dir.mkdir(parents=True)
         init_dir = Path.cwd()
         os.chdir(output_dir)
 
@@ -871,7 +871,7 @@ class XTBCREST(Optimizer):
         if output_dir.exists():
             shutil.rmtree(output_dir)
 
-        output_dir.mkdir()
+        output_dir.mkdir(parents=True)
         init_dir = Path.cwd()
         os.chdir(output_dir)
 
@@ -1112,7 +1112,7 @@ class XTBFF(Optimizer):
         if output_dir.exists():
             shutil.rmtree(output_dir)
 
-        output_dir.mkdir()
+        output_dir.mkdir(parents=True)
         init_dir = Path.cwd()
         os.chdir(output_dir)
 
@@ -1463,7 +1463,7 @@ class XTBFFCREST(Optimizer):
         if output_dir.exists():
             shutil.rmtree(output_dir)
 
-        output_dir.mkdir()
+        output_dir.mkdir(parents=True)
         init_dir = Path.cwd()
         os.chdir(output_dir)
 
