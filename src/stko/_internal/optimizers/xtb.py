@@ -125,7 +125,7 @@ class XTB(Optimizer):
             raise issues on clusters.
 
         write_sasa_info:
-            If ``True``, the detailed info input will request gbsa=True and
+            If ``True``, the detailed info input will request ``gbsa=True`` and
             output SASA information from xtb. Requires a solvent model to be
             used.
 
