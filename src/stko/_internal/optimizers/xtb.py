@@ -393,9 +393,8 @@ class XTB(Optimizer):
             )
 
     def _write_detailed_control(self) -> None:
-        string = f"$gbsa\n   gbsagrid={self._solvent_grid}\n"
-        if self._write_sasa_info:
-            string += "$write\n   gbsa=true\n"
+        sasa_info = "$write\n gbsa=true\n" if self._write_sasa_info else ""
+        string = f"$gbsa\n gbsagrid={self._solvent_grid}\n{sasa_info}"
 
         with Path("det_control.in").open("w") as f:
             f.write(string)
