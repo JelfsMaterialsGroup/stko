@@ -167,6 +167,7 @@ class XTBExtractor:
                 Line of output file to extract property from.
 
         """
+        # Use regex to match to numbers.
         nums = re.compile(r"[+-]?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?")
         string = nums.search(line.rstrip())
         self.total_energy = float(string.group(0))  # type: ignore[union-attr]
@@ -179,6 +180,7 @@ class XTBExtractor:
                 Line of output file to extract property from.
 
         """
+        # Use regex to match to numbers.
         nums = re.compile(r"[+-]?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?")
         string = nums.search(line.rstrip())
         self.homo_lumo_gap = float(string.group(0))  # type: ignore[union-attr]
@@ -191,6 +193,7 @@ class XTBExtractor:
                 Line of output file to extract property from.
 
         """
+        # Use regex to match to numbers.
         nums = re.compile(r"[+-]?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?")
         part2 = line.split("Eh")
         string = nums.search(part2[1].rstrip())
@@ -307,6 +310,7 @@ class XTBExtractor:
                 Line of output file to extract property from.
 
         """
+        # Use regex to match to numbers.
         nums = re.compile(r"[+-]?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?")
         string = nums.search(line.rstrip())
         self.total_free_energy = float(
@@ -345,6 +349,7 @@ class XTBExtractor:
                 Line of output file to extract property from.
 
         """
+        # Use regex to match to numbers.
         nums = re.compile(r"[+-]?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?")
         string = nums.search(line.rstrip())
         self.ionisation_potential = float(
@@ -359,6 +364,7 @@ class XTBExtractor:
                 Line of output file to extract property from.
 
         """
+        # Use regex to match to numbers.
         nums = re.compile(r"[+-]?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?")
         string = nums.search(line.rstrip())
         self.electron_affinity = float(
@@ -373,6 +379,7 @@ class XTBExtractor:
                 Line of output file to extract property from.
 
         """
+        # Use regex to match to numbers.
         nums = re.compile(r"[+-]?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?")
         string = nums.search(line.rstrip())
         self.total_sasa = float(string.group(0))  # type: ignore[union-attr]
