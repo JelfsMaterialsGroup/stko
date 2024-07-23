@@ -211,7 +211,7 @@ class OrcaEnergy:
         for to_del in Path().glob(f"{self._basename}*"):
             to_del.unlink()
 
-    def _run_orca(  # noqa: PLR0913
+    def _run_orca(
         self,
         xyz_file: Path,
         input_file: Path,

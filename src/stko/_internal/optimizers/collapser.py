@@ -659,7 +659,7 @@ class CollapserMC(Collapser):
             "====================================================\n\n"
         )
 
-    def _plot_progess(  # noqa: PLR0913
+    def _plot_progess(
         self,
         steps: list,
         maxds: list,

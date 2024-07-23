@@ -483,7 +483,7 @@ class GulpUFFOptimizer(Optimizer):
 
         return species_section
 
-    def _write_gulp_file(  # noqa: PLR0913
+    def _write_gulp_file(
         self,
         mol: stk.Molecule,
         metal_atoms: list[stk.Atom],
@@ -852,7 +852,7 @@ class GulpUFFMDOptimizer(GulpUFFOptimizer):
         self._opt_conformers = opt_conformers
         self._save_conformers = save_conformers
 
-    def _write_gulp_file(  # noqa: PLR0913
+    def _write_gulp_file(
         self,
         mol: stk.Molecule,
         metal_atoms: list[stk.Atom],
@@ -1086,7 +1086,7 @@ class GulpUFFMDOptimizer(GulpUFFOptimizer):
         min_energy = min(energies)
         return list(trajectory_data.keys())[energies.index(min_energy)]
 
-    def _save_lowest_energy_conf(  # noqa: PLR0913
+    def _save_lowest_energy_conf(
         self,
         mol: stk.Molecule,
         output_xyz: Path,
