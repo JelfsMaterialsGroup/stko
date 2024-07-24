@@ -11,6 +11,7 @@ Calculators
   OrcaEnergy <_autosummary/stko.OrcaEnergy>
   RmsdCalculator <_autosummary/stko.RmsdCalculator>
   RmsdMappedCalculator <_autosummary/stko.RmsdMappedCalculator>
+  KabschRmsdCalculator <_autosummary/stko.KabschRmsdCalculator>
   ShapeCalculator <_autosummary/stko.ShapeCalculator>
   TorsionCalculator <_autosummary/stko.TorsionCalculator>
   ConstructedMoleculeTorsionCalculator <_autosummary/stko.ConstructedMoleculeTorsionCalculator>
