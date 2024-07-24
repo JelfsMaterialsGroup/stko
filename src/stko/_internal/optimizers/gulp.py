@@ -483,7 +483,7 @@ class GulpUFFOptimizer(Optimizer):
 
         return species_section
 
-    def _write_gulp_file(  # noqa: PLR0913
+    def _write_gulp_file(
         self,
         mol: stk.Molecule,
         metal_atoms: list[stk.Atom],
@@ -631,7 +631,7 @@ class GulpUFFOptimizer(Optimizer):
         if output_dir.exists():
             shutil.rmtree(output_dir)
 
-        output_dir.mkdir()
+        output_dir.mkdir(parents=True)
         init_dir = Path.cwd()
         os.chdir(output_dir)
 
@@ -687,7 +687,7 @@ class GulpUFFOptimizer(Optimizer):
         if output_dir.exists():
             shutil.rmtree(output_dir)
 
-        output_dir.mkdir()
+        output_dir.mkdir(parents=True)
         init_dir = Path.cwd()
         os.chdir(output_dir)
 
@@ -852,7 +852,7 @@ class GulpUFFMDOptimizer(GulpUFFOptimizer):
         self._opt_conformers = opt_conformers
         self._save_conformers = save_conformers
 
-    def _write_gulp_file(  # noqa: PLR0913
+    def _write_gulp_file(
         self,
         mol: stk.Molecule,
         metal_atoms: list[stk.Atom],
@@ -1086,7 +1086,7 @@ class GulpUFFMDOptimizer(GulpUFFOptimizer):
         min_energy = min(energies)
         return list(trajectory_data.keys())[energies.index(min_energy)]
 
-    def _save_lowest_energy_conf(  # noqa: PLR0913
+    def _save_lowest_energy_conf(
         self,
         mol: stk.Molecule,
         output_xyz: Path,
@@ -1140,7 +1140,7 @@ class GulpUFFMDOptimizer(GulpUFFOptimizer):
         if output_dir.exists():
             shutil.rmtree(output_dir)
 
-        output_dir.mkdir()
+        output_dir.mkdir(parents=True)
         init_dir = Path.cwd()
         os.chdir(output_dir)
 
@@ -1209,7 +1209,7 @@ class GulpUFFMDOptimizer(GulpUFFOptimizer):
         if output_dir.exists():
             shutil.rmtree(output_dir)
 
-        output_dir.mkdir()
+        output_dir.mkdir(parents=True)
         init_dir = Path.cwd()
         os.chdir(output_dir)
 

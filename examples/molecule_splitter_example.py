@@ -8,7 +8,7 @@ import stko
 def main() -> None:
     """Run the example."""
     examples_output = Path("splitter_output_directory")
-    examples_output.mkdir(exist_ok=True)
+    examples_output.mkdir(parents=True, exist_ok=True)
 
     full_mol = stk.BuildingBlock("C1=CC=NC(=C1)C=NC2=CC=C(C=C2)Br")
     print(full_mol)

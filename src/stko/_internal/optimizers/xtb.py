@@ -124,6 +124,11 @@ class XTB(Optimizer):
             encountered, this should be ``True``, however this may
             raise issues on clusters.
 
+        write_sasa_info:
+            If ``True``, the detailed info input will request ``gbsa=True`` and
+            output SASA information from xtb. Requires a solvent model to be
+            used.
+
     Examples:
         Note that for :class:`.ConstructedMolecule` objects constructed by
         ``stk``, :class:`XTB` should usually be used in a
@@ -228,6 +233,7 @@ class XTB(Optimizer):
         charge: int = 0,
         num_unpaired_electrons: int = 0,
         unlimited_memory: bool = False,
+        write_sasa_info: bool = False,
     ) -> None:
         if solvent is not None:
             solvent = solvent.lower()
@@ -272,6 +278,7 @@ class XTB(Optimizer):
         self._charge = str(charge)
         self._num_unpaired_electrons = str(num_unpaired_electrons)
         self._unlimited_memory = unlimited_memory
+        self._write_sasa_info = write_sasa_info
         self.incomplete = set()
 
     def _check_path(self, path: Path | str) -> None:
@@ -386,7 +393,8 @@ class XTB(Optimizer):
             )
 
     def _write_detailed_control(self) -> None:
-        string = f"$gbsa\n   gbsagrid={self._solvent_grid}"
+        sasa_info = "$write\n gbsa=true\n" if self._write_sasa_info else ""
+        string = f"$gbsa\n gbsagrid={self._solvent_grid}\n{sasa_info}"
 
         with Path("det_control.in").open("w") as f:
             f.write(string)
@@ -462,7 +470,7 @@ class XTB(Optimizer):
         if output_dir.exists():
             shutil.rmtree(output_dir)
 
-        output_dir.mkdir()
+        output_dir.mkdir(parents=True)
         init_dir = Path.cwd()
         os.chdir(output_dir)
 
@@ -862,7 +870,7 @@ class XTBCREST(Optimizer):
         if output_dir.exists():
             shutil.rmtree(output_dir)
 
-        output_dir.mkdir()
+        output_dir.mkdir(parents=True)
         init_dir = Path.cwd()
         os.chdir(output_dir)
 
@@ -1103,7 +1111,7 @@ class XTBFF(Optimizer):
         if output_dir.exists():
             shutil.rmtree(output_dir)
 
-        output_dir.mkdir()
+        output_dir.mkdir(parents=True)
         init_dir = Path.cwd()
         os.chdir(output_dir)
 
@@ -1454,7 +1462,7 @@ class XTBFFCREST(Optimizer):
         if output_dir.exists():
             shutil.rmtree(output_dir)
 
-        output_dir.mkdir()
+        output_dir.mkdir(parents=True)
         init_dir = Path.cwd()
         os.chdir(output_dir)
 

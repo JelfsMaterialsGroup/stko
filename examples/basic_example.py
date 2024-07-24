@@ -18,8 +18,7 @@ def main() -> None:
     )
 
     examples_output = Path("output_directory")
-    if not examples_output.exists():
-        examples_output.mkdir()
+    examples_output.mkdir(parents=True, exist_ok=True)
 
     # Run optimisations.
     uff = stko.UFF()

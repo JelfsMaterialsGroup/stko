@@ -29,18 +29,67 @@ class Network:
             molecule = stk.BuildingBlock('NCCNCCN').with_centroid(
                 position=np.array((10, 10, 10))
             )
-            graph = Network.init_from_molecule(molecule)
+            graph = stko.Network.init_from_molecule(molecule)
 
             # Pick some bonds to break based on atom ids in those bonds.
             atom_ids_to_disconnect = ((2, 3),)
             graph = graph.with_deleted_bonds(atom_ids_to_disconnect)
 
             # A series of graphs still connected.
+            # This gives a list of atoms in each graph.
             connected_graphs = graph.get_connected_components()
 
-            print(graph)
-            for cg in connected_graphs:
-                print(cg)
+            # Get centroids of connected graphs.
+            centroids = [
+                molecule.get_centroid(
+                    atom_ids=tuple(i.get_id() for i in list(cg))
+                )
+                for cg in connected_graphs
+            ]
+
+            # Get individual stk.Molecule classes of each connected graph.
+            # This is what stko.molecule_analysis.DecomposeMOC does
+            # after deleting metal atoms!
+            for atom_ids in connected_graphs:
+                # Get atoms from nodes.
+                atoms = list(cg)
+                atom_ids = tuple(i.get_id() for i in atoms)
+
+                # Sort both by atom id.
+                atom_ids, atoms = zip(
+                    *sorted(zip(atom_ids, atoms, strict=True)), strict=True
+                )
+
+                # Map old ids to a new molecule ids.
+                atom_ids_map = {atom_ids[i]: i for i in range(len(atom_ids))}
+
+                # Make a new stk.Building Block.
+                new_mol = stk.BuildingBlock.init(
+                    atoms=(
+                        stk.Atom(
+                            id=atom_ids_map[i.get_id()],
+                            atomic_number=i.get_atomic_number(),
+                            charge=i.get_charge(),
+                        )
+                        for i in atoms
+                    ),
+                    bonds=(
+                        i.with_ids(id_map=atom_ids_map)
+                        for i in molecule.get_bonds()
+                        if i.get_atom1().get_id() in atom_ids
+                        and i.get_atom2().get_id() in atom_ids
+                    ),
+                    position_matrix=np.array(
+                        tuple(
+                            i
+                            for i in molecule.get_atomic_positions(
+                                atom_ids=atom_ids
+                            )
+                        )
+                    ),
+                )
+
+                # Now do something with this molecule!
 
     """
 

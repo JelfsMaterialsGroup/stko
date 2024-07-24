@@ -87,6 +87,11 @@ class XTBEnergy:
             should be ``True``, however this may raise issues on
             clusters.
 
+        write_sasa_info:
+            If ``True``, the detailed info input will request ``gbsa=True`` and
+            output SASA information from xtb. Requires a solvent model to be
+            used.
+
     Notes:
         When running :meth:`calculate`, this calculator changes the
         present working directory with :func:`os.chdir`. The original
@@ -211,7 +216,6 @@ class XTBEnergy:
             ip = xtb_results.get_ionisation_potential()
             ea = xtb_results.get_electron_affinity()
 
-
     """
 
     def __init__(  # noqa: PLR0913
@@ -229,6 +233,7 @@ class XTBEnergy:
         charge: int = 0,
         num_unpaired_electrons: int = 0,
         unlimited_memory: bool = False,
+        write_sasa_info: bool = False,
     ) -> None:
         if solvent is not None:
             solvent = solvent.lower()
@@ -255,12 +260,13 @@ class XTBEnergy:
         self._calculate_free_energy = calculate_free_energy
         self._calculate_ip_and_ea = calculate_ip_and_ea
         self._electronic_temperature = str(electronic_temperature)
-        self._solvent = solvent
-        self._solvent_model = solvent_model
-        self._solvent_grid = solvent_grid
         self._charge = str(charge)
         self._num_unpaired_electrons = str(num_unpaired_electrons)
         self._unlimited_memory = unlimited_memory
+        self._solvent = solvent
+        self._solvent_model = solvent_model
+        self._solvent_grid = solvent_grid
+        self._write_sasa_info = write_sasa_info
 
     def _check_path(self, path: Path) -> None:
         if not path.exists():
@@ -268,7 +274,8 @@ class XTBEnergy:
             raise PathError(msg)
 
     def _write_detailed_control(self) -> None:
-        string = f"$gbsa\n   gbsagrid={self._solvent_grid}"
+        sasa_info = "$write\n gbsa=true\n" if self._write_sasa_info else ""
+        string = f"$gbsa\n gbsagrid={self._solvent_grid}\n{sasa_info}"
 
         Path("det_control.in").write_text(string)
 
@@ -342,7 +349,7 @@ class XTBEnergy:
 
         if output_dir.exists():
             shutil.rmtree(output_dir)
-        output_dir.mkdir()
+        output_dir.mkdir(parents=True)
 
         init_dir = Path.cwd()
         xyz = output_dir / "input_structure.xyz"

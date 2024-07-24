@@ -8,8 +8,7 @@ import stko
 def main() -> None:
     """Run the example."""
     examples_output = Path("aligner_directory")
-    if not examples_output.exists():
-        examples_output.mkdir()
+    examples_output.mkdir(parents=True, exist_ok=True)
 
     bb1 = stk.BuildingBlock("NCCN", [stk.PrimaryAminoFactory()])
     bb2 = stk.BuildingBlock(
