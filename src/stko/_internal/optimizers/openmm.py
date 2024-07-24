@@ -11,7 +11,7 @@ from stko._internal.types import MoleculeT
 
 
 class OpenMMForceField(Optimizer):
-    def __init__(
+    def __init__(  # noqa: PLR0913
         self,
         force_field: ForceField,
         box_vectors: Quantity | None = None,
@@ -58,8 +58,7 @@ class OpenMMForceField(Optimizer):
             positions=mol.get_position_matrix() * angstrom,
             charge_from_molecules=[molecule],
         )
-        system = interchange.to_openmm()
-        simulation = Simulation(topology, system, self._integrator)
+        simulation = interchange.to_openmm_simulation(self._integrator)
         simulation.minimizeEnergy()
         simulation.step(self._num_steps)
         state = simulation.context.getState(

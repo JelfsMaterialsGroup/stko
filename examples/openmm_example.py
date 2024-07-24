@@ -17,11 +17,11 @@ def main() -> None:
     output.mkdir(exist_ok=True, parents=True)
     cage = stk.ConstructedMolecule(stk.cage.FourPlusSix([bb1, bb2]))
     cage.write(output / "unopt_cage.mol")
-    # Load the openff-2.1.0 force field appropriate for
-    # vacuum calculations (without constraints)
-    force_field = ForceField("openff_unconstrained-2.1.0.offxml")
     optimizer = stko.OpenMMForceField(
-        force_field, partial_charges_method="mmff94"
+        # Load the openff-2.1.0 force field appropriate for
+        # vacuum calculations (without constraints)
+        force_field=ForceField("openff_unconstrained-2.1.0.offxml"),
+        partial_charges_method="mmff94",
     )
     cage = optimizer.optimize(cage)
     cage.write(output / "opt_cage.mol")
