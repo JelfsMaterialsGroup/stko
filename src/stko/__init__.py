@@ -67,8 +67,7 @@ from stko._internal.optimizers.macromodel import (
     MacroModelMD,
 )
 from stko._internal.optimizers.open_babel import OpenBabel
-
-from stko._internal.optimizers.openmm import OpenMMForceField
+from stko._internal.optimizers.openmm import OpenMMForceField, OpenMMMD
 from stko._internal.optimizers.optimizers import (
     Optimizer,
     OptimizerSequence,
@@ -177,6 +176,7 @@ __all__ = [
     "MoleculeT",
     "OpenBabel",
     "OpenMMForceField",
+    "OpenMMMD",
     "WrapperNotInstalledError",
     "DifferentMoleculeError",
     "DifferentAtomError",
