@@ -69,3 +69,6 @@ class XTBResults:
 
     def get_electron_affinity(self) -> tuple[float, str]:
         return (self._extractor.electron_affinity, "eV")
+
+    def get_total_sasa(self) -> tuple[float, str]:
+        return (self._extractor.total_sasa, "A^2")

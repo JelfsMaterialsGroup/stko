@@ -284,7 +284,7 @@ def move_generated_macromodel_files(
     basename: str, output_dir: Path | str
 ) -> None:
     output_dir = Path(output_dir)
-    output_dir.mkdir(exist_ok=True)
+    output_dir.mkdir(parents=True, exist_ok=True)
 
     for filename in Path().glob(f"{basename}*"):
         # Do not move the output_dir.

@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "stko"
 maintainers = [
-  { name = "Stephen Bennett", email = "s.bennett18@imperial.ac.uk" },
+  { name = "Steven Bennett"},
   { name = "Andrew Tarzia", email = "andrew.tarzia@gmail.com" },
   { name = "Lukas Turcani", email = "lukasturcani93@gmail.com" },
 ]

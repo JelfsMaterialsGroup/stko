@@ -37,7 +37,7 @@ class ThreeSiteFG:
 
     """
 
-    def __init__(  # noqa: PLR0913
+    def __init__(
         self,
         neigh1: stk.Atom,
         binder: stk.Atom,
