@@ -3,7 +3,6 @@ from typing import Literal
 from openff.interchange import Interchange
 from openff.toolkit import ForceField, Molecule, RDKitToolkitWrapper
 from openmm import Integrator, LangevinIntegrator, State
-from openmm.app import Simulation
 from openmm.unit import Quantity, angstrom, kelvin, picosecond, picoseconds
 
 from stko._internal.optimizers.optimizers import Optimizer
@@ -15,16 +14,13 @@ class OpenMMForceField(Optimizer):
         self,
         force_field: ForceField,
         box_vectors: Quantity | None = None,
-        integrator: Integrator | None = None,
         num_steps: int = 10_000,
         define_stereo: bool = False,
         partial_charges_method: Literal["am1bcc", "mmff94"] = "am1bcc",
     ) -> None:
-        if integrator is None:
-            integrator = LangevinIntegrator(
-                300 * kelvin, 1 / picosecond, 0.002 * picoseconds
-            )
-        self._integrator = integrator
+        self._integrator = LangevinIntegrator(
+            300 * kelvin, 1 / picosecond, 0.002 * picoseconds
+        )
         self._force_field = force_field
         self._box_vectors = box_vectors
         self._num_steps = num_steps
@@ -60,7 +56,6 @@ class OpenMMForceField(Optimizer):
         )
         simulation = interchange.to_openmm_simulation(self._integrator)
         simulation.minimizeEnergy()
-        simulation.step(self._num_steps)
         state = simulation.context.getState(
             getPositions=True,
             getEnergy=True,
