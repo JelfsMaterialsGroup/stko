@@ -22,6 +22,7 @@ from stko._internal.calculators.results.torsion_results import (
 )
 from stko._internal.calculators.results.xtb_results import XTBResults
 from stko._internal.calculators.rmsd_calculators import (
+    KabschRmsdCalculator,
     RmsdCalculator,
     RmsdMappedCalculator,
 )
@@ -131,6 +132,7 @@ __all__ = [
     "XTBResults",
     "RmsdCalculator",
     "RmsdMappedCalculator",
+    "KabschRmsdCalculator",
     "ShapeCalculator",
     "OrcaResults",
     "PlanarityResults",

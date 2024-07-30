@@ -2,6 +2,7 @@ import logging
 
 import numpy as np
 import stk
+from rmsd import kabsch_rmsd
 from scipy.spatial.distance import cdist
 
 from stko._internal.calculators.results.rmsd_results import RmsdResults
@@ -221,3 +222,61 @@ class RmsdMappedCalculator(RmsdCalculator):
         )
         mol = mol.with_centroid(np.array((0, 0, 0)))
         return self._calculate_rmsd(mol)
+
+
+class KabschRmsdCalculator:
+    """Calculates the root mean square distance between molecules.
+
+    This calculator uses the rmsd package with the default settings and no
+    reordering.
+
+    See Also:
+        * rmsd https://github.com/charnley/rmsd
+
+    This calculator will only work if the two molecules are the same
+    and have the same atom ordering.
+
+    Parameters:
+        initial_molecule:
+            The :class:`stk.Molecule` to calculate RMSD from.
+
+    Examples:
+        .. code-block:: python
+
+            import stk
+            import stko
+
+            bb1 = stk.BuildingBlock('C1CCCCC1')
+            calculator = stko.KabschRmsdCalculator(bb1)
+            results = calculator.get_results(stk.UFF().optimize(bb1))
+            rmsd  = results.get_rmsd()
+
+    """
+
+    def __init__(self, initial_molecule: stk.Molecule) -> None:
+        self._initial_molecule = initial_molecule
+
+    def _calculate_rmsd(self, mol: stk.Molecule) -> float:
+        p_coord = self._initial_molecule.get_position_matrix()
+        q_coord = mol.get_position_matrix()
+        return kabsch_rmsd(p_coord, q_coord)
+
+    def calculate(self, mol: stk.Molecule) -> float:
+        self._initial_molecule = self._initial_molecule.with_centroid(
+            position=np.array((0, 0, 0)),
+        )
+        mol = mol.with_centroid(np.array((0, 0, 0)))
+        return self._calculate_rmsd(mol)
+
+    def get_results(self, mol: stk.Molecule) -> RmsdResults:
+        """Calculate the RMSD between `mol` and the initial molecule.
+
+        Parameters:
+            mol:
+                The :class:`stk.Molecule` to calculate RMSD to.
+
+        Returns:
+            The RMSD between the molecules.
+
+        """
+        return RmsdResults(self.calculate(mol))

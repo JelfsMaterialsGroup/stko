@@ -14,6 +14,7 @@ dependencies = [
   "rdkit==2023.9.5",  # remove pin when type issues are resolved
   "stk",
   "networkx",
+  "rmsd",
 ]
 requires-python = ">=3.11"
 dynamic = ["version"]
@@ -130,5 +131,6 @@ module = [
   "networkx.*",
   "openbabel.*",
   "MDAnalysis.*",
+  "rmsd.*",
 ]
 ignore_missing_imports = true
