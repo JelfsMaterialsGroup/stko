@@ -4,6 +4,7 @@ from stko import functional_groups, molecule_analysis
 from stko._internal.calculators.extractors.orca_extractor import OrcaExtractor
 from stko._internal.calculators.extractors.xtb_extractor import XTBExtractor
 from stko._internal.calculators.open_babel_calculators import OpenBabelEnergy
+from stko._internal.calculators.openmm_calculators import OpenMMEnergy
 from stko._internal.calculators.orca_calculators import OrcaEnergy
 from stko._internal.calculators.planarity_calculators import (
     PlanarityCalculator,
@@ -185,6 +186,7 @@ __all__ = [
     "OpenBabel",
     "OpenMMForceField",
     "OpenMMMD",
+    "OpenMMEnergy",
     "WrapperNotInstalledError",
     "DifferentMoleculeError",
     "DifferentAtomError",
