@@ -146,32 +146,107 @@ class OpenMMForceField(Optimizer):
 
 
 class OpenMMMD(Optimizer):
+    """Optimise a molecule with OpenMM and Molecular Dynamics.
+
+    Parameters:
+
+
+        reporting_freq:
+            How often the simulation properties should be written in
+            time steps.
+
+        traj_freq:
+            How often the trajectory should be written in time steps.
+
+    """
+
     def __init__(  # noqa: PLR0913
         self,
         force_field: ForceField,
-        integrator: Integrator | None = None,
+        output_directory: pathlib.Path,
+        reporting_freq: int,
+        trajectory_freq: int,
+        integrator: openmm.Integrator | None = None,
         num_steps: int = 100,
         box_vectors: Quantity | None = None,
         define_stereo: bool = False,
         partial_charges_method: Literal["am1bcc", "mmff94"] = "am1bcc",
         random_seed: int = 108,
-        initial_temperature: Quantity = 300 * kelvin,
+        initial_temperature: openmm.unit.Quantity = 300 * openmm.unit.kelvin,
     ) -> None:
+        self._output_directory = output_directory
+        self._trajectory_data = self._output_directory / "trajectory_data.dat"
+        self._trajectory_file = (
+            self._output_directory / "trajectory_structures.pdb"
+        )
+
         if integrator is None:
-            integrator = LangevinIntegrator(
-                300 * kelvin, 1 / picoseconds, 0.25 * femtoseconds
+            integrator = openmm.LangevinIntegrator(
+                300 * openmm.unit.kelvin,
+                1 / openmm.unit.picoseconds,
+                0.25 * openmm.unit.femtoseconds,
             )
             integrator.setRandomNumberSeed(34)
+
         self._integrator = integrator
+        self._random_seed = random_seed
         self._num_steps = num_steps
         self._force_field = force_field
         self._box_vectors = box_vectors
         self._define_stereo = define_stereo
         self._partial_charges_method = partial_charges_method
-        self._random_seed = random_seed
         self._initial_temperature = initial_temperature
+        self._reporting_freq = reporting_freq
+        self._trajectory_freq = trajectory_freq
+
+        if platform is not None:
+            self._platform = openmm.Platform.getPlatformByName(platform)
+            if platform == "CUDA":
+                self._properties = {"CudaPrecision": "mixed"}
+            else:
+                self._properties = None
+        else:
+            self._platform = None
+            self._properties = None
+
+    def _add_trajectory_reporter(
+        self,
+        simulation: app.Simulation,
+    ) -> app.Simulation:
+        simulation.reporters.append(
+            app.PDBReporter(
+                file=str(self._trajectory_file),
+                reportInterval=self._trajectory_freq,
+            )
+        )
+        return simulation
+
+    def _add_reporter(self, simulation: app.Simulation) -> app.Simulation:
+        simulation.reporters.append(
+            app.StateDataReporter(
+                file=str(self._trajectory_data),
+                reportInterval=self._reporting_freq,
+                step=True,
+                potentialEnergy=True,
+                kineticEnergy=True,
+                totalEnergy=False,
+                temperature=True,
+                volume=False,
+                density=False,
+                progress=False,
+                remainingTime=False,
+                speed=False,
+                totalSteps=self._num_steps,
+                separator=",",
+            )
+        )
+        return simulation
 
     def optimize(self, mol: MoleculeT) -> MoleculeT:
+        if self._output_directory.exists():
+            shutil.rmtree(self._output_directory)
+        self._output_directory.mkdir(parents=True)
+
         rdkit_mol = mol.to_rdkit_mol()
         if self._define_stereo:
             pass
@@ -195,20 +270,24 @@ class OpenMMMD(Optimizer):
         interchange = Interchange.from_smirnoff(
             force_field=self._force_field,
             topology=topology,
-            positions=mol.get_position_matrix() * angstrom,
+            positions=mol.get_position_matrix() * openmm.unit.angstrom,
             charge_from_molecules=[molecule],
         )
-        simulation = interchange.to_openmm_simulation(self._integrator)
+        simulation = interchange.to_openmm_simulation(
+            integrator=self._integrator,
+            platform=self._platform,
+            platformProperties=self._properties,
+        )
         simulation.context.setVelocitiesToTemperature(
-            self._initial_temperature, self._random_seed
+            self._initial_temperature,
+            self._random_seed,
         )
         simulation.minimizeEnergy()
-        simulation.step(self._num_steps)
-        state = simulation.context.getState(
-            getPositions=True,
-            getEnergy=True,
-        )
-        return self._update_stk_molecule(mol, state)
+
+        # Add reporters.
+        simulation = self._add_reporter(simulation=simulation)
+        simulation = self._add_trajectory_reporter(simulation=simulation)
+
 
     def _update_stk_molecule(
         self,
