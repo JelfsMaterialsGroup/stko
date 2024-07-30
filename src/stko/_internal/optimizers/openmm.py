@@ -10,6 +10,9 @@ from stko._internal.types import MoleculeT
 from stko._internal.utilities.exceptions import InputError
 from stko._internal.utilities.utilities import get_atom_distance
 
+class EnergyCalculator(Protocol):
+    def get_energy(self, mol: stk.Molecule) -> float: ...
+
 
 class OpenMMForceField(Optimizer):
     """Uses OpenMM to optimise molecules.
@@ -36,7 +39,6 @@ class OpenMMForceField(Optimizer):
         box_vectors: openmm.unit.Quantity | None = None,
         define_stereo: bool = False,
         partial_charges_method: Literal["am1bcc", "mmff94"] = "am1bcc",
-        platform: Literal["CUDA"] | None = None,
     ) -> None:
         self._integrator = openmm.LangevinIntegrator(
             300 * openmm.unit.kelvin,
@@ -50,16 +52,6 @@ class OpenMMForceField(Optimizer):
         self._partial_charges_method = partial_charges_method
         self._tolerance = tolerance
         self._max_iterations = max_iterations
-
-        if platform is not None:
-            self._platform = openmm.Platform.getPlatformByName(platform)
-            if platform == "CUDA":
-                self._properties = {"CudaPrecision": "mixed"}
-            else:
-                self._properties = None
-        else:
-            self._platform = None
-            self._properties = None
 
     def _add_atom_constraints(
         self,
@@ -128,13 +120,7 @@ class OpenMMForceField(Optimizer):
             system = self._add_atom_constraints(system, mol)
 
         # Define simulation.
-        simulation = app.Simulation(
-            topology,
-            system,
-            self._integrator,
-            platform=self._platform,
-            platformProperties=self._properties,
-        )
+        simulation = app.Simulation(topology, system, integrator)
         # Set positions from structure.
         simulation.context.setPositions(
             mol.get_position_matrix() * openmm.unit.angstrom
