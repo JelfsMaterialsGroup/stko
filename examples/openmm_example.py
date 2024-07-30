@@ -23,9 +23,30 @@ def main() -> None:
         force_field=ForceField("openff_unconstrained-2.1.0.offxml"),
         partial_charges_method="mmff94",
         max_iterations=10,
+        platform="CUDA",
     )
     ff_cage = ff_optimizer.optimize(cage)
     ff_cage.write(output / "ff_opt_cage.mol")
+
+    ff_optimizer = stko.OpenMMForceField(
+        # Load the openff-2.1.0 force field appropriate for
+        # vacuum calculations (without constraints)
+        force_field=ForceField("openff_unconstrained-2.1.0.offxml"),
+        restricted=False,
+        partial_charges_method="mmff94",
+    )
+    ff_cage = ff_optimizer.optimize(cage)
+    ff_cage.write(output / "ffunrest_opt_cage.mol")
+
+    ff_optimizer = stko.OpenMMForceField(
+        # Load the openff-2.1.0 force field appropriate for
+        # vacuum calculations (without constraints)
+        force_field=ForceField("openff_unconstrained-2.1.0.offxml"),
+        restricted=True,
+        partial_charges_method="mmff94",
+    )
+    ff_cage = ff_optimizer.optimize(cage)
+    ff_cage.write(output / "ffrest_opt_cage.mol")
 
     md_optimizer = stko.OpenMMMD(
         force_field=ForceField("openff_unconstrained-2.1.0.offxml"),
