@@ -2,6 +2,7 @@
 
 from pathlib import Path
 
+import openmm
 import stk
 import stko
 from openff.toolkit import ForceField
@@ -23,10 +24,16 @@ def main() -> None:
         force_field=ForceField("openff_unconstrained-2.1.0.offxml"),
         partial_charges_method="mmff94",
         max_iterations=10,
-        platform="CUDA",
     )
     ff_cage = ff_optimizer.optimize(cage)
     ff_cage.write(output / "ff_opt_cage.mol")
+    print(
+        "ff_opt_cage",
+        stko.OpenMMEnergy(
+            force_field=ForceField("openff_unconstrained-2.1.0.offxml"),
+            partial_charges_method="mmff94",
+        ).get_energy(ff_cage),
+    )
 
     ff_optimizer = stko.OpenMMForceField(
         # Load the openff-2.1.0 force field appropriate for
@@ -37,6 +44,13 @@ def main() -> None:
     )
     ff_cage = ff_optimizer.optimize(cage)
     ff_cage.write(output / "ffunrest_opt_cage.mol")
+    print(
+        "ffunrest_opt_cage",
+        stko.OpenMMEnergy(
+            force_field=ForceField("openff_unconstrained-2.1.0.offxml"),
+            partial_charges_method="mmff94",
+        ).get_energy(ff_cage),
+    )
 
     ff_optimizer = stko.OpenMMForceField(
         # Load the openff-2.1.0 force field appropriate for
@@ -47,13 +61,40 @@ def main() -> None:
     )
     ff_cage = ff_optimizer.optimize(cage)
     ff_cage.write(output / "ffrest_opt_cage.mol")
+    print(
+        "ffrest_opt_cage",
+        stko.OpenMMEnergy(
+            force_field=ForceField("openff_unconstrained-2.1.0.offxml"),
+            partial_charges_method="mmff94",
+        ).get_energy(ff_cage),
+    )
 
+    temperature = 750 * openmm.unit.kelvin
+    friction = 10 / openmm.unit.picoseconds
+    time_step = 1 * openmm.unit.femtoseconds
+    integrator = openmm.LangevinIntegrator(temperature, friction, time_step)
+    integrator.setRandomNumberSeed(127)
     md_optimizer = stko.OpenMMMD(
         force_field=ForceField("openff_unconstrained-2.1.0.offxml"),
+        output_directory=output / "md_optimisation",
+        integrator=integrator,
+        random_seed=275,
         partial_charges_method="mmff94",
+        reporting_freq=5,
+        trajectory_freq=5,
+        num_steps=10000,
+        num_conformers=50,
+        platform="CUDA",
     )
     md_cage = md_optimizer.optimize(cage)
     md_cage.write(output / "md_opt_cage.mol")
+    print(
+        "md_opt_cage",
+        stko.OpenMMEnergy(
+            force_field=ForceField("openff_unconstrained-2.1.0.offxml"),
+            partial_charges_method="mmff94",
+        ).get_energy(md_cage),
+    )
 
 
 if __name__ == "__main__":
