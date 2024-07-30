@@ -6,10 +6,12 @@ from openmm import Integrator, LangevinIntegrator, State
 from openmm.unit import (
     Quantity,
     angstrom,
-    kelvin,
-    picosecond,
-    picoseconds,
     femtoseconds,
+    kelvin,
+    kilojoule,
+    mole,
+    nanometer,
+    picoseconds,
 )
 
 from stko._internal.optimizers.optimizers import Optimizer
@@ -17,20 +19,24 @@ from stko._internal.types import MoleculeT
 
 
 class OpenMMForceField(Optimizer):
-    def __init__(
+    def __init__(  # noqa: PLR0913
         self,
         force_field: ForceField,
+        tolerance: Quantity = 10 * kilojoule / (nanometer * mole),
+        max_iterations: int = 0,
         box_vectors: Quantity | None = None,
         define_stereo: bool = False,
         partial_charges_method: Literal["am1bcc", "mmff94"] = "am1bcc",
     ) -> None:
         self._integrator = LangevinIntegrator(
-            300 * kelvin, 1 / picosecond, 0.002 * picoseconds
+            300 * kelvin, 1 / picoseconds, 0.002 * picoseconds
         )
         self._force_field = force_field
         self._box_vectors = box_vectors
         self._define_stereo = define_stereo
         self._partial_charges_method = partial_charges_method
+        self._tolerance = tolerance
+        self._max_iterations = max_iterations
 
     def optimize(self, mol: MoleculeT) -> MoleculeT:
         rdkit_mol = mol.to_rdkit_mol()
@@ -60,7 +66,10 @@ class OpenMMForceField(Optimizer):
             charge_from_molecules=[molecule],
         )
         simulation = interchange.to_openmm_simulation(self._integrator)
-        simulation.minimizeEnergy()
+        simulation.minimizeEnergy(
+            tolerance=self._tolerance,
+            maxIterations=self._max_iterations,
+        )
         state = simulation.context.getState(
             getPositions=True,
             getEnergy=True,
@@ -90,7 +99,7 @@ class OpenMMMD(Optimizer):
     ) -> None:
         if integrator is None:
             integrator = LangevinIntegrator(
-                300 * kelvin, 1 / picosecond, 0.25 * femtoseconds
+                300 * kelvin, 1 / picoseconds, 0.25 * femtoseconds
             )
             integrator.setRandomNumberSeed(34)
         self._integrator = integrator

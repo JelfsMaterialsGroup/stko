@@ -22,6 +22,7 @@ def main() -> None:
         # vacuum calculations (without constraints)
         force_field=ForceField("openff_unconstrained-2.1.0.offxml"),
         partial_charges_method="mmff94",
+        max_iterations=10,
     )
     ff_cage = ff_optimizer.optimize(cage)
     ff_cage.write(output / "ff_opt_cage.mol")
