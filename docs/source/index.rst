@@ -31,6 +31,9 @@ Install
 
    $ pip install stko
 
+To use :class:`OpenMMForceField` and :class:`OpenMMMD`::
+
+   $ mamba install openff-toolkit
 
 Dependencies
 ------------
@@ -42,14 +45,16 @@ on the desired functions used. These are:
 * `GULP <http://gulp.curtin.edu.au/gulp/>`_
 * `XTB <https://xtb-docs.readthedocs.io/en/latest/>`_
 * `OpenBabel <https://github.com/openbabel/openbabel>`_
+* `OpenMM <https://openmm.org/>`_
+* `OpenFF <https://openforcefield.org/>`_
 
 
 Overview
 ========
 
-`stko <https://github.com/lukasturcani/stk>`_ is a Python library which
+`stko <https://github.com/JelfsMaterialsGroup/stko>`_ is a Python library which
 performs optimizations and calculations on complex molecules built using
-`stk <https://github.com/JelfsMaterialsGroup/stko>`_. In the case of
+`stk <https://github.com/lukasturcani/stk>`_. In the case of
 optimizations, a clone of :class:`stk.Molecule` is returned. For
 calculators, a ``Results`` class are used to calculate and extract
 properties of an :class:`stk.Molecule`.
