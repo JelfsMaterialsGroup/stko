@@ -1,14 +1,19 @@
-from typing import Literal
+import pathlib
+import shutil
+from copy import copy
+from typing import Literal, Protocol
 
 import stk
 from openff.interchange import Interchange
 from openff.toolkit import ForceField, Molecule, RDKitToolkitWrapper
 from openmm import app, openmm
 
+from stko._internal.calculators.openmm_calculators import OpenMMEnergy
 from stko._internal.optimizers.optimizers import Optimizer
 from stko._internal.types import MoleculeT
 from stko._internal.utilities.exceptions import InputError
 from stko._internal.utilities.utilities import get_atom_distance
+
 
 class EnergyCalculator(Protocol):
     def get_energy(self, mol: stk.Molecule) -> float: ...
@@ -88,6 +93,9 @@ class OpenMMForceField(Optimizer):
         return system
 
     def optimize(self, mol: MoleculeT) -> MoleculeT:
+        # Handle issue with existing context.
+        integrator = copy(self._integrator)
+
         rdkit_mol = mol.to_rdkit_mol()
         if self._define_stereo:
             pass
@@ -168,11 +176,15 @@ class OpenMMMD(Optimizer):
         trajectory_freq: int,
         integrator: openmm.Integrator | None = None,
         num_steps: int = 100,
-        box_vectors: Quantity | None = None,
+        num_conformers: int = 50,
+        box_vectors: openmm.unit.Quantity | None = None,
         define_stereo: bool = False,
         partial_charges_method: Literal["am1bcc", "mmff94"] = "am1bcc",
         random_seed: int = 108,
         initial_temperature: openmm.unit.Quantity = 300 * openmm.unit.kelvin,
+        platform: Literal["CUDA"] | None = None,
+        conformer_optimiser: Optimizer | None = None,
+        energy_calculator: EnergyCalculator | None = None,
     ) -> None:
         self._output_directory = output_directory
         self._trajectory_data = self._output_directory / "trajectory_data.dat"
@@ -191,6 +203,8 @@ class OpenMMMD(Optimizer):
         self._integrator = integrator
         self._random_seed = random_seed
         self._num_steps = num_steps
+        self._num_conformers = num_conformers
+
         self._force_field = force_field
         self._box_vectors = box_vectors
         self._define_stereo = define_stereo
@@ -198,6 +212,26 @@ class OpenMMMD(Optimizer):
         self._initial_temperature = initial_temperature
         self._reporting_freq = reporting_freq
         self._trajectory_freq = trajectory_freq
+
+        if conformer_optimiser is None:
+            conformer_optimiser = OpenMMForceField(
+                force_field=force_field,
+                partial_charges_method=partial_charges_method,
+                restricted=False,
+                define_stereo=define_stereo,
+                box_vectors=box_vectors,
+            )
+
+        self._conformer_optimiser = conformer_optimiser
+
+        if energy_calculator is None:
+            energy_calculator = OpenMMEnergy(
+                force_field=force_field,
+                box_vectors=box_vectors,
+                define_stereo=define_stereo,
+                partial_charges_method=partial_charges_method,
+            )
+        self._energy_calculator = energy_calculator
 
         if platform is not None:
             self._platform = openmm.Platform.getPlatformByName(platform)
@@ -288,11 +322,30 @@ class OpenMMMD(Optimizer):
         simulation = self._add_reporter(simulation=simulation)
         simulation = self._add_trajectory_reporter(simulation=simulation)
 
+        chunk_size = self._num_steps // self._num_conformers
+        min_energy = float("inf")
+        min_energy_conformer = None
+        for _ in range(self._num_conformers):
+            simulation.step(chunk_size)
+            state = simulation.context.getState(
+                getPositions=True, getEnergy=True
+            )
+            conformer_mol = self._update_stk_molecule(mol, state)
+
+            conformer_mol = self._conformer_optimiser.optimize(conformer_mol)
+
+            energy = self._energy_calculator.get_energy(conformer_mol)
+
+            if energy < min_energy:
+                min_energy = energy
+                min_energy_conformer = conformer_mol
+
+        return min_energy_conformer
 
     def _update_stk_molecule(
         self,
         molecule: MoleculeT,
-        state: State,
+        state: openmm.State,
     ) -> MoleculeT:
         positions = state.getPositions(asNumpy=True)
         return molecule.with_position_matrix(positions * 10)
