@@ -9,7 +9,7 @@ from openff.toolkit import ForceField, Molecule, RDKitToolkitWrapper
 from openmm import app, openmm
 
 from stko._internal.calculators.openmm_calculators import OpenMMEnergy
-from stko._internal.optimizers.optimizers import Optimizer
+from stko._internal.optimizers.optimizers import NullOptimizer, Optimizer
 from stko._internal.types import MoleculeT
 from stko._internal.utilities.exceptions import InputError
 from stko._internal.utilities.utilities import get_atom_distance
@@ -214,13 +214,7 @@ class OpenMMMD(Optimizer):
         self._trajectory_freq = trajectory_freq
 
         if conformer_optimiser is None:
-            conformer_optimiser = OpenMMForceField(
-                force_field=force_field,
-                partial_charges_method=partial_charges_method,
-                restricted=False,
-                define_stereo=define_stereo,
-                box_vectors=box_vectors,
-            )
+            conformer_optimiser = NullOptimizer()
 
         self._conformer_optimiser = conformer_optimiser
 

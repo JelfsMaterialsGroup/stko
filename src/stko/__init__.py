@@ -70,6 +70,7 @@ from stko._internal.optimizers.macromodel import (
 from stko._internal.optimizers.open_babel import OpenBabel
 from stko._internal.optimizers.openmm import OpenMMForceField, OpenMMMD
 from stko._internal.optimizers.optimizers import (
+    NullOptimizer,
     Optimizer,
     OptimizerSequence,
     TryCatchOptimizer,
@@ -169,6 +170,7 @@ __all__ = [
     "Optimizer",
     "OptimizerSequence",
     "TryCatchOptimizer",
+    "NullOptimizer",
     "ETKDG",
     "MMFF",
     "UFF",
