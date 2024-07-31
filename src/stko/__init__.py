@@ -4,6 +4,7 @@ from stko import functional_groups, molecule_analysis
 from stko._internal.calculators.extractors.orca_extractor import OrcaExtractor
 from stko._internal.calculators.extractors.xtb_extractor import XTBExtractor
 from stko._internal.calculators.open_babel_calculators import OpenBabelEnergy
+from stko._internal.calculators.openmm_calculators import OpenMMEnergy
 from stko._internal.calculators.orca_calculators import OrcaEnergy
 from stko._internal.calculators.planarity_calculators import (
     PlanarityCalculator,
@@ -68,7 +69,9 @@ from stko._internal.optimizers.macromodel import (
     MacroModelMD,
 )
 from stko._internal.optimizers.open_babel import OpenBabel
+from stko._internal.optimizers.openmm import OpenMMForceField, OpenMMMD
 from stko._internal.optimizers.optimizers import (
+    NullOptimizer,
     Optimizer,
     OptimizerSequence,
     TryCatchOptimizer,
@@ -169,6 +172,7 @@ __all__ = [
     "Optimizer",
     "OptimizerSequence",
     "TryCatchOptimizer",
+    "NullOptimizer",
     "ETKDG",
     "MMFF",
     "UFF",
@@ -184,6 +188,9 @@ __all__ = [
     "ConstructedMoleculeT",
     "MoleculeT",
     "OpenBabel",
+    "OpenMMForceField",
+    "OpenMMMD",
+    "OpenMMEnergy",
     "WrapperNotInstalledError",
     "DifferentMoleculeError",
     "DifferentAtomError",

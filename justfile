@@ -31,6 +31,9 @@ check:
   echo
   ( set -x; pytest --cov=stko --cov-report term-missing )
 
+  echo
+  ( set -x; make -C docs doctest )
+
   test $error = 0
 
 # Auto-fix code issues.

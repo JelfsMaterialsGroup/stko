@@ -74,6 +74,13 @@ class Optimizer(Protocol):
         raise NotImplementedError
 
 
+class NullOptimizer(Optimizer):
+    """Applies no optimizer."""
+
+    def optimize(self, mol: MoleculeT) -> MoleculeT:
+        return mol
+
+
 class OptimizerSequence(Optimizer):
     """Applies optimizers in sequence.
 

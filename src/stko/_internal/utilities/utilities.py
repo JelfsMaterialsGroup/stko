@@ -10,7 +10,10 @@ def is_valid_xtb_solvent(
     solvent_model: str,
     solvent: str,
 ) -> bool:
-    """Check if solvent is valid [#]_ for the given GFN version.
+    """Check if solvent is valid for the given GFN version.
+
+    See Also:
+        * Valid solvents: https://xtb-docs.readthedocs.io/en/latest/gbsa.html
 
     Parameters:
         gfn_version:
@@ -24,9 +27,6 @@ def is_valid_xtb_solvent(
 
     Returns:
         ``True`` if solvent is valid.
-
-    References:
-        .. [#] https://xtb-docs.readthedocs.io/en/latest/gbsa.html
 
     """
     if gfn_version == 0:
