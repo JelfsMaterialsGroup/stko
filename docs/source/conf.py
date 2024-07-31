@@ -39,6 +39,7 @@ intersphinx_mapping = {
         "https://docs.openforcefield.org/projects/toolkit/en/stable/",
         None,
     ),
+    "openmm": ("http://docs.openmm.org/latest/api-python/", None),
 }
 
 templates_path = ["_templates"]

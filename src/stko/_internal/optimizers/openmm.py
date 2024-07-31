@@ -3,6 +3,7 @@ import shutil
 from copy import copy
 from typing import Literal, Protocol
 
+import rdkit.Chem as rdkit  # noqa: N813
 import stk
 from openff.interchange import Interchange
 from openff.toolkit import ForceField, Molecule, RDKitToolkitWrapper
@@ -47,6 +48,12 @@ class OpenMMForceField(Optimizer):
             minimization is continued until the results converge without
             regard to how many iterations it takes.
         box_vectors:
+            The unit-wrapped box vectors of this topology.
+        define_stereo:
+            Toggle calculation of stereochemistry.
+        partial_charges_method:
+            The method to use for calculating partial charges.
+            The default ``"am1bcc"`` is semi-empirical and may be slow.
 
     """
 
@@ -60,7 +67,9 @@ class OpenMMForceField(Optimizer):
         max_iterations: int = 0,
         box_vectors: openmm.unit.Quantity | None = None,
         define_stereo: bool = False,
-        partial_charges_method: Literal["am1bcc", "mmff94"] = "am1bcc",
+        partial_charges_method: Literal[
+            "am1bcc", "mmff94", "gasteiger", "am1-mulliken"
+        ] = "am1bcc",
     ) -> None:
         self._integrator = openmm.LangevinIntegrator(
             300 * openmm.unit.kelvin,
@@ -115,7 +124,7 @@ class OpenMMForceField(Optimizer):
 
         rdkit_mol = mol.to_rdkit_mol()
         if self._define_stereo:
-            pass
+            rdkit.AssignStereochemistry(rdkit_mol)
 
         molecule = Molecule.from_rdkit(
             rdmol=rdkit_mol,
@@ -175,13 +184,53 @@ class OpenMMMD(Optimizer):
 
     Parameters:
 
+        force_field:
+            The force field to use.
+
+        output_directory:
+            The directory to which the output files should be written.
 
         reporting_freq:
             How often the simulation properties should be written in
             time steps.
 
-        traj_freq:
+        trajectory_freq:
             How often the trajectory should be written in time steps.
+
+        integrator:
+            The integrator to use, :class:`openmm.openmm.LangevinIntegrator`
+            by default.
+
+        num_steps:
+            The number of steps to simulate.
+
+        num_conformers:
+            The number of conformers to sample during the MD run.
+
+        box_vectors:
+            The box vectors to use.
+
+        define_stereo:
+            Toggle calculation of stereochemistry.
+
+        partial_charges_method:
+            The method to use for calculating partial charges.
+            The default ``"am1bcc"`` is semi-empirical and may be slow.
+
+        random_seed:
+            The random seed to use.
+
+        initial_temperature:
+            The initial temperature to use.
+
+        platform:
+            The platform to use.
+
+        conformer_optimiser:
+            The optimiser to use for the conformers.
+
+        energy_calculator:
+            The energy calculator to use to evaluate conformers.
 
     """
 
@@ -196,7 +245,9 @@ class OpenMMMD(Optimizer):
         num_conformers: int = 50,
         box_vectors: openmm.unit.Quantity | None = None,
         define_stereo: bool = False,
-        partial_charges_method: Literal["am1bcc", "mmff94"] = "am1bcc",
+        partial_charges_method: Literal[
+            "am1bcc", "mmff94", "gasteiger", "am1-mulliken"
+        ] = "am1bcc",
         random_seed: int = 108,
         initial_temperature: openmm.unit.Quantity = 300 * openmm.unit.kelvin,
         platform: Literal["CUDA"] | None = None,
