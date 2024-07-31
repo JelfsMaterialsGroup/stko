@@ -12,6 +12,13 @@ def test_rmsd(case_data: CaseData) -> None:
     assert np.isclose(test_rmsd, case_data.rmsd, atol=1e-4)
 
 
+def test_kabsch_rmsd(case_data: CaseData) -> None:
+    calculator = stko.KabschRmsdCalculator(case_data.mol1)
+    results = calculator.get_results(case_data.mol2)
+    test_rmsd = results.get_rmsd()
+    assert np.isclose(test_rmsd, case_data.kabsch_rmsd, atol=1e-4)
+
+
 def test_rmsd_ignore_hydrogens(ignore_h_case_data: CaseData) -> None:
     calculator = stko.RmsdCalculator(
         ignore_h_case_data.mol1, ignore_hydrogens=True
