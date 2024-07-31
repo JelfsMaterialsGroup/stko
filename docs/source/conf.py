@@ -35,6 +35,10 @@ intersphinx_mapping = {
     "python": ("https://docs.python.org/3", None),
     "numpy": ("https://numpy.org/doc/stable/", None),
     "pandas": ("https://pandas.pydata.org/docs/", None),
+    "openff": (
+        "https://docs.openforcefield.org/projects/toolkit/en/stable/",
+        None,
+    ),
 }
 
 templates_path = ["_templates"]

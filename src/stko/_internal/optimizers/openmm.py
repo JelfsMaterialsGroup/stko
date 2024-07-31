@@ -22,14 +22,31 @@ class EnergyCalculator(Protocol):
 class OpenMMForceField(Optimizer):
     """Uses OpenMM to optimise molecules.
 
-    Parameters:
+    .. tip::
 
+        You can get all force fields with:
+
+        .. testcode::
+
+            import openff.toolkit
+            openff.toolkit.typing.engines.smirnoff.get_available_force_fields()
+
+    Parameters:
+        force_field:
+            The force field to use.
         restricted:
             If ``True`` then an optimization is performed only on bonds
             created during the `ConstructedMolecule`
             creation.
             All building block bonds will be fixed.
             If ``False`` then all bonds are optimized.
+        tolerance:
+            The energy tolerance to which the system should be minimized
+        max_iterations:
+            The maximum number of iterations to perform. If this is 0,
+            minimization is continued until the results converge without
+            regard to how many iterations it takes.
+        box_vectors:
 
     """
 
