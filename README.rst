@@ -23,21 +23,24 @@ for ``stk``, which can be joined through https://discord.gg/zbCUzuxe2B.
 Installation
 ============
 
-To get ``stko``, you can install it with pip::
+To get ``stko``, you can install it with pip:
 
-    $ pip install stko
+.. code-block:: bash
 
-You can also install xtb, which is an optional dependency::
+  pip install stko
 
-    $ conda install -c conda-forge xtb
+Some optional dependencies are only available through conda:
 
-You can also install openbabel, which is an optional dependency::
+.. code-block:: bash
 
-    $ conda install -c conda-forge openbabel
-
-You can also install MDAnalysis, which is an optional dependency::
-
-    $ conda install -c mdanalysis
+  # for OpenMM
+  mamba install openmm openmmtools
+  # for xtb
+  mamba install xtb
+  # for openbabel
+  mamba install openbabel
+  # for mdanalysis
+  mamba install mdanalysis
 
 Examples
 ========

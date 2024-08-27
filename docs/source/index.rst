@@ -27,13 +27,25 @@ GitHub: https://github.com/JelfsMaterialsGroup/stko
 Install
 =======
 
-:mod:`.stko` can be installed directly with pip::
+:mod:`.stko` can be installed directly with pip:
 
-   $ pip install stko
+.. code-block:: bash
 
-To use :class:`OpenMMForceField` and :class:`OpenMMMD`::
+  pip install stko
 
-   $ mamba install openff-toolkit
+Some optional dependencies are only available through conda:
+
+.. code-block:: bash
+
+  # for OpenMM
+  mamba install openmm openmmtools
+  # for xtb
+  mamba install xtb
+  # for openbabel
+  mamba install openbabel
+  # for mdanalysis
+  mamba install mdanalysis
+
 
 Dependencies
 ------------
