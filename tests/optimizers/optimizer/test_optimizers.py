@@ -1,8 +1,8 @@
 from copy import deepcopy
 
 import stk
-import stko
 
+import stko
 from tests.optimizers.optimizer.conftest import (
     FailingOptimizer,
     PassingOptimizer,

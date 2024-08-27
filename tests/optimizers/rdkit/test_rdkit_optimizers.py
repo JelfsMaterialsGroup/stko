@@ -1,7 +1,7 @@
 import numpy as np
 import stk
-import stko
 
+import stko
 from tests.optimizers.rdkit.conftest import CaseData
 from tests.optimizers.utilities import (
     inequivalent_position_matrices,

@@ -1,5 +1,4 @@
 import stko
-
 from tests.molecular.constructed.case_data import CaseData
 
 

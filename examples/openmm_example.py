@@ -4,8 +4,9 @@ from pathlib import Path
 
 import openmm
 import stk
-import stko
 from openff.toolkit import ForceField
+
+import stko
 
 
 def main() -> None:

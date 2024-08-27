@@ -1,6 +1,6 @@
 import stk
-import stko
 
+import stko
 from tests.molecular.z_matrix.case_data import CaseData
 
 

@@ -1,7 +1,6 @@
 from pathlib import Path
 
 from stko import MAEExtractor
-
 from tests.optimizers.maeextractor.case_data import CaseData
 
 
@@ -22,8 +21,7 @@ def test_maeextractor(case_data: CaseData) -> None:
         extractor.energies, case_data.energies, strict=True
     ):
         assert test == known
-        if test[0] < min_energy:
-            min_energy = test[0]
+        min_energy = min(test[0], min_energy)
 
     assert min_energy == extractor.min_energy
 

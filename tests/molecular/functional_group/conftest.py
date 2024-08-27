@@ -1,4 +1,5 @@
 import pytest
+
 import stko
 
 from .case_data import CaseData

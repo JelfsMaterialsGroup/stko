@@ -1,6 +1,6 @@
 import numpy as np
-import stko
 
+import stko
 from tests.optimizers.aligner.conftest import CaseData, CasePotential
 from tests.optimizers.utilities import (
     inequivalent_position_matrices,

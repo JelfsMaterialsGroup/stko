@@ -1,6 +1,6 @@
 import numpy as np
-import stko
 
+import stko
 from tests.molecular.threesite.case_data import CaseData
 
 

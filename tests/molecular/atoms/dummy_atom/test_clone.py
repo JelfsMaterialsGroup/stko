@@ -1,5 +1,4 @@
 import stko
-
 from tests.molecular.atoms.utilities import is_equivalent_atom
 
 
