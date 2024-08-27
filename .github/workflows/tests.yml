@@ -55,18 +55,31 @@ jobs:
       - name: Build environment
         run: |
           conda activate pytest
-          conda install -c conda-forge openmm openmmtools
+          conda install -c conda-forge openff-toolkit openmm openmmtools
           python -m pip install --upgrade pip
           python -m pip install --upgrade setuptools
           python -m pip install -e '.[dev]'
       - run: pytest
   doctest:
     runs-on: ubuntu-22.04
+    defaults:
+      run:
+        shell: bash -l {0}
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/setup-python@v4
+      - uses: conda-incubator/setup-miniconda@v2
         with:
-          python-version: "3.11"
-          cache: "pip"
-      - run: "pip install -e '.[dev]'"
+          auto-update-conda: true
+          miniforge-variant: Mambaforge
+          channels: conda-forge,defaults
+          python-version: 3.11
+          activate-environment: pytest
+          use-mamba: true
+      - name: Build environment
+        run: |
+          conda activate pytest
+          conda install -c conda-forge openff-toolkit openmm openmmtools
+          python -m pip install --upgrade pip
+          python -m pip install --upgrade setuptools
+          python -m pip install -e '.[dev]'
       - run: make -C docs doctest
