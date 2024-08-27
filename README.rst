@@ -34,7 +34,7 @@ Some optional dependencies are only available through conda:
 .. code-block:: bash
 
   # for OpenMM
-  mamba install openmm openmmtools
+  mamba install openff-toolkit openmm openmmtools
   # for xtb
   mamba install xtb
   # for openbabel
