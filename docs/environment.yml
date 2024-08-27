@@ -13,3 +13,7 @@ dependencies:
       - stk
       - networkx
       - rmsd
+      - sphinx
+      - sphinx-copybutton
+      - sphinx-rtd-theme
+      - moldoc
