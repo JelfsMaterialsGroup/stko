@@ -5,6 +5,7 @@ dependencies:
   - openff-toolkit
   - openmm
   - openmmtools
+  - pip
   - pip:
       - numpy
       - rdkit
