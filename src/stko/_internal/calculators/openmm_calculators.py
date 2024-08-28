@@ -12,7 +12,24 @@ logger = logging.getLogger(__name__)
 
 
 class OpenMMEnergy:
-    """Uses OpenMM to calculate energy."""
+    """Uses OpenMM to calculate energy.
+
+    Parameters:
+
+        force_field:
+            The force field to use.
+
+        box_vectors:
+            The box vectors to use.
+
+        define_stereo:
+            Toggle calculation of stereochemistry.
+
+        partial_charges_method:
+            The method to use for calculating partial charges.
+            The default ``"am1bcc"`` is semi-empirical and may be slow.
+
+    """
 
     def __init__(
         self,
@@ -82,7 +99,16 @@ class OpenMMEnergy:
         )
 
     def get_energy(self, mol: stk.Molecule) -> float:
-        """Calculate the energy of `mol` in kilojoules per mole."""
+        """Calculate the energy of `mol` in kilojoules per mole.
+
+        Parameters:
+            mol:
+                The molecule for which to calculate energy.
+
+        Returns:
+            The energy.
+
+        """
         return next(self.calculate(mol)).value_in_unit(
             openmm.unit.kilojoules_per_mole
         )
