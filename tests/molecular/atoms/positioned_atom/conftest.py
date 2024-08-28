@@ -1,12 +1,13 @@
 import pytest
 import stk
-import stko
 from pytest_lazyfixture import lazy_fixture
+
+import stko
 
 from .case_data import CaseData
 
 
-@pytest.fixture()
+@pytest.fixture
 def case_data_1(
     atomic_number: int,
     id: int,  # noqa: A002
@@ -79,7 +80,7 @@ def cls(request: pytest.FixtureRequest):  # noqa: ANN201
     return request.param
 
 
-@pytest.fixture()
+@pytest.fixture
 def positioned_atom(
     cls,  # noqa: ANN001
     position: tuple[float, float, float],

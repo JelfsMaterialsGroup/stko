@@ -3,6 +3,7 @@ from dataclasses import dataclass
 import numpy as np
 import pytest
 import stk
+
 from stko._internal.utilities.exceptions import ExpectedMetalError
 
 from .test_gulp import FakeGulpUFFOptimizer

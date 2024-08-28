@@ -1,5 +1,6 @@
 import pytest
 import stk
+
 import stko
 
 try:

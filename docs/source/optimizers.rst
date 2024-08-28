@@ -20,6 +20,8 @@ Optimizers
   MMFF <_autosummary/stko.MMFF>
   MetalOptimizer <_autosummary/stko.MetalOptimizer>
   OpenBabel <_autosummary/stko.OpenBabel>
+  OpenMMForceField <_autosummary/stko.OpenMMForceField>
+  OpenMMMD <_autosummary/stko.OpenMMMD>
   GulpUFFOptimizer <_autosummary/stko.GulpUFFOptimizer>
   MacroModelForceField <_autosummary/stko.MacroModelForceField>
   XTB <_autosummary/stko.XTB>

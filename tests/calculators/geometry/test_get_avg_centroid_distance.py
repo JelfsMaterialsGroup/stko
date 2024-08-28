@@ -1,4 +1,5 @@
 import numpy as np
+
 import stko
 
 from .case_data import CaseData

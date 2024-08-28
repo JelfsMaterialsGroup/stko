@@ -7,6 +7,7 @@ Calculators
   MMFFEnergy <_autosummary/stko.MMFFEnergy>
   UFFEnergy <_autosummary/stko.UFFEnergy>
   OpenBabelEnergy <_autosummary/stko.OpenBabelEnergy>
+  OpenMMEnergy <_autosummary/stko.OpenMMEnergy>
   XTBEnergy <_autosummary/stko.XTBEnergy>
   OrcaEnergy <_autosummary/stko.OrcaEnergy>
   RmsdCalculator <_autosummary/stko.RmsdCalculator>

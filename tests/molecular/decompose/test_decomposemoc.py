@@ -1,6 +1,6 @@
 import stk
-import stko
 
+import stko
 from tests.molecular.decompose.case_data import CaseData
 
 

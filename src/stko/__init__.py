@@ -1,5 +1,7 @@
 """Molecular optimisers and property calculators for use with :mod:`stk`."""
 
+import contextlib
+
 from stko import functional_groups, molecule_analysis
 from stko._internal.calculators.extractors.orca_extractor import OrcaExtractor
 from stko._internal.calculators.extractors.xtb_extractor import XTBExtractor
@@ -69,6 +71,7 @@ from stko._internal.optimizers.macromodel import (
 )
 from stko._internal.optimizers.open_babel import OpenBabel
 from stko._internal.optimizers.optimizers import (
+    NullOptimizer,
     Optimizer,
     OptimizerSequence,
     TryCatchOptimizer,
@@ -110,6 +113,10 @@ from stko._internal.utilities.utilities import (
     unit_vector,
     vector_angle,
 )
+
+with contextlib.suppress(ImportError):
+    from stko._internal.calculators.openmm_calculators import OpenMMEnergy
+    from stko._internal.optimizers.openmm import OpenMMForceField, OpenMMMD
 
 MoleculeT = MoleculeT  # noqa: PLW0127
 """Type parameter matching any :class:`stk.Molecule` or subclasses."""
@@ -169,6 +176,7 @@ __all__ = [
     "Optimizer",
     "OptimizerSequence",
     "TryCatchOptimizer",
+    "NullOptimizer",
     "ETKDG",
     "MMFF",
     "UFF",
@@ -184,6 +192,9 @@ __all__ = [
     "ConstructedMoleculeT",
     "MoleculeT",
     "OpenBabel",
+    "OpenMMForceField",
+    "OpenMMMD",
+    "OpenMMEnergy",
     "WrapperNotInstalledError",
     "DifferentMoleculeError",
     "DifferentAtomError",

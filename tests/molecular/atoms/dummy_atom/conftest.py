@@ -1,11 +1,12 @@
 import pytest
-import stko
 from pytest_lazyfixture import lazy_fixture
+
+import stko
 
 from .case_data import CaseData
 
 
-@pytest.fixture()
+@pytest.fixture
 def case_data_1(id: int) -> CaseData:  # noqa: A002
     """A :class:`.CaseData` instance."""
     return CaseData(
@@ -28,7 +29,7 @@ def id(request: pytest.FixtureRequest) -> int:  # noqa: A001
     return request.param
 
 
-@pytest.fixture()
+@pytest.fixture
 def dummy_atom(id: int) -> stko.Du:  # noqa: A002
     """An :class:`.Du` instance."""
     return stko.Du(id).clone()

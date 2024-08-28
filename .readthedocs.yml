@@ -1,16 +1,12 @@
 version: 2
 
 build:
-    os: "ubuntu-22.04"
-    tools:
-      python: "3.11"
+  os: "ubuntu-22.04"
+  tools:
+    python: "mambaforge-latest"
 
 sphinx:
-    configuration: "docs/source/conf.py"
+  configuration: "docs/source/conf.py"
 
-python:
-    install:
-        - method: "pip"
-          path: .
-          extra_requirements:
-              - "dev"
+conda:
+  environment: "docs/environment.yml"

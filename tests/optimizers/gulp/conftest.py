@@ -1,6 +1,7 @@
 import numpy as np
 import pytest
 import stk
+
 import stko
 
 
@@ -8,7 +9,7 @@ def a_molecule() -> stk.BuildingBlock:
     return stk.BuildingBlock(smiles="CC")
 
 
-@pytest.fixture()
+@pytest.fixture
 def unoptimized_mol() -> stk.BuildingBlock:
     return a_molecule()
 
@@ -23,11 +24,11 @@ class FailingOptimizer(stko.Optimizer):
         raise RuntimeError
 
 
-@pytest.fixture()
+@pytest.fixture
 def passing_optimizer() -> PassingOptimizer:
     return PassingOptimizer()
 
 
-@pytest.fixture()
+@pytest.fixture
 def failing_optimizer() -> FailingOptimizer:
     return FailingOptimizer()

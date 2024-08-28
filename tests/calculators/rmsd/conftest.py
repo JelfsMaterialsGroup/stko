@@ -3,6 +3,7 @@ from dataclasses import dataclass
 import numpy as np
 import pytest
 import stk
+
 import stko
 
 

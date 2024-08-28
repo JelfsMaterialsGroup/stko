@@ -3,6 +3,7 @@ from pathlib import Path
 import numpy as np
 import pytest
 import stk
+
 import stko
 from stko import GulpUFFMDOptimizer, GulpUFFOptimizer
 from stko._internal.optimizers.utilities import get_metal_atoms
@@ -24,7 +25,7 @@ class FakeGulpUFFMDOptimizer(GulpUFFMDOptimizer):
         return mol.with_centroid(np.array([1, 3, 3]))
 
 
-@pytest.fixture()
+@pytest.fixture
 def position_section() -> str:
     return (
         "\ncartesian\n"
@@ -39,7 +40,7 @@ def position_section() -> str:
     )
 
 
-@pytest.fixture()
+@pytest.fixture
 def bond_section() -> str:
     return (
         "\nconnect 1 2 \n"
@@ -52,7 +53,7 @@ def bond_section() -> str:
     )
 
 
-@pytest.fixture()
+@pytest.fixture
 def species_section() -> str:
     return "\nspecies\nC1 C_3\nH1 H_\n"
 
@@ -97,12 +98,12 @@ def test_gulp_species_section(
     assert species_section == test
 
 
-@pytest.fixture()
+@pytest.fixture
 def atom_types() -> list[str]:
     return ["C", "C", "H", "H", "H", "H", "H", "H"]
 
 
-@pytest.fixture()
+@pytest.fixture
 def trajectory() -> dict[int, dict[str, float]]:
     """Defines output of the trajectory properties ignoring coords."""
     return {
@@ -139,12 +140,12 @@ def trajectory() -> dict[int, dict[str, float]]:
     }
 
 
-@pytest.fixture()
+@pytest.fixture
 def min_energy_time_step() -> int:
     return 3
 
 
-@pytest.fixture()
+@pytest.fixture
 def xyz_string() -> str:
     return (
         "8\n"

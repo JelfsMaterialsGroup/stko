@@ -27,9 +27,24 @@ GitHub: https://github.com/JelfsMaterialsGroup/stko
 Install
 =======
 
-:mod:`.stko` can be installed directly with pip::
+:mod:`.stko` can be installed directly with pip:
 
-   $ pip install stko
+.. code-block:: bash
+
+  pip install stko
+
+Some optional dependencies are only available through conda:
+
+.. code-block:: bash
+
+  # for OpenMM
+  mamba install openff-toolkit openmm openmmtools
+  # for xtb
+  mamba install xtb
+  # for openbabel
+  mamba install openbabel
+  # for mdanalysis
+  mamba install mdanalysis
 
 
 Dependencies
@@ -42,14 +57,16 @@ on the desired functions used. These are:
 * `GULP <http://gulp.curtin.edu.au/gulp/>`_
 * `XTB <https://xtb-docs.readthedocs.io/en/latest/>`_
 * `OpenBabel <https://github.com/openbabel/openbabel>`_
+* `OpenMM <https://openmm.org/>`_
+* `OpenFF <https://openforcefield.org/>`_
 
 
 Overview
 ========
 
-`stko <https://github.com/lukasturcani/stk>`_ is a Python library which
+`stko <https://github.com/JelfsMaterialsGroup/stko>`_ is a Python library which
 performs optimizations and calculations on complex molecules built using
-`stk <https://github.com/JelfsMaterialsGroup/stko>`_. In the case of
+`stk <https://github.com/lukasturcani/stk>`_. In the case of
 optimizations, a clone of :class:`stk.Molecule` is returned. For
 calculators, a ``Results`` class are used to calculate and extract
 properties of an :class:`stk.Molecule`.

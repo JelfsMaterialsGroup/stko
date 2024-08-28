@@ -1,0 +1,19 @@
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - openff-toolkit
+  - openmm
+  - openmmtools
+  - python=3.11
+  - pip
+  - pip:
+      - numpy
+      - rdkit
+      - stk
+      - networkx
+      - rmsd
+      - sphinx
+      - sphinx-copybutton
+      - sphinx-rtd-theme
+      - moldoc
