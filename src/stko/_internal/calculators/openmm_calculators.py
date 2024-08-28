@@ -19,7 +19,9 @@ class OpenMMEnergy:
         force_field: ForceField,
         box_vectors: openmm.unit.Quantity | None = None,
         define_stereo: bool = False,
-        partial_charges_method: Literal["am1bcc", "mmff94"] = "am1bcc",
+        partial_charges_method: Literal[
+            "am1bcc", "mmff94", "gasteiger", "am1-mulliken"
+        ] = "am1bcc",
     ) -> None:
         self._integrator = openmm.LangevinIntegrator(
             300 * openmm.unit.kelvin,

@@ -297,10 +297,9 @@ class OpenMMMD(Optimizer):
 
         if platform is not None:
             self._platform = openmm.Platform.getPlatformByName(platform)
-            if platform == "CUDA":
-                self._properties = {"CudaPrecision": "mixed"}
-            else:
-                self._properties = None
+            self._properties: dict[str, str] | None = {
+                "CudaPrecision": "mixed"
+            }
         else:
             self._platform = None
             self._properties = None
@@ -402,7 +401,7 @@ class OpenMMMD(Optimizer):
                 min_energy = energy
                 min_energy_conformer = conformer_mol
 
-        return min_energy_conformer
+        return min_energy_conformer  # type: ignore[return-value]
 
     def _update_stk_molecule(
         self,
