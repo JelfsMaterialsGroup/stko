@@ -9,8 +9,8 @@
 # -- Project information ----------------------------------------------
 
 project = "stko"
-project_copyright = "2023, Steven Bennett, Andrew Tarzia, Lukas Turcani"
-author = "Steven Bennett, Andrew Tarzia, Lukas Turcani"
+project_copyright = "2024, Andrew Tarzia, Lukas Turcani, Steven Bennett"
+author = "Andrew Tarzia, Lukas Turcani, Steven Bennett"
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
