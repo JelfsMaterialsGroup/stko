@@ -10,3 +10,10 @@ sphinx:
 
 conda:
   environment: "docs/environment.yml"
+
+python:
+  install:
+    - method: pip
+      path: .
+      extra_requirements:
+        - dev
