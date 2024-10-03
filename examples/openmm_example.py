@@ -23,7 +23,7 @@ def main() -> None:
         # Load the openff-2.1.0 force field appropriate for
         # vacuum calculations (without constraints)
         force_field=ForceField("openff_unconstrained-2.1.0.offxml"),
-        partial_charges_method="mmff94",
+        partial_charges_method="espaloma-am1bcc",
         max_iterations=10,
     )
     ff_cage = ff_optimizer.optimize(cage)
@@ -32,7 +32,7 @@ def main() -> None:
         "ff_opt_cage",
         stko.OpenMMEnergy(
             force_field=ForceField("openff_unconstrained-2.1.0.offxml"),
-            partial_charges_method="mmff94",
+            partial_charges_method="espaloma-am1bcc",
         ).get_energy(ff_cage),
     )
 
@@ -41,7 +41,7 @@ def main() -> None:
         # vacuum calculations (without constraints)
         force_field=ForceField("openff_unconstrained-2.1.0.offxml"),
         restricted=False,
-        partial_charges_method="mmff94",
+        partial_charges_method="espaloma-am1bcc",
     )
     ff_cage = ff_optimizer.optimize(cage)
     ff_cage.write(output / "ffunrest_opt_cage.mol")
@@ -49,7 +49,7 @@ def main() -> None:
         "ffunrest_opt_cage",
         stko.OpenMMEnergy(
             force_field=ForceField("openff_unconstrained-2.1.0.offxml"),
-            partial_charges_method="mmff94",
+            partial_charges_method="espaloma-am1bcc",
         ).get_energy(ff_cage),
     )
 
@@ -58,7 +58,7 @@ def main() -> None:
         # vacuum calculations (without constraints)
         force_field=ForceField("openff_unconstrained-2.1.0.offxml"),
         restricted=True,
-        partial_charges_method="mmff94",
+        partial_charges_method="espaloma-am1bcc",
     )
     ff_cage = ff_optimizer.optimize(cage)
     ff_cage.write(output / "ffrest_opt_cage.mol")
@@ -66,7 +66,7 @@ def main() -> None:
         "ffrest_opt_cage",
         stko.OpenMMEnergy(
             force_field=ForceField("openff_unconstrained-2.1.0.offxml"),
-            partial_charges_method="mmff94",
+            partial_charges_method="espaloma-am1bcc",
         ).get_energy(ff_cage),
     )
 
@@ -80,7 +80,7 @@ def main() -> None:
         output_directory=output / "md_optimisation",
         integrator=integrator,
         random_seed=275,
-        partial_charges_method="mmff94",
+        partial_charges_method="espaloma-am1bcc",
         reporting_freq=5,
         trajectory_freq=5,
         num_steps=10000,
@@ -93,7 +93,7 @@ def main() -> None:
         "md_opt_cage",
         stko.OpenMMEnergy(
             force_field=ForceField("openff_unconstrained-2.1.0.offxml"),
-            partial_charges_method="mmff94",
+            partial_charges_method="espaloma-am1bcc",
         ).get_energy(md_cage),
     )
 

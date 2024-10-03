@@ -5,6 +5,7 @@ from typing import Literal, Protocol
 
 import rdkit.Chem as rdkit  # noqa: N813
 import stk
+from espaloma_charge.openff_wrapper import EspalomaChargeToolkitWrapper
 from openff.interchange import Interchange
 from openff.toolkit import ForceField, Molecule, RDKitToolkitWrapper
 from openmm import app, openmm
@@ -68,7 +69,7 @@ class OpenMMForceField(Optimizer):
         box_vectors: openmm.unit.Quantity | None = None,
         define_stereo: bool = False,
         partial_charges_method: Literal[
-            "am1bcc", "mmff94", "gasteiger", "am1-mulliken"
+            "am1bcc", "mmff94", "gasteiger", "am1-mulliken", "espaloma-am1bcc"
         ] = "am1bcc",
     ) -> None:
         self._integrator = openmm.LangevinIntegrator(
@@ -136,6 +137,12 @@ class OpenMMForceField(Optimizer):
             molecule.assign_partial_charges(
                 self._partial_charges_method,
                 toolkit_registry=RDKitToolkitWrapper(),
+            )
+
+        if self._partial_charges_method == "espaloma-am1bcc":
+            molecule.assign_partial_charges(
+                self._partial_charges_method,
+                toolkit_registry=EspalomaChargeToolkitWrapper(),
             )
 
         topology = molecule.to_topology()
@@ -246,7 +253,7 @@ class OpenMMMD(Optimizer):
         box_vectors: openmm.unit.Quantity | None = None,
         define_stereo: bool = False,
         partial_charges_method: Literal[
-            "am1bcc", "mmff94", "gasteiger", "am1-mulliken"
+            "am1bcc", "mmff94", "gasteiger", "am1-mulliken", "espaloma-am1bcc"
         ] = "am1bcc",
         random_seed: int = 108,
         initial_temperature: openmm.unit.Quantity = 300 * openmm.unit.kelvin,
@@ -356,6 +363,12 @@ class OpenMMMD(Optimizer):
             molecule.assign_partial_charges(
                 self._partial_charges_method,
                 toolkit_registry=RDKitToolkitWrapper(),
+            )
+
+        if self._partial_charges_method == "espaloma-am1bcc":
+            molecule.assign_partial_charges(
+                self._partial_charges_method,
+                toolkit_registry=EspalomaChargeToolkitWrapper(),
             )
 
         topology = molecule.to_topology()

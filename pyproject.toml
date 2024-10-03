@@ -135,5 +135,6 @@ module = [
   "openmm.*",
   "openmmforcefields.*",
   "rmsd.*",
+  "espaloma_charge.*",
 ]
 ignore_missing_imports = true
