@@ -14,6 +14,7 @@ dependencies = [
   "stk",
   "networkx",
   "rmsd",
+  "espaloma-charge",
 ]
 requires-python = ">=3.11"
 dynamic = ["version"]
@@ -134,5 +135,6 @@ module = [
   "openmm.*",
   "openmmforcefields.*",
   "rmsd.*",
+  "espaloma_charge.*",
 ]
 ignore_missing_imports = true

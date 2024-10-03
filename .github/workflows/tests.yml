@@ -55,7 +55,7 @@ jobs:
       - name: Build environment
         run: |
           conda activate pytest
-          conda install -c conda-forge openff-toolkit openmm openmmtools
+          conda install -c conda-forge openff-toolkit openmm openmmtools dgl
           python -m pip install --upgrade pip
           python -m pip install --upgrade setuptools
           python -m pip install -e '.[dev]'
@@ -78,7 +78,7 @@ jobs:
       - name: Build environment
         run: |
           conda activate pytest
-          conda install -c conda-forge openff-toolkit openmm openmmtools
+          conda install -c conda-forge openff-toolkit openmm openmmtools dgl
           python -m pip install --upgrade pip
           python -m pip install --upgrade setuptools
           python -m pip install -e '.[dev]'
