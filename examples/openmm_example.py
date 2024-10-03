@@ -86,6 +86,13 @@ def main() -> None:
         num_steps=10000,
         num_conformers=50,
         platform="CUDA",
+        conformer_optimiser=stko.OpenMMForceField(
+            # Load the openff-2.1.0 force field appropriate for
+            # vacuum calculations (without constraints)
+            force_field=ForceField("openff_unconstrained-2.1.0.offxml"),
+            restricted=False,
+            partial_charges_method="espaloma-am1bcc",
+        ),
     )
     md_cage = md_optimizer.optimize(cage)
     md_cage.write(output / "md_opt_cage.mol")
