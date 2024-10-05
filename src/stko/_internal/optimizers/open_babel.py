@@ -83,7 +83,7 @@ class OpenBabel(Optimizer):
             ob_conversion = openbabel.OBConversion()
             ob_conversion.SetInFormat("mol")
             ob_mol = openbabel.OBMol()
-            ob_conversion.ReadFile(ob_mol, temp_file)
+            ob_conversion.ReadFile(ob_mol, str(temp_file))
             ob_mol.PerceiveBondOrders()
         finally:
             temp_file.unlink()
