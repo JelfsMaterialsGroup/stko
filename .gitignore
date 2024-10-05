@@ -19,3 +19,4 @@ tests/failures.txt
 
 /examples/gulp_test_output/
 /examples/gulp_test_output_MD/
+/examples/.model.pt

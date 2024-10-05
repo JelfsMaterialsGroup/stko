@@ -40,6 +40,8 @@ Some optional dependencies are only available through conda:
   mamba install openbabel
   # for mdanalysis
   mamba install mdanalysis
+  # for espaloma charge
+  mamba install dgl
 
 Examples
 ========
