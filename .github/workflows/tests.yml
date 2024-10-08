@@ -85,7 +85,7 @@ jobs:
           python -m pip install --upgrade setuptools
           python -m pip install -e '.[dev]'
       - name: Run script
-        run: python examples/tested_example.py
+        run: python examples/testable_example.py
   doctest:
     runs-on: ubuntu-22.04
     defaults:
