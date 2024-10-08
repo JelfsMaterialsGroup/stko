@@ -85,7 +85,6 @@ def main() -> None:
         trajectory_freq=5,
         num_steps=10000,
         num_conformers=50,
-        platform="CUDA",
         conformer_optimiser=stko.OpenMMForceField(
             # Load the openff-2.1.0 force field appropriate for
             # vacuum calculations (without constraints)
