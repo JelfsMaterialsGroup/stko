@@ -55,7 +55,7 @@ def main() -> None:
         stko.OpenMMForceField(
             force_field=force_field,
             restricted=True,
-            partial_charges_method=partial_charges,
+            partial_charges_method=str(partial_charges),
         ),
         # Unrestricted optimisation.
         stko.OpenMMForceField(
