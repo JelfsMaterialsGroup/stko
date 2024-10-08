@@ -32,16 +32,14 @@ Some optional dependencies are only available through conda:
 
 .. code-block:: bash
 
-  # for OpenMM
-  mamba install openff-toolkit openmm openmmtools
+  # for OpenMM and espaloma charge
+  mamba install openff-toolkit openmm openmmtools dgl
   # for xtb
   mamba install xtb
   # for openbabel
   mamba install openbabel
   # for mdanalysis
   mamba install mdanalysis
-  # for espaloma charge
-  mamba install dgl
 
 Examples
 ========

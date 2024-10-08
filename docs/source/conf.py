@@ -33,13 +33,13 @@ autoclass_content = "class"
 
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3", None),
-    "numpy": ("https://numpy.org/doc/stable/", None),
-    "pandas": ("https://pandas.pydata.org/docs/", None),
+    "numpy": ("https://numpy.org/doc/stable", None),
+    "pandas": ("https://pandas.pydata.org/docs", None),
     "openff": (
-        "https://docs.openforcefield.org/projects/toolkit/en/stable/",
+        "https://docs.openforcefield.org/projects/toolkit/en/stable",
         None,
     ),
-    "openmm": ("http://docs.openmm.org/latest/api-python/", None),
+    "openmm": ("http://docs.openmm.org/latest/api-python", None),
 }
 
 templates_path = ["_templates"]

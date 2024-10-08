@@ -9,8 +9,8 @@ maintainers = [
   { name = "Lukas Turcani", email = "lukasturcani93@gmail.com" },
 ]
 dependencies = [
-  "numpy==1.26.4",  # remove pin when ecosystem updates to 2.0
-  "rdkit==2023.9.5",  # remove pin when type issues are resolved
+  "numpy",
+  "rdkit != 2024.3.5",
   "stk",
   "networkx",
   "rmsd",
@@ -24,7 +24,7 @@ readme = "README.rst"
 dev = [
   "ruff",
   "mypy",
-  "moldoc",
+  "moldoc==3.0.0",
   # TODO: Remove pin when https://github.com/TvoroG/pytest-lazy-fixture/issues/65 is resolved.
   # pytest-lazy-fixture 0.6.0 is incompatible with pytest 8.0.0
   "pytest<8",
