@@ -168,6 +168,9 @@ class OrcaEnergy:
         if not path.exists():
             msg = f"Orca not found at {path}"
             raise PathError(msg)
+        if path.is_dir():
+            msg = f"{path} is a directory"
+            raise PathError(msg)
 
     def _write_input_file(self, path: Path, xyz_file: Path) -> None:
         # Write top line and base name.
