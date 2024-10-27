@@ -9,6 +9,8 @@ logger = logging.getLogger(__name__)
 class Torsion:
     """Represents a torsion angle in a molecule.
 
+    This code was developed by @joshkamm.
+
     Parameters:
         atom1:
             First atom in torsion.

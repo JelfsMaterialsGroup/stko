@@ -21,6 +21,8 @@ class TorsionCalculator:
     one torsion for each rotatable bond. We use the
     `TorsionFingerprints.CalculateTorsionLists` method.
 
+    This code was developed by @joshkamm.
+
     Examples:
         .. code-block:: python
 
@@ -76,6 +78,8 @@ class ConstructedMoleculeTorsionCalculator:
     Note that the rdkit [2]_ function we use only outputs
     one torsion for each rotatable bond. We use the
     `TorsionFingerprints.CalculateTorsionLists` method.
+
+    This code was developed by @joshkamm.
 
     Examples:
         .. code-block:: python
@@ -150,7 +154,11 @@ class ConstructedMoleculeTorsionCalculator:
 
 
 class MatchedTorsionCalculator(ConstructedMoleculeTorsionCalculator):
-    """Matches rdkit generated torsions with building block torsions."""
+    """Matches rdkit generated torsions with building block torsions.
+
+    This code was developed by @joshkamm.
+
+    """
 
     def calculate(
         self,
