@@ -9,6 +9,7 @@ import mdanalysis_example
 import molecule_splitter_example
 import obabel_example
 import openmm_example
+import optwrite_example
 import shape_example
 import topology_extraction_example
 import torsion_example
@@ -33,6 +34,7 @@ def main() -> None:
         topology_extraction_example.main()
         torsion_example.main()
         zmatrix_example.main()
+        optwrite_example.main()
     finally:
         os.chdir(init_dir)
 
