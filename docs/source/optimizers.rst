@@ -10,6 +10,7 @@ Optimizers
   :maxdepth: 1
 
   OptimizerSequence <_autosummary/stko.OptimizerSequence>
+  OptWriterSequence <_autosummary/stko.OptWriterSequence>
   TryCatchOptimizer <_autosummary/stko.TryCatchOptimizer>
 
   Aligner <_autosummary/stko.Aligner>
