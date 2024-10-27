@@ -418,10 +418,11 @@ class MacroModel(Optimizer):
                 have this name.
 
         """
-        gz_file = gzip.open(f"{run_name}-out.maegz")
-        with Path(f"{run_name}.mae").open("wb") as f:
+        with (
+            gzip.open(f"{run_name}-out.maegz") as gz_file,
+            Path(f"{run_name}.mae").open("wb") as f,
+        ):
             f.write(gz_file.read())
-        gz_file.close()
 
 
 class MacroModelForceField(MacroModel):
