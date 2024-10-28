@@ -9,6 +9,7 @@ Optimizers
 .. toctree::
   :maxdepth: 1
 
+  NullOptimizer <_autosummary/stko.NullOptimizer>
   OptimizerSequence <_autosummary/stko.OptimizerSequence>
   OptWriterSequence <_autosummary/stko.OptWriterSequence>
   TryCatchOptimizer <_autosummary/stko.TryCatchOptimizer>
