@@ -1,5 +1,8 @@
 import logging
+import pathlib
 from typing import Protocol
+
+import stk
 
 from stko._internal.types import MoleculeT
 
@@ -113,6 +116,81 @@ class OptimizerSequence(Optimizer):
             msg = f'Using {cls_name} on "{mol}".'
             logger.info(msg)
             mol = optimizer.optimize(mol)
+
+        return mol
+
+
+class OptWriterSequence(Optimizer):
+    """Applies optimizers in sequence and writes each step to avoid reruns.
+
+    Parameters:
+        optimizers:
+            A number of optimizers, each of which gets applied to a
+            molecule, based on the order given.
+
+    Examples:
+        Let's say we want to embed a molecule with ETKDG first and then
+        minimize it with the MMFF force field.
+
+        .. code-block:: python
+
+            import stk
+            import stko
+            import pathlib
+
+            mol = stk.BuildingBlock('NCCCN', [stk.PrimaryAminoFactory()])
+            optimizer = stko.OptimizerSequence(
+                optimizers=optimizers={
+                    "etkdg": stko.ETKDG(),
+                    "mmff": stko.MMFF(),
+                },
+                writer=stk.MolWriter(),
+                output_directory=pathlib.Path('output_path')
+            )
+            mol = optimizer.optimize(mol)
+
+    """
+
+    def __init__(
+        self,
+        optimizers: dict[str, Optimizer],
+        writer: stk.XyzWriter
+        | stk.MolWriter
+        | stk.PdbWriter
+        | stk.TurbomoleWriter,
+        output_directory: pathlib.Path,
+    ) -> None:
+        self._optimizers = optimizers
+        self._writer = writer
+        self._output_directory = output_directory
+
+    def _suffix_from_writer(self) -> str:
+        if isinstance(self._writer, stk.XyzWriter):
+            return "xyz"
+        if isinstance(self._writer, stk.TurbomoleWriter):
+            return "coord"
+        if isinstance(self._writer, stk.PdbWriter):
+            return "pdb"
+        if isinstance(self._writer, stk.MolWriter):
+            return "mol"
+        return None
+
+    def optimize(self, mol: MoleculeT) -> MoleculeT:
+        filesuffix = self._suffix_from_writer()
+        for optimizer_name in self._optimizers:
+            output_file_name = (
+                self._output_directory / f"{optimizer_name}_out.{filesuffix}"
+            )
+            cls_name = self._optimizers[optimizer_name].__class__.__name__
+            if not output_file_name.exists():
+                msg = f"Running {cls_name} optimisation."
+                logger.info(msg)
+                mol = self._optimizers[optimizer_name].optimize(mol)
+                self._writer.write(molecule=mol, path=output_file_name)
+            else:
+                msg = f"Loading {cls_name} optimisation."
+                logger.info(msg)
+                mol = mol.with_structure_from_file(output_file_name)
 
         return mol
 

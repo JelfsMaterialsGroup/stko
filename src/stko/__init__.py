@@ -74,6 +74,7 @@ from stko._internal.optimizers.optimizers import (
     NullOptimizer,
     Optimizer,
     OptimizerSequence,
+    OptWriterSequence,
     TryCatchOptimizer,
 )
 from stko._internal.optimizers.rdkit import ETKDG, MMFF, UFF, MetalOptimizer
@@ -175,6 +176,7 @@ __all__ = [
     "MacroModelMD",
     "Optimizer",
     "OptimizerSequence",
+    "OptWriterSequence",
     "TryCatchOptimizer",
     "NullOptimizer",
     "ETKDG",
