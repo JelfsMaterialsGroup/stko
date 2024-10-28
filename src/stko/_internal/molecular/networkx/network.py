@@ -13,6 +13,9 @@ logger = logging.getLogger(__name__)
 class Network:
     """Definition of a :mod:`networkx` graph of an :class:`stk.Molecule`.
 
+    See Also:
+        https://networkx.org/documentation/stable/index.html
+
     Parameters:
         graph:
             The NetworkX graph to initialise from.
