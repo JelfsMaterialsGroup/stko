@@ -1,5 +1,6 @@
 import pathlib
 import shutil
+import warnings
 from copy import copy
 from typing import Literal, Protocol
 
@@ -16,6 +17,8 @@ from stko._internal.types import MoleculeT
 from stko._internal.utilities.exceptions import InputError
 from stko._internal.utilities.utilities import get_atom_distance
 
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+
 
 class EnergyCalculator(Protocol):
     def get_energy(self, mol: stk.Molecule) -> float: ...
@@ -28,7 +31,7 @@ class OpenMMForceField(Optimizer):
 
         You can get all force fields with:
 
-        .. testcode::
+        .. code-block::
 
             import openff.toolkit
             openff.toolkit.typing.engines.smirnoff.get_available_force_fields()
