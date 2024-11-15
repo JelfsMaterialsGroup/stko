@@ -30,7 +30,7 @@ class MoleculeTransformer:
         (see :class:`MoleculeSplitter`) at the broken bond with an atom
         defined in `replacer_smarts`.
 
-        .. code-block:: python
+        .. testcode:: mol-transform
 
             import stk
             import stko

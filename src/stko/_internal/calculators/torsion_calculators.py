@@ -21,10 +21,8 @@ class TorsionCalculator:
     one torsion for each rotatable bond. We use the
     `TorsionFingerprints.CalculateTorsionLists` method.
 
-    This code was developed by @joshkamm.
-
     Examples:
-        .. code-block:: python
+        .. testcode:: torsion-calc
 
             import stk
             import stko
@@ -37,8 +35,10 @@ class TorsionCalculator:
 
             # Extract the torsions.
             tc_results = tc.get_results(mol1)
-            for t, ang in tc_results.get_torsion_angles():
-                print(t, ang, t.get_atom_ids())
+            for torsion, torsion_angle in tc_results.get_torsion_angles():
+                atom_ids = torsion.get_atom_ids()
+
+                # Can now do something with the torsion.
 
     References:
         .. [1] http://rdkit.org/docs/source/rdkit.Chem.TorsionFingerprints.html
@@ -79,10 +79,8 @@ class ConstructedMoleculeTorsionCalculator:
     one torsion for each rotatable bond. We use the
     `TorsionFingerprints.CalculateTorsionLists` method.
 
-    This code was developed by @joshkamm.
-
     Examples:
-        .. code-block:: python
+        .. testcode:: torsion-const-calc
 
             import stk
             import stko
@@ -107,13 +105,12 @@ class ConstructedMoleculeTorsionCalculator:
 
             # Get information about torsions in building blocks and in the
             # ConstructedMolecule.
-            for t in tc_results.get_torsion_infos():
-                print(
-                    'c', t.get_torsion(),
-                    t.get_building_block(),
-                    t.get_building_block_id(),
-                    t.get_building_block_torsion(),
-                )
+            for torsion in tc_results.get_torsion_infos():
+                # Extract properties to map from constructed to building block.
+                torsion_constructed = torsion.get_torsion()
+                torsion_bb = torsion.get_building_block()
+                torsion_bb_id = torsion.get_building_block_id()
+                torsion_bb_torsion = torsion.get_building_block_torsion()
 
     References:
         .. [2] http://rdkit.org/docs/source/rdkit.Chem.TorsionFingerprints.html
@@ -154,11 +151,7 @@ class ConstructedMoleculeTorsionCalculator:
 
 
 class MatchedTorsionCalculator(ConstructedMoleculeTorsionCalculator):
-    """Matches rdkit generated torsions with building block torsions.
-
-    This code was developed by @joshkamm.
-
-    """
+    """Matches rdkit generated torsions with building block torsions."""
 
     def calculate(
         self,

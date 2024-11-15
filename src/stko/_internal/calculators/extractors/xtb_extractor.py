@@ -86,8 +86,8 @@ class XTBExtractor:
             import stko
 
             data = stko.XTBExtractor(output_file)
-            print(data.total_energy)
-            print(data.homo_lumo_gap)
+            total_energy = data.total_energy
+            homo_lumo_gap = data.homo_lumo_gap
 
     """
 

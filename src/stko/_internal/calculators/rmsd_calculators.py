@@ -33,14 +33,14 @@ class RmsdCalculator:
 
 
     Examples:
-        .. code-block:: python
+        .. testcode:: rmsd-calc
 
             import stk
             import stko
 
             bb1 = stk.BuildingBlock('C1CCCCC1')
             calculator = stko.RmsdCalculator(bb1)
-            results = calculator.get_results(stk.UFF().optimize(bb1))
+            results = calculator.get_results(stko.UFF().optimize(bb1))
             rmsd  = results.get_rmsd()
 
     """
@@ -142,7 +142,7 @@ class RmsdMappedCalculator(RmsdCalculator):
     to be the same when you switch the initial and test molecule.
 
     Examples:
-        .. code-block:: python
+        .. testcode:: rmsd-mapped-calc
 
             import stk
             import stko
@@ -241,14 +241,14 @@ class KabschRmsdCalculator:
             The :class:`stk.Molecule` to calculate RMSD from.
 
     Examples:
-        .. code-block:: python
+        .. testcode:: rmsd-kabsch-calc
 
             import stk
             import stko
 
             bb1 = stk.BuildingBlock('C1CCCCC1')
             calculator = stko.KabschRmsdCalculator(bb1)
-            results = calculator.get_results(stk.UFF().optimize(bb1))
+            results = calculator.get_results(stko.UFF().optimize(bb1))
             rmsd  = results.get_rmsd()
 
     """

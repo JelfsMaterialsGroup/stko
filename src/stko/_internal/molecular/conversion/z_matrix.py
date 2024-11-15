@@ -18,14 +18,14 @@ class ZMatrix:
     Examples:
         The Z-matrix is returned as a string.
 
-        .. code-block:: python
+        .. testcode:: z-matrix
 
             import stk
             import stko
 
             bb1 = stk.BuildingBlock('NCCNCCN')
 
-            print(stko.ZMatrix().get_zmatrix(bb1))
+            zmatrix = stko.ZMatrix().get_zmatrix(bb1)
 
     """
 

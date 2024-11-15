@@ -16,7 +16,7 @@ class ShapeCalculator:
     measures.
 
     Examples:
-        .. code-block:: python
+        .. testcode:: shape
 
             import stk
             import stko

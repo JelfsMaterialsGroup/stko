@@ -22,20 +22,24 @@ class MDAnalysis:
     Examples:
         An stk molecule can be converted into an MDAnalysis Universe.
 
-        .. code-block:: python
+        .. testcode:: mdanalysis
 
             import stk
             import stko
+            import numpy as np
 
             stkmol = stk.BuildingBlock('NCCNCCN').with_centroid(
                 position=np.array((10, 10, 10))
             )
             universe = stko.MDAnalysis().get_universe(stkmol)
 
-            print('R_g:', universe.atoms.radius_of_gyration())
-            print('B_sphere:', universe.atoms.bsphere())
-            print('Universe COM:', universe.atoms.center_of_mass())
-            print('stk centroid:', stkmol.get_centroid())
+
+            # Can now use mdanalysis methods and analysis.
+            radius_gyration = universe.atoms.radius_of_gyration()
+            b_sphere = universe.atoms.bsphere()
+            # These should be similar.
+            universe_com = universe.atoms.center_of_mass()
+            stk_centroid = stkmol.get_centroid()
 
     """
 

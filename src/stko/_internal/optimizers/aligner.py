@@ -81,7 +81,7 @@ class Aligner(Optimizer):
         * SpinDry - https://github.com/andrewtarzia/SpinDry
 
     Examples:
-        .. code-block:: python
+        .. testcode:: aligner
 
             import stk
             import stko

@@ -31,7 +31,7 @@ class OrcaExtractor:
             import stko
 
             data = stko.OrcaExtractor(output_file)
-            print(data.total_energy)
+            energy = data.total_energy
 
 
     """

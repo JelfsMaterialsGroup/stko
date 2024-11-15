@@ -31,7 +31,7 @@ class OpenMMForceField(Optimizer):
 
         You can get all force fields with:
 
-        .. code-block::
+        .. testcode::
 
             import openff.toolkit
             openff.toolkit.typing.engines.smirnoff.get_available_force_fields()

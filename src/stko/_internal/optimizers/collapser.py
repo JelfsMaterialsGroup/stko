@@ -29,7 +29,7 @@ class Collapser:
     This optimizer aims to bring extended bonds closer together for
     further optimisation.
 
-    .. code-block:: python
+    .. testcode:: collapser
 
         import stk
         import stko
@@ -51,6 +51,12 @@ class Collapser:
             scale_steps=True,
         )
         cage1 = optimizer.optimize(mol=cage1)
+
+    .. testcleanup:: collapser
+
+        import shutil
+
+        shutil.rmtree('test_coll')
 
     Parameters:
         output_dir:

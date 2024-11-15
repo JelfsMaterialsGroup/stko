@@ -35,7 +35,7 @@ class OpenBabelEnergy:
         * OpenBabel: https://github.com/openbabel/openbabel
 
     Examples:
-        .. code-block:: python
+        .. testcode:: obabel-energy
 
             import stk
             import stko

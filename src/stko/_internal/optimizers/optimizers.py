@@ -16,7 +16,7 @@ class Optimizer(Protocol):
     initialized with some settings and can optimize a molecule
     with :meth:`~.Optimizer.optimize`.
 
-    .. code-block:: python
+    .. testcode:: optimiser-example
 
         import stk
         import stko
@@ -41,7 +41,7 @@ class Optimizer(Protocol):
     desirable to embed a molecule first, to generate an initial structure.
     :class:`.OptimizerSequence` may be used for this.
 
-    .. code-block:: python
+    .. testcode:: optimiser-example
 
         # Create a new optimizer which chains the previously defined
         # mmff and etkdg optimizers.
@@ -96,7 +96,7 @@ class OptimizerSequence(Optimizer):
         Let's say we want to embed a molecule with ETKDG first and then
         minimize it with the MMFF force field.
 
-        .. code-block:: python
+        .. testcode:: optimiser-sequence
 
             import stk
             import stko
@@ -132,22 +132,31 @@ class OptWriterSequence(Optimizer):
         Let's say we want to embed a molecule with ETKDG first and then
         minimize it with the MMFF force field.
 
-        .. code-block:: python
+        .. testcode:: optimiser-writer-sequence
 
             import stk
             import stko
             import pathlib
 
+            output_directory = pathlib.Path('output_path')
+            output_directory.mkdir(exist_ok=True)
+
             mol = stk.BuildingBlock('NCCCN', [stk.PrimaryAminoFactory()])
-            optimizer = stko.OptimizerSequence(
-                optimizers=optimizers={
+            optimizer = stko.OptWriterSequence(
+                optimizers={
                     "etkdg": stko.ETKDG(),
                     "mmff": stko.MMFF(),
                 },
                 writer=stk.MolWriter(),
-                output_directory=pathlib.Path('output_path')
+                output_directory=output_directory,
             )
             mol = optimizer.optimize(mol)
+
+        .. testcleanup:: optimiser-writer-sequence
+
+            import shutil
+
+            shutil.rmtree('output_path')
 
     """
 
@@ -209,7 +218,7 @@ class TryCatchOptimizer(Optimizer):
 
 
     Examples:
-        .. code-block:: python
+        .. testcode:: try-catch
 
             import stk
             import stko

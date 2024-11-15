@@ -49,7 +49,7 @@ class OpenBabel(Optimizer):
         * OpenBabel: https://github.com/openbabel/openbabel
 
     Examples:
-        .. code-block:: python
+        .. testcode:: obabel-optimisation
 
             import stk
             import stko
