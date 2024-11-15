@@ -37,7 +37,7 @@ def main() -> None:
     polymer = optimiser.optimize(polymer)
 
     # Delete some, rerun.
-    (output_directory / "mmff_out.mol").unlink()
+    output_directory.joinpath("mmff_out.mol").unlink()
     polymer = optimiser.optimize(polymer)
 
 
