@@ -1,5 +1,4 @@
 import logging
-import warnings
 from collections import abc
 from copy import copy
 from typing import Literal
@@ -11,9 +10,6 @@ from openff.toolkit import ForceField, Molecule, RDKitToolkitWrapper
 from openmm import app, openmm
 
 logger = logging.getLogger(__name__)
-
-
-warnings.filterwarnings("ignore", category=DeprecationWarning)
 
 
 class OpenMMEnergy:
