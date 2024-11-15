@@ -10,8 +10,6 @@ logger = logging.getLogger(__name__)
 class TorsionInfo:
     """Holds additional info about ConstructedMoleculeTorsioned torsions.
 
-    This code was developed by @joshkamm.
-
     Parameters:
         torsion:
             The torsion about which information is held.
