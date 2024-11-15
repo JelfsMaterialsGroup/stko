@@ -23,7 +23,7 @@ class MoleculeSplitter:
         Given a molecule, this class allows you to break bonds based on
         `breaker_smarts` between the atoms in `bond_deleter_ids`.
 
-        .. code-block:: python
+        .. testcode:: mol-split
 
             import stk
             import stko

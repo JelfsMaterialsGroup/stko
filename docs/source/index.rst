@@ -39,7 +39,9 @@ Some optional dependencies are only available through conda:
 .. code-block:: bash
 
   # for OpenMM and espaloma charge
-  mamba install openff-toolkit openmm openmmtools dgl
+  # note the temporary issue with rdkit versions and conda will overwrite pip
+  # installed software
+  mamba install openff-toolkit openmm openmmtools dgl rdkit==2024.3.4
   # for xtb
   mamba install xtb
   # for openbabel

@@ -129,7 +129,7 @@ class MAEExtractor:
         Returns:
             A :class:`list` of the form
 
-            .. code-block:: python
+            .. code-block::
 
                 returned = [(123.3, 23), (143.89, 1), (150.6, 12), ...]
 

@@ -13,6 +13,9 @@ logger = logging.getLogger(__name__)
 class Network:
     """Definition of a :mod:`networkx` graph of an :class:`stk.Molecule`.
 
+    See Also:
+        https://networkx.org/documentation/stable/index.html
+
     Parameters:
         graph:
             The NetworkX graph to initialise from.
@@ -21,10 +24,11 @@ class Network:
         An stk molecule can be converted into a NetworkX object. This allows
         for the disconnection and manipulation of the molecular graph.
 
-        .. code-block:: python
+        .. testcode:: networkx
 
             import stk
             import stko
+            import numpy as np
 
             molecule = stk.BuildingBlock('NCCNCCN').with_centroid(
                 position=np.array((10, 10, 10))
@@ -52,7 +56,7 @@ class Network:
             # after deleting metal atoms!
             for atom_ids in connected_graphs:
                 # Get atoms from nodes.
-                atoms = list(cg)
+                atoms = list(atom_ids)
                 atom_ids = tuple(i.get_id() for i in atoms)
 
                 # Sort both by atom id.

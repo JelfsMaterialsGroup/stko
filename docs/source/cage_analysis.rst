@@ -31,10 +31,21 @@ This example structure is not great, but it does the job here. Imagine
 you would do a better optimisation with one of our
 `Optimizer <optimizers.html>`_ classes!
 
-.. code-block:: python
+.. testsetup:: analysing-cage
+
+    import pathlib
+    import os
+
+    path = pathlib.Path('cage_output')
+    os.makedirs(path, exist_ok=True)
+
+
+.. testcode:: analysing-cage
 
     import stk
     import stko
+    import numpy as np
+    from collections import defaultdict
 
     pd = stk.BuildingBlock(
         smiles="[Pd+2]",
@@ -141,13 +152,12 @@ functional group has three atoms, centered on a binder, which we can then
 pass to the ``stko.molecule_analysis.DitopicThreeSiteAnalyser`` for
 automatic analyses.
 
-.. code-block:: python
+.. testcode:: analysing-cage
 
     ligands = stko.molecule_analysis.DecomposeMOC().decompose(
         molecule=apdcage,
         metal_atom_nos=(46,),
     )
-    print(f"there are {len(ligands)} ligands")
 
     tsa = stko.molecule_analysis.DitopicThreeSiteAnalyser()
     ligand_dict = defaultdict(list)
@@ -197,7 +207,7 @@ We can get the centroid and atom ids of distinct building blocks.
 This simply extracts the parts of building blocks still present in the
 molecule.
 
-.. code-block:: python
+.. testcode:: analysing-cage
 
 
     analyser = stko.molecule_analysis.ConstructedAnalyser()
@@ -207,37 +217,29 @@ molecule.
 
 We can get measures of pore size and cage geometry.
 
-.. code-block:: python
+.. testcode:: analysing-cage
 
     analyser = stko.molecule_analysis.GeometryAnalyser()
-    print(
-        f"approximate pore size: {analyser.get_min_centroid_distance(apdcage)}"
-    )
-    print(f"avg cage size: {analyser.get_avg_centroid_distance(apdcage)}")
+    pore_size = analyser.get_min_centroid_distance(apdcage)
+    avg_cage_size = analyser.get_avg_centroid_distance(apdcage)
     m_distances = list(
         analyser.get_metal_distances(
             apdcage,
             metal_atom_nos=(46,),
         ).values()
     )
-    print(f"avg. metal distance: {np.mean(m_distances)}")
+    avg_m_distances = np.mean(m_distances)
     m_angles = list(
         analyser.get_metal_centroid_metal_angle(
             apdcage,
             metal_atom_nos=(46,),
         ).values()
     )
-    print(f"avg. metal-centroid-angles: {np.mean(m_angles)}")
+    avg_m_angles = np.mean(m_angles)
 
     # And some geometrical measures.
-    print(
-        f"avg. N-Pd bond length:"
-        f' {np.mean(analyser.calculate_bonds(apdcage)[("N", "Pd")])}'
-    )
-    print(
-        f"N-Pd-N angles: "
-        f'{analyser.calculate_angles(apdcage)[("N", "Pd", "N")]}'
-    )
+    avg_n_pd_bond_length = np.mean(analyser.calculate_bonds(apdcage)[("N", "Pd")])
+    n_pd_n_angles = analyser.calculate_angles(apdcage)[("N", "Pd", "N")]
 
 Giving:
 
@@ -249,3 +251,9 @@ Giving:
   avg. metal-centroid-angles: 107.491677523429
   avg. N-Pd bond length: 2.0559406288465105
   N-Pd-N angles: [175.92946759351747, 89.4607655701432, 92.55953467090808, ...]
+
+.. testcleanup:: analysing-cage
+
+    import shutil
+
+    shutil.rmtree('cage_output')

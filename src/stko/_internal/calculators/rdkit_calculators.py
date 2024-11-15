@@ -13,7 +13,7 @@ class MMFFEnergy:
     """Uses the MMFF force field to calculate energies.
 
     Examples:
-        .. code-block:: python
+        .. testcode:: rdkit-mmff-energy
 
             import stk
             import stko
@@ -80,7 +80,7 @@ class UFFEnergy:
     """Uses the UFF force field to calculate energies.
 
     Examples:
-        .. code-block:: python
+        .. testcode:: rdkit-uff-energy
 
             import stk
             import stko

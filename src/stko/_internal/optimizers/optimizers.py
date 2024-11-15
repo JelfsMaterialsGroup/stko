@@ -1,5 +1,8 @@
 import logging
+import pathlib
 from typing import Protocol
+
+import stk
 
 from stko._internal.types import MoleculeT
 
@@ -13,7 +16,7 @@ class Optimizer(Protocol):
     initialized with some settings and can optimize a molecule
     with :meth:`~.Optimizer.optimize`.
 
-    .. code-block:: python
+    .. testcode:: optimiser-example
 
         import stk
         import stko
@@ -38,7 +41,7 @@ class Optimizer(Protocol):
     desirable to embed a molecule first, to generate an initial structure.
     :class:`.OptimizerSequence` may be used for this.
 
-    .. code-block:: python
+    .. testcode:: optimiser-example
 
         # Create a new optimizer which chains the previously defined
         # mmff and etkdg optimizers.
@@ -93,7 +96,7 @@ class OptimizerSequence(Optimizer):
         Let's say we want to embed a molecule with ETKDG first and then
         minimize it with the MMFF force field.
 
-        .. code-block:: python
+        .. testcode:: optimiser-sequence
 
             import stk
             import stko
@@ -117,6 +120,90 @@ class OptimizerSequence(Optimizer):
         return mol
 
 
+class OptWriterSequence(Optimizer):
+    """Applies optimizers in sequence and writes each step to avoid reruns.
+
+    Parameters:
+        optimizers:
+            A number of optimizers, each of which gets applied to a
+            molecule, based on the order given.
+
+    Examples:
+        Let's say we want to embed a molecule with ETKDG first and then
+        minimize it with the MMFF force field.
+
+        .. testcode:: optimiser-writer-sequence
+
+            import stk
+            import stko
+            import pathlib
+
+            output_directory = pathlib.Path('output_path')
+            output_directory.mkdir(exist_ok=True)
+
+            mol = stk.BuildingBlock('NCCCN', [stk.PrimaryAminoFactory()])
+            optimizer = stko.OptWriterSequence(
+                optimizers={
+                    "etkdg": stko.ETKDG(),
+                    "mmff": stko.MMFF(),
+                },
+                writer=stk.MolWriter(),
+                output_directory=output_directory,
+            )
+            mol = optimizer.optimize(mol)
+
+        .. testcleanup:: optimiser-writer-sequence
+
+            import shutil
+
+            shutil.rmtree('output_path')
+
+    """
+
+    def __init__(
+        self,
+        optimizers: dict[str, Optimizer],
+        writer: stk.XyzWriter
+        | stk.MolWriter
+        | stk.PdbWriter
+        | stk.TurbomoleWriter,
+        output_directory: pathlib.Path,
+    ) -> None:
+        self._optimizers = optimizers
+        self._writer = writer
+        self._output_directory = output_directory
+
+    def _suffix_from_writer(self) -> str:
+        if isinstance(self._writer, stk.XyzWriter):
+            return "xyz"
+        if isinstance(self._writer, stk.TurbomoleWriter):
+            return "coord"
+        if isinstance(self._writer, stk.PdbWriter):
+            return "pdb"
+        if isinstance(self._writer, stk.MolWriter):
+            return "mol"
+        return None
+
+    def optimize(self, mol: MoleculeT) -> MoleculeT:
+        filesuffix = self._suffix_from_writer()
+        for optimizer_name in self._optimizers:
+            output_file_name = (
+                self._output_directory / f"{optimizer_name}_out.{filesuffix}"
+            )
+            cls_name = self._optimizers[optimizer_name].__class__.__name__
+            if not output_file_name.exists():
+                msg = f"Running {cls_name} optimisation."
+                logger.info(msg)
+                mol = self._optimizers[optimizer_name].optimize(mol)
+                self._writer.write(molecule=mol, path=output_file_name)
+            else:
+                msg = f"Loading {cls_name} optimisation."
+                logger.info(msg)
+                mol = mol.with_structure_from_file(output_file_name)
+
+        return mol
+
+
 class TryCatchOptimizer(Optimizer):
     """Try to optimize with a Optimizer, use another on failure.
 
@@ -131,7 +218,7 @@ class TryCatchOptimizer(Optimizer):
 
 
     Examples:
-        .. code-block:: python
+        .. testcode:: try-catch
 
             import stk
             import stko

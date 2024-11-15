@@ -28,7 +28,7 @@ class MMFF(Optimizer):
         different energies after optimisation on Ubunut 18 vs. Ubuntu 20.
 
     Examples:
-        .. code-block:: python
+        .. testcode:: rdkit-mmff
 
             import stk
             import stko
@@ -66,7 +66,7 @@ class UFF(Optimizer):
         * rdkit: https://www.rdkit.org/
 
     Examples:
-        .. code-block:: python
+        .. testcode:: rdkit-uff
 
             import stk
             import stko
@@ -105,7 +105,7 @@ class ETKDG(Optimizer):
             The random seed to use.
 
     Examples:
-        .. code-block:: python
+        .. testcode:: rdkit-etkdg
 
             import stk
             import stko
@@ -166,7 +166,7 @@ class MetalOptimizer(Optimizer):
         this optimizer algorithm is not very robust to large bonds and may
         fail.
 
-        .. code-block:: python
+        .. testcode:: rdkit-metal-opt
 
             import stk
             import stko

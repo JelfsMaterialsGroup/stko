@@ -26,7 +26,7 @@ class PlanarityCalculator:
     sqrt((1/num_atoms) * (sum d_i ** 2)) (MPP in [2]_)
 
     Examples:
-        .. code-block:: python
+        .. testcode:: planarity
 
             import stk
             import stko
