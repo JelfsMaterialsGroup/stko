@@ -12,6 +12,6 @@ __all__ = [
     "CNCFactory",
     "CNNFactory",
     "NNNFactory",
-    "ThreeSiteFactory",
     "ThreeSiteFG",
+    "ThreeSiteFactory",
 ]
