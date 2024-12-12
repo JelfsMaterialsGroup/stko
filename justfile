@@ -11,6 +11,11 @@ docs:
 # Install development environment.
 dev:
   pip install -e '.[dev]'
+  mamba install -y -c conda-forge openff-toolkit openmm openmmtools rdkit==2024.3.4 dgl espaloma_charge
+  mamba install -y xtb
+  mamba install -y openbabel
+  mamba install -y mdanalysis
+
 
 # Run code checks.
 check:
