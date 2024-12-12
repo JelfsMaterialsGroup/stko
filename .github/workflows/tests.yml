@@ -55,7 +55,7 @@ jobs:
       - name: Build environment
         run: |
           conda activate pytest
-          conda install -c conda-forge openff-toolkit openmm openmmtools dgl rdkit==2024.3.4
+          conda install -c conda-forge openff-toolkit openmm openmmtools dgl rdkit==2024.3.4 espaloma_charge
           python -m pip install --upgrade pip
           python -m pip install --upgrade setuptools
           python -m pip install -e '.[dev]'
@@ -79,7 +79,7 @@ jobs:
       - name: Build environment
         run: |
           conda activate pytest
-          conda install -c conda-forge openff-toolkit openmm openmmtools dgl rdkit==2024.3.4
+          conda install -c conda-forge openff-toolkit openmm openmmtools dgl rdkit==2024.3.4 espaloma_charge
           conda install -c conda-forge mdanalysis openbabel
           python -m pip install --upgrade pip
           python -m pip install --upgrade setuptools
@@ -104,7 +104,7 @@ jobs:
       - name: Build environment
         run: |
           conda activate pytest
-          conda install -c conda-forge openff-toolkit openmm openmmtools dgl rdkit==2024.3.4
+          conda install -c conda-forge openff-toolkit openmm openmmtools dgl rdkit==2024.3.4 espaloma_charge
           conda install -c conda-forge mdanalysis openbabel
           python -m pip install --upgrade pip
           python -m pip install --upgrade setuptools
