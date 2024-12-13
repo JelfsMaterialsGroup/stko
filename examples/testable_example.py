@@ -6,11 +6,13 @@ from pathlib import Path
 import aligner_example
 import basic_example
 import cage_analysis_example
+import cage_openmm_example
 import calculators_example
 import mdanalysis_example
 import molecule_splitter_example
 import obabel_example
 import openmm_example
+import openmm_hg_example
 import optwrite_example
 import shape_example
 import topology_extraction_example
@@ -41,6 +43,8 @@ def main() -> None:
         torsion_example.main()
         zmatrix_example.main()
         optwrite_example.main()
+        cage_openmm_example.main()
+        openmm_hg_example.main()
         logging.info("all examples ran, at least!")
 
     finally:

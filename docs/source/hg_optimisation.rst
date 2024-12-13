@@ -1,55 +1,48 @@
-Cage optimisation workflow
-==========================
+Host-guest complexes with OpenMM
+================================
 
-Here we implement a cage optimisation workflow similar to that found `here <https://pubs.rsc.org/en/content/articlelanding/2018/sc/c8sc03560a>`_
-but using the open-source `OpenMM <https://openmm.org/>`_ and
+Here we build on the cage optimisation workflow to show how to build host-guest
+systems using the open-source `OpenMM <https://openmm.org/>`_ and
 `OpenFF <https://openforcefield.org/>`_ infrastructure.
 
 This is shown in an example
-`script <https://github.com/JelfsMaterialsGroup/stko/blob/master/examples/cage_openmm_example.py>`_
+`script <https://github.com/JelfsMaterialsGroup/stko/blob/master/examples/openmm_hg_example.py>`_
 that we run through below.
 
 
-First we build a cage, the classic CC3 porous organic cage. But note, we are
-not handling the detailed stereochemistry of this system here.
+First we load a cage from the previous example, the classic CC3 porous organic
+cage. And we build to `stk.host_guest.Guest` objects.
 
 .. code-block:: python
 
-    import openmm
     import stk
-    from openff.toolkit import ForceField
 
-    import stko
-
-    # Construct a cage.
-    bb1 = stk.BuildingBlock(
-        smiles="C1CCC(C(C1)N)N",
-        functional_groups=[stk.PrimaryAminoFactory()],
-    )
-    bb2 = stk.BuildingBlock(
-        smiles="C1=C(C=C(C=C1C=O)C=O)C=O",
-        functional_groups=[stk.AldehydeFactory()],
-    )
-    cage = stk.ConstructedMolecule(
-        topology_graph=stk.cage.FourPlusSix((bb1, bb2)),
+    input_cage = stk.BuildingBlock.init_from_file(
+        Path("cage_openmm_example_directory/opt_cage.mol")
     )
 
+    guest1 = stk.host_guest.Guest(
+        building_block=stk.BuildingBlock("CC"),
+        displacement=(0.0, 3.0, 0.0),
+    )
+    guest2 = stk.host_guest.Guest(
+        building_block=stk.BuildingBlock("C1CCCC1"),
+    )
+    hg_complex = stk.ConstructedMolecule(
+        topology_graph=stk.host_guest.Complex(
+            host=stk.BuildingBlock.init_from_molecule(input_cage),
+            guests=(guest1, guest2),
+            optimizer=stk.Spinner(),
+        ),
+    )
 
 .. moldoc::
 
     import moldoc.molecule as molecule
     import stk
 
-    bb1 = stk.BuildingBlock(
-        smiles="C1CCC(C(C1)N)N",
-        functional_groups=[stk.PrimaryAminoFactory()],
-    )
-    bb2 = stk.BuildingBlock(
-        smiles="C1=C(C=C(C=C1C=O)C=O)C=O",
-        functional_groups=[stk.AldehydeFactory()],
-    )
-    cage = stk.ConstructedMolecule(
-        topology_graph=stk.cage.FourPlusSix((bb1, bb2)),
+    hg_complex = stk.BuildingBlock.init_from_file(
+        'source/_static/unopt_hgcomplex.mol',
     )
 
     moldoc_display_molecule = molecule.Molecule(
@@ -58,8 +51,8 @@ not handling the detailed stereochemistry of this system here.
                 atomic_number=atom.get_atomic_number(),
                 position=position,
             ) for atom, position in zip(
-                cage.get_atoms(),
-                cage.get_position_matrix(),
+                hg_complex.get_atoms(),
+                hg_complex.get_position_matrix(),
             )
         ),
         bonds=(
@@ -67,12 +60,11 @@ not handling the detailed stereochemistry of this system here.
                 atom1_id=bond.get_atom1().get_id(),
                 atom2_id=bond.get_atom2().get_id(),
                 order=bond.get_order(),
-            ) for bond in cage.get_bonds()
+            ) for bond in hg_complex.get_bonds()
         ),
     )
 
-First we define some settings and a function for generating a new integrator
-from these settings.
+Again, we define some settings, this time at lower temperature.
 
 .. code-block:: python
 
@@ -90,7 +82,7 @@ from these settings.
     # Settings.
     force_field = ForceField("openff_unconstrained-2.1.0.offxml")
     partial_charges = "espaloma-am1bcc"
-    temperature = 700 * openmm.unit.kelvin
+    temperature = 300 * openmm.unit.kelvin
     friction = 10 / openmm.unit.picoseconds
     time_step = 1 * openmm.unit.femtoseconds
 
@@ -101,12 +93,6 @@ to get the structure below in a few minutes!
 
     # Define sequence.
     optimisation_sequence = stko.OptimizerSequence(
-        # Restricted true to optimised the constructed bonds.
-        stko.OpenMMForceField(
-            force_field=force_field,
-            restricted=True,
-            partial_charges_method=partial_charges,
-        ),
         # Unrestricted optimisation.
         stko.OpenMMForceField(
             # Load the openff-2.1.0 force field appropriate for
@@ -166,7 +152,7 @@ to get the structure below in a few minutes!
         ),
     )
 
-    optimised_cage = optimisation_sequence.optimize(cage)
+    optimised_complex = optimisation_sequence.optimize(hg_complex)
 
 
 .. moldoc::
@@ -174,8 +160,8 @@ to get the structure below in a few minutes!
     import moldoc.molecule as molecule
     import stk
 
-    cage = stk.BuildingBlock.init_from_file(
-        'source/_static/openmm_opt_file.mol',
+    hg_complex = stk.BuildingBlock.init_from_file(
+        'source/_static/opt_complex.mol',
     )
 
     moldoc_display_molecule = molecule.Molecule(
@@ -184,8 +170,8 @@ to get the structure below in a few minutes!
                 atomic_number=atom.get_atomic_number(),
                 position=position,
             ) for atom, position in zip(
-                cage.get_atoms(),
-                cage.get_position_matrix(),
+                hg_complex.get_atoms(),
+                hg_complex.get_position_matrix(),
             )
         ),
         bonds=(
@@ -193,6 +179,6 @@ to get the structure below in a few minutes!
                 atom1_id=bond.get_atom1().get_id(),
                 atom2_id=bond.get_atom2().get_id(),
                 order=bond.get_order(),
-            ) for bond in cage.get_bonds()
+            ) for bond in hg_complex.get_bonds()
         ),
     )
