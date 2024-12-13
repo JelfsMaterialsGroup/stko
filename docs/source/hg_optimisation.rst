@@ -47,9 +47,14 @@ cage. And we build to `stk.host_guest.Guest` objects.
     import moldoc.molecule as molecule
     import stk
 
-    hg_complex = stk.BuildingBlock.init_from_file(
-        'source/_static/unopt_hgcomplex.mol',
-    )
+    try:
+        hg_complex = stk.BuildingBlock.init_from_file(
+            'source/_static/unopt_hgcomplex.mol',
+        )
+    except OSError:
+        hg_complex = stk.BuildingBlock.init_from_file(
+            '_static/unopt_hgcomplex.mol',
+        )
 
     moldoc_display_molecule = molecule.Molecule(
         atoms=(
@@ -166,9 +171,14 @@ to get the structure below in a few minutes!
     import moldoc.molecule as molecule
     import stk
 
-    hg_complex = stk.BuildingBlock.init_from_file(
-        'source/_static/opt_complex.mol',
-    )
+    try:
+        hg_complex = stk.BuildingBlock.init_from_file(
+            'source/_static/opt_complex.mol',
+        )
+    except OSError:
+        hg_complex = stk.BuildingBlock.init_from_file(
+            '_static/opt_complex.mol',
+        )
 
     moldoc_display_molecule = molecule.Molecule(
         atoms=(

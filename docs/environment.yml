@@ -8,3 +8,5 @@ dependencies:
   - dgl
   - python=3.11
   - pip
+  - rdkit==2024.3.4
+  - espaloma_charge
