@@ -15,7 +15,13 @@ cage. And we build to `stk.host_guest.Guest` objects.
 
 .. code-block:: python
 
+    from pathlib import Path
+
+    import openmm
     import stk
+    from openff.toolkit import ForceField
+
+    import stko
 
     input_cage = stk.BuildingBlock.init_from_file(
         Path("cage_openmm_example_directory/opt_cage.mol")

@@ -15,6 +15,8 @@ not handling the detailed stereochemistry of this system here.
 
 .. code-block:: python
 
+    from pathlib import Path
+
     import openmm
     import stk
     from openff.toolkit import ForceField
