@@ -81,6 +81,8 @@ def main() -> None:
             # 10 ps
             num_steps=10_000,
             num_conformers=10,
+            # Platform set to None for Github Actions, try and use "CUDA" if
+            # you can.
             platform="CUDA",
             conformer_optimiser=stko.OpenMMForceField(
                 force_field=force_field,
@@ -106,6 +108,8 @@ def main() -> None:
             num_steps=200_000,
             # 1 every 4 ps
             num_conformers=50,
+            # Platform set to None for Github Actions, try and use "CUDA" if
+            # you can.
             platform="CUDA",
             conformer_optimiser=stko.OpenMMForceField(
                 force_field=force_field,
