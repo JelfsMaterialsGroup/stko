@@ -182,7 +182,7 @@ to get the structure below in a few minutes!
         )
     except OSError:
         cage = stk.BuildingBlock.init_from_file(
-            'docs/source/_static/openmm_opt_file.mol',
+            '_static/openmm_opt_file.mol',
         )
 
     moldoc_display_molecule = molecule.Molecule(

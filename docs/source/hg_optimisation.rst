@@ -53,7 +53,7 @@ cage. And we build to `stk.host_guest.Guest` objects.
         )
     except OSError:
         hg_complex = stk.BuildingBlock.init_from_file(
-            'docs/source/_static/unopt_hgcomplex.mol',
+            '_static/unopt_hgcomplex.mol',
         )
 
     moldoc_display_molecule = molecule.Molecule(
@@ -177,7 +177,7 @@ to get the structure below in a few minutes!
         )
     except OSError:
         hg_complex = stk.BuildingBlock.init_from_file(
-            'docs/source/_static/opt_complex.mol',
+            '_static/opt_complex.mol',
         )
 
     moldoc_display_molecule = molecule.Molecule(
