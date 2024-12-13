@@ -36,25 +36,34 @@ class OpenMMForceField(Optimizer):
     Parameters:
         force_field:
             The force field to use.
+
         restricted:
             If ``True`` then an optimization is performed only on bonds
             created during the `ConstructedMolecule`
             creation.
             All building block bonds will be fixed.
             If ``False`` then all bonds are optimized.
+
         tolerance:
             The energy tolerance to which the system should be minimized
+
         max_iterations:
             The maximum number of iterations to perform. If this is 0,
             minimization is continued until the results converge without
             regard to how many iterations it takes.
+
         box_vectors:
             The unit-wrapped box vectors of this topology.
+
         define_stereo:
             Toggle calculation of stereochemistry.
+
         partial_charges_method:
             The method to use for calculating partial charges.
             The default ``"am1bcc"`` is semi-empirical and may be slow.
+
+        platform:
+            The platform to use.
 
     """
 
@@ -71,6 +80,7 @@ class OpenMMForceField(Optimizer):
         partial_charges_method: Literal[
             "am1bcc", "mmff94", "gasteiger", "am1-mulliken", "espaloma-am1bcc"
         ] = "am1bcc",
+        platform: Literal["CUDA"] | None = None,
     ) -> None:
         self._integrator = openmm.LangevinIntegrator(
             300 * openmm.unit.kelvin,
@@ -84,6 +94,15 @@ class OpenMMForceField(Optimizer):
         self._partial_charges_method = partial_charges_method
         self._tolerance = tolerance
         self._max_iterations = max_iterations
+
+        if platform is not None:
+            self._platform = openmm.Platform.getPlatformByName(platform)
+            self._properties: dict[str, str] | None = {
+                "CudaPrecision": "mixed"
+            }
+        else:
+            self._platform = None
+            self._properties = None
 
     def _add_atom_constraints(
         self,
@@ -166,7 +185,13 @@ class OpenMMForceField(Optimizer):
             system = self._add_atom_constraints(system, mol)
 
         # Define simulation.
-        simulation = app.Simulation(topology, system, integrator)
+        simulation = app.Simulation(
+            topology,
+            system,
+            integrator,
+            platform=self._platform,
+            platformProperties=self._properties,
+        )
         # Set positions from structure.
         simulation.context.setPositions(
             mol.get_position_matrix() * openmm.unit.angstrom

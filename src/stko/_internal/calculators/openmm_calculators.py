@@ -31,6 +31,9 @@ class OpenMMEnergy:
             The method to use for calculating partial charges.
             The default ``"am1bcc"`` is semi-empirical and may be slow.
 
+        platform:
+            The platform to use.
+
     """
 
     def __init__(
@@ -41,6 +44,7 @@ class OpenMMEnergy:
         partial_charges_method: Literal[
             "am1bcc", "mmff94", "gasteiger", "am1-mulliken", "espaloma-am1bcc"
         ] = "am1bcc",
+        platform: Literal["CUDA"] | None = None,
     ) -> None:
         self._integrator = openmm.LangevinIntegrator(
             300 * openmm.unit.kelvin,
@@ -52,6 +56,15 @@ class OpenMMEnergy:
         self._box_vectors = box_vectors
         self._define_stereo = define_stereo
         self._partial_charges_method = partial_charges_method
+
+        if platform is not None:
+            self._platform = openmm.Platform.getPlatformByName(platform)
+            self._properties: dict[str, str] | None = {
+                "CudaPrecision": "mixed"
+            }
+        else:
+            self._platform = None
+            self._properties = None
 
     def calculate(self, mol: stk.Molecule) -> abc.Generator:
         # Handle issue with existing context.
@@ -97,7 +110,13 @@ class OpenMMEnergy:
         system = interchange.to_openmm_system()
 
         # Define simulation.
-        simulation = app.Simulation(topology, system, integrator)
+        simulation = app.Simulation(
+            topology,
+            system,
+            integrator,
+            platform=self._platform,
+            platformProperties=self._properties,
+        )
         # Set positions from structure.
         simulation.context.setPositions(
             mol.get_position_matrix() * openmm.unit.angstrom
