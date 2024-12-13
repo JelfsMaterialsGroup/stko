@@ -3,10 +3,11 @@ from collections import abc
 from copy import copy
 from typing import Literal
 
+import rdkit.Chem as rdkit  # noqa: N813
 import stk
 from espaloma_charge.openff_wrapper import EspalomaChargeToolkitWrapper
 from openff.interchange import Interchange
-from openff.toolkit import ForceField, Molecule, RDKitToolkitWrapper
+from openff.toolkit import ForceField, Molecule, RDKitToolkitWrapper, Topology
 from openmm import app, openmm
 
 logger = logging.getLogger(__name__)
@@ -60,25 +61,30 @@ class OpenMMEnergy:
         if self._define_stereo:
             pass
 
-        molecule = Molecule.from_rdkit(
-            rdmol=rdkit_mol,
-            allow_undefined_stereo=True,
-            hydrogens_are_explicit=True,
-        )
+        fragment_mols = rdkit.AllChem.GetMolFrags(rdkit_mol, asMols=True)
 
-        if self._partial_charges_method == "mmff94":
-            molecule.assign_partial_charges(
-                self._partial_charges_method,
-                toolkit_registry=RDKitToolkitWrapper(),
+        openff_molecules = []
+        for fragment in fragment_mols:
+            molecule = Molecule.from_rdkit(
+                rdmol=fragment,
+                allow_undefined_stereo=True,
+                hydrogens_are_explicit=True,
             )
 
-        if self._partial_charges_method == "espaloma-am1bcc":
-            molecule.assign_partial_charges(
-                self._partial_charges_method,
-                toolkit_registry=EspalomaChargeToolkitWrapper(),
-            )
+            if self._partial_charges_method == "mmff94":
+                molecule.assign_partial_charges(
+                    self._partial_charges_method,
+                    toolkit_registry=RDKitToolkitWrapper(),
+                )
 
-        topology = molecule.to_topology()
+            if self._partial_charges_method == "espaloma-am1bcc":
+                molecule.assign_partial_charges(
+                    self._partial_charges_method,
+                    toolkit_registry=EspalomaChargeToolkitWrapper(),
+                )
+            openff_molecules.append(molecule)
+
+        topology = Topology.from_molecules(openff_molecules)
         if self._box_vectors is not None:
             topology.box_vectors = self._box_vectors
 
@@ -86,7 +92,7 @@ class OpenMMEnergy:
             force_field=self._force_field,
             topology=topology,
             positions=mol.get_position_matrix() * openmm.unit.angstrom,
-            charge_from_molecules=[molecule],
+            charge_from_molecules=openff_molecules,
         )
         system = interchange.to_openmm_system()
 
