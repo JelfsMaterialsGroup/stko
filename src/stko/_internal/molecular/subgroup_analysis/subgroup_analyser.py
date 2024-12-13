@@ -222,8 +222,7 @@ class SubgroupAnalyser:
         }
 
         fg_results = {}
-        for pot_fg in fg_definitions:
-            fg_cls = fg_definitions[pot_fg]
+        for pot_fg, fg_cls in fg_definitions.items():
             fg_results[pot_fg] = fg_cls.measure(molecule)
 
         return fg_results

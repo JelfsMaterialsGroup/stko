@@ -178,8 +178,7 @@ def test_gulp_convert_traj_to_xyz(
     for i, t in zip(atom_types, test_atom_types, strict=False):
         assert i == t
 
-    for ts in trajectory:
-        test_ts_dict = test_trajectory_data[ts]
+    for ts, test_ts_dict in trajectory.items():
         ts_dict = trajectory[ts]
         assert test_ts_dict["time"] == ts_dict["time"]
         assert test_ts_dict["KE"] == ts_dict["KE"]

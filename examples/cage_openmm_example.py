@@ -44,7 +44,6 @@ def main() -> None:
 
     # Settings.
     force_field = ForceField("openff_unconstrained-2.1.0.offxml")
-    partial_charges = "espaloma-am1bcc"
     temperature = 700 * openmm.unit.kelvin
     friction = 10 / openmm.unit.picoseconds
     time_step = 1 * openmm.unit.femtoseconds
@@ -55,7 +54,7 @@ def main() -> None:
         stko.OpenMMForceField(
             force_field=force_field,
             restricted=True,
-            partial_charges_method=str(partial_charges),
+            partial_charges_method="espaloma-am1bcc",
         ),
         # Unrestricted optimisation.
         stko.OpenMMForceField(
@@ -63,7 +62,7 @@ def main() -> None:
             # vacuum calculations (without constraints)
             force_field=force_field,
             restricted=False,
-            partial_charges_method=partial_charges,
+            partial_charges_method="espaloma-am1bcc",
         ),
         # Molecular dynamics, short for equilibration.
         stko.OpenMMMD(
@@ -75,7 +74,7 @@ def main() -> None:
                 time_step=time_step,
             ),
             random_seed=275,
-            partial_charges_method=partial_charges,
+            partial_charges_method="espaloma-am1bcc",
             # Frequency here is not related to the num confs tested.
             reporting_freq=100,
             trajectory_freq=100,
@@ -86,7 +85,7 @@ def main() -> None:
             conformer_optimiser=stko.OpenMMForceField(
                 force_field=force_field,
                 restricted=False,
-                partial_charges_method=partial_charges,
+                partial_charges_method="espaloma-am1bcc",
             ),
         ),
         # Long MD, for collecting lowest energy conformers.
@@ -99,7 +98,7 @@ def main() -> None:
                 time_step=time_step,
             ),
             random_seed=275,
-            partial_charges_method=partial_charges,
+            partial_charges_method="espaloma-am1bcc",
             # Frequency here is not related to the num confs tested.
             reporting_freq=100,
             trajectory_freq=100,
@@ -111,7 +110,7 @@ def main() -> None:
             conformer_optimiser=stko.OpenMMForceField(
                 force_field=force_field,
                 restricted=False,
-                partial_charges_method=partial_charges,
+                partial_charges_method="espaloma-am1bcc",
             ),
         ),
     )

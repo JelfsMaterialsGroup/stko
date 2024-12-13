@@ -477,8 +477,7 @@ class GulpUFFOptimizer(Optimizer):
 
     def _species_section(self, type_translator: dict) -> str:
         species_section = "\nspecies\n"
-        for spec in type_translator:
-            name = type_translator[spec]
+        for spec, name in type_translator.items():
             species_section += f"{name} {spec}\n"
 
         return species_section
@@ -1030,7 +1029,7 @@ class GulpUFFMDOptimizer(GulpUFFOptimizer):
         low_conf_xyz: Path,
     ) -> None:
         min_energy = 1e10
-        for ts in trajectory_data:
+        for ts, ts_data in trajectory_data.items():
             if self._save_conformers:
                 conformer_file_name = Path(f"conf_{ts}.xyz")
             else:
@@ -1040,7 +1039,7 @@ class GulpUFFMDOptimizer(GulpUFFOptimizer):
 
             self._write_conformer_xyz_file(
                 ts=ts,
-                ts_data=trajectory_data[ts],
+                ts_data=ts_data,
                 filename=conformer_file_name,
                 atom_types=atom_types,
             )
@@ -1069,11 +1068,11 @@ class GulpUFFMDOptimizer(GulpUFFOptimizer):
         trajectory_data: dict,
         atom_types: list[str],
     ) -> None:
-        for ts in trajectory_data:
+        for ts, ts_data in trajectory_data.items():
             conformer_file_name = Path(f"conf_{ts}.xyz")
             self._write_conformer_xyz_file(
                 ts=ts,
-                ts_data=trajectory_data[ts],
+                ts_data=ts_data,
                 filename=conformer_file_name,
                 atom_types=atom_types,
             )

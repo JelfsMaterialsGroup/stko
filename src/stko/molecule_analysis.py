@@ -20,13 +20,13 @@ from stko._internal.molecular.subgroup_analysis.three_site_analysis import (
 )
 
 __all__ = [
-    "GeometryAnalyser",
-    "ConstructedAnalyser",
-    "DecomposeMOC",
-    "DitopicThreeSiteAnalyser",
     "AlkyneAngle",
     "C5N1Planarity",
     "C6Planarity",
+    "ConstructedAnalyser",
+    "DecomposeMOC",
+    "DitopicThreeSiteAnalyser",
+    "GeometryAnalyser",
     "Subgroup",
     "SubgroupAnalyser",
     "X5Planarity",

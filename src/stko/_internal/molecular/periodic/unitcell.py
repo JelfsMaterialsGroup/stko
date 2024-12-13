@@ -200,10 +200,10 @@ class UnitCell(PeriodicInfo):
         with filename.open() as f:
             lines = f.readlines()
 
-        for targ in targets:
+        for targ, target_string in targets.items():
             for line in lines:
                 # Avoid running through the rest.
-                if targets[targ] in cell_info:
+                if target_string in cell_info:
                     break
                 splits = line.rstrip().split(" ")
                 if splits[0] == targ:

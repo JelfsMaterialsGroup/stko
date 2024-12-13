@@ -570,8 +570,7 @@ class CollapserMC(Collapser):
         """Returns dict of long bond atom to bb centroid vectors."""
         position_matrix = mol.get_position_matrix()
         centroid_to_lb_vectors: dict[tuple[int, int], tuple[float]] = {}
-        for bb in bb_centroids:
-            cent = bb_centroids[bb]
+        for bb, cent in bb_centroids.items():
             for b_atom_ids in long_bond_infos:
                 for atom_id in b_atom_ids:
                     (atom_info,) = mol.get_atom_infos(  # type: ignore[attr-defined]
@@ -614,9 +613,7 @@ class CollapserMC(Collapser):
         long_bond_infos: dict[tuple[int, int], stk.BondInfo],
     ) -> float:
         system_potential = self._compute_non_bonded_potential(mol)
-        for long_bond_ids in long_bond_infos:
-            long_bond = long_bond_infos[long_bond_ids]
-
+        for long_bond in long_bond_infos.values():
             system_potential += self._bond_potential(
                 distance=self._get_bond_length(
                     mol=mol,
