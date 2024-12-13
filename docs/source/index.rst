@@ -8,6 +8,7 @@
    Calculators <calculators>
    Optimizers <optimizers>
    Cage optimisation workflow <cage_optimisation>
+   Host-guest optimisation <hg_optimisation>
    Cage analysis <cage_analysis>
    Helpers <helpers>
 

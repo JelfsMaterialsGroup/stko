@@ -7,7 +7,7 @@ import rdkit.Chem as rdkit  # noqa: N813
 import stk
 from espaloma_charge.openff_wrapper import EspalomaChargeToolkitWrapper
 from openff.interchange import Interchange
-from openff.toolkit import ForceField, Molecule, RDKitToolkitWrapper
+from openff.toolkit import ForceField, Molecule, RDKitToolkitWrapper, Topology
 from openmm import app, openmm
 
 from stko._internal.calculators.openmm_calculators import OpenMMEnergy
@@ -36,25 +36,34 @@ class OpenMMForceField(Optimizer):
     Parameters:
         force_field:
             The force field to use.
+
         restricted:
             If ``True`` then an optimization is performed only on bonds
             created during the `ConstructedMolecule`
             creation.
             All building block bonds will be fixed.
             If ``False`` then all bonds are optimized.
+
         tolerance:
             The energy tolerance to which the system should be minimized
+
         max_iterations:
             The maximum number of iterations to perform. If this is 0,
             minimization is continued until the results converge without
             regard to how many iterations it takes.
+
         box_vectors:
             The unit-wrapped box vectors of this topology.
+
         define_stereo:
             Toggle calculation of stereochemistry.
+
         partial_charges_method:
             The method to use for calculating partial charges.
             The default ``"am1bcc"`` is semi-empirical and may be slow.
+
+        platform:
+            The platform to use.
 
     """
 
@@ -71,6 +80,7 @@ class OpenMMForceField(Optimizer):
         partial_charges_method: Literal[
             "am1bcc", "mmff94", "gasteiger", "am1-mulliken", "espaloma-am1bcc"
         ] = "am1bcc",
+        platform: Literal["CUDA"] | None = None,
     ) -> None:
         self._integrator = openmm.LangevinIntegrator(
             300 * openmm.unit.kelvin,
@@ -84,6 +94,15 @@ class OpenMMForceField(Optimizer):
         self._partial_charges_method = partial_charges_method
         self._tolerance = tolerance
         self._max_iterations = max_iterations
+
+        if platform is not None:
+            self._platform = openmm.Platform.getPlatformByName(platform)
+            self._properties: dict[str, str] | None = {
+                "CudaPrecision": "mixed"
+            }
+        else:
+            self._platform = None
+            self._properties = None
 
     def _add_atom_constraints(
         self,
@@ -127,25 +146,30 @@ class OpenMMForceField(Optimizer):
         if self._define_stereo:
             rdkit.AssignStereochemistry(rdkit_mol)
 
-        molecule = Molecule.from_rdkit(
-            rdmol=rdkit_mol,
-            allow_undefined_stereo=True,
-            hydrogens_are_explicit=True,
-        )
+        fragment_mols = rdkit.AllChem.GetMolFrags(rdkit_mol, asMols=True)
 
-        if self._partial_charges_method == "mmff94":
-            molecule.assign_partial_charges(
-                self._partial_charges_method,
-                toolkit_registry=RDKitToolkitWrapper(),
+        openff_molecules = []
+        for fragment in fragment_mols:
+            molecule = Molecule.from_rdkit(
+                rdmol=fragment,
+                allow_undefined_stereo=True,
+                hydrogens_are_explicit=True,
             )
 
-        if self._partial_charges_method == "espaloma-am1bcc":
-            molecule.assign_partial_charges(
-                self._partial_charges_method,
-                toolkit_registry=EspalomaChargeToolkitWrapper(),
-            )
+            if self._partial_charges_method == "mmff94":
+                molecule.assign_partial_charges(
+                    self._partial_charges_method,
+                    toolkit_registry=RDKitToolkitWrapper(),
+                )
 
-        topology = molecule.to_topology()
+            if self._partial_charges_method == "espaloma-am1bcc":
+                molecule.assign_partial_charges(
+                    self._partial_charges_method,
+                    toolkit_registry=EspalomaChargeToolkitWrapper(),
+                )
+            openff_molecules.append(molecule)
+
+        topology = Topology.from_molecules(openff_molecules)
         if self._box_vectors is not None:
             topology.box_vectors = self._box_vectors
 
@@ -153,7 +177,7 @@ class OpenMMForceField(Optimizer):
             force_field=self._force_field,
             topology=topology,
             positions=mol.get_position_matrix() * openmm.unit.angstrom,
-            charge_from_molecules=[molecule],
+            charge_from_molecules=openff_molecules,
         )
         system = interchange.to_openmm_system()
         # Add constraints.
@@ -161,7 +185,13 @@ class OpenMMForceField(Optimizer):
             system = self._add_atom_constraints(system, mol)
 
         # Define simulation.
-        simulation = app.Simulation(topology, system, integrator)
+        simulation = app.Simulation(
+            topology,
+            system,
+            integrator,
+            platform=self._platform,
+            platformProperties=self._properties,
+        )
         # Set positions from structure.
         simulation.context.setPositions(
             mol.get_position_matrix() * openmm.unit.angstrom
@@ -188,6 +218,10 @@ class OpenMMForceField(Optimizer):
 
 class OpenMMMD(Optimizer):
     """Optimise a molecule with OpenMM and Molecular Dynamics.
+
+    .. warning::
+        Even if random seeds are set on the integrator, we cannot guarantee
+        that two identical simulations will produce the same exact trajectory.
 
     Parameters:
 
@@ -353,25 +387,30 @@ class OpenMMMD(Optimizer):
         if self._define_stereo:
             pass
 
-        molecule = Molecule.from_rdkit(
-            rdmol=rdkit_mol,
-            allow_undefined_stereo=True,
-            hydrogens_are_explicit=True,
-        )
+        fragment_mols = rdkit.AllChem.GetMolFrags(rdkit_mol, asMols=True)
 
-        if self._partial_charges_method == "mmff94":
-            molecule.assign_partial_charges(
-                self._partial_charges_method,
-                toolkit_registry=RDKitToolkitWrapper(),
+        openff_molecules = []
+        for fragment in fragment_mols:
+            molecule = Molecule.from_rdkit(
+                rdmol=fragment,
+                allow_undefined_stereo=True,
+                hydrogens_are_explicit=True,
             )
 
-        if self._partial_charges_method == "espaloma-am1bcc":
-            molecule.assign_partial_charges(
-                self._partial_charges_method,
-                toolkit_registry=EspalomaChargeToolkitWrapper(),
-            )
+            if self._partial_charges_method == "mmff94":
+                molecule.assign_partial_charges(
+                    self._partial_charges_method,
+                    toolkit_registry=RDKitToolkitWrapper(),
+                )
 
-        topology = molecule.to_topology()
+            if self._partial_charges_method == "espaloma-am1bcc":
+                molecule.assign_partial_charges(
+                    self._partial_charges_method,
+                    toolkit_registry=EspalomaChargeToolkitWrapper(),
+                )
+            openff_molecules.append(molecule)
+
+        topology = Topology.from_molecules(openff_molecules)
         if self._box_vectors is not None:
             topology.box_vectors = self._box_vectors
 
@@ -379,7 +418,7 @@ class OpenMMMD(Optimizer):
             force_field=self._force_field,
             topology=topology,
             positions=mol.get_position_matrix() * openmm.unit.angstrom,
-            charge_from_molecules=[molecule],
+            charge_from_molecules=openff_molecules,
         )
         simulation = interchange.to_openmm_simulation(
             integrator=self._integrator,
