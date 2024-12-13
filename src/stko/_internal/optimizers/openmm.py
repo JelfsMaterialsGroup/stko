@@ -194,6 +194,10 @@ class OpenMMForceField(Optimizer):
 class OpenMMMD(Optimizer):
     """Optimise a molecule with OpenMM and Molecular Dynamics.
 
+    .. warning::
+        Even if random seeds are set on the integrator, we cannot guarantee
+        that two identical simulations will produce the same exact trajectory.
+
     Parameters:
 
         force_field:
