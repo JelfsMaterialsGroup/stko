@@ -16,7 +16,7 @@ class ShapeCalculator:
     measures.
 
     Examples:
-        .. testcode:: shape
+        .. testcode:: shape-rdkit
 
             import stk
             import stko
@@ -25,6 +25,12 @@ class ShapeCalculator:
             shape_calc = stko.ShapeCalculator()
             shape_results = shape_calc.get_results(bb1)
             eccentricity  = shape_results.get_eccentricity()
+
+        .. testcode:: shape-rdkit
+            :hide:
+
+            assert eccentricity == 0.8144902154190367
+            assert shape_results.get_asphericity() == 0.14455881888155714
 
     References:
         .. [#] https://www.rdkit.org/docs/source/rdkit.Chem.Descriptors3D.html

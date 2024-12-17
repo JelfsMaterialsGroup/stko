@@ -1,5 +1,4 @@
 import logging
-from typing import Any
 
 import stk
 
@@ -41,6 +40,14 @@ class MDAnalysis:
             universe_com = universe.atoms.center_of_mass()
             stk_centroid = stkmol.get_centroid()
 
+        .. testcode:: mdanalysis
+            :hide:
+
+            assert np.allclose(
+                universe_com, np.array([9.95245937, 10.06867664, 9.91669654])
+            )
+            assert np.allclose(stk_centroid, np.array([10.0, 10.0, 10.0]))
+
     """
 
     def __init__(self) -> None:
@@ -50,7 +57,7 @@ class MDAnalysis:
             )
             raise WrapperNotInstalledError(msg)
 
-    def get_universe(self, mol: stk.Molecule) -> Any:  # type: ignore[no-untyped-def]
+    def get_universe(self, mol: stk.Molecule) -> mda.Universe:
         """Get an MDAnalysis object.
 
         Parameters:
@@ -58,8 +65,7 @@ class MDAnalysis:
                 Molecule to convert.
 
         Returns:
-            :class:`MDAnalysis.Universe`:
-                The MDAnalysis Universe of the molecule.
+            The MDAnalysis Universe of the molecule.
 
         """
         rdkit_mol = mol.to_rdkit_mol()

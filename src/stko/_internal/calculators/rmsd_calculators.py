@@ -43,6 +43,11 @@ class RmsdCalculator:
             results = calculator.get_results(stko.UFF().optimize(bb1))
             rmsd  = results.get_rmsd()
 
+        .. testcode:: rmsd-calc
+            :hide:
+
+            assert rmsd == 0.2029057877266648
+
     """
 
     def __init__(
@@ -167,6 +172,11 @@ class RmsdMappedCalculator(RmsdCalculator):
             results = calculator.get_results(aligned_bb2)
             rmsd  = results.get_rmsd()
 
+        .. testcode:: rmsd-mapped-calc
+            :hide:
+
+            assert rmsd == 0.23662258466466546
+
     """
 
     def _calculate_rmsd(self, mol: stk.Molecule) -> float:
@@ -250,6 +260,11 @@ class KabschRmsdCalculator:
             calculator = stko.KabschRmsdCalculator(bb1)
             results = calculator.get_results(stko.UFF().optimize(bb1))
             rmsd  = results.get_rmsd()
+
+        .. testcode:: rmsd-kabsch-calc
+            :hide:
+
+            assert rmsd == 0.20284443104301014
 
     """
 

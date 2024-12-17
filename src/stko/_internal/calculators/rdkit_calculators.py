@@ -30,6 +30,12 @@ class MMFFEnergy:
             energy = results.get_energy()
             unit_string = results.get_unit_string()
 
+        .. testcode:: rdkit-mmff-energy
+            :hide:
+
+            assert energy == 11.216351101037246
+            assert unit_string == "kcal mol-1"
+
     """
 
     def __init__(self, ignore_inter_interactions: bool = True) -> None:
@@ -96,6 +102,12 @@ class UFFEnergy:
             results = uff.get_results(mol1)
             energy = results.get_energy()
             unit_string = results.get_unit_string()
+
+        .. testcode:: rdkit-uff-energy
+            :hide:
+
+            assert energy == 23.797137762102494
+            assert unit_string == "kcal mol-1"
 
     """
 
