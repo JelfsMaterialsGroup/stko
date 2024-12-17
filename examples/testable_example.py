@@ -7,6 +7,7 @@ import aligner_example
 import basic_example
 import cage_analysis_example
 import calculators_example
+import intermediates_example
 import mdanalysis_example
 import molecule_splitter_example
 import obabel_example
@@ -26,6 +27,7 @@ def main() -> None:
     os.chdir("examples/")
 
     try:
+        intermediates_example.main()
         aligner_example.main()
         basic_example.main()
         cage_analysis_example.main()

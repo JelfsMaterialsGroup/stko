@@ -2,7 +2,7 @@
 
 import contextlib
 
-from stko import functional_groups, molecule_analysis
+from stko import functional_groups, molecule_analysis, topology_functions
 from stko._internal.calculators.extractors.orca_extractor import OrcaExtractor
 from stko._internal.calculators.extractors.xtb_extractor import XTBExtractor
 from stko._internal.calculators.open_babel_calculators import OpenBabelEnergy
@@ -219,6 +219,7 @@ __all__ = [
     "mol_from_mae_file",
     "molecule_analysis",
     "move_generated_macromodel_files",
+    "topology_functions",
     "unit_vector",
     "vector_angle",
 ]
