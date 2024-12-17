@@ -40,78 +40,44 @@ class UnreactedTopologyGraph:
 
         import stk
         import stko
-        import pathlib
 
-        smarts = '[#6]~[#7]'
-
-        mol = stk.BuildingBlock(
-            smiles='C1=CC=C(C=C1)CN',
-            # Find the functional groups uses to split the molecule.
-            functional_groups=(stk.SmartsFunctionalGroupFactory(
-                smarts=smarts,
-                bonders=(),
-                deleters=(),
-            ), )
+        bb1 = stk.BuildingBlock(
+            smiles="NCCN", functional_groups=(stk.PrimaryAminoFactory(),)
         )
-
-        # For each functional group, we add disconnecting atom ids to two
-        # objects for passing to extractor.
-        broken_bonds_by_id = []
-        disconnectors = []
-        for fg in mol.get_functional_groups():
-            atom_ids = list(fg.get_atom_ids())
-            bond_c = atom_ids[0]
-            bond_n = atom_ids[1]
-            broken_bonds_by_id.append(sorted((bond_c, bond_n)))
-            disconnectors.extend((bond_c, bond_n))
-
-        new_topology_graph = stko.TopologyExtractor()
-        tg_info = new_topology_graph.extract_topology(
-            molecule=mol,
-            broken_bonds_by_id=broken_bonds_by_id,
-            disconnectors=set(disconnectors),
+        bb2 = stk.BuildingBlock(
+            smiles="O=CC(C=O)C=O", functional_groups=(stk.AldehydeFactory(),)
         )
+        cage_graphs = stko.topology_functions.UnreactedTopologyGraph(
+            stk.cage.TwoPlusThree((bb1, bb2))
+        )
+        # Get a NamedIntermediate with only 1 reaction, which contains an
+        # stk molecule and other information about the intermediate.
+        intermediates = cage_graphs.get_named_intermediates(n=1)
 
-        # Use these variables to write new topology graph like seen in
-        # stk source code.
-        vertex_positions = tg_info.get_vertex_positions()
-        connectivities = tg_info.get_connectivities()
-        edge_pairs = tg_info.get_edge_pairs()
-
-        # Write molecules to file to visualise new topology graph.
-        output_directory = pathlib.Path("output_directory")
-        output_directory.mkdir(exist_ok=True)
-
-        # Original molecule.
-        mol.write(output_directory / "tg_cage.mol")
-        # Underlying topology graph.
-        tg_info.write(output_directory / "tg_info.pdb")
     .. testcode:: analysing-cage
         :hide:
 
-        assert neigh_counts[0][0][3] == 17
-    .. testcleanup:: unreacted-topology-graph
-
-        import shutil
-
-        shutil.rmtree('output_directory')
+        assert len(cage_graphs.get_available_reactions()) == 6
+        assert len(intermediates) == 1
 
     .. moldoc::
 
         import moldoc.molecule as molecule
         import stk
+        import stko
 
         bb1 = stk.BuildingBlock(
-            smiles="C1CCC(C(C1)N)N",
-            functional_groups=[stk.PrimaryAminoFactory()],
+            smiles="NCCN", functional_groups=(stk.PrimaryAminoFactory(),)
         )
         bb2 = stk.BuildingBlock(
-            smiles="C1=C(C=C(C=C1C=O)C=O)C=O",
-            functional_groups=[stk.AldehydeFactory()],
+            smiles="O=CC(C=O)C=O", functional_groups=(stk.AldehydeFactory(),)
         )
-        cage = stk.ConstructedMolecule(
-            topology_graph=stk.cage.FourPlusSix((bb1, bb2)),
+        cage_graphs = stko.topology_functions.UnreactedTopologyGraph(
+            stk.cage.TwoPlusThree((bb1, bb2))
         )
+        # Get a NamedIntermediate with only 1 reaction, which contains an
+        # stk molecule and other information about the intermediate.
+        intermediates = cage_graphs.get_named_intermediates(n=1)
 
         moldoc_display_molecule = molecule.Molecule(
             atoms=(
@@ -119,8 +85,8 @@ class UnreactedTopologyGraph:
                     atomic_number=atom.get_atomic_number(),
                     position=position,
                 ) for atom, position in zip(
-                    cage.get_atoms(),
-                    cage.get_position_matrix(),
+                    intermediates[0].molecule.get_atoms(),
+                    intermediates[0].molecule.get_position_matrix(),
                 )
             ),
             bonds=(
@@ -128,7 +94,7 @@ class UnreactedTopologyGraph:
                     atom1_id=bond.get_atom1().get_id(),
                     atom2_id=bond.get_atom2().get_id(),
                     order=bond.get_order(),
-                ) for bond in cage.get_bonds()
+                ) for bond in intermediates[0].molecule.get_bonds()
             ),
         )
 

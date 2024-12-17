@@ -2,7 +2,7 @@ Molecular
 =========
 
 Atoms, Functional Groups and Molecules
--------------------
+--------------------------------------
 
 .. toctree::
   :maxdepth: 1
@@ -51,7 +51,7 @@ Manipulating Topology Graphs
 
   TopologyExtractor <_autosummary/stko.TopologyExtractor>
   TopologyInfo <_autosummary/stko.TopologyInfo>
-  UnreactedToplogyGraph <_autosummary/stko.topology_functions.UnreactedToplogyGraph>
+  UnreactedToplogyGraph <_autosummary/stko.topology_functions.UnreactedTopologyGraph>
   NamedIntermediate <_autosummary/stko.topology_functions.NamedIntermediate>
 
 
