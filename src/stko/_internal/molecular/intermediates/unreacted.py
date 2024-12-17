@@ -1,6 +1,6 @@
 import itertools as it
 import logging
-from collections import abc
+from collections import abc, defaultdict
 from dataclasses import dataclass
 from functools import partial
 
@@ -54,11 +54,11 @@ class UnreactedTopologyGraph:
         # stk molecule and other information about the intermediate.
         intermediates = cage_graphs.get_named_intermediates(n=1)
 
-    .. testcode:: analysing-cage
+    .. testcode:: unreacted-topology-graph
         :hide:
 
         assert len(cage_graphs.get_available_reactions()) == 6
-        assert len(intermediates) == 1
+        assert len(intermediates) == 4
 
     .. moldoc::
 
@@ -158,7 +158,7 @@ class UnreactedTopologyGraph:
 
     def separate_molecule(
         self, molecule: stk.Molecule
-    ) -> abc.Sequence[stk.Molecule]:
+    ) -> abc.Sequence[tuple[stk.Molecule, list[int]]]:
         """Given a molecule, it returns distinct disconnected molecules."""
         network = Network.init_from_molecule(molecule)
         connected = network.get_connected_components()
@@ -198,7 +198,7 @@ class UnreactedTopologyGraph:
                     )
                 ),
             )
-            molecules.append(new_mol)
+            molecules.append((new_mol, atom_ids))
         return molecules
 
     def get_reacted_smiles(self, n: int | None = None) -> set[str]:
@@ -222,23 +222,19 @@ class UnreactedTopologyGraph:
     def get_present_building_blocks(
         self,
         const_mol: stk.ConstructedMolecule,
-        subset: stk.Molecule,
+        subset_ids: list[int],
     ) -> dict[stk.BuildingBlock, int]:
         """Get the building blocks present in a constructed molecule."""
-        bbs = {}
+        bbs = defaultdict(list)
         for atom_info in const_mol.get_atom_infos():
-            if atom_info.get_atom().get_id() in tuple(
-                i.get_id() for i in subset.get_atoms()
+            if atom_info.get_atom().get_id() in subset_ids and (
+                atom_info.get_building_block_id()
+                not in bbs[atom_info.get_building_block()]
             ):
-                if atom_info.get_building_block() not in bbs:
-                    bbs[atom_info.get_building_block()] = []
-                if (
+                bbs[atom_info.get_building_block()].append(
                     atom_info.get_building_block_id()
-                    not in bbs[atom_info.get_building_block()]
-                ):
-                    bbs[atom_info.get_building_block()].append(
-                        atom_info.get_building_block_id()
-                    )
+                )
+
         return bbs
 
     def get_named_intermediates(self, n: int | None = None) -> set[str]:
@@ -247,7 +243,7 @@ class UnreactedTopologyGraph:
         intermediates = []
         for const_mol in self.yield_constructed_molecules(n=n):
             distinct_molecules = self.separate_molecule(const_mol)
-            for dmol in distinct_molecules:
+            for dmol, datom_ids in distinct_molecules:
                 smiles = stk.Smiles().get_key(dmol)
 
                 if "." in smiles:
@@ -261,7 +257,7 @@ class UnreactedTopologyGraph:
                 # Name based on which bbs are present in how many.
                 present_bbs = self.get_present_building_blocks(
                     const_mol=const_mol,
-                    subset=dmol,
+                    subset_ids=datom_ids,
                 )
 
                 intermediate_name = f"idx{len(intermediates)}_"
