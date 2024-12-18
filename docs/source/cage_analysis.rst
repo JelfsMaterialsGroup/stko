@@ -189,6 +189,7 @@ automatic analyses.
 
 .. testcode:: analysing-cage
     :hide:
+
     assert np.isclose(np.mean(ligand_dict['torsion']), 0.9038734003286987)
     assert np.isclose(np.mean(ligand_dict['binder_angle']), 150.0120482677146)
 
