@@ -53,6 +53,7 @@ Manipulating Topology Graphs
   TopologyInfo <_autosummary/stko.TopologyInfo>
   UnreactedToplogyGraph <_autosummary/stko.topology_functions.UnreactedTopologyGraph>
   NamedIntermediate <_autosummary/stko.topology_functions.NamedIntermediate>
+  IntermediatePool <_autosummary/stko.topology_functions.IntermediatePool>
 
 
 Conversion

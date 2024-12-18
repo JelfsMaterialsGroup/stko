@@ -6,6 +6,7 @@ from functools import partial
 
 import numpy as np
 import stk
+from rdkit import Chem
 
 from stko._internal.molecular.networkx.network import Network
 
@@ -29,6 +30,25 @@ class NamedIntermediate:
     def __repr__(self) -> str:
         """String representation."""
         return f"{self.__class__.__name__}({self.intermediate_name})"
+
+
+@dataclass
+class IntermediatePool:
+    """Container of a set of intermediates."""
+
+    intermediates: abc.Sequence[NamedIntermediate]
+
+    def __str__(self) -> str:
+        """String representation."""
+        return repr(self)
+
+    def __repr__(self) -> str:
+        """String representation."""
+        return f"{self.__class__.__name__}({len(self.intermediates)})"
+
+    def __len__(self) -> int:
+        """Get the length based on the number of intermediates."""
+        return len(self.intermediates)
 
 
 class UnreactedTopologyGraph:
@@ -207,7 +227,9 @@ class UnreactedTopologyGraph:
         for const_mol in self.yield_constructed_molecules(n=n):
             distinct_molecules = self.separate_molecule(const_mol)
             for dmol, _ in distinct_molecules:
-                smiles = stk.Smiles().get_key(dmol)
+                smiles = Chem.CanonSmiles(
+                    Chem.MolToSmiles(dmol.to_rdkit_mol())
+                )
 
                 if "." in smiles:
                     msg = "Found `.` in smiles."
@@ -237,14 +259,18 @@ class UnreactedTopologyGraph:
 
         return bbs
 
-    def get_named_intermediates(self, n: int | None = None) -> set[str]:
+    def get_named_intermediates(
+        self, n: int | None = None
+    ) -> IntermediatePool:
         """Yield constructed molecules with up to n reactions performed."""
         yielded_smiles = set()
-        intermediates = []
+        pool = IntermediatePool(intermediates=[])
         for const_mol in self.yield_constructed_molecules(n=n):
             distinct_molecules = self.separate_molecule(const_mol)
             for dmol, datom_ids in distinct_molecules:
-                smiles = stk.Smiles().get_key(dmol)
+                smiles = Chem.CanonSmiles(
+                    Chem.MolToSmiles(dmol.to_rdkit_mol())
+                )
 
                 if "." in smiles:
                     msg = "Found `.` in smiles."
@@ -260,14 +286,14 @@ class UnreactedTopologyGraph:
                     subset_ids=datom_ids,
                 )
 
-                intermediate_name = f"idx{len(intermediates)}_"
+                intermediate_name = f"idx{len(pool.intermediates)}_"
                 for bb, bb_ids in present_bbs.items():
                     num_of_bb = len(bb_ids)
                     num_fgs = bb.get_num_functional_groups()
                     intermediate_name += f"{num_of_bb}x{num_fgs}FG+"
                 intermediate_name = intermediate_name[:-1]
 
-                intermediates.append(
+                pool.intermediates.append(
                     NamedIntermediate(
                         present_bbs=present_bbs,
                         molecule=dmol,
@@ -277,4 +303,4 @@ class UnreactedTopologyGraph:
                     )
                 )
 
-        return intermediates
+        return pool
