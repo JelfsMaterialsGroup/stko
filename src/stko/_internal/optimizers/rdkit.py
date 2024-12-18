@@ -35,7 +35,16 @@ class MMFF(Optimizer):
 
             mol = stk.BuildingBlock('NCCNCCN')
             mmff = stko.MMFF()
-            mol = mmff.optimize(mol)
+            opt_mol = mmff.optimize(mol)
+
+        .. testcode:: rdkit-mmff
+            :hide:
+
+            assert (
+                stk.Smiles().get_key(mol) == stk.Smiles().get_key(opt_mol)
+            )
+            opt_e = stko.MMFFEnergy().get_energy(opt_mol)
+            assert opt_e < stko.MMFFEnergy().get_energy(mol)
 
     """
 
@@ -73,7 +82,16 @@ class UFF(Optimizer):
 
             mol = stk.BuildingBlock('NCCNCCN')
             uff = stko.UFF()
-            mol = uff.optimize(mol)
+            opt_mol = uff.optimize(mol)
+
+        .. testcode:: rdkit-uff
+            :hide:
+
+            assert (
+                stk.Smiles().get_key(mol) == stk.Smiles().get_key(opt_mol)
+            )
+            opt_e = stko.UFFEnergy().get_energy(opt_mol)
+            assert opt_e < stko.UFFEnergy().get_energy(mol)
 
     """
 
@@ -112,7 +130,14 @@ class ETKDG(Optimizer):
 
             mol = stk.BuildingBlock('NCCNCCN')
             etkdg = stko.ETKDG()
-            mol = etkdg.optimize(mol)
+            opt_mol = etkdg.optimize(mol)
+
+        .. testcode:: rdkit-etkdg
+            :hide:
+
+            assert (
+                stk.Smiles().get_key(mol) == stk.Smiles().get_key(opt_mol)
+            )
 
     """
 
@@ -221,7 +246,14 @@ class MetalOptimizer(Optimizer):
             optimizer = stko.MetalOptimizer()
 
             # Optimize.
-            cage1 = optimizer.optimize(mol=cage1)
+            opt_cage1 = optimizer.optimize(mol=cage1)
+
+        .. testcode:: rdkit-metal-opt
+            :hide:
+
+            assert (
+                stk.Smiles().get_key(cage1) == stk.Smiles().get_key(opt_cage1)
+            )
 
 
     """

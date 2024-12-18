@@ -223,9 +223,11 @@ class Network:
         ]
 
     def __str__(self) -> str:
+        """String representation."""
         return repr(self)
 
     def __repr__(self) -> str:
+        """String representation."""
         return (
             f"{self.__class__.__name__}("
             f"n={self._graph.number_of_nodes()}, "

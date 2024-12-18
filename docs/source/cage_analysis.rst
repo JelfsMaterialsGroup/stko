@@ -35,6 +35,7 @@ you would do a better optimisation with one of our
 
     import pathlib
     import os
+    import numpy as np
 
     path = pathlib.Path('cage_output')
     os.makedirs(path, exist_ok=True)
@@ -186,6 +187,12 @@ automatic analyses.
             sum(tsa.get_halfbite_angles(as_building_block))
         )
 
+.. testcode:: analysing-cage
+    :hide:
+
+    assert np.isclose(np.mean(ligand_dict['torsion']), 0.9038734003286987)
+    assert np.isclose(np.mean(ligand_dict['binder_angle']), 150.0120482677146)
+
 The printing the average of the collated values for all ligands looks
 like:
 
@@ -214,6 +221,12 @@ molecule.
     centroids = analyser.get_building_block_centroids(apdcage)
     # Out: {0: array([8.92788038, 0.41529785, 0.49671345]), ...}
 
+.. testcode:: analysing-cage
+    :hide:
+
+    assert np.allclose(
+        centroids[0], np.array([9.15025292, 0.20886534, 0.45632129])
+    )
 
 We can get measures of pore size and cage geometry.
 
@@ -240,6 +253,11 @@ We can get measures of pore size and cage geometry.
     # And some geometrical measures.
     avg_n_pd_bond_length = np.mean(analyser.calculate_bonds(apdcage)[("N", "Pd")])
     n_pd_n_angles = analyser.calculate_angles(apdcage)[("N", "Pd", "N")]
+
+.. testcode:: analysing-cage
+    :hide:
+
+    assert analyser.get_min_centroid_distance(apdcage) == 6.612215150137052
 
 Giving:
 

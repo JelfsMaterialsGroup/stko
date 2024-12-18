@@ -10,3 +10,6 @@ dependencies:
   - pip
   - rdkit==2024.3.4
   - espaloma_charge
+  - mdanalysis
+  - openbabel
+

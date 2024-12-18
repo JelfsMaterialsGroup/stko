@@ -51,6 +51,11 @@ class OpenBabelEnergy:
             energy = results.get_energy()
             unit_string = results.get_unit_string()
 
+        .. testcode:: obabel-energy
+            :hide:
+
+            assert energy == 195.20661518925408
+            assert unit_string == "kJ mol-1"
 
     """
 
