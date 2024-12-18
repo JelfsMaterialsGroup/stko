@@ -70,15 +70,17 @@ class UnreactedTopologyGraph:
         cage_graphs = stko.topology_functions.UnreactedTopologyGraph(
             stk.cage.TwoPlusThree((bb1, bb2))
         )
-        # Get a NamedIntermediate with only 1 reaction, which contains an
-        # stk molecule and other information about the intermediate.
-        intermediates = cage_graphs.get_named_intermediates(n=1)
+        # Get a pool of NamedIntermediates with only 1 reaction, which will
+        # contain the reacted + the building blocks (there are 2). You can
+        # iterate through that pool to get the named intermediate, containing
+        # an stk molecule and other information about the intermediate.
+        pool = cage_graphs.get_named_intermediates(n=1)
 
     .. testcode:: unreacted-topology-graph
         :hide:
 
         assert len(cage_graphs.get_available_reactions()) == 6
-        assert len(intermediates) == 4
+        assert len(pool) == 3
 
     .. moldoc::
 
@@ -97,7 +99,7 @@ class UnreactedTopologyGraph:
         )
         # Get a NamedIntermediate with only 1 reaction, which contains an
         # stk molecule and other information about the intermediate.
-        intermediates = cage_graphs.get_named_intermediates(n=1)
+        pool = cage_graphs.get_named_intermediates(n=1)
 
         moldoc_display_molecule = molecule.Molecule(
             atoms=(
@@ -105,8 +107,8 @@ class UnreactedTopologyGraph:
                     atomic_number=atom.get_atomic_number(),
                     position=position,
                 ) for atom, position in zip(
-                    intermediates[0].molecule.get_atoms(),
-                    intermediates[0].molecule.get_position_matrix(),
+                    pool.intermediates[0].molecule.get_atoms(),
+                    pool.intermediates[0].molecule.get_position_matrix(),
                 )
             ),
             bonds=(
@@ -114,7 +116,7 @@ class UnreactedTopologyGraph:
                     atom1_id=bond.get_atom1().get_id(),
                     atom2_id=bond.get_atom2().get_id(),
                     order=bond.get_order(),
-                ) for bond in intermediates[0].molecule.get_bonds()
+                ) for bond in pool.intermediates[0].molecule.get_bonds()
             ),
         )
 
