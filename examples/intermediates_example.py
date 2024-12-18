@@ -28,18 +28,20 @@ def main() -> None:
         len(cage_graphs.get_available_reactions()),
     )
 
+    # With up to N reactions performed.
+    intermediate_pool = cage_graphs.get_named_intermediates(n=4)
+    logging.info(
+        "there are %s structures with n=%s", len(intermediate_pool), 4
+    )
+    for named_intermediate in intermediate_pool.intermediates:
+        named_intermediate.molecule.write(
+            examples_output / f"{named_intermediate.intermediate_name}.mol"
+        )
+
     # Now iterate over all possible reactions with varying amounts of
     # completeness and get their smiles.
     all_possible_smiles = cage_graphs.get_reacted_smiles()
     logging.info("there are %s unique smiles", len(all_possible_smiles))
-
-    # Or just with N reactions performed.
-    intermediates = cage_graphs.get_named_intermediates(n=4)
-    logging.info("there are %s structures with n=%s", len(intermediates), 4)
-    for named_intermediate in intermediates:
-        named_intermediate.molecule.write(
-            examples_output / f"{named_intermediate.intermediate_name}.mol"
-        )
 
 
 if __name__ == "__main__":
