@@ -206,7 +206,7 @@ class UnreactedTopologyGraph:
         yielded_smiles = set()
         for const_mol in self.yield_constructed_molecules(n=n):
             distinct_molecules = self.separate_molecule(const_mol)
-            for dmol in distinct_molecules:
+            for dmol, _ in distinct_molecules:
                 smiles = stk.Smiles().get_key(dmol)
 
                 if "." in smiles:

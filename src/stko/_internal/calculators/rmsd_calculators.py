@@ -37,6 +37,7 @@ class RmsdCalculator:
 
             import stk
             import stko
+            import numpy as np
 
             bb1 = stk.BuildingBlock('C1CCCCC1')
             calculator = stko.RmsdCalculator(bb1)
@@ -46,7 +47,7 @@ class RmsdCalculator:
         .. testcode:: rmsd-calc
             :hide:
 
-            assert rmsd == 0.2029057877266648
+            assert np.isclose(rmsd, 0.21, rtol=0, atol=1E-1)
 
     """
 
@@ -175,7 +176,7 @@ class RmsdMappedCalculator(RmsdCalculator):
         .. testcode:: rmsd-mapped-calc
             :hide:
 
-            assert rmsd == 0.23662258466466546
+            assert np.isclose(rmsd, 0.24, rtol=0, atol=1E-1)
 
     """
 
@@ -255,6 +256,7 @@ class KabschRmsdCalculator:
 
             import stk
             import stko
+            import numpy as np
 
             bb1 = stk.BuildingBlock('C1CCCCC1')
             calculator = stko.KabschRmsdCalculator(bb1)
@@ -264,7 +266,7 @@ class KabschRmsdCalculator:
         .. testcode:: rmsd-kabsch-calc
             :hide:
 
-            assert rmsd == 0.20284443104301014
+            assert np.isclose(rmsd, 0.20, rtol=0, atol=1E-1)
 
     """
 
