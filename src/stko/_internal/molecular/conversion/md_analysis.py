@@ -57,7 +57,7 @@ class MDAnalysis:
             )
             raise WrapperNotInstalledError(msg)
 
-    def get_universe(self, mol: stk.Molecule) -> mda.Universe:
+    def get_universe(self, mol: stk.Molecule):  # noqa: ANN202
         """Get an MDAnalysis object.
 
         Parameters:
