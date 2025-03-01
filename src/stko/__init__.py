@@ -2,7 +2,12 @@
 
 import contextlib
 
-from stko import functional_groups, molecule_analysis, topology_functions
+from stko import (
+    functional_groups,
+    molecular_utilities,
+    molecule_analysis,
+    topology_functions,
+)
 from stko._internal.calculators.extractors.orca_extractor import OrcaExtractor
 from stko._internal.calculators.extractors.xtb_extractor import XTBExtractor
 from stko._internal.calculators.open_babel_calculators import OpenBabelEnergy
@@ -218,6 +223,7 @@ __all__ = [
     "get_torsion_info_angles",
     "is_valid_xtb_solvent",
     "mol_from_mae_file",
+    "molecular_utilities",
     "molecule_analysis",
     "move_generated_macromodel_files",
     "topology_functions",
