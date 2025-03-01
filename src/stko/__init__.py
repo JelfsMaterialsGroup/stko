@@ -119,6 +119,7 @@ with contextlib.suppress(ImportError):
     from stko._internal.calculators.openmm_calculators import OpenMMEnergy
     from stko._internal.optimizers.openmm import OpenMMForceField, OpenMMMD
 
+
 MoleculeT = MoleculeT  # noqa: PLW0127
 """Type parameter matching any :class:`stk.Molecule` or subclasses."""
 

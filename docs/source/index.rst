@@ -46,7 +46,7 @@ Some optional dependencies are only available through conda:
   # for OpenMM and espaloma charge
   # note the temporary issue with rdkit versions and conda will overwrite pip
   # installed software
-  mamba install -c conda-forge openff-toolkit openmm openmmtools dgl rdkit==2024.3.4  espaloma_charge
+  mamba install -c conda-forge pytorch==2.3.1 torchdata==0.7.1 openff-toolkit openmm openmmtools dgl rdkit==2024.3.4  espaloma_charge
   # for xtb
   mamba install xtb
   # for openbabel
@@ -55,7 +55,7 @@ Some optional dependencies are only available through conda:
   mamba install mdanalysis
 
 Developer Setup
-...............
+---------------
 
 #. Install `just`_.
 #. In a new virtual environment run::

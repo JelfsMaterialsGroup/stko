@@ -257,7 +257,7 @@ We can get measures of pore size and cage geometry.
 .. testcode:: analysing-cage
     :hide:
 
-    assert analyser.get_min_centroid_distance(apdcage) == 6.612215150137052
+    assert np.isclose(analyser.get_min_centroid_distance(apdcage), 6.612215150137052)
 
 Giving:
 

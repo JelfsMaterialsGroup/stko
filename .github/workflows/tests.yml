@@ -58,7 +58,7 @@ jobs:
             - name: Build environment
               run: |
                   conda activate pytest
-                  conda install -c conda-forge torchdata==0.9.0 openff-toolkit openmm openmmtools dgl rdkit==2024.3.4 espaloma_charge
+                  conda install -c conda-forge pytorch==2.3.1 torchdata==0.7.1 openff-toolkit openmm openmmtools dgl rdkit==2024.3.4 espaloma_charge
                   conda install -c conda-forge mdanalysis openbabel
                   python -m pip install --upgrade pip
                   python -m pip install --upgrade setuptools
@@ -83,7 +83,7 @@ jobs:
             - name: Build environment
               run: |
                   conda activate pytest
-                  conda install -c conda-forge torchdata==0.9.0 openff-toolkit openmm openmmtools dgl rdkit==2024.3.4 espaloma_charge
+                  conda install -c conda-forge pytorch==2.3.1 torchdata==0.7.1 openff-toolkit openmm openmmtools dgl rdkit==2024.3.4 espaloma_charge
                   conda install -c conda-forge mdanalysis openbabel
                   python -m pip install --upgrade pip
                   python -m pip install --upgrade setuptools
@@ -109,7 +109,7 @@ jobs:
             - name: Build environment
               run: |
                   conda activate pytest
-                  conda install -c conda-forge torchdata==0.9.0 openff-toolkit openmm openmmtools dgl rdkit==2024.3.4 espaloma_charge
+                  conda install -c conda-forge pytorch==2.3.1 torchdata==0.7.1 openff-toolkit openmm openmmtools dgl rdkit==2024.3.4 espaloma_charge
                   conda install -c conda-forge mdanalysis openbabel
                   python -m pip install --upgrade pip
                   python -m pip install --upgrade setuptools
