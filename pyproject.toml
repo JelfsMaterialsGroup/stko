@@ -11,7 +11,7 @@ maintainers = [
 dependencies = [
     "numpy",
     # Pinned while rdkit changes stk results.
-    "rdkit != 2024.3.5",
+    "rdkit == 2024.3.4",
     "stk",
     "networkx",
     "rmsd",
