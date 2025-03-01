@@ -82,8 +82,7 @@ class CaseData:
         ),
         CaseData(
             molecule=stk.BuildingBlock(
-                "C(#Cc1cccc2ccncc21)c1ccc2[nH]c3ccc(C#Cc4cccc5cnccc54)"
-                "cc3c2c1"
+                "C(#Cc1cccc2ccncc21)c1ccc2[nH]c3ccc(C#Cc4cccc5cnccc54)cc3c2c1"
             ),
             plane_ids=None,
             deviation_ids=None,

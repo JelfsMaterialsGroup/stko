@@ -9,13 +9,13 @@ from uuid import uuid4
 import rdkit.Chem.AllChem as rdkit  # noqa: N813
 import stk
 
+from stko._internal.internal_types import MoleculeT
 from stko._internal.optimizers.optimizers import Optimizer
 from stko._internal.optimizers.utilities import (
     MAEExtractor,
     mol_from_mae_file,
     move_generated_macromodel_files,
 )
-from stko._internal.types import MoleculeT
 from stko._internal.utilities.exceptions import (
     ConversionError,
     ForceFieldError,

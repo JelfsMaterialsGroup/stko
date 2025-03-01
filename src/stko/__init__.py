@@ -37,6 +37,7 @@ from stko._internal.calculators.torsion_calculators import (
     TorsionCalculator,
 )
 from stko._internal.calculators.xtb_calculators import XTBEnergy
+from stko._internal.internal_types import ConstructedMoleculeT, MoleculeT
 from stko._internal.molecular.atoms.dummy_atom import Du
 from stko._internal.molecular.atoms.positioned_atom import PositionedAtom
 from stko._internal.molecular.conversion.md_analysis import MDAnalysis
@@ -85,7 +86,6 @@ from stko._internal.optimizers.utilities import (
     move_generated_macromodel_files,
 )
 from stko._internal.optimizers.xtb import XTB, XTBCREST, XTBFF, XTBFFCREST
-from stko._internal.types import ConstructedMoleculeT, MoleculeT
 from stko._internal.utilities.exceptions import (
     CalculatorError,
     ConvergenceError,

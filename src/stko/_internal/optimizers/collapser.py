@@ -11,8 +11,8 @@ import stk
 from scipy.spatial.distance import pdist
 from stk import PdbWriter
 
+from stko._internal.internal_types import ConstructedMoleculeT
 from stko._internal.molecular.periodic.unitcell import UnitCell
-from stko._internal.types import ConstructedMoleculeT
 from stko._internal.utilities.exceptions import InputError
 from stko._internal.utilities.utilities import get_atom_distance
 
@@ -305,10 +305,7 @@ class Collapser:
 
         """
         if not isinstance(mol, stk.ConstructedMolecule):
-            msg = (
-                f"{mol} needs to be a ConstructedMolecule for "
-                f"this optimizer"
-            )
+            msg = f"{mol} needs to be a ConstructedMolecule for this optimizer"
             raise InputError(msg)
 
         output_dir = self._output_dir.resolve()
@@ -742,9 +739,7 @@ class CollapserMC(Collapser):
                 "Step system_potential nonbond_potential max_dist "
                 "opt_bbs updated?\n"
             )
-            f.write(
-                f"{steps[-1]} {spots[-1]} {npots[-1]} {maxds[-1]} " "-- --\n"
-            )
+            f.write(f"{steps[-1]} {spots[-1]} {npots[-1]} {maxds[-1]} -- --\n")
             for step in range(1, self._num_steps):
                 # Randomly select a long bond.
                 lb_ids = random.choice(list(long_bond_infos.keys()))  # noqa: S311
@@ -843,7 +838,7 @@ class CollapserMC(Collapser):
             f.write(
                 "Optimisation done:\n"
                 f"{len(passed)} steps passed: "
-                f"{len(passed)/self._num_steps}"
+                f"{len(passed) / self._num_steps}"
             )
 
         self._plot_progess(steps, maxds, spots, npots, output_dir)

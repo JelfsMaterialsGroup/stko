@@ -4,7 +4,7 @@ from typing import Protocol
 
 import stk
 
-from stko._internal.types import MoleculeT
+from stko._internal.internal_types import MoleculeT
 
 logger = logging.getLogger(__name__)
 

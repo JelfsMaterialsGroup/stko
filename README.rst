@@ -43,6 +43,24 @@ Some optional dependencies are only available through conda:
   # for mdanalysis
   mamba install mdanalysis
 
+Developer Setup
+---------------
+
+1. Install `just`_.
+2. In a new virtual environment run:
+
+.. code-block:: bash
+
+  just dev
+
+3. Run code checks:
+
+.. code-block:: bash
+
+  just check
+
+.. _`just`: https://github.com/casey/just
+
 Examples
 ========
 

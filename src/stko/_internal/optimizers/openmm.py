@@ -11,8 +11,8 @@ from openff.toolkit import ForceField, Molecule, RDKitToolkitWrapper, Topology
 from openmm import app, openmm
 
 from stko._internal.calculators.openmm_calculators import OpenMMEnergy
+from stko._internal.internal_types import MoleculeT
 from stko._internal.optimizers.optimizers import NullOptimizer, Optimizer
-from stko._internal.types import MoleculeT
 from stko._internal.utilities.exceptions import InputError
 from stko._internal.utilities.utilities import get_atom_distance
 

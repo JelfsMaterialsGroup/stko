@@ -23,8 +23,12 @@
 Welcome to stko's documentation!
 ================================
 
-GitHub: https://github.com/JelfsMaterialsGroup/stko
+| GitHub: https://github.com/JelfsMaterialsGroup/stko
+| Discord: https://discord.gg/zbCUzuxe2B
 
+.. tip::
+
+  ⭐ Star us on `GitHub <https://github.com/JelfsMaterialsGroup/stko>`_! ⭐
 
 Install
 =======
@@ -50,6 +54,19 @@ Some optional dependencies are only available through conda:
   # for mdanalysis
   mamba install mdanalysis
 
+Developer Setup
+...............
+
+#. Install `just`_.
+#. In a new virtual environment run::
+
+    $ just dev
+
+#. Run code checks::
+
+    $ just check
+
+.. _`just`: https://github.com/casey/just
 
 Dependencies
 ------------
