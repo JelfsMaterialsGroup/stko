@@ -209,7 +209,7 @@ class Collapser:
             norms = {
                 i: np.linalg.norm(bb_cent_vectors[i]) for i in bb_cent_vectors
             }
-            max_distance = max(list(norms.values()))
+            max_distance = max(list(norms.values()))  # type: ignore[type-var]
             bb_cent_scales = {i: norms[i] / max_distance for i in norms}
         else:
             bb_cent_scales = {i: np.floating(1) for i in bb_cent_vectors}
