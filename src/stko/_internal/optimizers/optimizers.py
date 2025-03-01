@@ -182,7 +182,7 @@ class OptWriterSequence(Optimizer):
             return "pdb"
         if isinstance(self._writer, stk.MolWriter):
             return "mol"
-        return None
+        raise NotImplementedError
 
     def optimize(self, mol: MoleculeT) -> MoleculeT:
         filesuffix = self._suffix_from_writer()

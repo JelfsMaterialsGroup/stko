@@ -19,7 +19,7 @@ class NamedIntermediate:
 
     intermediate_name: str
     molecule: stk.BuildingBlock
-    present_bbs: dict[stk.BuildingBlock, int]
+    present_bbs: dict[stk.BuildingBlock, list[int]]
     num_atoms: int
     count_bbs: int
 
@@ -36,7 +36,7 @@ class NamedIntermediate:
 class IntermediatePool:
     """Container of a set of intermediates."""
 
-    intermediates: abc.Sequence[NamedIntermediate]
+    intermediates: list[NamedIntermediate]
 
     def __str__(self) -> str:
         """String representation."""
@@ -155,7 +155,7 @@ class UnreactedTopologyGraph:
     def yield_constructed_molecules(
         self,
         n: int | None = None,
-    ) -> abc.Sequence[stk.ConstructedMolecule]:
+    ) -> abc.Iterator[stk.ConstructedMolecule]:
         """Yield constructed molecules for possible reaction combos.
 
         If `n` is None, this produces all reactions, which could be
@@ -180,7 +180,7 @@ class UnreactedTopologyGraph:
 
     def separate_molecule(
         self, molecule: stk.Molecule
-    ) -> abc.Sequence[tuple[stk.Molecule, list[int]]]:
+    ) -> abc.Sequence[tuple[stk.BuildingBlock, list[int]]]:
         """Given a molecule, it returns distinct disconnected molecules."""
         network = Network.init_from_molecule(molecule)
         connected = network.get_connected_components()
@@ -220,7 +220,7 @@ class UnreactedTopologyGraph:
                     )
                 ),
             )
-            molecules.append((new_mol, atom_ids))
+            molecules.append((new_mol, list(atom_ids)))
         return molecules
 
     def get_reacted_smiles(self, n: int | None = None) -> set[str]:
@@ -247,16 +247,16 @@ class UnreactedTopologyGraph:
         self,
         const_mol: stk.ConstructedMolecule,
         subset_ids: list[int],
-    ) -> dict[stk.BuildingBlock, int]:
+    ) -> dict[stk.BuildingBlock, list[int]]:
         """Get the building blocks present in a constructed molecule."""
-        bbs = defaultdict(list)
+        bbs: dict[stk.BuildingBlock, list[int]] = defaultdict(list)
         for atom_info in const_mol.get_atom_infos():
             if atom_info.get_atom().get_id() in subset_ids and (
                 atom_info.get_building_block_id()
-                not in bbs[atom_info.get_building_block()]
+                not in bbs[atom_info.get_building_block()]  # type: ignore[index]
             ):
-                bbs[atom_info.get_building_block()].append(
-                    atom_info.get_building_block_id()
+                bbs[atom_info.get_building_block()].append(  # type: ignore[index]
+                    atom_info.get_building_block_id()  # type: ignore[arg-type]
                 )
 
         return bbs
