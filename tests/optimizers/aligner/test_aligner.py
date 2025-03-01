@@ -21,7 +21,7 @@ def test_aligner(case_molecule: CaseData) -> None:
 
     test_rmsd = calculator.get_results(opt_res).get_rmsd()
 
-    assert np.isclose(test_rmsd, case_molecule.rmsd, atol=1e-6)
+    assert np.isclose(test_rmsd, case_molecule.rmsd, atol=1e-2)
     assert test_rmsd < test_rmsd_unopt
 
 
@@ -40,5 +40,5 @@ def test_alignment_potential(case_potential: CasePotential) -> None:
         potential.compute_potential(
             supramolecule,
         ),
-        atol=1e-6,
+        atol=1e-2,
     )

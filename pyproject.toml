@@ -9,10 +9,9 @@ maintainers = [
     { name = "Lukas Turcani", email = "lukasturcani93@gmail.com" },
 ]
 dependencies = [
-    # Remove pin once openmm infrastructure is safely moved to >= 2.
-    "numpy < 2",
+    "numpy",
     # Pinned while rdkit changes stk results.
-    "rdkit == 2024.3.4",
+    "rdkit != 2024.3.5",
     "stk",
     "networkx",
     "rmsd",

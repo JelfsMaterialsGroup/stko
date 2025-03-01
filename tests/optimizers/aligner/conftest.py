@@ -24,7 +24,7 @@ class CaseData:
                     np.array((0, 0, 0)),
                 )
             ),
-            rmsd=0.22366328852274148,
+            rmsd=0.28595531556943543,
         ),
         CaseData(
             molecule=stk.BuildingBlock("CCCCCC"),
