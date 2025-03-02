@@ -4,11 +4,10 @@ from collections import abc, defaultdict
 from dataclasses import dataclass
 from functools import partial
 
-import numpy as np
 import stk
 from rdkit import Chem
 
-from stko._internal.molecular.networkx.network import Network
+from stko._internal.molecular.molecular_utilities import separate_molecule
 
 logger = logging.getLogger(__name__)
 
@@ -178,56 +177,11 @@ class UnreactedTopologyGraph:
                     )
                 )
 
-    def separate_molecule(
-        self, molecule: stk.Molecule
-    ) -> abc.Sequence[tuple[stk.BuildingBlock, list[int]]]:
-        """Given a molecule, it returns distinct disconnected molecules."""
-        network = Network.init_from_molecule(molecule)
-        connected = network.get_connected_components()
-        molecules = []
-        for cg in connected:
-            # Get atoms from nodes.
-            atoms = list(cg)
-            atom_ids = tuple(i.get_id() for i in atoms)
-
-            # Sort both by atom id.
-            atom_ids, atoms = zip(  # type: ignore[assignment]
-                *sorted(zip(atom_ids, atoms, strict=True)), strict=True
-            )
-
-            atom_ids_map = {atom_ids[i]: i for i in range(len(atom_ids))}
-            new_mol = stk.BuildingBlock.init(
-                atoms=(
-                    stk.Atom(
-                        id=atom_ids_map[i.get_id()],
-                        atomic_number=i.get_atomic_number(),
-                        charge=i.get_charge(),
-                    )
-                    for i in atoms
-                ),
-                bonds=(
-                    i.with_ids(id_map=atom_ids_map)
-                    for i in molecule.get_bonds()
-                    if i.get_atom1().get_id() in atom_ids
-                    and i.get_atom2().get_id() in atom_ids
-                ),
-                position_matrix=np.array(
-                    tuple(
-                        i
-                        for i in molecule.get_atomic_positions(
-                            atom_ids=atom_ids
-                        )
-                    )
-                ),
-            )
-            molecules.append((new_mol, list(atom_ids)))
-        return molecules
-
     def get_reacted_smiles(self, n: int | None = None) -> set[str]:
         """Yield constructed molecules with n reactions performed."""
         yielded_smiles = set()
         for const_mol in self.yield_constructed_molecules(n=n):
-            distinct_molecules = self.separate_molecule(const_mol)
+            distinct_molecules = separate_molecule(const_mol)
             for dmol, _ in distinct_molecules:
                 smiles = Chem.CanonSmiles(
                     Chem.MolToSmiles(dmol.to_rdkit_mol())
@@ -268,7 +222,7 @@ class UnreactedTopologyGraph:
         yielded_smiles = set()
         pool = IntermediatePool(intermediates=[])
         for const_mol in self.yield_constructed_molecules(n=n):
-            distinct_molecules = self.separate_molecule(const_mol)
+            distinct_molecules = separate_molecule(const_mol)
             for dmol, datom_ids in distinct_molecules:
                 smiles = Chem.CanonSmiles(
                     Chem.MolToSmiles(dmol.to_rdkit_mol())

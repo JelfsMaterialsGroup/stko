@@ -16,6 +16,16 @@ Atoms, Functional Groups and Molecules
   ThreeSiteFactory <_autosummary/stko.functional_groups.ThreeSiteFactory>
 
 
+Molecular utilities
+-------------------
+
+.. toctree::
+  :maxdepth: 1
+
+  separate_molecule <_autosummary/stko.molecular_utilities.separate_molecule>
+  merge_stk_molecules <_autosummary/stko.molecular_utilities.merge_stk_molecules>
+  update_stk_from_rdkit_conformer <_autosummary/stko.molecular_utilities.update_stk_from_rdkit_conformer>
+
 Molecular Analysis
 ------------------
 

@@ -1,5 +1,5 @@
-
 import stko
+
 from .conftest import CaseData
 
 
