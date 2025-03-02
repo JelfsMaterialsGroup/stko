@@ -179,7 +179,7 @@ class OpenMMForceField(Optimizer):
             positions=mol.get_position_matrix() * openmm.unit.angstrom,
             # Test this to check if molecules are _eq_, which is defined in
             # openff.
-            charge_from_molecules=set(openff_molecules),
+            charge_from_molecules=list(set(openff_molecules)),
         )
         system = interchange.to_openmm_system()
         # Add constraints.
@@ -422,7 +422,7 @@ class OpenMMMD(Optimizer):
             positions=mol.get_position_matrix() * openmm.unit.angstrom,
             # Test this to check if molecules are _eq_, which is defined in
             # openff.
-            charge_from_molecules=set(openff_molecules),
+            charge_from_molecules=list(set(openff_molecules)),
         )
         simulation = interchange.to_openmm_simulation(
             integrator=self._integrator,
