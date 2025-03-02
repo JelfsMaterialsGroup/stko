@@ -9,7 +9,7 @@ import stko
 from .conftest import CaseData
 
 
-def test_openmm(case_molecule: CaseData) -> None:
+def test_openmm_energy(case_molecule: CaseData) -> None:
     if ForceField is not None:
         energy = (
             stko.OpenMMEnergy(
