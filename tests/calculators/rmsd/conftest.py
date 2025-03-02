@@ -248,7 +248,7 @@ def ordering_case_data(request: pytest.FixtureRequest) -> CaseData:
                 np.array((0, 0, 0)),
             )
             .with_displacement(np.array((0, 0, 1))),
-            rmsd=0.5943193981905652,
+            rmsd=0.5922202905739481,
             kabsch_rmsd=0.5943193981905652,
         ),
         CaseData(

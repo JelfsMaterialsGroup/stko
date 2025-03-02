@@ -1,118 +1,117 @@
 name: Tests
 on:
-  push:
-    branches:
-      - master
-  pull_request:
-  workflow_dispatch:
+    push:
+        branches:
+            - master
+    pull_request:
+    workflow_dispatch:
 jobs:
-  ruff:
-    runs-on: ubuntu-22.04
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-python@v4
-        with:
-          python-version: "3.11"
-          cache: "pip"
-      - run: "pip install '.[dev]'"
-      - run: ruff check .
+    ruff:
+        runs-on: ubuntu-22.04
+        steps:
+            - uses: actions/checkout@v3
+            - uses: actions/setup-python@v4
+              with:
+                  python-version: "3.11"
+                  cache: "pip"
+            - run: "pip install '.[dev]'"
+            - run: ruff check .
 
-  mypy:
-    runs-on: ubuntu-22.04
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-python@v4
-        with:
-          python-version: "3.11"
-          cache: "pip"
-      - run: "pip install -e '.[dev]'"
-      - run: mypy src examples
+    mypy:
+        runs-on: ubuntu-22.04
+        steps:
+            - uses: actions/checkout@v3
+            - uses: actions/setup-python@v4
+              with:
+                  python-version: "3.11"
+                  cache: "pip"
+            - run: "pip install -e '.[dev]'"
+            - run: mypy src examples
 
-  ruff-format:
-    runs-on: ubuntu-22.04
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-python@v4
-        with:
-          python-version: "3.11"
-          cache: "pip"
-      - run: "pip install -e '.[dev]'"
-      - run: ruff format --check .
+    ruff-format:
+        runs-on: ubuntu-22.04
+        steps:
+            - uses: actions/checkout@v3
+            - uses: actions/setup-python@v4
+              with:
+                  python-version: "3.11"
+                  cache: "pip"
+            - run: "pip install -e '.[dev]'"
+            - run: ruff format --check .
 
-  pytest:
-    # https://ericmjl.github.io/blog/2021/12/30/better-conda-environments-on-github-actions/
-    runs-on: ubuntu-22.04
-    defaults:
-      run:
-        shell: bash -l {0}
-    steps:
-      - uses: actions/checkout@v3
-      - uses: conda-incubator/setup-miniconda@v2
-        with:
-          auto-update-conda: true
-          miniforge-variant: Mambaforge
-          channels: conda-forge,defaults
-          python-version: 3.11
-          activate-environment: pytest
-          use-mamba: true
-      - name: Build environment
-        run: |
-          conda activate pytest
-          conda install -c conda-forge openff-toolkit openmm openmmtools dgl rdkit==2024.3.4 espaloma_charge
-          conda install -c conda-forge mdanalysis openbabel
-          python -m pip install --upgrade pip
-          python -m pip install --upgrade setuptools
-          python -m pip install -e '.[dev]'
-      - run: pytest
+    pytest:
+        # https://ericmjl.github.io/blog/2021/12/30/better-conda-environments-on-github-actions/
+        runs-on: ubuntu-22.04
+        defaults:
+            run:
+                shell: bash -l {0}
 
-  example-tests:
-    # https://ericmjl.github.io/blog/2021/12/30/better-conda-environments-on-github-actions/
-    runs-on: ubuntu-22.04
-    defaults:
-      run:
-        shell: bash -l {0}
-    steps:
-      - uses: actions/checkout@v3
-      - uses: conda-incubator/setup-miniconda@v2
-        with:
-          auto-update-conda: true
-          miniforge-variant: Mambaforge
-          channels: conda-forge,defaults
-          python-version: 3.11
-          activate-environment: pytest
-          use-mamba: true
-      - name: Build environment
-        run: |
-          conda activate pytest
-          conda install -c conda-forge openff-toolkit openmm openmmtools dgl rdkit==2024.3.4 espaloma_charge
-          conda install -c conda-forge mdanalysis openbabel
-          python -m pip install --upgrade pip
-          python -m pip install --upgrade setuptools
-          python -m pip install -e '.[dev]'
-      - name: Run script
-        run: python examples/testable_example.py
+        steps:
+            - uses: actions/checkout@v4
+            - uses: conda-incubator/setup-miniconda@v3
 
-  doctest:
-    runs-on: ubuntu-22.04
-    defaults:
-      run:
-        shell: bash -l {0}
-    steps:
-      - uses: actions/checkout@v3
-      - uses: conda-incubator/setup-miniconda@v2
-        with:
-          auto-update-conda: true
-          miniforge-variant: Mambaforge
-          channels: conda-forge,defaults
-          python-version: 3.11
-          activate-environment: pytest
-          use-mamba: true
-      - name: Build environment
-        run: |
-          conda activate pytest
-          conda install -c conda-forge openff-toolkit openmm openmmtools dgl rdkit==2024.3.4 espaloma_charge
-          conda install -c conda-forge mdanalysis openbabel
-          python -m pip install --upgrade pip
-          python -m pip install --upgrade setuptools
-          python -m pip install -e '.[dev]'
-      - run: make -C docs doctest
+              with:
+                  miniforge-version: latest
+                  python-version: 3.11
+                  activate-environment: pytest
+
+            - name: Build environment
+              run: |
+                  conda activate pytest
+                  conda install -c conda-forge pytorch==2.3.1 torchdata==0.7.1 openff-toolkit openmm openmmtools dgl rdkit==2024.3.4 espaloma_charge
+                  conda install -c conda-forge mdanalysis openbabel
+                  python -m pip install --upgrade pip
+                  python -m pip install --upgrade setuptools
+                  python -m pip install -e '.[dev]'
+            - run: pytest
+
+    example-tests:
+        # https://ericmjl.github.io/blog/2021/12/30/better-conda-environments-on-github-actions/
+        runs-on: ubuntu-22.04
+        defaults:
+            run:
+                shell: bash -l {0}
+        steps:
+            - uses: actions/checkout@v4
+            - uses: conda-incubator/setup-miniconda@v3
+
+              with:
+                  miniforge-version: latest
+                  python-version: 3.11
+                  activate-environment: pytest
+
+            - name: Build environment
+              run: |
+                  conda activate pytest
+                  conda install -c conda-forge pytorch==2.3.1 torchdata==0.7.1 openff-toolkit openmm openmmtools dgl rdkit==2024.3.4 espaloma_charge
+                  conda install -c conda-forge mdanalysis openbabel
+                  python -m pip install --upgrade pip
+                  python -m pip install --upgrade setuptools
+                  python -m pip install -e '.[dev]'
+            - name: Run script
+              run: python examples/testable_example.py
+
+    doctest:
+        runs-on: ubuntu-22.04
+        defaults:
+            run:
+                shell: bash -l {0}
+
+        steps:
+            - uses: actions/checkout@v4
+            - uses: conda-incubator/setup-miniconda@v3
+
+              with:
+                  miniforge-version: latest
+                  python-version: 3.11
+                  activate-environment: pytest
+
+            - name: Build environment
+              run: |
+                  conda activate pytest
+                  conda install -c conda-forge pytorch==2.3.1 torchdata==0.7.1 openff-toolkit openmm openmmtools dgl rdkit==2024.3.4 espaloma_charge
+                  conda install -c conda-forge mdanalysis openbabel
+                  python -m pip install --upgrade pip
+                  python -m pip install --upgrade setuptools
+                  python -m pip install -e '.[dev]'
+            - run: make -C docs doctest

@@ -74,7 +74,7 @@ def main() -> None:
 
     # Define spacer building block.
     bb3 = stk.BuildingBlock(
-        smiles=("C1=CC(C2=CC=C(Br)C=C2)=C" "C=C1Br"),
+        smiles=("C1=CC(C2=CC=C(Br)C=C2)=CC=C1Br"),
         functional_groups=[stk.BromoFactory()],
     )
 

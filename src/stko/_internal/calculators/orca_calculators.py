@@ -182,9 +182,7 @@ class OrcaEnergy:
             f"%scf\n   MaxIter 2000\nend\n\n"
         )
         # Add geometry section.
-        string += (
-            f"* xyzfile {self._charge} {self._multiplicity} " f"{xyz_file}\n"
-        )
+        string += f"* xyzfile {self._charge} {self._multiplicity} {xyz_file}\n"
 
         path.write_text(string)
 

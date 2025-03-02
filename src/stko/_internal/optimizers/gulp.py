@@ -11,6 +11,7 @@ from pathlib import Path
 import stk
 from rdkit.Chem import AllChem as rdkit  # noqa: N813
 
+from stko._internal.internal_types import MoleculeT
 from stko._internal.molecular.periodic.unitcell import UnitCell
 from stko._internal.optimizers.optimizers import Optimizer
 from stko._internal.optimizers.utilities import (
@@ -20,7 +21,6 @@ from stko._internal.optimizers.utilities import (
     has_metal_atom,
     to_rdkit_mol_without_metals,
 )
-from stko._internal.types import MoleculeT
 from stko._internal.utilities.exceptions import (
     ExpectedMetalError,
     ForceFieldSetupError,
@@ -468,8 +468,8 @@ class GulpUFFOptimizer(Optimizer):
                 bond_type = "triple"
 
             string = (
-                f"connect {bond.get_atom1().get_id()+1} "
-                f"{bond.get_atom2().get_id()+1} {bond_type}"
+                f"connect {bond.get_atom1().get_id() + 1} "
+                f"{bond.get_atom2().get_id() + 1} {bond_type}"
             )
             bond_section += string + "\n"
 

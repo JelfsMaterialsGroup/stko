@@ -4,11 +4,10 @@ from collections import abc, defaultdict
 from dataclasses import dataclass
 from functools import partial
 
-import numpy as np
 import stk
 from rdkit import Chem
 
-from stko._internal.molecular.networkx.network import Network
+from stko._internal.molecular.molecular_utilities import separate_molecule
 
 logger = logging.getLogger(__name__)
 
@@ -19,7 +18,7 @@ class NamedIntermediate:
 
     intermediate_name: str
     molecule: stk.BuildingBlock
-    present_bbs: dict[stk.BuildingBlock, int]
+    present_bbs: dict[stk.BuildingBlock, list[int]]
     num_atoms: int
     count_bbs: int
 
@@ -36,7 +35,7 @@ class NamedIntermediate:
 class IntermediatePool:
     """Container of a set of intermediates."""
 
-    intermediates: abc.Sequence[NamedIntermediate]
+    intermediates: list[NamedIntermediate]
 
     def __str__(self) -> str:
         """String representation."""
@@ -155,7 +154,7 @@ class UnreactedTopologyGraph:
     def yield_constructed_molecules(
         self,
         n: int | None = None,
-    ) -> abc.Sequence[stk.ConstructedMolecule]:
+    ) -> abc.Iterator[stk.ConstructedMolecule]:
         """Yield constructed molecules for possible reaction combos.
 
         If `n` is None, this produces all reactions, which could be
@@ -178,56 +177,11 @@ class UnreactedTopologyGraph:
                     )
                 )
 
-    def separate_molecule(
-        self, molecule: stk.Molecule
-    ) -> abc.Sequence[tuple[stk.Molecule, list[int]]]:
-        """Given a molecule, it returns distinct disconnected molecules."""
-        network = Network.init_from_molecule(molecule)
-        connected = network.get_connected_components()
-        molecules = []
-        for cg in connected:
-            # Get atoms from nodes.
-            atoms = list(cg)
-            atom_ids = tuple(i.get_id() for i in atoms)
-
-            # Sort both by atom id.
-            atom_ids, atoms = zip(  # type: ignore[assignment]
-                *sorted(zip(atom_ids, atoms, strict=True)), strict=True
-            )
-
-            atom_ids_map = {atom_ids[i]: i for i in range(len(atom_ids))}
-            new_mol = stk.BuildingBlock.init(
-                atoms=(
-                    stk.Atom(
-                        id=atom_ids_map[i.get_id()],
-                        atomic_number=i.get_atomic_number(),
-                        charge=i.get_charge(),
-                    )
-                    for i in atoms
-                ),
-                bonds=(
-                    i.with_ids(id_map=atom_ids_map)
-                    for i in molecule.get_bonds()
-                    if i.get_atom1().get_id() in atom_ids
-                    and i.get_atom2().get_id() in atom_ids
-                ),
-                position_matrix=np.array(
-                    tuple(
-                        i
-                        for i in molecule.get_atomic_positions(
-                            atom_ids=atom_ids
-                        )
-                    )
-                ),
-            )
-            molecules.append((new_mol, atom_ids))
-        return molecules
-
     def get_reacted_smiles(self, n: int | None = None) -> set[str]:
         """Yield constructed molecules with n reactions performed."""
         yielded_smiles = set()
         for const_mol in self.yield_constructed_molecules(n=n):
-            distinct_molecules = self.separate_molecule(const_mol)
+            distinct_molecules = separate_molecule(const_mol)
             for dmol, _ in distinct_molecules:
                 smiles = Chem.CanonSmiles(
                     Chem.MolToSmiles(dmol.to_rdkit_mol())
@@ -247,16 +201,16 @@ class UnreactedTopologyGraph:
         self,
         const_mol: stk.ConstructedMolecule,
         subset_ids: list[int],
-    ) -> dict[stk.BuildingBlock, int]:
+    ) -> dict[stk.BuildingBlock, list[int]]:
         """Get the building blocks present in a constructed molecule."""
-        bbs = defaultdict(list)
+        bbs: dict[stk.BuildingBlock, list[int]] = defaultdict(list)
         for atom_info in const_mol.get_atom_infos():
             if atom_info.get_atom().get_id() in subset_ids and (
                 atom_info.get_building_block_id()
-                not in bbs[atom_info.get_building_block()]
+                not in bbs[atom_info.get_building_block()]  # type: ignore[index]
             ):
-                bbs[atom_info.get_building_block()].append(
-                    atom_info.get_building_block_id()
+                bbs[atom_info.get_building_block()].append(  # type: ignore[index]
+                    atom_info.get_building_block_id()  # type: ignore[arg-type]
                 )
 
         return bbs
@@ -268,7 +222,7 @@ class UnreactedTopologyGraph:
         yielded_smiles = set()
         pool = IntermediatePool(intermediates=[])
         for const_mol in self.yield_constructed_molecules(n=n):
-            distinct_molecules = self.separate_molecule(const_mol)
+            distinct_molecules = separate_molecule(const_mol)
             for dmol, datom_ids in distinct_molecules:
                 smiles = Chem.CanonSmiles(
                     Chem.MolToSmiles(dmol.to_rdkit_mol())

@@ -2327,9 +2327,7 @@ _complex = stk.ConstructedMolecule(
                             position_matrix=np.array([[0, 0, 0]]),
                         ),
                         stk.BuildingBlock(
-                            smiles=(
-                                "C1=NC=CC(C2=CC=CC(C3=C" "C=NC=C3)=C2)=C1"
-                            ),
+                            smiles=("C1=NC=CC(C2=CC=CC(C3=CC=NC=C3)=C2)=C1"),
                             functional_groups=[
                                 stk.SmartsFunctionalGroupFactory(
                                     smarts="[#6]~[#7X2]~[#6]",

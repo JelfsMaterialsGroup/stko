@@ -19,8 +19,7 @@ class CaseData:
         ),
         CaseData(
             molecule=stk.BuildingBlock(
-                "C(#Cc1cccc2ccncc21)c1ccc2[nH]c3ccc(C#Cc4cccc5cnccc54)"
-                "cc3c2c1"
+                "C(#Cc1cccc2ccncc21)c1ccc2[nH]c3ccc(C#Cc4cccc5cnccc54)cc3c2c1"
             ),
             unoptimised_energy=276.0206611549808,
         ),
@@ -67,8 +66,7 @@ def case_uff_molecule(request: pytest.FixtureRequest) -> CaseData:
         ),
         CaseData(
             molecule=stk.BuildingBlock(
-                "C(#Cc1cccc2ccncc21)c1ccc2[nH]c3ccc(C#Cc4cccc5cnccc54)"
-                "cc3c2c1"
+                "C(#Cc1cccc2ccncc21)c1ccc2[nH]c3ccc(C#Cc4cccc5cnccc54)cc3c2c1"
             ),
             unoptimised_energy=226.18914087716263,
         ),
@@ -111,7 +109,7 @@ def case_mmff_molecule(request: pytest.FixtureRequest) -> CaseData:
     params=[
         stk.BuildingBlock("NCCN"),
         stk.BuildingBlock(
-            "C(#Cc1cccc2ccncc21)c1ccc2[nH]c3ccc(C#Cc4cccc5cnccc54)" "cc3c2c1"
+            "C(#Cc1cccc2ccncc21)c1ccc2[nH]c3ccc(C#Cc4cccc5cnccc54)cc3c2c1"
         ),
         stk.BuildingBlock("CCCCCC"),
         stk.BuildingBlock("c1ccccc1"),

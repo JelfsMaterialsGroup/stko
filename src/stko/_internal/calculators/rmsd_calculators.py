@@ -47,7 +47,7 @@ class RmsdCalculator:
         .. testcode:: rmsd-calc
             :hide:
 
-            assert np.isclose(rmsd, 0.21, rtol=0, atol=1E-1)
+            assert np.isclose(rmsd, 0.21, rtol=0, atol=1E-2)
 
     """
 
@@ -176,7 +176,7 @@ class RmsdMappedCalculator(RmsdCalculator):
         .. testcode:: rmsd-mapped-calc
             :hide:
 
-            assert np.isclose(rmsd, 0.24, rtol=0, atol=1E-1)
+            assert np.isclose(rmsd, 0.24, rtol=0, atol=1E-2)
 
     """
 
@@ -266,7 +266,7 @@ class KabschRmsdCalculator:
         .. testcode:: rmsd-kabsch-calc
             :hide:
 
-            assert np.isclose(rmsd, 0.20, rtol=0, atol=1E-1)
+            assert np.isclose(rmsd, 0.20, rtol=0, atol=1E-2)
 
     """
 

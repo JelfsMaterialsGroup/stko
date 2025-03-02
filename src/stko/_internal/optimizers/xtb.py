@@ -9,8 +9,8 @@ from pathlib import Path
 import stk
 
 from stko._internal.calculators.extractors.xtb_extractor import XTBExtractor
+from stko._internal.internal_types import MoleculeT
 from stko._internal.optimizers.optimizers import Optimizer
-from stko._internal.types import MoleculeT
 from stko._internal.utilities.exceptions import (
     ConvergenceError,
     InvalidSolventError,
@@ -415,8 +415,8 @@ class XTB(Optimizer):
 
         """
         for run in range(self._max_runs):
-            xyz = f"input_structure_{run+1}.xyz"
-            out_file = f"optimization_{run+1}.output"
+            xyz = f"input_structure_{run + 1}.xyz"
+            out_file = f"optimization_{run + 1}.output"
             mol.write(xyz)
             self._write_detailed_control()
             self._run_xtb(xyz=xyz, out_file=out_file)

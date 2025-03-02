@@ -2,7 +2,12 @@
 
 import contextlib
 
-from stko import functional_groups, molecule_analysis, topology_functions
+from stko import (
+    functional_groups,
+    molecular_utilities,
+    molecule_analysis,
+    topology_functions,
+)
 from stko._internal.calculators.extractors.orca_extractor import OrcaExtractor
 from stko._internal.calculators.extractors.xtb_extractor import XTBExtractor
 from stko._internal.calculators.open_babel_calculators import OpenBabelEnergy
@@ -37,6 +42,7 @@ from stko._internal.calculators.torsion_calculators import (
     TorsionCalculator,
 )
 from stko._internal.calculators.xtb_calculators import XTBEnergy
+from stko._internal.internal_types import ConstructedMoleculeT, MoleculeT
 from stko._internal.molecular.atoms.dummy_atom import Du
 from stko._internal.molecular.atoms.positioned_atom import PositionedAtom
 from stko._internal.molecular.conversion.md_analysis import MDAnalysis
@@ -85,7 +91,6 @@ from stko._internal.optimizers.utilities import (
     move_generated_macromodel_files,
 )
 from stko._internal.optimizers.xtb import XTB, XTBCREST, XTBFF, XTBFFCREST
-from stko._internal.types import ConstructedMoleculeT, MoleculeT
 from stko._internal.utilities.exceptions import (
     CalculatorError,
     ConvergenceError,
@@ -118,6 +123,7 @@ from stko._internal.utilities.utilities import (
 with contextlib.suppress(ImportError):
     from stko._internal.calculators.openmm_calculators import OpenMMEnergy
     from stko._internal.optimizers.openmm import OpenMMForceField, OpenMMMD
+
 
 MoleculeT = MoleculeT  # noqa: PLW0127
 """Type parameter matching any :class:`stk.Molecule` or subclasses."""
@@ -217,6 +223,7 @@ __all__ = [
     "get_torsion_info_angles",
     "is_valid_xtb_solvent",
     "mol_from_mae_file",
+    "molecular_utilities",
     "molecule_analysis",
     "move_generated_macromodel_files",
     "topology_functions",

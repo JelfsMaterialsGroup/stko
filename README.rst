@@ -35,13 +35,31 @@ Some optional dependencies are only available through conda:
   # for OpenMM and espaloma charge
   # note the temporary issue with rdkit versions and conda will overwrite pip
   # installed software
-  mamba install -c conda-forge openff-toolkit openmm openmmtools dgl rdkit==2024.3.4 espaloma_charge
+  mamba install -c conda-forge pytorch==2.3.1 torchdata==0.7.1 openff-toolkit openmm openmmtools dgl rdkit==2024.3.4 espaloma_charge
   # for xtb
   mamba install xtb
   # for openbabel
   mamba install openbabel
   # for mdanalysis
   mamba install mdanalysis
+
+Developer Setup
+---------------
+
+1. Install `just`_.
+2. In a new virtual environment run:
+
+.. code-block:: bash
+
+  just dev
+
+3. Run code checks:
+
+.. code-block:: bash
+
+  just check
+
+.. _`just`: https://github.com/casey/just
 
 Examples
 ========

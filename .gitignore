@@ -22,3 +22,4 @@ tests/failures.txt
 /examples/.model.pt
 
 /examples/*/md_optimisation
+.model.pt

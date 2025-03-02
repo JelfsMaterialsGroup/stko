@@ -82,20 +82,14 @@ def main() -> None:
     # Distance between binders in the organic linkers?
     print(f"avg. binder distance: {np.mean(ligand_dict['binder_dist'])}")
     # How twisted is the molecule, or aligned are the binding groups?
-    print(
-        "avg. binder binder angle: " f"{np.mean(ligand_dict['binder_binder'])}"
-    )
+    print(f"avg. binder binder angle: {np.mean(ligand_dict['binder_binder'])}")
     # How twisted is the molecule, or what is the torsion between
     # the binding groups?
-    print(
-        "avg. binder adjacent torsion: " f"{np.mean(ligand_dict['torsion'])}"
-    )
+    print(f"avg. binder adjacent torsion: {np.mean(ligand_dict['torsion'])}")
     # What is the angle made by the binders?
     print(f"avg. binder angles: {np.mean(ligand_dict['binder_angle'])}")
     # And the resultant bite-angle [caution!]?
-    print(
-        "avg. bite angle [caution]: " f"{np.mean(ligand_dict['bite_angle'])}"
-    )
+    print(f"avg. bite angle [caution]: {np.mean(ligand_dict['bite_angle'])}")
 
     # Get the centroid and atom ids of distinct building blocks.
     # This is similar to the above, but does not perform any disconnections
@@ -133,11 +127,11 @@ def main() -> None:
     # And some geometrical measures.
     print(
         f"avg. N-Pd bond length:"
-        f' {np.mean(analyser.calculate_bonds(apdcage)[("N", "Pd")])}'
+        f" {np.mean(analyser.calculate_bonds(apdcage)[('N', 'Pd')])}"
     )
     print(
         f"N-Pd-N angles: "
-        f'{analyser.calculate_angles(apdcage)[("N", "Pd", "N")]}'
+        f"{analyser.calculate_angles(apdcage)[('N', 'Pd', 'N')]}"
     )
 
 

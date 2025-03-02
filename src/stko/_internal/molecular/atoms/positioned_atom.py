@@ -76,8 +76,7 @@ class PositionedAtom:
             else ""
         )
         return (
-            f"{self._atom.__class__.__name__}({self._atom.get_id()}"
-            f"{charge})"
+            f"{self._atom.__class__.__name__}({self._atom.get_id()}{charge})"
         )
 
     def __str__(self) -> str:

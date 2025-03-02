@@ -11,8 +11,8 @@ from openff.toolkit import ForceField, Molecule, RDKitToolkitWrapper, Topology
 from openmm import app, openmm
 
 from stko._internal.calculators.openmm_calculators import OpenMMEnergy
+from stko._internal.internal_types import MoleculeT
 from stko._internal.optimizers.optimizers import NullOptimizer, Optimizer
-from stko._internal.types import MoleculeT
 from stko._internal.utilities.exceptions import InputError
 from stko._internal.utilities.utilities import get_atom_distance
 
@@ -177,7 +177,9 @@ class OpenMMForceField(Optimizer):
             force_field=self._force_field,
             topology=topology,
             positions=mol.get_position_matrix() * openmm.unit.angstrom,
-            charge_from_molecules=openff_molecules,
+            # Test this to check if molecules are _eq_, which is defined in
+            # openff.
+            charge_from_molecules=list(set(openff_molecules)),
         )
         system = interchange.to_openmm_system()
         # Add constraints.
@@ -418,7 +420,9 @@ class OpenMMMD(Optimizer):
             force_field=self._force_field,
             topology=topology,
             positions=mol.get_position_matrix() * openmm.unit.angstrom,
-            charge_from_molecules=openff_molecules,
+            # Test this to check if molecules are _eq_, which is defined in
+            # openff.
+            charge_from_molecules=list(set(openff_molecules)),
         )
         simulation = interchange.to_openmm_simulation(
             integrator=self._integrator,

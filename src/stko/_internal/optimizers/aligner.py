@@ -9,8 +9,8 @@ import stk
 from scipy.spatial.distance import cdist
 
 from stko._internal.calculators.rmsd_calculators import RmsdMappedCalculator
+from stko._internal.internal_types import MoleculeT
 from stko._internal.optimizers.optimizers import Optimizer
-from stko._internal.types import MoleculeT
 
 logger = logging.getLogger(__name__)
 

@@ -5,13 +5,13 @@ import numpy as np
 import rdkit.Chem.AllChem as rdkit  # noqa: N813
 import stk
 
+from stko._internal.internal_types import MoleculeT
 from stko._internal.optimizers.optimizers import Optimizer
 from stko._internal.optimizers.utilities import (
     get_metal_atoms,
     get_metal_bonds,
     to_rdkit_mol_without_metals,
 )
-from stko._internal.types import MoleculeT
 from stko._internal.utilities.utilities import vector_angle
 
 logger = logging.getLogger(__name__)

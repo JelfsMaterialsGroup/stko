@@ -95,6 +95,7 @@ class OpenMMEnergy:
                     self._partial_charges_method,
                     toolkit_registry=EspalomaChargeToolkitWrapper(),
                 )
+
             openff_molecules.append(molecule)
 
         topology = Topology.from_molecules(openff_molecules)
@@ -105,7 +106,9 @@ class OpenMMEnergy:
             force_field=self._force_field,
             topology=topology,
             positions=mol.get_position_matrix() * openmm.unit.angstrom,
-            charge_from_molecules=openff_molecules,
+            # Test this to check if molecules are _eq_, which is defined in
+            # openff.
+            charge_from_molecules=list(set(openff_molecules)),
         )
         system = interchange.to_openmm_system()
 

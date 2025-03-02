@@ -8,8 +8,8 @@ try:
 except ImportError:
     openbabel = None
 
+from stko._internal.internal_types import MoleculeT
 from stko._internal.optimizers.optimizers import Optimizer
-from stko._internal.types import MoleculeT
 from stko._internal.utilities.exceptions import (
     ForceFieldSetupError,
     WrapperNotInstalledError,
@@ -75,7 +75,7 @@ class OpenBabel(Optimizer):
         cg_steps: int = 50,
     ) -> None:
         if openbabel is None:
-            msg = "openbabel is not installed; see README for " "installation."
+            msg = "openbabel is not installed; see README for installation."
             raise WrapperNotInstalledError(msg)
 
         self._forcefield = forcefield

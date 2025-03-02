@@ -52,12 +52,10 @@ class MDAnalysis:
 
     def __init__(self) -> None:
         if mda is None:
-            msg = (
-                "MDAnalysis is not installed; see README for " "installation."
-            )
+            msg = "MDAnalysis is not installed; see README for installation."
             raise WrapperNotInstalledError(msg)
 
-    def get_universe(self, mol: stk.Molecule) -> mda.Universe:
+    def get_universe(self, mol: stk.Molecule):  # type: ignore[no-untyped-def] # noqa: ANN202
         """Get an MDAnalysis object.
 
         Parameters:

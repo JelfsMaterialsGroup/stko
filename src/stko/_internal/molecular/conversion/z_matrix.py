@@ -85,8 +85,7 @@ class ZMatrix:
                 distance = round(distance, 2)
                 angle = round(angle, 2)
                 zmatrix.append(
-                    f"{atom.__class__.__name__} {i} {distance}"
-                    f"{i-1} {angle}"
+                    f"{atom.__class__.__name__} {i} {distance}{i - 1} {angle}"
                 )
                 coords += 2
 
@@ -137,13 +136,13 @@ class ZMatrix:
                 torsion = round(torsion, 2)
                 zmatrix.append(
                     f"{atom.__class__.__name__} {i} {distance}"
-                    f"{i-1} {angle} {i-2} {torsion}"
+                    f"{i - 1} {angle} {i - 2} {torsion}"
                 )
                 coords += 3
 
         if 3 * len(zmatrix) - 6 != coords:
             msg = (
-                f"zmatrix: There are {coords}, not {3*len(zmatrix)-6} as "
+                f"zmatrix: There are {coords}, not {3 * len(zmatrix) - 6} as "
                 "expected. Therefore, the conversion has failed."
             )
             raise ConversionError(msg)

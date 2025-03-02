@@ -4,7 +4,7 @@ from typing import Protocol
 
 import stk
 
-from stko._internal.types import MoleculeT
+from stko._internal.internal_types import MoleculeT
 
 logger = logging.getLogger(__name__)
 
@@ -182,7 +182,7 @@ class OptWriterSequence(Optimizer):
             return "pdb"
         if isinstance(self._writer, stk.MolWriter):
             return "mol"
-        return None
+        raise NotImplementedError
 
     def optimize(self, mol: MoleculeT) -> MoleculeT:
         filesuffix = self._suffix_from_writer()

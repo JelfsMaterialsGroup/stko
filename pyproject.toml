@@ -5,17 +5,16 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "stko"
 maintainers = [
-  { name = "Andrew Tarzia", email = "andrew.tarzia@gmail.com" },
-  { name = "Lukas Turcani", email = "lukasturcani93@gmail.com" },
+    { name = "Andrew Tarzia", email = "andrew.tarzia@gmail.com" },
+    { name = "Lukas Turcani", email = "lukasturcani93@gmail.com" },
 ]
 dependencies = [
-  # Remove pin once openmm infrastructure is safely moved to >= 2.
-  "numpy < 2",
-  # Pinned while rdkit changes stk results.
-  "rdkit == 2024.3.4",
-  "stk",
-  "networkx",
-  "rmsd",
+    "numpy",
+    # Pinned while rdkit changes stk results.
+    "rdkit == 2024.3.4",
+    "stk",
+    "networkx",
+    "rmsd",
 ]
 requires-python = ">=3.11"
 dynamic = ["version"]
@@ -23,21 +22,20 @@ readme = "README.rst"
 
 [project.optional-dependencies]
 dev = [
-  "ruff",
-  "mypy",
-  "moldoc==3.0.0",
-  # TODO: Remove pin when https://github.com/TvoroG/pytest-lazy-fixture/issues/65 is resolved.
-  # pytest-lazy-fixture 0.6.0 is incompatible with pytest 8.0.0
-  "pytest<8",
-  "pytest-benchmark",
-  "pytest-datadir",
-  "pytest-lazy-fixture",
-  "pytest-cov",
-  "sphinx",
-  "sphinx-copybutton",
-  "sphinx-rtd-theme",
-  "twine",
-  "build",
+    "ruff",
+    "mypy",
+    "moldoc==3.0.0",
+    # TODO: Remove pin when https://github.com/TvoroG/pytest-lazy-fixture/issues/65 is resolved.
+    # pytest-lazy-fixture 0.6.0 is incompatible with pytest 8.0.0
+    "pytest<8",
+    "pytest-datadir",
+    "pytest-lazy-fixture",
+    "pytest-cov",
+    "sphinx",
+    "sphinx-copybutton",
+    "sphinx-rtd-theme",
+    "twine",
+    "build",
 ]
 
 [project.urls]
@@ -49,92 +47,37 @@ write_to = "src/stko/_version.py"
 
 [tool.setuptools.packages.find]
 where = [
-  # list of folders that contain the packages (["."] by default)
-  "src",
+    # list of folders that contain the packages (["."] by default)
+    "src",
 ]
 
 [tool.ruff]
 line-length = 79
 
 [tool.ruff.lint]
+ignore = ["ANN401", "COM812", "ISC001", "FBT001", "FBT002"]
 select = ["ALL"]
-ignore = [
-  "ANN401",
-  "COM812",
-  "ISC001",
-  "FBT001",
-  "FBT002",
-]
 
 [tool.ruff.lint.pydocstyle]
 convention = "google"
 
 [tool.ruff.lint.per-file-ignores]
-"examples/*" = [
-  "D100",
-  "INP001",
-]
+"examples/*" = ["D100", "INP001"]
 "tests/*" = [
-  "D100",
-  "D101",
-  "D102",
-  "D103",
-  "D104",
-  "D105",
-  "D106",
-  "D107",
-  "S101",
-  "INP001",
+    "D100",
+    "D101",
+    "D102",
+    "D103",
+    "D104",
+    "D105",
+    "D106",
+    "D107",
+    "S101",
+    "INP001",
 ]
 "docs/source/conf.py" = ["D100", "INP001"]
 
 [tool.pytest.ini_options]
-testpaths = [
-  "tests",
-]
-python_files = [
-    "test_*.py",
-    "*_test.py",
-]
-python_functions = [
-  "test_*",
-]
-
-[tool.mypy]
-show_error_codes = true
-implicit_optional = false
-warn_no_return = true
-strict_optional = true
-disallow_untyped_defs = true
-disallow_incomplete_defs = true
-check_untyped_defs = true
-disallow_untyped_decorators = true
-warn_unreachable = true
-disallow_any_generics = false
-
-[[tool.mypy.overrides]]
-module = [
-  "rdkit.*",
-  "scipy.*",
-  "pytest_lazyfixture.*",
-  "pathos.*",
-  "matplotlib.*",
-  "pandas.*",
-  "seaborn.*",
-  "mchammer.*",
-  "spindry.*",
-  "pymongo.*",
-  "vabene.*",
-  "setuptools.*",
-  "stk.*",
-  "networkx.*",
-  "openbabel.*",
-  "MDAnalysis.*",
-  "openff.*",
-  "openmm.*",
-  "openmmforcefields.*",
-  "rmsd.*",
-  "espaloma_charge.*",
-  "traitlets.*",
-]
-ignore_missing_imports = true
+testpaths = ["tests"]
+python_files = ["test_*.py", "*_test.py"]
+python_functions = ["test_*"]
