@@ -53,8 +53,8 @@ Some optional dependencies are only available through conda:
 With OpenMM
 -----------
 
-To get :mod:`.stko` and use ``OpenMM'', we had some installation issues. The
-current solution is to first, in a new environment, install the ``OpenMM''
+To get :mod:`.stko` and use ``OpenMM``, we had some installation issues. The
+current solution is to first, in a new environment, install the ``OpenMM``
 requirements:
 
 .. code-block:: bash
@@ -64,7 +64,7 @@ requirements:
   # installed software
   mamba install -c conda-forge pytorch==2.3.1 torchdata==0.7.1 openff-toolkit openmm openmmtools dgl rdkit==2024.3.4 espaloma_charge
 
-Then install ``stko'' with pip:
+Then install :mod:`.stko` with pip:
 
 .. code-block:: bash
 
