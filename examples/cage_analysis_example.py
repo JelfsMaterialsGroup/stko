@@ -7,10 +7,12 @@ import stk
 
 import stko
 
+logger = logging.getLogger(__name__)
+
 
 def main() -> None:
     """Run the example."""
-    logging.warning(
+    logger.warning(
         "This code is only present in the latest versions of stko that "
         "require Python 3.11!"
     )
