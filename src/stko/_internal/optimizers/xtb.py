@@ -437,7 +437,7 @@ class XTB(Optimizer):
                     # case, exit optimization loop and warn.
                     self.incomplete.add(mol)
                     msg = f"Small negative frequencies present in {mol}."
-                    logging.warning(msg)
+                    logger.warning(msg)
                     return mol, opt_complete
             else:
                 # Optimization is complete.
@@ -482,7 +482,7 @@ class XTB(Optimizer):
         if not complete:
             self.incomplete.add(mol)
             msg = f"Optimization is incomplete for {mol}."
-            logging.warning(msg)
+            logger.warning(msg)
 
         return mol
 
@@ -881,7 +881,7 @@ class XTBCREST(Optimizer):
 
         if not complete:
             msg = f"CREST run is incomplete for {mol}."
-            logging.warning(msg)
+            logger.warning(msg)
 
         return mol
 
@@ -1122,7 +1122,7 @@ class XTBFF(Optimizer):
 
         if not complete:
             msg = f"Optimization is incomplete for {mol}."
-            logging.warning(msg)
+            logger.warning(msg)
 
         return mol
 
@@ -1473,6 +1473,6 @@ class XTBFFCREST(Optimizer):
 
         if not complete:
             msg = f"CREST run is incomplete for {mol}."
-            logging.warning(msg)
+            logger.warning(msg)
 
         return mol

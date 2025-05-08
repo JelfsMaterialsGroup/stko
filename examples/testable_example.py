@@ -20,6 +20,8 @@ import zmatrix_example
 
 from stko import WrapperNotInstalledError
 
+logger = logging.getLogger(__name__)
+
 
 def main() -> None:
     """Run the example."""
@@ -43,7 +45,7 @@ def main() -> None:
         torsion_example.main()
         zmatrix_example.main()
         optwrite_example.main()
-        logging.info("all examples ran, at least!")
+        logger.info("all examples ran, at least!")
 
     finally:
         os.chdir(init_dir)

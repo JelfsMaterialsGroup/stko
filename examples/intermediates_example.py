@@ -5,6 +5,8 @@ import stk
 
 import stko
 
+logger = logging.getLogger(__name__)
+
 
 def main() -> None:
     """Run the example."""
@@ -23,16 +25,14 @@ def main() -> None:
     cage_graphs = stko.topology_functions.UnreactedTopologyGraph(
         stk.cage.FourPlusSix((bb1, bb2))
     )
-    logging.info(
+    logger.info(
         "there are %s possible reactions",
         len(cage_graphs.get_available_reactions()),
     )
 
     # With up to N reactions performed.
     intermediate_pool = cage_graphs.get_named_intermediates(n=4)
-    logging.info(
-        "there are %s structures with n=%s", len(intermediate_pool), 4
-    )
+    logger.info("there are %s structures with n=%s", len(intermediate_pool), 4)
     for named_intermediate in intermediate_pool.intermediates:
         named_intermediate.molecule.write(
             examples_output / f"{named_intermediate.intermediate_name}.mol"
@@ -41,7 +41,7 @@ def main() -> None:
     # Now iterate over all possible reactions with varying amounts of
     # completeness and get their smiles.
     all_possible_smiles = cage_graphs.get_reacted_smiles()
-    logging.info("there are %s unique smiles", len(all_possible_smiles))
+    logger.info("there are %s unique smiles", len(all_possible_smiles))
 
 
 if __name__ == "__main__":
