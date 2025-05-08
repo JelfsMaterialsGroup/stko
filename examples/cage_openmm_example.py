@@ -10,6 +10,8 @@ from openff.toolkit import ForceField
 
 import stko
 
+logger = logging.getLogger(__name__)
+
 
 def integrator(
     *,
@@ -118,14 +120,14 @@ def main() -> None:
             ),
         ),
     )
-    logging.info("starting calculations...")
+    logger.info("starting calculations...")
     st = time.time()
     optimised_cage = optimisation_sequence.optimize(cage)
     et = time.time()
-    logging.info("calculations done!")
+    logger.info("calculations done!")
 
     optimised_cage.write(output_directory / "opt_cage.mol")
-    logging.info(
+    logger.info(
         "cage energy: %s kJmol-1 in %s s",
         stko.OpenMMEnergy(
             force_field=ForceField("openff_unconstrained-2.1.0.offxml"),

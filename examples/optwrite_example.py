@@ -7,6 +7,8 @@ import stk
 
 import stko
 
+logger = logging.getLogger(__name__)
+
 
 def main() -> None:
     """Run the example."""

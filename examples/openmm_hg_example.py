@@ -10,6 +10,8 @@ from openff.toolkit import ForceField
 
 import stko
 
+logger = logging.getLogger(__name__)
+
 
 def integrator(
     *,
@@ -116,14 +118,14 @@ def main() -> None:
             ),
         ),
     )
-    logging.info("starting calculations...")
+    logger.info("starting calculations...")
     st = time.time()
     optimised_complex = optimisation_sequence.optimize(hg_complex)
     et = time.time()
-    logging.info("calculations done!")
+    logger.info("calculations done!")
 
     optimised_complex.write(output / "opt_complex.mol")
-    logging.info(
+    logger.info(
         "hgcomplex energy: %s kJmol-1 in %s s",
         stko.OpenMMEnergy(
             force_field=ForceField("openff_unconstrained-2.1.0.offxml"),
