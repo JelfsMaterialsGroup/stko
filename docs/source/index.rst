@@ -43,16 +43,32 @@ Some optional dependencies are only available through conda:
 
 .. code-block:: bash
 
-  # for OpenMM and espaloma charge
-  # note the temporary issue with rdkit versions and conda will overwrite pip
-  # installed software
-  mamba install -c conda-forge pytorch==2.3.1 torchdata==0.7.1 openff-toolkit openmm openmmtools dgl rdkit==2024.3.4  espaloma_charge
   # for xtb
   mamba install xtb
   # for openbabel
   mamba install openbabel
   # for mdanalysis
   mamba install mdanalysis
+
+With OpenMM
+-----------
+
+To get :mod:`.stko` and use ``OpenMM'', we had some installation issues. The
+current solution is to first, in a new environment, install the ``OpenMM''
+requirements:
+
+.. code-block:: bash
+
+  # for OpenMM and espaloma charge
+  # note the temporary issue with rdkit versions and conda will overwrite pip
+  # installed software
+  mamba install -c conda-forge pytorch==2.3.1 torchdata==0.7.1 openff-toolkit openmm openmmtools dgl rdkit==2024.3.4 espaloma_charge
+
+Then install ``stko'' with pip:
+
+.. code-block:: bash
+
+  pip install stko
 
 Developer Setup
 ---------------

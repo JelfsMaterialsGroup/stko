@@ -9,7 +9,7 @@ maintainers = [
     { name = "Lukas Turcani", email = "lukasturcani93@gmail.com" },
 ]
 dependencies = [
-    "numpy",
+    "numpy<2",
     # Pinned while rdkit changes stk results.
     "rdkit == 2024.3.4",
     "stk",
