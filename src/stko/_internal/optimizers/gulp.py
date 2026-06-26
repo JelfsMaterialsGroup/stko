@@ -2,9 +2,7 @@ import logging
 import math
 import os
 import re
-import shutil
 import subprocess as sp
-import uuid
 import warnings
 from pathlib import Path
 
@@ -13,7 +11,7 @@ from rdkit.Chem import AllChem as rdkit  # noqa: N813
 
 from stko._internal.internal_types import MoleculeT
 from stko._internal.molecular.periodic.unitcell import UnitCell
-from stko._internal.optimizers.optimizers import Optimizer
+from stko._internal.optimizers.optimizers import FileIOOptimizer
 from stko._internal.optimizers.utilities import (
     get_metal_atoms,
     get_metal_bonds,
@@ -31,7 +29,7 @@ from stko._internal.utilities.exceptions import (
 logger = logging.getLogger(__name__)
 
 
-class GulpUFFOptimizer(Optimizer):
+class GulpUFFOptimizer(FileIOOptimizer):
     """Applies forcefield optimizers that can handle metal centres.
 
     Parameters:
@@ -622,15 +620,7 @@ class GulpUFFOptimizer(Optimizer):
         raise OptimizerError(msg)
 
     def optimize(self, mol: MoleculeT) -> MoleculeT:
-        if self._output_dir is None:
-            output_dir = Path(str(uuid.uuid4().int)).resolve()
-        else:
-            output_dir = self._output_dir.resolve()
-
-        if output_dir.exists():
-            shutil.rmtree(output_dir)
-
-        output_dir.mkdir(parents=True)
+        output_dir = self._setup_output_dir()
         init_dir = Path.cwd()
         os.chdir(output_dir)
 
@@ -678,15 +668,7 @@ class GulpUFFOptimizer(Optimizer):
             The optimized molecule and the optimized cell.
 
         """
-        if self._output_dir is None:
-            output_dir = Path(str(uuid.uuid4().int)).resolve()
-        else:
-            output_dir = self._output_dir.resolve()
-
-        if output_dir.exists():
-            shutil.rmtree(output_dir)
-
-        output_dir.mkdir(parents=True)
+        output_dir = self._setup_output_dir()
         init_dir = Path.cwd()
         os.chdir(output_dir)
 
@@ -1131,15 +1113,7 @@ class GulpUFFMDOptimizer(GulpUFFOptimizer):
             )
 
     def optimize(self, mol: MoleculeT) -> MoleculeT:
-        if self._output_dir is None:
-            output_dir = Path(str(uuid.uuid4().int)).resolve()
-        else:
-            output_dir = self._output_dir.resolve()
-
-        if output_dir.exists():
-            shutil.rmtree(output_dir)
-
-        output_dir.mkdir(parents=True)
+        output_dir = self._setup_output_dir()
         init_dir = Path.cwd()
         os.chdir(output_dir)
 
@@ -1200,15 +1174,7 @@ class GulpUFFMDOptimizer(GulpUFFOptimizer):
             The optimized molecule and the optimized cell.
 
         """
-        if self._output_dir is None:
-            output_dir = Path(str(uuid.uuid4().int)).resolve()
-        else:
-            output_dir = self._output_dir.resolve()
-
-        if output_dir.exists():
-            shutil.rmtree(output_dir)
-
-        output_dir.mkdir(parents=True)
+        output_dir = self._setup_output_dir()
         init_dir = Path.cwd()
         os.chdir(output_dir)
 
