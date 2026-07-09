@@ -299,6 +299,8 @@ class FileIOOptimizer(Optimizer):
         output_dir: pathlib.Path | str | None = None,
         delete_path: bool = True,
     ) -> None:
+        self._delete_path = delete_path
+
         self._output_dir = (
             None if output_dir is None else pathlib.Path(output_dir)
         )
@@ -307,14 +309,14 @@ class FileIOOptimizer(Optimizer):
         if (
             self._output_dir is not None
             and self._output_dir.resolve() == pathlib.Path.cwd().resolve()
+            and self._delete_path
         ):
             msg = (
-                "Output directory cannot be the current working directory. "
+                "Output directory cannot be the current working directory "
+                "if delete_path=True. "
                 f"Got: {self._output_dir}"
             )
             raise ValueError(msg)
-
-        self._delete_path = delete_path
 
     def _setup_output_dir(self) -> pathlib.Path:
 
@@ -323,16 +325,11 @@ class FileIOOptimizer(Optimizer):
         else:
             output_dir = self._output_dir.resolve()
 
-        if output_dir.exists():
-            if self._delete_path:
-                shutil.rmtree(output_dir)
-            else:
-                msg = (
-                    "Output directory already exists. Set delete_path=True"
-                    " to automatically delete an existing directory. "
-                    f"Got: {output_dir}"
-                )
-                raise FileExistsError(msg)
-        output_dir.mkdir(parents=True)
+        if output_dir.exists() and self._delete_path:
+            shutil.rmtree(output_dir)
+        output_dir.mkdir(
+            parents=True
+        )  # FileExistsError error will be raised if the directory already
+        # exists and delete_path is False
 
         return output_dir
