@@ -54,11 +54,6 @@ class GulpUFFOptimizer(FileIOOptimizer):
             ``True`` to use Conjugate Graditent method.
             Defaults to ``False``
 
-        output_dir:
-            The name of the directory into which files generated during
-            the calculation are written, if ``None`` then
-            :func:`uuid.uuid4` is used.
-
 
     Notes:
         By default, :meth:`optimize` will run an optimisation using the
@@ -144,15 +139,16 @@ class GulpUFFOptimizer(FileIOOptimizer):
 
     """
 
-    def __init__(  # noqa: PLR0913
+    def __init__(
         self,
         gulp_path: Path | str,
         maxcyc: int = 1000,
         metal_FF: dict | None = None,  # noqa: N803
         metal_ligand_bond_order: str | None = None,
         conjugate_gradient: bool = False,
-        output_dir: Path | str | None = None,
+        **kwargs,
     ) -> None:
+        super().__init__(**kwargs)
         gulp_path = Path(gulp_path)
         self._check_path(gulp_path)
         self._gulp_path = gulp_path
@@ -164,7 +160,6 @@ class GulpUFFOptimizer(FileIOOptimizer):
             else metal_ligand_bond_order
         )
         self._conjugate_gradient = conjugate_gradient
-        self._output_dir = None if output_dir is None else Path(output_dir)
 
     def _check_path(self, path: Path) -> None:
         if not path.exists():
@@ -719,11 +714,6 @@ class GulpUFFMDOptimizer(GulpUFFOptimizer):
             `half`, but using `resonant` can increase the force
             constant for stronger metal-ligand interactions.
 
-        output_dir:
-            The name of the directory into which files generated during
-            the calculation are written, if ``None`` then
-            :func:`uuid.uuid4` is used.
-
         integrator:
             Integrator for GULP to use.
             Defaults to 'stochastic'.
@@ -798,7 +788,6 @@ class GulpUFFMDOptimizer(GulpUFFOptimizer):
         gulp_path: Path | str,
         metal_FF: dict[int, str] | None = None,  # noqa: N803
         metal_ligand_bond_order: str | None = None,
-        output_dir: Path | str | None = None,
         integrator: str = "stochastic",
         ensemble: str = "nvt",
         temperature: float = 300,
@@ -818,7 +807,6 @@ class GulpUFFMDOptimizer(GulpUFFOptimizer):
             if metal_ligand_bond_order is None
             else metal_ligand_bond_order
         )
-        self._output_dir = None if output_dir is None else Path(output_dir)
         self._integrator = integrator
         self._ensemble = ensemble
         self._temperature = temperature
