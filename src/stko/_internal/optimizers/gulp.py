@@ -146,7 +146,7 @@ class GulpUFFOptimizer(FileIOOptimizer):
         metal_FF: dict | None = None,  # noqa: N803
         metal_ligand_bond_order: str | None = None,
         conjugate_gradient: bool = False,
-        **kwargs,
+        **kwargs,  # noqa: ANN003
     ) -> None:
         super().__init__(**kwargs)
         gulp_path = Path(gulp_path)

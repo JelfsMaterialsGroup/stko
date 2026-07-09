@@ -8,7 +8,7 @@ import stk
 
 from stko._internal.calculators.extractors.xtb_extractor import XTBExtractor
 from stko._internal.internal_types import MoleculeT
-from stko._internal.optimizers.optimizers import FileIOOptimizer, Optimizer
+from stko._internal.optimizers.optimizers import FileIOOptimizer
 from stko._internal.utilities.exceptions import (
     ConvergenceError,
     InvalidSolventError,
@@ -652,7 +652,7 @@ class XTBCREST(FileIOOptimizer):
         solvent: str | None = None,
         num_unpaired_electrons: int = 0,
         unlimited_memory: bool = False,
-        **kwargs,
+        **kwargs,  # noqa: ANN003
     ) -> None:
         super().__init__(**kwargs)
 
@@ -945,7 +945,7 @@ class XTBFF(FileIOOptimizer):
         num_cores: int = 1,
         charge: int = 0,
         unlimited_memory: bool = False,
-        **kwargs,
+        **kwargs,  # noqa: ANN003
     ) -> None:
         super().__init__(**kwargs)
         self._check_path(xtb_path)
@@ -1246,7 +1246,7 @@ class XTBFFCREST(FileIOOptimizer):
         charge: int = 0,
         cross: bool = True,
         unlimited_memory: bool = False,
-        **kwargs,
+        **kwargs,  # noqa: ANN003
     ) -> None:
         super().__init__(**kwargs)
         self._check_path(crest_path)
