@@ -54,6 +54,14 @@ class GulpUFFOptimizer(FileIOOptimizer):
             ``True`` to use Conjugate Graditent method.
             Defaults to ``False``
 
+        output_dir:
+            The name of the directory into which files generated during
+            the calculation are written, if ``None`` then
+            :func:`uuid.uuid4` is used.
+
+        delete_path:
+            If ``True`` then the output directory is deleted if it already
+            exists, otherwise a ``FileExistsError`` is raised.
 
     Notes:
         By default, :meth:`optimize` will run an optimisation using the
@@ -139,16 +147,17 @@ class GulpUFFOptimizer(FileIOOptimizer):
 
     """
 
-    def __init__(
+    def __init__(  # noqa: PLR0913
         self,
         gulp_path: Path | str,
         maxcyc: int = 1000,
         metal_FF: dict | None = None,  # noqa: N803
         metal_ligand_bond_order: str | None = None,
         conjugate_gradient: bool = False,
-        **kwargs,  # noqa: ANN003
+        output_dir: Path | str | None = None,
+        delete_path: bool = True,
     ) -> None:
-        super().__init__(**kwargs)
+        super().__init__(output_dir=output_dir, delete_path=delete_path)
         gulp_path = Path(gulp_path)
         self._check_path(gulp_path)
         self._gulp_path = gulp_path
@@ -714,6 +723,15 @@ class GulpUFFMDOptimizer(GulpUFFOptimizer):
             `half`, but using `resonant` can increase the force
             constant for stronger metal-ligand interactions.
 
+        output_dir:
+            The name of the directory into which files generated during
+            the calculation are written, if ``None`` then
+            :func:`uuid.uuid4` is used.
+
+        delete_path:
+            If ``True`` then the output directory is deleted if it already
+            exists, otherwise a ``FileExistsError`` is raised.
+
         integrator:
             Integrator for GULP to use.
             Defaults to 'stochastic'.
@@ -788,6 +806,8 @@ class GulpUFFMDOptimizer(GulpUFFOptimizer):
         gulp_path: Path | str,
         metal_FF: dict[int, str] | None = None,  # noqa: N803
         metal_ligand_bond_order: str | None = None,
+        output_dir: Path | str | None = None,
+        delete_path: bool = True,
         integrator: str = "stochastic",
         ensemble: str = "nvt",
         temperature: float = 300,
@@ -798,14 +818,12 @@ class GulpUFFMDOptimizer(GulpUFFOptimizer):
         opt_conformers: bool = True,
         save_conformers: bool = False,
     ) -> None:
-        gulp_path = Path(gulp_path)
-        self._check_path(gulp_path)
-        self._gulp_path = gulp_path
-        self._metal_FF = metal_FF
-        self._metal_ligand_bond_order = (
-            "half"
-            if metal_ligand_bond_order is None
-            else metal_ligand_bond_order
+        super().__init__(
+            gulp_path=gulp_path,
+            metal_FF=metal_FF,
+            metal_ligand_bond_order=metal_ligand_bond_order,
+            output_dir=output_dir,
+            delete_path=delete_path,
         )
         self._integrator = integrator
         self._ensemble = ensemble

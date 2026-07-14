@@ -59,6 +59,15 @@ class XTB(FileIOOptimizer):
             For details see
             https://xtb-docs.readthedocs.io/en/latest/basics.html.
 
+        output_dir:
+            The name of the directory into which files generated during
+            the calculation are written, if ``None`` then
+            :func:`uuid.uuid4` is used.
+
+        delete_path:
+            If ``True`` then the output directory is deleted if it already
+            exists, otherwise a ``FileExistsError`` is raised.
+
         opt_level:
             Optimization level to use.
             Can be one of ``'crude'``, ``'sloppy'``, ``'loose'``,
@@ -214,6 +223,8 @@ class XTB(FileIOOptimizer):
         self,
         xtb_path: Path | str,
         gfn_version: int = 2,
+        output_dir: Path | str | None = None,
+        delete_path: bool = True,
         opt_level: str = "normal",
         max_runs: int = 2,
         calculate_hessian: bool = True,
@@ -227,6 +238,7 @@ class XTB(FileIOOptimizer):
         unlimited_memory: bool = False,
         write_sasa_info: bool = False,
     ) -> None:
+        super().__init__(output_dir=output_dir, delete_path=delete_path)
         if solvent is not None:
             solvent = solvent.lower()
             if gfn_version == 0:
@@ -490,6 +502,15 @@ class XTBCREST(FileIOOptimizer):
             For details see
             https://xtb-docs.readthedocs.io/en/latest/basics.html.
 
+        output_dir:
+            The name of the directory into which files generated during
+            the calculation are written, if ``None`` then
+            :func:`uuid.uuid4` is used.
+
+        delete_path:
+            If ``True`` then the output directory is deleted if it already
+            exists, otherwise a ``FileExistsError`` is raised.
+
         opt_level:
             Optimization level to use.
             Can be one of ``'crude'``, ``'sloppy'``, ``'loose'``,
@@ -639,6 +660,8 @@ class XTBCREST(FileIOOptimizer):
         crest_path: str,
         xtb_path: str,
         gfn_version: int = 2,
+        output_dir: Path | str | None = None,
+        delete_path: bool = True,
         opt_level: str = "normal",
         md_len: float | None = None,
         ewin: float = 5,
@@ -652,9 +675,8 @@ class XTBCREST(FileIOOptimizer):
         solvent: str | None = None,
         num_unpaired_electrons: int = 0,
         unlimited_memory: bool = False,
-        **kwargs,  # noqa: ANN003
     ) -> None:
-        super().__init__(**kwargs)
+        super().__init__(output_dir=output_dir, delete_path=delete_path)
 
         if solvent is not None:
             solvent = solvent.lower()
@@ -867,6 +889,15 @@ class XTBFF(FileIOOptimizer):
         xtb_path:
             The path to the xTB executable.
 
+        output_dir:
+            The name of the directory into which files generated during
+            the calculation are written, if ``None`` then
+            :func:`uuid.uuid4` is used.
+
+        delete_path:
+            If ``True`` then the output directory is deleted if it already
+            exists, otherwise a ``FileExistsError`` is raised.
+
         opt_level:
             Optimization level to use.
             Can be one of ``'crude'``, ``'sloppy'``, ``'loose'``,
@@ -938,16 +969,17 @@ class XTBFF(FileIOOptimizer):
 
     """
 
-    def __init__(
+    def __init__(  # noqa: PLR0913
         self,
         xtb_path: str,
+        output_dir: Path | str | None = None,
+        delete_path: bool = True,
         opt_level: str = "normal",
         num_cores: int = 1,
         charge: int = 0,
         unlimited_memory: bool = False,
-        **kwargs,  # noqa: ANN003
     ) -> None:
-        super().__init__(**kwargs)
+        super().__init__(output_dir=output_dir, delete_path=delete_path)
         self._check_path(xtb_path)
         self._xtb_path = xtb_path
         self._opt_level = opt_level
@@ -1101,6 +1133,15 @@ class XTBFFCREST(FileIOOptimizer):
             The path to the xTB executable.
             Version >6.3.0 is required.
 
+        output_dir:
+            The name of the directory into which files generated during
+            the calculation are written, if ``None`` then
+            :func:`uuid.uuid4` is used.
+
+        delete_path:
+            If ``True`` then the output directory is deleted if it already
+            exists, otherwise a ``FileExistsError`` is raised.
+
         opt_level:
             Optimization level to use.
             Can be one of ``'crude'``, ``'sloppy'``, ``'loose'``,
@@ -1237,6 +1278,8 @@ class XTBFFCREST(FileIOOptimizer):
         self,
         crest_path: str,
         xtb_path: str,
+        output_dir: Path | str | None = None,
+        delete_path: bool = True,
         opt_level: str = "normal",
         md_len: float | None = None,
         ewin: float = 5,
@@ -1246,9 +1289,8 @@ class XTBFFCREST(FileIOOptimizer):
         charge: int = 0,
         cross: bool = True,
         unlimited_memory: bool = False,
-        **kwargs,  # noqa: ANN003
     ) -> None:
-        super().__init__(**kwargs)
+        super().__init__(output_dir=output_dir, delete_path=delete_path)
         self._check_path(crest_path)
         self._check_path(xtb_path)
         self._crest_path = crest_path
