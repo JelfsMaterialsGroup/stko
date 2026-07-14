@@ -1,5 +1,5 @@
 import pathlib
-import shutil
+import warnings
 from copy import copy
 from typing import Literal, Protocol
 
@@ -16,7 +16,11 @@ from openmm import app, openmm
 
 from stko._internal.calculators.openmm_calculators import OpenMMEnergy
 from stko._internal.internal_types import MoleculeT
-from stko._internal.optimizers.optimizers import NullOptimizer, Optimizer
+from stko._internal.optimizers.optimizers import (
+    FileIOOptimizer,
+    NullOptimizer,
+    Optimizer,
+)
 from stko._internal.utilities.exceptions import InputError
 from stko._internal.utilities.utilities import get_atom_distance
 
@@ -222,7 +226,7 @@ class OpenMMForceField(Optimizer):
         return molecule.with_position_matrix(positions * 10)
 
 
-class OpenMMMD(Optimizer):
+class OpenMMMD(FileIOOptimizer):
     """Optimise a molecule with OpenMM and Molecular Dynamics.
 
     .. warning::
@@ -234,15 +238,26 @@ class OpenMMMD(Optimizer):
         force_field:
             The force field to use.
 
-        output_directory:
-            The directory to which the output files should be written.
-
         reporting_freq:
             How often the simulation properties should be written in
             time steps.
 
         trajectory_freq:
             How often the trajectory should be written in time steps.
+
+        output_directory:
+            Deprecated! Use output_dir instead.
+            The directory to which the output files should be written.
+
+        output_dir:
+            The name of the directory into which files generated during
+            the calculation are written, if ``None`` then
+            :func:`uuid.uuid4` is used.
+
+        delete_path:
+            If ``True`` then the output directory is deleted if it already
+            exists, otherwise a ``FileExistsError`` is raised.
+
 
         integrator:
             The integrator to use, :class:`openmm.openmm.LangevinIntegrator`
@@ -284,9 +299,11 @@ class OpenMMMD(Optimizer):
     def __init__(  # noqa: PLR0913
         self,
         force_field: ForceField,
-        output_directory: pathlib.Path,
         reporting_freq: int,
         trajectory_freq: int,
+        output_directory: pathlib.Path | None = None,
+        output_dir: pathlib.Path | None = None,
+        delete_path: bool = True,
         integrator: openmm.Integrator | None = None,
         num_steps: int = 100,
         num_conformers: int = 50,
@@ -301,11 +318,21 @@ class OpenMMMD(Optimizer):
         conformer_optimiser: Optimizer | None = None,
         energy_calculator: EnergyCalculator | None = None,
     ) -> None:
-        self._output_directory = output_directory
-        self._trajectory_data = self._output_directory / "trajectory_data.dat"
-        self._trajectory_file = (
-            self._output_directory / "trajectory_structures.pdb"
-        )
+        if output_directory is not None:
+            warnings.warn(
+                FutureWarning(
+                    "`output_directory` will be removed in "
+                    "a future release for consistency. "
+                    "Use `output_dir` instead."
+                ),
+                stacklevel=2,
+            )
+            output_dir = output_directory
+
+        super().__init__(output_dir=output_dir, delete_path=delete_path)
+
+        self._trajectory_data = self._output_dir / "trajectory_data.dat"
+        self._trajectory_file = self._output_dir / "trajectory_structures.pdb"
 
         if integrator is None:
             integrator = openmm.LangevinIntegrator(
@@ -385,9 +412,7 @@ class OpenMMMD(Optimizer):
         return simulation
 
     def optimize(self, mol: MoleculeT) -> MoleculeT:
-        if self._output_directory.exists():
-            shutil.rmtree(self._output_directory)
-        self._output_directory.mkdir(parents=True)
+        self._setup_output_dir()
 
         rdkit_mol = mol.to_rdkit_mol()
         if self._define_stereo:
