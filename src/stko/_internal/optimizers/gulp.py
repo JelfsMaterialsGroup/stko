@@ -2,9 +2,7 @@ import logging
 import math
 import os
 import re
-import shutil
 import subprocess as sp
-import uuid
 import warnings
 from pathlib import Path
 
@@ -13,7 +11,7 @@ from rdkit.Chem import AllChem as rdkit  # noqa: N813
 
 from stko._internal.internal_types import MoleculeT
 from stko._internal.molecular.periodic.unitcell import UnitCell
-from stko._internal.optimizers.optimizers import Optimizer
+from stko._internal.optimizers.optimizers import FileIOOptimizer
 from stko._internal.optimizers.utilities import (
     get_metal_atoms,
     get_metal_bonds,
@@ -31,7 +29,7 @@ from stko._internal.utilities.exceptions import (
 logger = logging.getLogger(__name__)
 
 
-class GulpUFFOptimizer(Optimizer):
+class GulpUFFOptimizer(FileIOOptimizer):
     """Applies forcefield optimizers that can handle metal centres.
 
     Parameters:
@@ -61,6 +59,9 @@ class GulpUFFOptimizer(Optimizer):
             the calculation are written, if ``None`` then
             :func:`uuid.uuid4` is used.
 
+        delete_path:
+            If ``True`` then the output directory is deleted if it already
+            exists, otherwise a ``FileExistsError`` is raised.
 
     Notes:
         By default, :meth:`optimize` will run an optimisation using the
@@ -154,7 +155,9 @@ class GulpUFFOptimizer(Optimizer):
         metal_ligand_bond_order: str | None = None,
         conjugate_gradient: bool = False,
         output_dir: Path | str | None = None,
+        delete_path: bool = True,
     ) -> None:
+        super().__init__(output_dir=output_dir, delete_path=delete_path)
         gulp_path = Path(gulp_path)
         self._check_path(gulp_path)
         self._gulp_path = gulp_path
@@ -166,7 +169,6 @@ class GulpUFFOptimizer(Optimizer):
             else metal_ligand_bond_order
         )
         self._conjugate_gradient = conjugate_gradient
-        self._output_dir = None if output_dir is None else Path(output_dir)
 
     def _check_path(self, path: Path) -> None:
         if not path.exists():
@@ -622,15 +624,7 @@ class GulpUFFOptimizer(Optimizer):
         raise OptimizerError(msg)
 
     def optimize(self, mol: MoleculeT) -> MoleculeT:
-        if self._output_dir is None:
-            output_dir = Path(str(uuid.uuid4().int)).resolve()
-        else:
-            output_dir = self._output_dir.resolve()
-
-        if output_dir.exists():
-            shutil.rmtree(output_dir)
-
-        output_dir.mkdir(parents=True)
+        output_dir = self._setup_output_dir()
         init_dir = Path.cwd()
         os.chdir(output_dir)
 
@@ -678,15 +672,7 @@ class GulpUFFOptimizer(Optimizer):
             The optimized molecule and the optimized cell.
 
         """
-        if self._output_dir is None:
-            output_dir = Path(str(uuid.uuid4().int)).resolve()
-        else:
-            output_dir = self._output_dir.resolve()
-
-        if output_dir.exists():
-            shutil.rmtree(output_dir)
-
-        output_dir.mkdir(parents=True)
+        output_dir = self._setup_output_dir()
         init_dir = Path.cwd()
         os.chdir(output_dir)
 
@@ -741,6 +727,10 @@ class GulpUFFMDOptimizer(GulpUFFOptimizer):
             The name of the directory into which files generated during
             the calculation are written, if ``None`` then
             :func:`uuid.uuid4` is used.
+
+        delete_path:
+            If ``True`` then the output directory is deleted if it already
+            exists, otherwise a ``FileExistsError`` is raised.
 
         integrator:
             Integrator for GULP to use.
@@ -817,6 +807,7 @@ class GulpUFFMDOptimizer(GulpUFFOptimizer):
         metal_FF: dict[int, str] | None = None,  # noqa: N803
         metal_ligand_bond_order: str | None = None,
         output_dir: Path | str | None = None,
+        delete_path: bool = True,
         integrator: str = "stochastic",
         ensemble: str = "nvt",
         temperature: float = 300,
@@ -827,16 +818,13 @@ class GulpUFFMDOptimizer(GulpUFFOptimizer):
         opt_conformers: bool = True,
         save_conformers: bool = False,
     ) -> None:
-        gulp_path = Path(gulp_path)
-        self._check_path(gulp_path)
-        self._gulp_path = gulp_path
-        self._metal_FF = metal_FF
-        self._metal_ligand_bond_order = (
-            "half"
-            if metal_ligand_bond_order is None
-            else metal_ligand_bond_order
+        super().__init__(
+            gulp_path=gulp_path,
+            metal_FF=metal_FF,
+            metal_ligand_bond_order=metal_ligand_bond_order,
+            output_dir=output_dir,
+            delete_path=delete_path,
         )
-        self._output_dir = None if output_dir is None else Path(output_dir)
         self._integrator = integrator
         self._ensemble = ensemble
         self._temperature = temperature
@@ -1131,15 +1119,7 @@ class GulpUFFMDOptimizer(GulpUFFOptimizer):
             )
 
     def optimize(self, mol: MoleculeT) -> MoleculeT:
-        if self._output_dir is None:
-            output_dir = Path(str(uuid.uuid4().int)).resolve()
-        else:
-            output_dir = self._output_dir.resolve()
-
-        if output_dir.exists():
-            shutil.rmtree(output_dir)
-
-        output_dir.mkdir(parents=True)
+        output_dir = self._setup_output_dir()
         init_dir = Path.cwd()
         os.chdir(output_dir)
 
@@ -1200,15 +1180,7 @@ class GulpUFFMDOptimizer(GulpUFFOptimizer):
             The optimized molecule and the optimized cell.
 
         """
-        if self._output_dir is None:
-            output_dir = Path(str(uuid.uuid4().int)).resolve()
-        else:
-            output_dir = self._output_dir.resolve()
-
-        if output_dir.exists():
-            shutil.rmtree(output_dir)
-
-        output_dir.mkdir(parents=True)
+        output_dir = self._setup_output_dir()
         init_dir = Path.cwd()
         os.chdir(output_dir)
 

@@ -77,6 +77,7 @@ from stko._internal.optimizers.macromodel import (
 )
 from stko._internal.optimizers.open_babel import OpenBabel
 from stko._internal.optimizers.optimizers import (
+    FileIOOptimizer,
     NullOptimizer,
     Optimizer,
     OptimizerSequence,
@@ -154,6 +155,7 @@ __all__ = [
     "Du",
     "EnergyResults",
     "ExpectedMetalError",
+    "FileIOOptimizer",
     "ForceFieldError",
     "ForceFieldSetupError",
     "GulpUFFMDOptimizer",

@@ -1,8 +1,6 @@
 import logging
 import os
-import shutil
 import subprocess as sp
-import uuid
 from collections.abc import Iterable
 from pathlib import Path
 
@@ -10,7 +8,7 @@ import stk
 
 from stko._internal.calculators.extractors.xtb_extractor import XTBExtractor
 from stko._internal.internal_types import MoleculeT
-from stko._internal.optimizers.optimizers import Optimizer
+from stko._internal.optimizers.optimizers import FileIOOptimizer
 from stko._internal.utilities.exceptions import (
     ConvergenceError,
     InvalidSolventError,
@@ -25,7 +23,7 @@ from stko._internal.utilities.utilities import is_valid_xtb_solvent
 logger = logging.getLogger(__name__)
 
 
-class XTB(Optimizer):
+class XTB(FileIOOptimizer):
     """Uses GFN-xTB to optimize molecules.
 
     See Also:
@@ -63,8 +61,12 @@ class XTB(Optimizer):
 
         output_dir:
             The name of the directory into which files generated during
-            the optimization are written, if ``None`` then
+            the calculation are written, if ``None`` then
             :func:`uuid.uuid4` is used.
+
+        delete_path:
+            If ``True`` then the output directory is deleted if it already
+            exists, otherwise a ``FileExistsError`` is raised.
 
         opt_level:
             Optimization level to use.
@@ -222,6 +224,7 @@ class XTB(Optimizer):
         xtb_path: Path | str,
         gfn_version: int = 2,
         output_dir: Path | str | None = None,
+        delete_path: bool = True,
         opt_level: str = "normal",
         max_runs: int = 2,
         calculate_hessian: bool = True,
@@ -235,6 +238,7 @@ class XTB(Optimizer):
         unlimited_memory: bool = False,
         write_sasa_info: bool = False,
     ) -> None:
+        super().__init__(output_dir=output_dir, delete_path=delete_path)
         if solvent is not None:
             solvent = solvent.lower()
             if gfn_version == 0:
@@ -266,7 +270,6 @@ class XTB(Optimizer):
         self._check_path(xtb_path)
         self._xtb_path = Path(xtb_path)
         self._gfn_version = str(gfn_version)
-        self._output_dir = None if output_dir is None else Path(output_dir)
         self._opt_level = opt_level
         self._max_runs = max_runs
         self._calculate_hessian = calculate_hessian
@@ -462,15 +465,7 @@ class XTB(Optimizer):
         if mol in self.incomplete:
             self.incomplete.remove(mol)
 
-        if self._output_dir is None:
-            output_dir = Path(str(uuid.uuid4().int)).resolve()
-        else:
-            output_dir = self._output_dir.resolve()
-
-        if output_dir.exists():
-            shutil.rmtree(output_dir)
-
-        output_dir.mkdir(parents=True)
+        output_dir = self._setup_output_dir()
         init_dir = Path.cwd()
         os.chdir(output_dir)
 
@@ -487,7 +482,7 @@ class XTB(Optimizer):
         return mol
 
 
-class XTBCREST(Optimizer):
+class XTBCREST(FileIOOptimizer):
     """Uses GFN-n to run CREST on molecules.
 
     See Also:
@@ -509,8 +504,12 @@ class XTBCREST(Optimizer):
 
         output_dir:
             The name of the directory into which files generated during
-            the optimization are written, if ``None`` then
+            the calculation are written, if ``None`` then
             :func:`uuid.uuid4` is used.
+
+        delete_path:
+            If ``True`` then the output directory is deleted if it already
+            exists, otherwise a ``FileExistsError`` is raised.
 
         opt_level:
             Optimization level to use.
@@ -661,7 +660,8 @@ class XTBCREST(Optimizer):
         crest_path: str,
         xtb_path: str,
         gfn_version: int = 2,
-        output_dir: str | None = None,
+        output_dir: Path | str | None = None,
+        delete_path: bool = True,
         opt_level: str = "normal",
         md_len: float | None = None,
         ewin: float = 5,
@@ -676,6 +676,8 @@ class XTBCREST(Optimizer):
         num_unpaired_electrons: int = 0,
         unlimited_memory: bool = False,
     ) -> None:
+        super().__init__(output_dir=output_dir, delete_path=delete_path)
+
         if solvent is not None:
             solvent = solvent.lower()
             if gfn_version == 0:
@@ -697,7 +699,6 @@ class XTBCREST(Optimizer):
         self._crest_path = crest_path
         self._xtb_path = xtb_path
         self._gfn_version = str(gfn_version)
-        self._output_dir = None if output_dir is None else Path(output_dir)
         self._opt_level = opt_level
         self._mdlen = md_len
 
@@ -862,15 +863,7 @@ class XTBCREST(Optimizer):
             The optimized molecule.
 
         """
-        if self._output_dir is None:
-            output_dir = Path(str(uuid.uuid4().int)).resolve()
-        else:
-            output_dir = self._output_dir.resolve()
-
-        if output_dir.exists():
-            shutil.rmtree(output_dir)
-
-        output_dir.mkdir(parents=True)
+        output_dir = self._setup_output_dir()
         init_dir = Path.cwd()
         os.chdir(output_dir)
 
@@ -886,7 +879,7 @@ class XTBCREST(Optimizer):
         return mol
 
 
-class XTBFF(Optimizer):
+class XTBFF(FileIOOptimizer):
     """Uses GFN-FF to optimize molecules.
 
     See Also:
@@ -898,8 +891,12 @@ class XTBFF(Optimizer):
 
         output_dir:
             The name of the directory into which files generated during
-            the optimization are written, if ``None`` then
+            the calculation are written, if ``None`` then
             :func:`uuid.uuid4` is used.
+
+        delete_path:
+            If ``True`` then the output directory is deleted if it already
+            exists, otherwise a ``FileExistsError`` is raised.
 
         opt_level:
             Optimization level to use.
@@ -976,14 +973,15 @@ class XTBFF(Optimizer):
         self,
         xtb_path: str,
         output_dir: Path | str | None = None,
+        delete_path: bool = True,
         opt_level: str = "normal",
         num_cores: int = 1,
         charge: int = 0,
         unlimited_memory: bool = False,
     ) -> None:
+        super().__init__(output_dir=output_dir, delete_path=delete_path)
         self._check_path(xtb_path)
         self._xtb_path = xtb_path
-        self._output_dir = None if output_dir is None else Path(output_dir)
         self._opt_level = opt_level
         self._num_cores = str(num_cores)
         self._charge = str(charge)
@@ -1103,15 +1101,7 @@ class XTBFF(Optimizer):
             The optimized molecule.
 
         """
-        if self._output_dir is None:
-            output_dir = Path(str(uuid.uuid4().int)).resolve()
-        else:
-            output_dir = self._output_dir.resolve()
-
-        if output_dir.exists():
-            shutil.rmtree(output_dir)
-
-        output_dir.mkdir(parents=True)
+        output_dir = self._setup_output_dir()
         init_dir = Path.cwd()
         os.chdir(output_dir)
 
@@ -1127,7 +1117,7 @@ class XTBFF(Optimizer):
         return mol
 
 
-class XTBFFCREST(Optimizer):
+class XTBFFCREST(FileIOOptimizer):
     """Uses GFN-FF to run CREST on molecules.
 
     See Also:
@@ -1145,8 +1135,12 @@ class XTBFFCREST(Optimizer):
 
         output_dir:
             The name of the directory into which files generated during
-            the optimization are written, if ``None`` then
+            the calculation are written, if ``None`` then
             :func:`uuid.uuid4` is used.
+
+        delete_path:
+            If ``True`` then the output directory is deleted if it already
+            exists, otherwise a ``FileExistsError`` is raised.
 
         opt_level:
             Optimization level to use.
@@ -1285,6 +1279,7 @@ class XTBFFCREST(Optimizer):
         crest_path: str,
         xtb_path: str,
         output_dir: Path | str | None = None,
+        delete_path: bool = True,
         opt_level: str = "normal",
         md_len: float | None = None,
         ewin: float = 5,
@@ -1295,11 +1290,11 @@ class XTBFFCREST(Optimizer):
         cross: bool = True,
         unlimited_memory: bool = False,
     ) -> None:
+        super().__init__(output_dir=output_dir, delete_path=delete_path)
         self._check_path(crest_path)
         self._check_path(xtb_path)
         self._crest_path = crest_path
         self._xtb_path = xtb_path
-        self._output_dir = None if output_dir is None else Path(output_dir)
         self._opt_level = opt_level
         self._mdlen = md_len
 
@@ -1454,15 +1449,7 @@ class XTBFFCREST(Optimizer):
             The optimized molecule.
 
         """
-        if self._output_dir is None:
-            output_dir = Path(str(uuid.uuid4().int)).resolve()
-        else:
-            output_dir = self._output_dir.resolve()
-
-        if output_dir.exists():
-            shutil.rmtree(output_dir)
-
-        output_dir.mkdir(parents=True)
+        output_dir = self._setup_output_dir()
         init_dir = Path.cwd()
         os.chdir(output_dir)
 

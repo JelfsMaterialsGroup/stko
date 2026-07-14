@@ -65,6 +65,7 @@ def test_gulp_position_section(
         metal_ligand_bond_order=None,
         conjugate_gradient=False,
         output_dir="",
+        delete_path=False,
     )
     opt.assign_FF(unoptimized_mol)
     type_translator = opt._type_translator()  # noqa: SLF001
