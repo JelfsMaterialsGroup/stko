@@ -60,9 +60,7 @@ def test_fileiooptimizer_existing_output_dir_raises_fileexistserror(
         output_dir=output_dir,
         delete_path=False,
     )
-    with pytest.raises(
-        FileExistsError  # , match="Output directory already exists"
-    ):
+    with pytest.raises(FileExistsError):
         opt._setup_output_dir()  # noqa: SLF001
 
 
