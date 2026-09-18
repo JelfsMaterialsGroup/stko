@@ -11,7 +11,7 @@ try:
 except ImportError:
     EspalomaChargeToolkitWrapper = None
 from openff.interchange import Interchange
-from openff.toolkit import ForceField, Molecule, RDKitToolkitWrapper, Topology
+from openff.toolkit import ForceField, Molecule, Topology
 from openmm import app, openmm
 
 from stko._internal.calculators.openmm_calculators import OpenMMEnergy
