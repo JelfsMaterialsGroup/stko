@@ -88,16 +88,14 @@ class OpenMMEnergy:
                 hydrogens_are_explicit=True,
             )
 
-            if self._partial_charges_method == "mmff94":
-                molecule.assign_partial_charges(
-                    self._partial_charges_method,
-                    toolkit_registry=RDKitToolkitWrapper(),
-                )
-
             if self._partial_charges_method == "espaloma-am1bcc":
                 molecule.assign_partial_charges(
                     self._partial_charges_method,
                     toolkit_registry=EspalomaChargeToolkitWrapper(),
+                )
+            else:
+                molecule.assign_partial_charges(
+                    self._partial_charges_method,
                 )
 
             openff_molecules.append(molecule)
