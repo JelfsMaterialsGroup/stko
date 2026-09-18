@@ -11,7 +11,7 @@ try:
 except ImportError:
     EspalomaChargeToolkitWrapper = None
 from openff.interchange import Interchange
-from openff.toolkit import ForceField, Molecule, RDKitToolkitWrapper, Topology
+from openff.toolkit import ForceField, Molecule, Topology
 from openmm import app, openmm
 
 from stko._internal.calculators.openmm_calculators import OpenMMEnergy
@@ -160,17 +160,16 @@ class OpenMMForceField(Optimizer):
                 hydrogens_are_explicit=True,
             )
 
-            if self._partial_charges_method == "mmff94":
-                molecule.assign_partial_charges(
-                    self._partial_charges_method,
-                    toolkit_registry=RDKitToolkitWrapper(),
-                )
-
             if self._partial_charges_method == "espaloma-am1bcc":
                 molecule.assign_partial_charges(
                     self._partial_charges_method,
                     toolkit_registry=EspalomaChargeToolkitWrapper(),
                 )
+            else:
+                molecule.assign_partial_charges(
+                    self._partial_charges_method,
+                )
+
             openff_molecules.append(molecule)
 
         topology = Topology.from_molecules(openff_molecules)
@@ -403,17 +402,16 @@ class OpenMMMD(Optimizer):
                 hydrogens_are_explicit=True,
             )
 
-            if self._partial_charges_method == "mmff94":
-                molecule.assign_partial_charges(
-                    self._partial_charges_method,
-                    toolkit_registry=RDKitToolkitWrapper(),
-                )
-
             if self._partial_charges_method == "espaloma-am1bcc":
                 molecule.assign_partial_charges(
                     self._partial_charges_method,
                     toolkit_registry=EspalomaChargeToolkitWrapper(),
                 )
+            else:
+                molecule.assign_partial_charges(
+                    self._partial_charges_method,
+                )
+
             openff_molecules.append(molecule)
 
         topology = Topology.from_molecules(openff_molecules)
