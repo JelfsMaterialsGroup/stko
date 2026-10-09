@@ -943,6 +943,8 @@ class XTBFF(Optimizer):
         xyz coordinates as input and so will not recognize the long bonds
         created during construction. An optimizer which can minimize
         these bonds should be used before :class:`XTBFF`.
+        Alternatively, :class:`.GFNFFTopo` uses the bonds of the molecule
+        as the GFN-FF topology and does not require pre-optimisation.
 
         .. code-block:: python
 
