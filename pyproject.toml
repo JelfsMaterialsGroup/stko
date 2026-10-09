@@ -63,7 +63,15 @@ where = [
 line-length = 79
 
 [tool.ruff.lint]
-ignore = ["ANN401", "COM812", "ISC001", "FBT001", "FBT002"]
+ignore = [
+    "ANN401",
+    "COM812",
+    "CPY001",
+    "ISC001",
+    "FBT001",
+    "FBT002",
+    "PLR0917",
+]
 select = ["ALL"]
 
 [tool.ruff.lint.pydocstyle]
