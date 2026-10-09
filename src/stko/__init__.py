@@ -70,6 +70,7 @@ from stko._internal.molecular.torsion.torsion import Torsion
 from stko._internal.molecular.torsion.torsion_info import TorsionInfo
 from stko._internal.optimizers.aligner import Aligner, AlignmentPotential
 from stko._internal.optimizers.collapser import Collapser, CollapserMC
+from stko._internal.optimizers.gfnff import GFNFFTopo
 from stko._internal.optimizers.gulp import GulpUFFMDOptimizer, GulpUFFOptimizer
 from stko._internal.optimizers.macromodel import (
     MacroModelForceField,
@@ -156,6 +157,7 @@ __all__ = [
     "ExpectedMetalError",
     "ForceFieldError",
     "ForceFieldSetupError",
+    "GFNFFTopo",
     "GulpUFFMDOptimizer",
     "GulpUFFOptimizer",
     "InputError",
