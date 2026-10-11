@@ -665,7 +665,7 @@ class XTBCREST(Optimizer):
         opt_level: str = "normal",
         md_len: float | None = None,
         ewin: float = 5,
-        speed_setting: None | str = None,
+        speed_setting: str | None = None,
         keepdir: bool = False,
         num_cores: int = 4,
         cross: bool = True,
