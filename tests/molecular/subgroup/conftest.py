@@ -22,7 +22,7 @@ from .case_data import CaseData
             sub_group_data={
                 "c6_planarity": [],
                 "c5n1_planarity": [],
-                "x5_planarity": [1.1395870933572636e-06, 0.927393655328501],
+                "x5_planarity": [0.0037294092224409237, 1.0448136772405257],
                 "c#c_angle": [],
             },
             name=name,
@@ -33,7 +33,7 @@ from .case_data import CaseData
                 "c6_planarity": [8.41286151020968e-08],
                 "c5n1_planarity": [5.678704369238556e-08],
                 "x5_planarity": [],
-                "c#c_angle": [179.45086301233113],
+                "c#c_angle": [179.1892190755831],
             },
             name=name,
         ),

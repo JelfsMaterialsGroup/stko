@@ -27,13 +27,7 @@ class FakeGulpUFFMDOptimizer(GulpUFFMDOptimizer):
 
 @pytest.fixture
 def position_section() -> str:
-    return (
-        "\ncartesian\nC1 core -0.74031 0.03171 0.10194\nC1 core 0.75639"
-        " -0.01926 -0.03667\nH1 core -1.14321 -0.62994 -0.70776\nH1 core"
-        " -1.11397 -0.39262 1.04725\nH1 core -1.12625 1.0535 -0.10345\n"
-        "H1 core 0.97944 0.0352 -1.13197\nH1 core 1.25569 0.87328 0.40415\n"
-        "H1 core 1.13222 -0.95187 0.4265\n"
-    )
+    return "\ncartesian\nC1 core -0.77015 0.0243 -0.07887\nC1 core 0.74654 -0.02383 0.04848\nH1 core -1.11522 -0.56963 -0.95729\nH1 core -1.14903 -0.39684 0.886\nH1 core -1.12298 1.07913 -0.17567\nH1 core 1.04321 -0.10066 1.12497\nH1 core 1.22257 0.8858 -0.35304\nH1 core 1.14505 -0.89826 -0.49459\n"
 
 
 @pytest.fixture
