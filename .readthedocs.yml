@@ -1,22 +1,16 @@
 version: 2
 
 build:
-    os: "ubuntu-24.04"
+    os: "ubuntu-lts-latest"
     tools:
-        python: "miniforge3-latest"
-    jobs:
-        create_environment:
-            - mamba env create --quiet --name ${READTHEDOCS_VERSION} --file docs/environment.yml
+        python: "3.13"
 
 sphinx:
     configuration: "docs/source/conf.py"
 
-conda:
-    environment: "docs/environment.yml"
-
 python:
     install:
-        - method: pip
+        - method: "pip"
           path: .
           extra_requirements:
-              - dev
+              - "dev"
