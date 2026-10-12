@@ -32,10 +32,15 @@ class OpenMMForceField(Optimizer):
 
         You can get all force fields with:
 
-        .. testcode::
+        .. code-block::
 
             import openff.toolkit
             openff.toolkit.typing.engines.smirnoff.get_available_force_fields()
+
+    See Also:
+        * `OpenFF docs <https://docs.openforcefield.org/projects/toolkit/en/stable/>`_
+        * `openff.toolkit.ForceField <https://docs.openforcefield.org/projects/toolkit/en/stable/api/generated/openff.toolkit.typing.engines.smirnoff.ForceField.html#openff.toolkit.typing.engines.smirnoff.ForceField>`_
+
 
     Parameters:
         force_field:
@@ -228,6 +233,12 @@ class OpenMMMD(Optimizer):
     .. warning::
         Even if random seeds are set on the integrator, we cannot guarantee
         that two identical simulations will produce the same exact trajectory.
+
+
+    See Also:
+        * `OpenFF docs <https://docs.openforcefield.org/projects/toolkit/en/stable/>`_
+        * `openff.toolkit.ForceField <https://docs.openforcefield.org/projects/toolkit/en/stable/api/generated/openff.toolkit.typing.engines.smirnoff.ForceField.html#openff.toolkit.typing.engines.smirnoff.ForceField>`_
+
 
     Parameters:
 

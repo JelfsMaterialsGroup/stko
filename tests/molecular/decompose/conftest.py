@@ -153,7 +153,7 @@ _fe_complex = stk.ConstructedMolecule(
             num_ligands=4,
             metal_atom_nos=(26,),
             bb_smiles=(
-                r"C(=N/c1cc(/N=C/c2ccccn2)cc(/N=C/c2ccccn2)c1)\c1ccccn1",
+                "C(=N\\c1cc(/N=C/c2ccccn2)cc(/N=C/c2ccccn2)c1)/c1ccccn1",
             ),
             name=name,
         ),

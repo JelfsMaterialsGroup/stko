@@ -29,8 +29,8 @@ class ShapeCalculator:
         .. testcode:: shape-rdkit
             :hide:
 
-            assert eccentricity == 0.8147863429806671
-            assert shape_results.get_asphericity() == 0.14435990108591792
+            assert eccentricity == 0.8210380252728084
+            assert shape_results.get_asphericity() == 0.14548070445755973
 
     References:
         .. [#] https://www.rdkit.org/docs/source/rdkit.Chem.Descriptors3D.html

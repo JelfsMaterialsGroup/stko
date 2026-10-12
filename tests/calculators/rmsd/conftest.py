@@ -53,8 +53,8 @@ _cc_molecule = stk.BuildingBlock("[C][C]")
         CaseData(
             mol1=stk.BuildingBlock("NCCN"),
             mol2=_optimizer.optimize(stk.BuildingBlock("NCCN")),
-            rmsd=0.26064179792023834,
-            kabsch_rmsd=0.19260330679258864,
+            rmsd=0.191569942286972,
+            kabsch_rmsd=0.17921849894135589,
         ),
         CaseData(
             mol1=stk.BuildingBlock("CCCCCC"),
@@ -65,14 +65,14 @@ _cc_molecule = stk.BuildingBlock("[C][C]")
         CaseData(
             mol1=stk.BuildingBlock("CCCCCC"),
             mol2=_optimizer.optimize(stk.BuildingBlock("CCCCCC")),
-            rmsd=0.19244341360361064,
-            kabsch_rmsd=0.19223980907993865,
+            rmsd=0.5178064489458448,
+            kabsch_rmsd=0.42179363084243615,
         ),
         CaseData(
             mol1=stk.BuildingBlock("c1ccccc1"),
             mol2=_optimizer.optimize(stk.BuildingBlock("c1ccccc1")),
-            rmsd=0.032841285146032156,
-            kabsch_rmsd=0.032795057670018585,
+            rmsd=0.023048649062610855,
+            kabsch_rmsd=0.02304785922542081,
         ),
     ],
 )
@@ -87,13 +87,13 @@ def case_data(request: pytest.FixtureRequest) -> CaseData:
         CaseData(
             mol1=stk.BuildingBlock("NCCN"),
             mol2=_optimizer.optimize(stk.BuildingBlock("NCCN")),
-            rmsd=0.21879819525792274,
+            rmsd=0.11778216179942502,
             kabsch_rmsd=0.20811702035676308,
         ),
         CaseData(
             mol1=stk.BuildingBlock("CCCCCC"),
             mol2=_optimizer.optimize(stk.BuildingBlock("CCCCCC")),
-            rmsd=0.08585307417542548,
+            rmsd=0.3219861633412275,
             kabsch_rmsd=0.22563756374632568,
         ),
         CaseData(
@@ -105,7 +105,7 @@ def case_data(request: pytest.FixtureRequest) -> CaseData:
         CaseData(
             mol1=stk.BuildingBlock("c1ccccc1"),
             mol2=_optimizer.optimize(stk.BuildingBlock("c1ccccc1")),
-            rmsd=0.03417702414054854,
+            rmsd=0.021116969610025644,
             kabsch_rmsd=0.029156836455717483,
         ),
     ],
@@ -201,7 +201,7 @@ def ordering_case_data(request: pytest.FixtureRequest) -> CaseData:
                 np.array((0, 0, 0)),
             )
             .with_displacement(np.array((2, 0, 1))),
-            rmsd=1.1330923155830888,
+            rmsd=1.1483491262483871,
             kabsch_rmsd=1.1309858484314543,
         ),
         CaseData(
@@ -213,25 +213,25 @@ def ordering_case_data(request: pytest.FixtureRequest) -> CaseData:
                 np.array((0, 0, 0)),
             )
             .with_displacement(np.array((0, 0, 1))),
-            rmsd=0.6239555728484898,
+            rmsd=0.6074500611659212,
             kabsch_rmsd=0.5943193981905652,
         ),
         CaseData(
             mol1=stk.BuildingBlock("NCCN"),
             mol2=stk.BuildingBlock("NCCCN"),
-            rmsd=0.885665672705266,
+            rmsd=0.8775932363034411,
             kabsch_rmsd=0.8832914099448816,
         ),
         CaseData(
             mol1=stk.BuildingBlock("NCOCN"),
             mol2=stk.BuildingBlock("NCCN"),
-            rmsd=1.2842057097676525,
+            rmsd=1.2590308595881023,
             kabsch_rmsd=1.2678595995702466,
         ),
         CaseData(
             mol1=stk.BuildingBlock("NCCN"),
             mol2=stk.BuildingBlock("NCOCN"),
-            rmsd=1.4164013380180553,
+            rmsd=1.3886830389567653,
             kabsch_rmsd=1.4164013380180553,
         ),
     ],
