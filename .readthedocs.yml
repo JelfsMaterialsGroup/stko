@@ -4,6 +4,9 @@ build:
     os: "ubuntu-24.04"
     tools:
         python: "miniforge3-latest"
+    jobs:
+        create_environment:
+            - mamba env create --quiet --name ${READTHEDOCS_VERSION} --file docs/environment.yml
 
 sphinx:
     configuration: "docs/source/conf.py"
