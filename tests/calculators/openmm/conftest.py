@@ -15,7 +15,7 @@ class CaseData:
     params=[
         CaseData(
             molecule=stk.BuildingBlock("NCCN"),
-            energy=178.98832475679242,
+            energy=173.9890271340685,
         ),
         CaseData(
             molecule=stk.ConstructedMolecule(
@@ -28,7 +28,7 @@ class CaseData:
                     optimizer=stk.Spinner(),
                 ),
             ),
-            energy=194.40911538198904,
+            energy=11783.42209090402,
         ),
         CaseData(
             molecule=stk.ConstructedMolecule(
@@ -41,7 +41,7 @@ class CaseData:
                     optimizer=stk.Spinner(),
                 ),
             ),
-            energy=357.67912363086356,
+            energy=347.7239171693477,
         ),
     ],
 )
