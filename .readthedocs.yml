@@ -3,7 +3,7 @@ version: 2
 build:
     os: "ubuntu-24.04"            # was: "ubuntu-lts-latest"
     tools:
-        python: "maniforge3-latest" # was: "mambaforge-latest", now depricated
+        python: "miniforge3-latest" # was: "mambaforge-latest", now depricated
 
 sphinx:
     configuration: "docs/source/conf.py"
