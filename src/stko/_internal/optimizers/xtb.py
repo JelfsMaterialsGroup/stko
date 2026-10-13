@@ -665,7 +665,7 @@ class XTBCREST(FileIOOptimizer):
         opt_level: str = "normal",
         md_len: float | None = None,
         ewin: float = 5,
-        speed_setting: None | str = None,
+        speed_setting: str | None = None,
         keepdir: bool = False,
         num_cores: int = 4,
         cross: bool = True,
@@ -940,6 +940,8 @@ class XTBFF(FileIOOptimizer):
         xyz coordinates as input and so will not recognize the long bonds
         created during construction. An optimizer which can minimize
         these bonds should be used before :class:`XTBFF`.
+        Alternatively, :class:`.GFNFFTopo` uses the bonds of the molecule
+        as the GFN-FF topology and does not require pre-optimisation.
 
         .. code-block:: python
 

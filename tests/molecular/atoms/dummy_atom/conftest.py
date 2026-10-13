@@ -1,5 +1,5 @@
 import pytest
-from pytest_lazyfixture import lazy_fixture
+from pytest_lazy_fixtures import lf
 
 import stko
 
@@ -15,7 +15,7 @@ def case_data_1(id: int) -> CaseData:  # noqa: A002
     )
 
 
-@pytest.fixture(params=(lazy_fixture("case_data_1"),))
+@pytest.fixture(params=(lf("case_data_1"),))
 def case_data(request: pytest.FixtureRequest) -> CaseData:
     """A :class:`.CaseData` instance."""
     return request.param

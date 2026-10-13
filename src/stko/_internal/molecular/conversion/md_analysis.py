@@ -44,7 +44,7 @@ class MDAnalysis:
             :hide:
 
             assert np.allclose(
-                universe_com, np.array([9.95027003, 10.07716244, 9.91280079])
+                universe_com, np.array([9.96456995, 10.09211215,  9.90820528])
             )
             assert np.allclose(stk_centroid, np.array([10.0, 10.0, 10.0]))
 

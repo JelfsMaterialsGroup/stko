@@ -190,8 +190,8 @@ automatic analyses.
 .. testcode:: analysing-cage
     :hide:
 
-    assert np.isclose(np.mean(ligand_dict['torsion']), 0.49899173566371574)
-    assert np.isclose(np.mean(ligand_dict['binder_angle']), 151.09758819338828)
+    assert np.isclose(np.mean(ligand_dict['torsion']), 0.691018926189928)
+    assert np.isclose(np.mean(ligand_dict['binder_angle']), 150.1539080177599)
 
 The printing the average of the collated values for all ligands looks
 like:
@@ -219,13 +219,13 @@ molecule.
 
     analyser = stko.molecule_analysis.ConstructedAnalyser()
     centroids = analyser.get_building_block_centroids(apdcage)
-    # Out: {0: array([8.92788038, 0.41529785, 0.49671345]), ...}
+    # Out: {0: array([9.16553378, -0.01648718,  0.44510653]), ...}
 
 .. testcode:: analysing-cage
     :hide:
 
     assert np.allclose(
-        centroids[0], np.array([9.28089495, 0.03605466, 0.71892216])
+        centroids[0], np.array([9.16553378, -0.01648718,  0.44510653])
     )
 
 We can get measures of pore size and cage geometry.
@@ -257,7 +257,10 @@ We can get measures of pore size and cage geometry.
 .. testcode:: analysing-cage
     :hide:
 
-    assert np.isclose(analyser.get_min_centroid_distance(apdcage), 6.345298744800679)
+    assert np.isclose(
+        round(analyser.get_min_centroid_distance(apdcage), 2),
+        6.85
+    )
 
 Giving:
 

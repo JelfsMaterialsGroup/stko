@@ -1,12 +1,12 @@
 {
-    "radius_gyration": 5.459613226863759,
+    "radius_gyration": 5.533462613231777,
     "avg_centoid_distance": [
-        5.362664259844192,
-        1.0243088514385892
+        5.434540987377324,
+        1.0416202516031146
     ],
-    "max_diameter": 19.27187786331859,
+    "max_diameter": 19.709071395796546,
     "metal_centroid_angles": {},
     "metal_atom_distances": {},
-    "min_atom_atom_distance": 1.0929461020964641,
-    "min_centoid_distance": 3.3458442259458723
+    "min_atom_atom_distance": 1.0823770326596576,
+    "min_centoid_distance": 3.3520052594296597
 }

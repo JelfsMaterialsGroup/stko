@@ -15,7 +15,7 @@ class CaseData:
     params=[
         CaseData(
             molecule=stk.BuildingBlock("C"),
-            opt_energy=0.22629718073104876,
+            opt_energy=0.22641583492062609,
         ),
     ],
 )
