@@ -76,9 +76,9 @@ class CaseData:
             molecule=stk.BuildingBlock("NCCN"),
             plane_ids=None,
             deviation_ids=None,
-            plane_deviation=7.0468262994917374,
-            plane_span=2.8619224646264096,
-            planarity_parameter=0.7376285949589063,
+            plane_deviation=6.945629817875233,
+            plane_span=2.8613285491388387,
+            planarity_parameter=0.7384314539434181,
         ),
         CaseData(
             molecule=stk.BuildingBlock(
@@ -86,17 +86,17 @@ class CaseData:
             ),
             plane_ids=None,
             deviation_ids=None,
-            plane_deviation=30.72874008769579,
-            plane_span=4.190622373823865,
-            planarity_parameter=0.7774786041256974,
+            plane_deviation=21.22194288509946,
+            plane_span=3.2909698315591713,
+            planarity_parameter=0.5685558335164127,
         ),
         CaseData(
             molecule=stk.BuildingBlock("CCCCCC"),
             plane_ids=None,
             deviation_ids=None,
-            plane_deviation=10.798240107278682,
-            plane_span=2.833250157796366,
-            planarity_parameter=0.7469082286580176,
+            plane_deviation=11.397534085115346,
+            plane_span=2.8073665145598747,
+            planarity_parameter=0.7524035525899222,
         ),
         CaseData(
             molecule=stk.BuildingBlock("c1ccccc1"),
@@ -125,17 +125,17 @@ class CaseData:
             ),
             plane_ids=None,
             deviation_ids=None,
-            plane_deviation=16.368844071942494,
-            plane_span=3.108677868237704,
-            planarity_parameter=0.6376957812606647,
+            plane_deviation=17.338178739497252,
+            plane_span=2.467526460080978,
+            planarity_parameter=0.6341281804770807,
         ),
         CaseData(
             molecule=_macrocycle,
             plane_ids=None,
             deviation_ids=None,
-            plane_deviation=20.467847459970862,
-            plane_span=2.667602762686369,
-            planarity_parameter=0.7279960670882043,
+            plane_deviation=15.91081945456723,
+            plane_span=2.2718327495387287,
+            planarity_parameter=0.6284037055449565,
         ),
         CaseData(
             molecule=_macrocycle,
@@ -149,9 +149,9 @@ class CaseData:
                 for i in _macrocycle.get_atoms()
                 if i.get_atomic_number() == 6  # noqa: PLR2004
             ),
-            plane_deviation=1.6024957200580106,
-            plane_span=0.5007799125181283,
-            planarity_parameter=0.20031196500725132,
+            plane_deviation=0.5148409440931947,
+            plane_span=0.1608877950291235,
+            planarity_parameter=0.06435511801164934,
         ),
         CaseData(
             molecule=_macrocycle,
@@ -161,9 +161,9 @@ class CaseData:
                 if i.get_atomic_number() == 6  # noqa: PLR2004
             ),
             deviation_ids=None,
-            plane_deviation=20.33209530254546,
-            plane_span=2.667602762686369,
-            planarity_parameter=0.7283475685355212,
+            plane_deviation=15.993905292006195,
+            plane_span=2.2718327495387287,
+            planarity_parameter=0.6284586300676136,
         ),
         CaseData(
             molecule=_macrocycle,
@@ -173,9 +173,9 @@ class CaseData:
                 for i in _macrocycle.get_atoms()
                 if i.get_atomic_number() == 6  # noqa: PLR2004
             ),
-            plane_deviation=1.7382478774834076,
-            plane_span=0.5007799125181284,
-            planarity_parameter=0.20158568952378236,
+            plane_deviation=0.4649894416298157,
+            plane_span=0.16088779502912354,
+            planarity_parameter=0.06488924239134446,
         ),
         CaseData(
             molecule=_square_planar,

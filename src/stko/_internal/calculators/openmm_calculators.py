@@ -20,6 +20,10 @@ logger = logging.getLogger(__name__)
 class OpenMMEnergy:
     """Uses OpenMM to calculate energy.
 
+    See Also:
+        * `OpenFF docs <https://docs.openforcefield.org/projects/toolkit/en/stable/>`_
+        * `openff.toolkit.ForceField <https://docs.openforcefield.org/projects/toolkit/en/stable/api/generated/openff.toolkit.typing.engines.smirnoff.ForceField.html#openff.toolkit.typing.engines.smirnoff.ForceField>`_
+
     Parameters:
 
         force_field:

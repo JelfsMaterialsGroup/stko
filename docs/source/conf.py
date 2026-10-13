@@ -24,6 +24,7 @@ extensions = [
     "sphinx_copybutton",
     "moldoc",
 ]
+autodoc_mock_imports = ["openff"]
 
 autosummary_imported_members = True
 
