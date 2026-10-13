@@ -25,6 +25,11 @@ class FailingOptimizer(stko.Optimizer):
         raise RuntimeError(msg)
 
 
+class DummyFileIOOptimizer(stko.FileIOOptimizer):
+    def optimize(self, mol: stko.MoleculeT) -> stko.MoleculeT:
+        return mol.with_centroid(np.array([1, 3, 3]))
+
+
 @pytest.fixture
 def passing_optimizer() -> PassingOptimizer:
     return PassingOptimizer()

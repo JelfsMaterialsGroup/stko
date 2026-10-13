@@ -1,5 +1,7 @@
 import logging
 import pathlib
+import shutil
+import uuid
 from typing import Protocol
 
 import stk
@@ -275,3 +277,59 @@ class TryCatchOptimizer(Optimizer):
             msg = f"{try_name} failed, trying {catch_name}."
             logger.exception(msg)
             return self._catch_optimizer.optimize(mol)
+
+
+class FileIOOptimizer(Optimizer):
+    """Parent class for Optimizers that require file-IO.
+
+    Parameters:
+
+        output_dir:
+            The name of the directory into which files generated during
+            the calculation are written, if ``None`` then
+            :func:`uuid.uuid4` is used.
+        delete_path:
+            If ``True`` then the output directory is deleted if it already
+            exists, otherwise a ``FileExistsError`` is raised.
+
+    """
+
+    def __init__(
+        self,
+        output_dir: pathlib.Path | str | None = None,
+        delete_path: bool = True,
+    ) -> None:
+        self._delete_path = delete_path
+
+        self._output_dir = (
+            None if output_dir is None else pathlib.Path(output_dir)
+        )
+
+        # Prevent deletion of cwd
+        if (
+            self._output_dir is not None
+            and self._output_dir.resolve() == pathlib.Path.cwd().resolve()
+            and self._delete_path
+        ):
+            msg = (
+                "Output directory cannot be the current working directory "
+                "if delete_path=True. "
+                f"Got: {self._output_dir}"
+            )
+            raise ValueError(msg)
+
+    def _setup_output_dir(self) -> pathlib.Path:
+
+        if self._output_dir is None:
+            output_dir = pathlib.Path(str(uuid.uuid4().int)).resolve()
+        else:
+            output_dir = self._output_dir.resolve()
+
+        if output_dir.exists() and self._delete_path:
+            shutil.rmtree(output_dir)
+        output_dir.mkdir(
+            parents=True
+        )  # FileExistsError error will be raised if the directory already
+        # exists and delete_path is False
+
+        return output_dir
