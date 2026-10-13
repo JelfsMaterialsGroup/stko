@@ -341,9 +341,9 @@ class OpenMMMD(FileIOOptimizer):
             output_dir = output_directory
 
         super().__init__(output_dir=output_dir, delete_path=delete_path)
-
-        self._trajectory_data = self._output_dir / "trajectory_data.dat"
-        self._trajectory_file = self._output_dir / "trajectory_structures.pdb"
+        output_dir = self._setup_output_dir()
+        self._trajectory_data = output_dir / "trajectory_data.dat"
+        self._trajectory_file = output_dir / "trajectory_structures.pdb"
 
         if integrator is None:
             integrator = openmm.LangevinIntegrator(
@@ -423,7 +423,6 @@ class OpenMMMD(FileIOOptimizer):
         return simulation
 
     def optimize(self, mol: MoleculeT) -> MoleculeT:
-        self._setup_output_dir()
 
         rdkit_mol = mol.to_rdkit_mol()
         if self._define_stereo:
