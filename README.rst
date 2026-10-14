@@ -31,6 +31,12 @@ Some optional dependencies are only available through conda:
 
 .. code-block:: bash
 
+  # for gfn-ff with topology constrains
+  # This will not work on Windows at this stage
+  # (https://pprcht.github.io/gfnff/python.html)
+  pip install gfnff
+
+
   # for xtb
   mamba install xtb
   # for openbabel, assuming you are not using Python >= 3.13!

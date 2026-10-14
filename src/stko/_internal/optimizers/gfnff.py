@@ -41,6 +41,11 @@ class GFNFFTopo(Optimizer):
     library, without an xTB executable. As the library has no optimiser,
     the structure is minimised with L-BFGS.
 
+    .. warning::
+
+        This will not work on Windows at this time (as per
+        https://pprcht.github.io/gfnff/python.html)
+
     See Also:
         * GFN-FF: S. Spicher, S. Grimme, *Angew. Chem. Int. Ed.* **2020**,
           59, 15665, https://doi.org/10.1002/anie.202004239
