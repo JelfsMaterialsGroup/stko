@@ -15,8 +15,6 @@ dependencies = [
     "rmsd",
     "mdanalysis",
     "openmm",
-    # Only these platforms have wheels; elsewhere gfnff needs a Fortran build.
-    "gfnff>=0.3.0; sys_platform == 'linux' or (sys_platform == 'darwin' and platform_machine == 'arm64')",
 ]
 requires-python = ">=3.11"
 dynamic = ["version"]
@@ -31,6 +29,8 @@ dev = [
     "pytest-datadir",
     "pytest-lazy-fixtures",
     "pytest-cov",
+    # Only these platforms have wheels; elsewhere gfnff needs a Fortran build.
+    "gfnff>=0.3.0; sys_platform == 'linux' or (sys_platform == 'darwin' and platform_machine == 'arm64')",
     "sphinx",
     "sphinx-copybutton",
     "sphinx-rtd-theme>0.5.1",
