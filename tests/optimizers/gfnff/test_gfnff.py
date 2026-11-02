@@ -102,10 +102,14 @@ def _optimize(
 ) -> stk.ConstructedMolecule:
     return stko.OptimizerSequence(
         stko.GFNFFTopo(
-            version="harmonic2020", charge=4, square_planar=square_planar
+            version="harmonic2020",
+            charge=4,
+            square_planar=square_planar,
         ),
         stko.GFNFFTopo(
-            version="conformer2020", charge=4, square_planar=square_planar
+            version="conformer2020",
+            charge=4,
+            square_planar=square_planar,
         ),
     ).optimize(molecule)
 
