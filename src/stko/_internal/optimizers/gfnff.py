@@ -187,7 +187,6 @@ class GFNFFTopo(Optimizer):
 
     def __init__(  # noqa: PLR0913
         self,
-        *,
         version: str | None = "conformer2020",
         use_bond_graph: bool = True,
         charge: int = 0,
