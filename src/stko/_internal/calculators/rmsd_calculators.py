@@ -182,12 +182,12 @@ class RmsdMappedCalculator(RmsdCalculator):
 
     def _calculate_rmsd(self, mol: stk.Molecule) -> float:
         if self._ignore_hydrogens:
-            initial_atom_ids = (
+            initial_atom_ids = list(
                 i.get_id()
                 for i in self._initial_molecule.get_atoms()
                 if i.get_atomic_number() != 1
             )
-            mol_atom_ids = (
+            mol_atom_ids = list(
                 i.get_id()
                 for i in mol.get_atoms()
                 if i.get_atomic_number() != 1
@@ -204,6 +204,7 @@ class RmsdMappedCalculator(RmsdCalculator):
         )
         mol_atoms = tuple(mol.get_atoms(atom_ids=mol_atom_ids))
         atom_matrix = np.zeros((len(initial_atoms), len(mol_atoms)))
+        
         for i in range(len(mol_atoms)):
             a1_num = mol_atoms[i].get_atomic_number()
             for j in range(len(initial_atoms)):
