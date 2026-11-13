@@ -64,49 +64,39 @@ class CaseData:
     molecule: stk.Molecule
     plane_ids: tuple[int, ...] | None
     deviation_ids: tuple[int, ...] | None
-    plane_deviation: float
-    planarity_parameter: float
-    plane_span: float
+    name: str
 
 
 @pytest.fixture(
     scope="session",
-    params=[
-        CaseData(
+    params=(
+        lambda name: CaseData(
             molecule=stk.BuildingBlock("NCCN"),
             plane_ids=None,
             deviation_ids=None,
-            plane_deviation=6.945629817875233,
-            plane_span=2.8613285491388387,
-            planarity_parameter=0.7384314539434181,
+            name=name,
         ),
-        CaseData(
+        lambda name: CaseData(
             molecule=stk.BuildingBlock(
                 "C(#Cc1cccc2ccncc21)c1ccc2[nH]c3ccc(C#Cc4cccc5cnccc54)cc3c2c1"
             ),
             plane_ids=None,
             deviation_ids=None,
-            plane_deviation=21.22194288509946,
-            plane_span=3.2909698315591713,
-            planarity_parameter=0.5685558335164127,
+            name=name,
         ),
-        CaseData(
+        lambda name: CaseData(
             molecule=stk.BuildingBlock("CCCCCC"),
             plane_ids=None,
             deviation_ids=None,
-            plane_deviation=11.397534085115346,
-            plane_span=2.8073665145598747,
-            planarity_parameter=0.7524035525899222,
+            name=name,
         ),
-        CaseData(
+        lambda name: CaseData(
             molecule=stk.BuildingBlock("c1ccccc1"),
             plane_ids=None,
             deviation_ids=None,
-            plane_deviation=0.0,
-            plane_span=0.0,
-            planarity_parameter=0.0,
+            name=name,
         ),
-        CaseData(
+        lambda name: CaseData(
             molecule=stk.ConstructedMolecule(
                 topology_graph=stk.polymer.Linear(
                     building_blocks=(
@@ -125,19 +115,15 @@ class CaseData:
             ),
             plane_ids=None,
             deviation_ids=None,
-            plane_deviation=17.338178739497252,
-            plane_span=2.467526460080978,
-            planarity_parameter=0.6341281804770807,
+            name=name,
         ),
-        CaseData(
+        lambda name: CaseData(
             molecule=_macrocycle,
             plane_ids=None,
             deviation_ids=None,
-            plane_deviation=15.91081945456723,
-            plane_span=2.2718327495387287,
-            planarity_parameter=0.6284037055449565,
+            name=name,
         ),
-        CaseData(
+        lambda name: CaseData(
             molecule=_macrocycle,
             plane_ids=tuple(
                 i.get_id()
@@ -149,11 +135,9 @@ class CaseData:
                 for i in _macrocycle.get_atoms()
                 if i.get_atomic_number() == 6  # noqa: PLR2004
             ),
-            plane_deviation=0.5148409440931947,
-            plane_span=0.1608877950291235,
-            planarity_parameter=0.06435511801164934,
+            name=name,
         ),
-        CaseData(
+        lambda name: CaseData(
             molecule=_macrocycle,
             plane_ids=tuple(
                 i.get_id()
@@ -161,11 +145,9 @@ class CaseData:
                 if i.get_atomic_number() == 6  # noqa: PLR2004
             ),
             deviation_ids=None,
-            plane_deviation=15.993905292006195,
-            plane_span=2.2718327495387287,
-            planarity_parameter=0.6284586300676136,
+            name=name,
         ),
-        CaseData(
+        lambda name: CaseData(
             molecule=_macrocycle,
             plane_ids=None,
             deviation_ids=tuple(
@@ -173,35 +155,29 @@ class CaseData:
                 for i in _macrocycle.get_atoms()
                 if i.get_atomic_number() == 6  # noqa: PLR2004
             ),
-            plane_deviation=0.4649894416298157,
-            plane_span=0.16088779502912354,
-            planarity_parameter=0.06488924239134446,
+            name=name,
         ),
-        CaseData(
+        lambda name: CaseData(
             molecule=_square_planar,
             plane_ids=None,
             deviation_ids=None,
-            plane_deviation=0.0,
-            plane_span=0.0,
-            planarity_parameter=0.0,
+            name=name,
         ),
-        CaseData(
+        lambda name: CaseData(
             molecule=_square_planar_uff,
             plane_ids=None,
             deviation_ids=None,
-            plane_deviation=0.0,
-            plane_span=0.0,
-            planarity_parameter=0.0,
+            name=name,
         ),
-        CaseData(
+        lambda name: CaseData(
             molecule=_octahedral,
             plane_ids=None,
             deviation_ids=None,
-            plane_deviation=15.350980683338454,
-            plane_span=5.734353982049391,
-            planarity_parameter=1.4635207224067897,
+            name=name,
         ),
-    ],
+    ),
 )
 def case_data(request: pytest.FixtureRequest) -> CaseData:
-    return request.param
+    return request.param(
+        f"{request.fixturename}{request.param_index}",
+    )

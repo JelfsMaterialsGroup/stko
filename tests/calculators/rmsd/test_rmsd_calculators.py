@@ -22,7 +22,8 @@ def test_kabsch_rmsd(case_data: CaseData) -> None:
 
 def test_rmsd_ignore_hydrogens(ignore_h_case_data: CaseData) -> None:
     calculator = stko.RmsdCalculator(
-        ignore_h_case_data.mol1, ignore_hydrogens=True
+        ignore_h_case_data.mol1,
+        ignore_hydrogens=True,
     )
     results = calculator.get_results(ignore_h_case_data.mol2)
     test_rmsd = results.get_rmsd()
@@ -34,6 +35,16 @@ def test_rmsd_aligned(aligned_case_data: CaseData) -> None:
     results = calculator.get_results(aligned_case_data.mol2)
     test_rmsd = results.get_rmsd()
     assert np.isclose(test_rmsd, aligned_case_data.rmsd, atol=1e-4)
+
+
+def test_rmsd_mapped_ignore_hydrogens(ignore_h_case_data: CaseData) -> None:
+    calculator = stko.RmsdMappedCalculator(
+        ignore_h_case_data.mol1,
+        ignore_hydrogens=True,
+    )
+    results = calculator.get_results(ignore_h_case_data.mol2)
+    test_rmsd = results.get_rmsd()
+    assert np.isclose(test_rmsd, ignore_h_case_data.rmsd, atol=1e-4)
 
 
 def test_rmsd_different_molecule(different_case_data: CaseData) -> None:

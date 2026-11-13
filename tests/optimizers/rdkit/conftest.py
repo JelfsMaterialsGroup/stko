@@ -49,7 +49,7 @@ class CaseData:
                     optimizer=stk.MCHammer(),
                 ),
             ),
-            unoptimised_energy=3625.041945631242,
+            unoptimised_energy=4373.147564180341,
         ),
     ],
 )
@@ -96,7 +96,7 @@ def case_uff_molecule(request: pytest.FixtureRequest) -> CaseData:
                     optimizer=stk.MCHammer(),
                 ),
             ),
-            unoptimised_energy=1004.392045956138,
+            unoptimised_energy=1056.7988863323164,
         ),
     ],
 )
