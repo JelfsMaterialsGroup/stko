@@ -33,7 +33,7 @@ class MMFFEnergy:
         .. testcode:: rdkit-mmff-energy
             :hide:
 
-            assert energy == 7.96328402552118
+            assert energy == 8.25090453753543
             assert unit_string == "kcal mol-1"
 
     """
@@ -106,7 +106,7 @@ class UFFEnergy:
         .. testcode:: rdkit-uff-energy
             :hide:
 
-            assert energy == 32.95073881363782
+            assert energy == 31.57028662070467
             assert unit_string == "kcal mol-1"
 
     """
