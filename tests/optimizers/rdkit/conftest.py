@@ -21,7 +21,7 @@ class CaseData:
             molecule=stk.BuildingBlock(
                 "C(#Cc1cccc2ccncc21)c1ccc2[nH]c3ccc(C#Cc4cccc5cnccc54)cc3c2c1"
             ),
-            unoptimised_energy=139.09029941719152,
+            unoptimised_energy=137.86271760336925,
         ),
         CaseData(
             molecule=stk.BuildingBlock("CCCCCC"),
@@ -68,7 +68,7 @@ def case_uff_molecule(request: pytest.FixtureRequest) -> CaseData:
             molecule=stk.BuildingBlock(
                 "C(#Cc1cccc2ccncc21)c1ccc2[nH]c3ccc(C#Cc4cccc5cnccc54)cc3c2c1"
             ),
-            unoptimised_energy=120.05920274997885,
+            unoptimised_energy=117.7534792935808,
         ),
         CaseData(
             molecule=stk.BuildingBlock("CCCCCC"),

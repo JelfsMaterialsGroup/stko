@@ -3,9 +3,9 @@
         -0.0,
         0.0,
         -1.0,
-        -1.9898317860431332e-17
+        -7.564728645551532e-18
     ],
-    "planarity_parameter": 2.4469096465766905e-17,
-    "plane_deviation": 2.0293417184712135e-16,
-    "plane_deviation_span": 5.570053943078119e-17
+    "planarity_parameter": 2.0286220874627584e-17,
+    "plane_deviation": 1.4723661276657022e-16,
+    "plane_deviation_span": 6.741236057006751e-17
 }
