@@ -17,11 +17,13 @@ from stko._internal.optimizers.utilities import (
     get_metal_bonds,
     has_h_atom,
     has_metal_atom,
+    metal_atomic_numbers,
     to_rdkit_mol_without_metals,
 )
 from stko._internal.utilities.exceptions import (
     ExpectedMetalError,
     ForceFieldSetupError,
+    MetalFFError,
     OptimizerError,
     PathError,
 )
@@ -62,6 +64,10 @@ class GulpUFFOptimizer(FileIOOptimizer):
         delete_path:
             If ``True`` then the output directory is deleted if it already
             exists, otherwise a ``FileExistsError`` is raised.
+
+        add_unknown_metals:
+            If ``True`` then a metal found in ``metal_FF`` will be treated as
+            such even if not normally treated as a metal by rdkit.
 
     Notes:
         By default, :meth:`optimize` will run an optimisation using the
@@ -156,6 +162,7 @@ class GulpUFFOptimizer(FileIOOptimizer):
         conjugate_gradient: bool = False,
         output_dir: Path | str | None = None,
         delete_path: bool = True,
+        add_unknown_metal: bool = False,
     ) -> None:
         super().__init__(output_dir=output_dir, delete_path=delete_path)
         gulp_path = Path(gulp_path)
@@ -169,6 +176,7 @@ class GulpUFFOptimizer(FileIOOptimizer):
             else metal_ligand_bond_order
         )
         self._conjugate_gradient = conjugate_gradient
+        self._add_unknown_metal = add_unknown_metal
 
     def _check_path(self, path: Path) -> None:
         if not path.exists():
@@ -560,7 +568,22 @@ class GulpUFFOptimizer(FileIOOptimizer):
             stacklevel=2,
         )
 
-        metal_atoms = get_metal_atoms(mol)
+        metal_numbers = set(metal_atomic_numbers())
+        if self._metal_FF is not None:
+            for atomic_id in self._metal_FF:
+                if atomic_id not in metal_numbers:
+                    if self._add_unknown_metal:
+                        metal_numbers.add(atomic_id)
+                    else:
+                        msg = (
+                            f"{atomic_id} not in known "
+                            "metals, to include it, use "
+                            "add_unknown_metal=True.\n"
+                            f"Known metals: {metal_numbers}"
+                        )
+                        raise MetalFFError(msg)
+
+        metal_atoms = get_metal_atoms(mol=mol, metal_numbers=metal_numbers)
         metal_ids = [i.get_id() for i in metal_atoms]
 
         if len(metal_ids) > 1 and self._metal_FF is None:
@@ -572,7 +595,9 @@ class GulpUFFOptimizer(FileIOOptimizer):
 
         metal_bonds, _ = get_metal_bonds(mol, metal_atoms)
         edit_mol = to_rdkit_mol_without_metals(
-            mol=mol, metal_atoms=metal_atoms, metal_bonds=metal_bonds
+            mol=mol,
+            metal_atoms=metal_atoms,
+            metal_bonds=metal_bonds,
         )
 
         # Get forcefield parameters.
@@ -768,6 +793,10 @@ class GulpUFFMDOptimizer(GulpUFFOptimizer):
             Whether or not to save to file each conformer.
             Defaults to ``False``.
 
+        add_unknown_metals:
+            If ``True`` then a metal found in ``metal_FF`` will be treated as
+            such even if not normally treated as a metal by rdkit.
+
     Notes:
         By default, :meth:`optimize` will run a MD run using the UFF4MOF.
         This forcefield requires some explicit metal atom definitions,
@@ -817,6 +846,7 @@ class GulpUFFMDOptimizer(GulpUFFOptimizer):
         N_conformers: int = 10,  # noqa: N803
         opt_conformers: bool = True,
         save_conformers: bool = False,
+        add_unknown_metal: bool = False,
     ) -> None:
         super().__init__(
             gulp_path=gulp_path,
@@ -838,6 +868,7 @@ class GulpUFFMDOptimizer(GulpUFFOptimizer):
         self._write = samples
         self._opt_conformers = opt_conformers
         self._save_conformers = save_conformers
+        self._add_unknown_metal = add_unknown_metal
 
     def _write_gulp_file(
         self,
