@@ -4,7 +4,10 @@ import numpy as np
 import pytest
 import stk
 
-from stko._internal.utilities.exceptions import ExpectedMetalError
+from stko._internal.utilities.exceptions import (
+    ExpectedMetalError,
+    MetalFFError,
+)
 
 from .test_gulp import FakeGulpUFFOptimizer
 
@@ -34,6 +37,30 @@ complex_ = stk.ConstructedMolecule(
     )
 )
 
+# Construct a Ga complex to check new handling of metals.
+gallium_atom = stk.BuildingBlock(
+    smiles="[Ga+3]",
+    functional_groups=(stk.SingleAtom(stk.Ga(0, charge=3)) for i in range(6)),
+)
+
+c2_a_ligand = stk.BuildingBlock(
+    smiles="Oc1cccc(Br)c1O",
+    functional_groups=(
+        stk.SmartsFunctionalGroupFactory(
+            smarts="[#6]~[#8]~[#1]",
+            bonders=(1,),
+            deleters=(2,),
+        ),
+    ),
+)
+
+gallium_subblock = stk.ConstructedMolecule(
+    topology_graph=stk.metal_complex.OctahedralDelta(
+        metals=gallium_atom,
+        ligands=c2_a_ligand,
+    )
+)
+
 
 @dataclass(frozen=True, slots=True)
 class CaseData:
@@ -41,6 +68,7 @@ class CaseData:
     atom_types: dict[int, str]
     has_metal: bool
     metal_ff: dict[int, str] | None
+    add_unknown_metal: bool
 
 
 @pytest.fixture(
@@ -62,6 +90,7 @@ class CaseData:
             },
             has_metal=False,
             metal_ff=None,
+            add_unknown_metal=False,
         ),
         CaseData(
             molecule=stk.BuildingBlock.init_from_molecule(complex_),
@@ -94,6 +123,7 @@ class CaseData:
             },
             has_metal=True,
             metal_ff={46: "Pd4+2"},
+            add_unknown_metal=False,
         ),
         CaseData(
             molecule=stk.BuildingBlock("CCC"),
@@ -112,6 +142,7 @@ class CaseData:
             },
             has_metal=False,
             metal_ff={26: "Fe4+2"},
+            add_unknown_metal=False,
         ),
         CaseData(
             molecule=stk.BuildingBlock("c1ccccc1"),
@@ -131,6 +162,7 @@ class CaseData:
             },
             has_metal=False,
             metal_ff=None,
+            add_unknown_metal=False,
         ),
         CaseData(
             molecule=stk.BuildingBlock(
@@ -174,6 +206,7 @@ class CaseData:
             },
             has_metal=False,
             metal_ff=None,
+            add_unknown_metal=False,
         ),
         CaseData(
             molecule=stk.BuildingBlock("C1CCC(C(C1)N)N"),
@@ -203,6 +236,7 @@ class CaseData:
             },
             has_metal=False,
             metal_ff=None,
+            add_unknown_metal=False,
         ),
         CaseData(
             molecule=stk.BuildingBlock("CC=O"),
@@ -217,6 +251,59 @@ class CaseData:
             },
             has_metal=False,
             metal_ff=None,
+            add_unknown_metal=False,
+        ),
+        CaseData(
+            molecule=gallium_subblock,
+            atom_types={},
+            has_metal=True,
+            metal_ff={31: "Ga6f3"},
+            add_unknown_metal=False,
+        ),
+        CaseData(
+            molecule=gallium_subblock,
+            atom_types={
+                0: "Ga6f3",
+                1: "O_R",
+                2: "C_R",
+                3: "C_R",
+                4: "C_R",
+                5: "C_R",
+                6: "C_R",
+                7: "Br",
+                8: "C_R",
+                9: "O_R",
+                10: "H_",
+                11: "H_",
+                12: "H_",
+                13: "O_R",
+                14: "C_R",
+                15: "C_R",
+                16: "C_R",
+                17: "C_R",
+                18: "C_R",
+                19: "Br",
+                20: "C_R",
+                21: "O_R",
+                22: "H_",
+                23: "H_",
+                24: "H_",
+                25: "O_R",
+                26: "C_R",
+                27: "C_R",
+                28: "C_R",
+                29: "C_R",
+                30: "C_R",
+                31: "Br",
+                32: "C_R",
+                33: "O_R",
+                34: "H_",
+                35: "H_",
+                36: "H_",
+            },
+            has_metal=True,
+            metal_ff={31: "Ga6f3"},
+            add_unknown_metal=True,
         ),
     ),
 )
@@ -228,12 +315,22 @@ def test_assign_ff(test_molecule: CaseData) -> None:
     gulp_opt = FakeGulpUFFOptimizer(
         gulp_path="not_required",
         metal_FF=test_molecule.metal_ff,
+        add_unknown_metal=test_molecule.add_unknown_metal,
     )
 
     # Assign the force field.
     if test_molecule.has_metal and test_molecule.metal_ff is None:
         with pytest.raises(ExpectedMetalError):
             gulp_opt.assign_FF(test_molecule.molecule)
+
+    elif (
+        test_molecule.metal_ff is not None
+        and 31 in test_molecule.metal_ff  # noqa: PLR2004
+        and test_molecule.add_unknown_metal is False
+    ):
+        with pytest.raises(MetalFFError):
+            gulp_opt.assign_FF(test_molecule.molecule)
+
     else:
         gulp_opt.assign_FF(test_molecule.molecule)
 
