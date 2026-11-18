@@ -332,11 +332,18 @@ def metal_atomic_numbers() -> abc.Iterable:
     return chain(range(21, 31), range(39, 49), range(72, 81))
 
 
-def get_metal_atoms(mol: stk.Molecule) -> list[stk.Atom]:
+def get_metal_atoms(
+    mol: stk.Molecule,
+    metal_numbers: set[int] | None = None,
+) -> list[stk.Atom]:
     """Return a list of metal atoms in molecule."""
-    metals = set(metal_atomic_numbers())
+    if metal_numbers is None:
+        metal_numbers = set(metal_atomic_numbers())
+
     return [
-        atom for atom in mol.get_atoms() if atom.get_atomic_number() in metals
+        atom
+        for atom in mol.get_atoms()
+        if atom.get_atomic_number() in metal_numbers
     ]
 
 
